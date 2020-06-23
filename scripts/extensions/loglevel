@@ -1,0 +1,56 @@
+get_loglevel()
+{
+    local response="$(erl_rpc 'eturnal_ctl' 'get_loglevel' || :)"
+
+    case $response in
+        '{ok,'*)
+            echo "$(echo "$response" | sed -e 's/{ok, *"\(.*\)"}/\1/')"
+            exit 0
+            ;;
+        '{error,'*)
+            echo "$(echo "$response" | sed -e 's/{error, *"\(.*\)"}/\1/')" >&2
+            exit 1
+            ;;
+        *)
+            echo "Unknown error: '$response'" >&2
+            exit 1
+            ;;
+    esac
+}
+
+set_loglevel()
+{
+    local level="$1"
+    local response="$(erl_rpc 'eturnal_ctl' 'set_loglevel' "[$level]." || :)"
+
+    case $response in
+        'ok')
+            exit 0
+            ;;
+        '{error,'*)
+            echo "$(echo "$response" | sed -e 's/{error, *"\(.*\)"}/\1/')" >&2
+            exit 1
+            ;;
+        *)
+            echo "Unknown error: '$response'" >&2
+            exit 1
+            ;;
+    esac
+}
+
+if [ $# -ge 1 ] && [ "x$1" = 'xhelp' ]
+then
+    echo "Usage: $REL_NAME loglevel [level]"
+    echo "Get or set the current log level of $REL_NAME."
+    echo "Valid log levels: critical | error | warning | notice | info | debug"
+    exit 0
+elif [ $# -eq 0 ]
+then
+    get_loglevel
+elif [ $# -eq 1 ]
+then
+    set_loglevel "$1"
+else
+    echo "Usage: $REL_NAME loglevel [level]" >&2
+    exit 2
+fi

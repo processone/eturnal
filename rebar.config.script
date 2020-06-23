@@ -1,0 +1,11 @@
+% Set SKIP_DEPS=true (and ERL_LIBS appropriately) to skip dependency handling.
+
+case os:getenv("SKIP_DEPS") of
+    "true" ->
+        SkipOpts = [deps, plugins],
+        lists:foldl(fun(Opt, Acc) ->
+                            lists:keyreplace(Opt, 1, Acc, {Opt, []})
+                    end, CONFIG, SkipOpts);
+    _ ->
+        CONFIG
+end.

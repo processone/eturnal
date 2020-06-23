@@ -1,0 +1,4 @@
+if ! [ -e "$ETURNAL_ETC_PREFIX/etc/eturnal.yml" ]
+then
+    export ETURNAL_ETC_PREFIX="$RELEASE_ROOT_DIR"
+fi

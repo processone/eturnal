@@ -1,0 +1,31 @@
+{"1.2.0",
+[{<<"conf">>,
+  {git,"https://github.com/processone/conf.git",
+       {ref,"9e7c17c5aeb55a4fd1bc2dc90c105a2ba2676e1e"}},
+  0},
+ {<<"fast_tls">>,{pkg,<<"fast_tls">>,<<"1.1.6">>},1},
+ {<<"fast_yaml">>,
+  {git,"https://github.com/processone/fast_yaml.git",
+       {ref,"efeabe80f02b627ea2da1721704ab7cfd7dc2b1e"}},
+  1},
+ {<<"p1_utils">>,{pkg,<<"p1_utils">>,<<"1.0.19">>},1},
+ {<<"recon">>,
+  {git,"https://github.com/ferd/recon.git",
+       {ref,"46b85c029d3b432de42885b4da9ac07b6f8a3761"}},
+  0},
+ {<<"stun">>,
+  {git,"https://github.com/processone/stun.git",
+       {ref,"681b51e777703cfa4312c95dd3a50cf71995bb21"}},
+  0},
+ {<<"yval">>,
+  {git,"https://github.com/processone/yval.git",
+       {ref,"dd61371eddba9b077ab8354d3cd9a40ae3edcbee"}},
+  0}]}.
+[
+{pkg_hash,[
+ {<<"fast_tls">>, <<"C66709013A99EF8151EB1B0F2CC606B6D01EF7BCF8D732E4CC7527A1562E04D7">>},
+ {<<"p1_utils">>, <<"68373D154CC199CDE33B2FD0B574E8FED0B805FF173EF0BB25792071CD3B7AB2">>}]},
+{pkg_hash_ext,[
+ {<<"fast_tls">>, <<"4C16930CD5AF6B3456034730EDE111062DA33BB643CDB927AF415FEF6ECD4B92">>},
+ {<<"p1_utils">>, <<"461634CA3C47C3378EE949664C77123BCEDCE82DD62496514158815C9B8E1393">>}]}
+].

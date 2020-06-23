@@ -1,0 +1,17 @@
+{application, eturnal,
+ [{description, "STUN/TURN server"},
+  {vsn, "0.0.1"},
+  {registered, []},
+  {mod, {eturnal_app, []}},
+  {applications,
+   [kernel,
+    stdlib,
+    conf,
+    stun
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {licenses, ["Apache 2.0"]},
+  {links, []}
+ ]}.

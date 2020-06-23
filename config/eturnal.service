@@ -1,0 +1,21 @@
+[Unit]
+Description=eturnal STUN/TURN server
+After=network.target
+Documentation=https://github.com/weiss/eturnal/blob/{{release_version}}/README.md
+
+[Service]
+Type=exec
+Restart=on-failure
+RestartSec=5
+User={{eturnal_user}}
+ExecStart={{eturnal_bin_prefix}}/bin/eturnalctl foreground
+ExecReload={{eturnal_bin_prefix}}/bin/eturnalctl reload
+ExecStop={{eturnal_bin_prefix}}/bin/eturnalctl stop
+LimitNOFILE=50000
+RuntimeDirectory=eturnal
+LogsDirectory=eturnal
+ProtectSystem=full
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

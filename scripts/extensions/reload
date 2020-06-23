@@ -1,0 +1,31 @@
+reload()
+{
+    local response="$(erl_rpc 'eturnal_ctl' 'reload' || :)"
+
+    case $response in
+        'ok')
+            exit 0
+            ;;
+        '{error,'*)
+            echo "$(echo "$response" | sed -e 's/{error, *"\(.*\)"}/\1/')" >&2
+            exit 1
+            ;;
+        *)
+            echo "Unknown error: '$response'" >&2
+            exit 1
+            ;;
+    esac
+}
+
+if [ $# -ge 1 ] && [ "x$1" = 'xhelp' ]
+then
+    echo "Usage: $REL_NAME reload"
+    echo "Reload $REL_NAME's configuration."
+    exit 0
+elif [ $# -eq 0 ]
+then
+    reload
+else
+    echo "Usage: $REL_NAME reload" >&2
+    exit 2
+fi
