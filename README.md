@@ -79,7 +79,7 @@ and `openssl-devel`.
     $ git clone https://github.com/processone/eturnal.git
     $ cd eturnal
     $ curl -LO https://github.com/erlang/rebar3/releases/download/3.14.0-rc2/rebar3
-    $ chmod 755 rebar3
+    $ chmod +x rebar3
     $ ./rebar3 as prod tar
 
 This generates the archive file `_build/prod/rel/eturnal/eturnal-0.0.1.tar.gz`.
@@ -122,8 +122,8 @@ which should be set to the server's external IPv4 address.
 On Linux systems, the eturnal server is usually controlled by systemd:
 
     # systemctl start eturnal
-    # systemctl reload eturnal
     # systemctl restart eturnal
+    # systemctl reload eturnal
     # systemctl stop eturnal
 
 On non-systemd platforms, the `eturnalctl` command can be used, see:
