@@ -79,6 +79,7 @@ and `openssl-devel`.
     $ git clone https://github.com/processone/eturnal.git
     $ cd eturnal
     $ curl -LO https://github.com/erlang/rebar3/releases/download/3.14.0-rc2/rebar3
+    $ chmod 755 rebar3
     $ ./rebar3 as prod tar
 
 This generates the archive file `_build/prod/rel/eturnal/eturnal-0.0.1.tar.gz`.
