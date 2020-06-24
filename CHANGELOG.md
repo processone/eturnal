@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Changed
+- Allow for configuring the same (port, transport) combination on different IP
+  addresses.
 
 ## [0.0.1] - 2020-06-23
 ### Added

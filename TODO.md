@@ -24,7 +24,6 @@ eturnal application
 stun application
 ----------------
 
-- Allow the same `{Port, Transport}` tuple on multiple addresses.
 - Produce proper logging.
 - Shutdown workers cleanly (no `brutal_kill`).
 - Enforce `max_allocations` limit.

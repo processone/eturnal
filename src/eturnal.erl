@@ -172,7 +172,7 @@ start_listeners() ->
     ?LOG_DEBUG("Got listen option:~n~p", [Listen]),
     try lists:map(
           fun({IP, Port, Transport, EnableTURN}) ->
-                  Opts1 = [{use_turn, EnableTURN}, {ip, IP} | Opts],
+                  Opts1 = [{use_turn, EnableTURN} | Opts],
                   Opts2 = case Transport of
                               tls ->
                                   [{tls, true},
@@ -182,7 +182,7 @@ start_listeners() ->
                           end,
                   ?LOG_DEBUG("Starting listener ~s:~B (~s) with options:~n~p",
                              [inet:ntoa(IP), Port, Transport, Opts2]),
-                  case stun_listener:add_listener(Port, Transport, Opts2) of
+                  case stun_listener:add_listener(IP, Port, Transport, Opts2) of
                       ok ->
                           Type = case EnableTURN of
                                      true ->
@@ -209,7 +209,7 @@ start_listeners() ->
 stop_listeners(#eturnal_state{listeners = Listeners}) ->
     try lists:foreach(
           fun({IP, Port, Transport}) ->
-                  case stun_listener:del_listener(Port, Transport) of
+                  case stun_listener:del_listener(IP, Port, Transport) of
                       ok ->
                           ?LOG_INFO("Stopped listening on ~s:~B (~s)",
                                     [inet:ntoa(IP), Port, Transport]);
