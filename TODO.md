@@ -16,8 +16,8 @@ eturnal application
 - Add `Makefile` that generates (temporary) `vars.config` from environment.
 - Add `scripts/make-source` script to produce release source tarball.
 - Add sane workflow for cutting a release (currently, the release version is
-  hard-coded in `rebar.config`, `scripts/make-binary`, and `README.md`; the
-  application version in `src/eturnal.app.src`).
+  hard-coded in `rebar.config`, `scripts/make-binary`, `CHANGELOG.md`, and
+  `README.md`; the application version in `src/eturnal.app.src`).
 - Add built-in REST API (using the Inets HTTP server with `mod_esi`).
 - Support persistent credentials (using Mnesia).
 
