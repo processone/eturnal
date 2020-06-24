@@ -22,10 +22,10 @@ set -u
 
 # CONFIGURATION SECTION:
 
-user="${ETURNAL_USER:='{{eturnal_user}}'}"
-bin_prefix="${ETURNAL_BIN_PREFIX:='{{eturnal_bin_prefix}}'}"
-etc_prefix="${ETURNAL_ETC_PREFIX:='{{eturnal_etc_prefix}}'}"
-epmd_address="${ERL_EPMD_ADDRESS:='{{erl_epmd_address}}'}"
+user="${ETURNAL_USER:-{{eturnal_user}}}"
+bin_prefix="${ETURNAL_BIN_PREFIX:-{{eturnal_bin_prefix}}}"
+etc_prefix="${ETURNAL_ETC_PREFIX:-{{eturnal_etc_prefix}}}"
+epmd_address="${ERL_EPMD_ADDRESS:-{{erl_epmd_address}}}"
 
 # END OF CONFIGURATION SECTION.
 

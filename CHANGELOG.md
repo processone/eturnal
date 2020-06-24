@@ -8,6 +8,10 @@ project adheres to [Semantic Versioning][SemVer].
 - Allow for configuring the same (port, transport) combination on different IP
   addresses.
 
+### Fixed
+- Fix parameter expansion in eturnalctl script which prevented eturnal from
+  starting up.
+
 ## [0.0.1] - 2020-06-23
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
