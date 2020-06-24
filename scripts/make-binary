@@ -23,7 +23,7 @@ else
 fi
 
 rel_name='eturnal'
-rel_vsn='0.0.1' # TODO: Use current release tag (or command-line argument).
+rel_vsn='0.1.0' # TODO: Use current release tag (or command-line argument).
 rebar_vsn='3.14.0-rc2'
 crosstool_vsn='1.24.0'
 zlib_vsn='1.2.11'

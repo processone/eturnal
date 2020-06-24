@@ -1,6 +1,6 @@
 {application, eturnal,
  [{description, "STUN/TURN server"},
-  {vsn, "0.0.1"},
+  {vsn, "0.1.0"},
   {registered, []},
   {mod, {eturnal_app, []}},
   {applications,
