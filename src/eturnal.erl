@@ -84,7 +84,9 @@ init(_Opts) ->
             abort()
     end.
 
--spec handle_call(reload | term(), {pid(), term()}, state())
+-spec handle_call(reload | get_loglevel |
+                  {set_loglevel, eturnal_logger:level()} | term(),
+                  {pid(), term()}, state())
       -> {reply, ok | {ok, term()} | {error, term()}, state(), hibernate}.
 handle_call(reload, _From, State) ->
     case conf:reload_file() of
@@ -99,17 +101,23 @@ handle_call(reload, _From, State) ->
 handle_call(get_loglevel, _From, State) ->
     Level = eturnal_logger:get_level(),
     {reply, {ok, Level}, State, hibernate};
-handle_call({set_loglevel, Level}, _From, State) ->
+handle_call({set_loglevel, Level}, _From, State)
+  when Level =:= critical;
+       Level =:= error;
+       Level =:= warning;
+       Level =:= notice;
+       Level =:= info;
+       Level =:= debug ->
     ok = eturnal_logger:set_level(Level),
     {reply, ok, State, hibernate};
 handle_call(Request, From, State) ->
     ?LOG_ERROR("Got unexpected request from ~p: ~p", [From, Request]),
     {reply, {error, badarg}, State, hibernate}.
 
--spec handle_cast(term(), state())
+-spec handle_cast({config_change, config_changes()} | term(), state())
       -> {noreply, state(), hibernate} | no_return().
-handle_cast({config_change, {Changed, New, Removed}}, State) ->
-    State1 = apply_config_changes(State, {Changed, New, Removed}),
+handle_cast({config_change, Changes}, State) ->
+    State1 = apply_config_changes(State, Changes),
     {noreply, State1, hibernate};
 handle_cast(Msg, State) ->
     ?LOG_ERROR("Got unexpected message: ~p", [Msg]),
