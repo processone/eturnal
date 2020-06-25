@@ -74,12 +74,14 @@ and `openssl-devel`.
 
 ### Compilation
 
+> _Note:_ If you build directly from the Git repository rather than using the
+> official source tarball, you must [download rebar3][6] and make it executable
+> (`chmod +x rebar3`), first.
+
     $ mkdir -p "$HOME/src"
     $ cd "$HOME/src"
-    $ git clone https://github.com/processone/eturnal.git
-    $ cd eturnal
-    $ curl -LO https://github.com/erlang/rebar3/releases/download/3.14.0-rc2/rebar3
-    $ chmod +x rebar3
+    $ curl https://eturnal.net/download/eturnal-0.1.0.tar.gz | tar -xzf -
+    $ cd eturnal-0.1.0
     $ ./rebar3 as prod tar
 
 This generates the archive file `_build/prod/rel/eturnal/eturnal-0.1.0.tar.gz`.
@@ -139,7 +141,7 @@ automatically, so there's no need to send a `HUP` signal after log rotation.
 
 ## Feedback/Support
 
-Please use [our issue tracker][6] for bug reports and feature requests. Feel
+Please use [our issue tracker][7] for bug reports and feature requests. Feel
 free to (ab)use it for usage questions as well.
 
 [1]: https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00
@@ -147,4 +149,5 @@ free to (ab)use it for usage questions as well.
 [3]: https://pyyaml.org/wiki/LibYAML
 [4]: https://www.openssl.org
 [5]: https://gcc.gnu.org
-[6]: https://github.com/processone/eturnal/issues
+[6]: https://github.com/erlang/rebar3/releases/download/3.14.0-rc2/rebar3
+[7]: https://github.com/processone/eturnal/issues

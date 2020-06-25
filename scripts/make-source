@@ -1,0 +1,51 @@
+#!/bin/sh
+
+# Build a source tarball.
+
+set -e
+set -u
+
+export PATH='/usr/local/bin:/usr/bin:/bin'
+
+myself=${0##*/}
+
+usage()
+{
+	echo >&2 "Usage: $myself <version>"
+	exit 2
+}
+
+if ! git rev-parse >'/dev/null' 2>&1
+then
+	echo >&2 'This script can only be executed within the Git repository.'
+	exit 2
+elif ! [ -e 'rebar.config' ] || ! [ -e "scripts/$myself" ]
+then
+	echo >&2 "Please call this script from the repository's root directory."
+	exit 2
+elif [ $# -eq 1 ]
+then
+	if [ "x$1" = 'x-h' ] || [ "x$1" = 'x--help' ]
+	then
+		usage
+	fi
+	rel_vsn="$1"
+else
+	usage
+fi
+
+rel_name='eturnal'
+rebar_vsn='3.14.0-rc2'
+rel_dir="$rel_name-$rel_vsn"
+rel_tar="$rel_dir.tar"
+temp_dir=$(mktemp -d "/tmp/.$myself.XXXXXX")
+
+trap 'rm -rf "$temp_dir"' INT TERM EXIT
+
+git archive --prefix="$rel_dir/" -o "$temp_dir/$rel_tar" "$rel_vsn"
+mkdir -p "$temp_dir/$rel_dir"
+curl -L -o "$temp_dir/$rel_dir/rebar3" \
+    "https://github.com/erlang/rebar3/releases/download/$rebar_vsn/rebar3"
+tar -C "$temp_dir" --mode='+x' -rf "$temp_dir/$rel_tar" "$rel_dir/rebar3"
+gzip -9 <"$temp_dir/$rel_tar" >"$rel_tar.gz"
+echo "$myself: Created $rel_tar.gz successfully."
