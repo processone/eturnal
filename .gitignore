@@ -1,5 +1,5 @@
-eturnal-*.tar.gz
-rebar3
+/eturnal-*.tar.gz*
+/rebar3
 #
 # Auto-added by rebar3:
 #
