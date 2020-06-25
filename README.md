@@ -103,8 +103,8 @@ To stop the server, press `<Ctrl>+C`.
 
 The generated archive file holds the _contents_ of the installation prefix.
 Therefore, you'd follow the [binary installation
-instructions](#persistent-installation) above, but adapt step 2 by extracting
-the archive _into_ the `/opt/eturnal` directory:
+instructions](#persistent-installation) above, but adapt step 2 to extract the
+archive _into_ the `/opt/eturnal` directory:
 
     # cd /opt/eturnal
     # tar -xzf "$HOME/src/eturnal/_build/prod/rel/eturnal/eturnal-0.2.0.tar.gz"
