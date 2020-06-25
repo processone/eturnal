@@ -981,7 +981,8 @@ erl -noinput -eval "{ok, _} = beam_lib:strip_release('$dst_dir'), halt()"
 find "$dst_dir/lib" -type f -name '*.so' -exec strip -s '{}' '+'
 find "$dst_dir/erts-*/bin" -type f -perm '-u+x' \
                            -exec strip -s '{}' '+' 2>'/dev/null' || :
-tar -C "$prefix" -cf - "$rel_name" | gzip -9 >"$rel_tar"
+tar -C "$prefix" --owner="$rel_name" --group="$rel_name" -cf - "$rel_name" \
+    | gzip -9 >"$rel_tar"
 
 echo "$myself: Created $rel_tar successfully."
 echo "$myself: Build started: $build_start"
