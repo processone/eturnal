@@ -163,5 +163,6 @@ format_template() ->
      {logger_formatter, [[logger_formatter, title], ":", io_lib:nl()], []},
      % The actual log message:
      msg,
-     % Append "(module:function/arity:line)", if available.
-     {mfa, [" (", mfa, {line, [":", line], []}, ")"], []}, io_lib:nl()].
+     % Append ("<PID>" and, if available, "@Module:Function/Arity:Line"):
+     " (", pid, {mfa, ["@", mfa, {line, [":", line], []}], []}, ")",
+     io_lib:nl()].
