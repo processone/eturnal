@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [0.2.0] - 2020-06-25
 ### Changed
 - Add Erlang process ID to log messages.
 
@@ -22,7 +24,7 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/0.1.0...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/0.2.0...HEAD
 [0.1.0]: https://github.com/processone/eturnal/releases/tag/0.1.0
 [0.0.1]: https://github.com/processone/eturnal/releases/tag/0.0.1
 [SemVer]: https://semver.org/spec/v2.0.0.html

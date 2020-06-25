@@ -16,7 +16,7 @@ The following two commands give you a STUN/TURN server listening on port 3478
 (UDP/TCP) and port 5349 (TLS) using the specified shared secret for [TURN
 authentication][1] (no root privileges required):
 
-    $ curl -L https://eturnal.net/download/eturnal-0.1.0-linux-x64.tar.gz | tar -C /tmp -xzf -
+    $ curl -L https://eturnal.net/download/eturnal-0.2.0-linux-x64.tar.gz | tar -C /tmp -xzf -
     $ ETURNAL_SECRET='crypt1c' /tmp/eturnal/bin/eturnal foreground
 
 To stop the server, press `<Ctrl>+C`. To remove it, run `rm -rf /tmp/eturnal`.
@@ -37,7 +37,7 @@ or `sudo -i`, first.
 
 2.  Download and extract binary release:
 
-        # curl -L https://eturnal.net/download/eturnal-0.1.0-linux-x64.tar.gz | tar -C /opt -xzf -
+        # curl -L https://eturnal.net/download/eturnal-0.2.0-linux-x64.tar.gz | tar -C /opt -xzf -
 
 3.  Configure the shared secret, your server's IP address(es), and optionally
     other settings:
@@ -80,11 +80,11 @@ and `openssl-devel`.
 
     $ mkdir -p "$HOME/src"
     $ cd "$HOME/src"
-    $ curl https://eturnal.net/download/eturnal-0.1.0.tar.gz | tar -xzf -
-    $ cd eturnal-0.1.0
+    $ curl https://eturnal.net/download/eturnal-0.2.0.tar.gz | tar -xzf -
+    $ cd eturnal-0.2.0
     $ ./rebar3 as prod tar
 
-This generates the archive file `_build/prod/rel/eturnal/eturnal-0.1.0.tar.gz`.
+This generates the archive file `_build/prod/rel/eturnal/eturnal-0.2.0.tar.gz`.
 The default installation prefix is set to `/opt/eturnal`, and it's assumed the
 server will be executed by a user named `eturnal`. To change these defaults,
 edit the `build.config` file and re-run `./rebar3 as prod tar`.
@@ -107,7 +107,7 @@ instructions](#persistent-installation) above, but adapt step 2 by extracting
 the archive _into_ the `/opt/eturnal` directory:
 
     # cd /opt/eturnal
-    # tar -xzf "$HOME/src/eturnal/_build/prod/rel/eturnal/eturnal-0.1.0.tar.gz"
+    # tar -xzf "$HOME/src/eturnal/_build/prod/rel/eturnal/eturnal-0.2.0.tar.gz"
 
 ## Configuring eturnal
 
