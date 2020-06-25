@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Build a source tarball.
+# Prepare and tag a new version, build release tarballs.
 
 set -e
 set -u
