@@ -95,7 +95,7 @@ authentication][1]:
 
     $ ETURNAL_SECRET='crypt1c' ./rebar3 run
 
-To stop the server, press `<Ctrl>+C`.
+To stop the server, press `<Ctrl>+C` _twice_.
 
 ### Persistent Installation
 
