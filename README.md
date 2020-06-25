@@ -29,7 +29,7 @@ or `sudo -i`, first.
 1.  Create user. This step is of course only required if you're installing
     eturnal for the first time:
 
-        # useradd -r -d /opt/eturnal eturnal
+        # useradd -r -m -d /opt/eturnal eturnal
 
     Otherwise, **create a backup** of the old installation, first:
 
@@ -101,10 +101,9 @@ To stop the server, press `<Ctrl>+C`.
 
 The generated archive file holds the _contents_ of the installation prefix.
 Therefore, you'd follow the [binary installation
-instructions](#persistent-installation) above, but adapt step 2 by creating the
-`/opt/eturnal` directory and extracting the archive into it:
+instructions](#persistent-installation) above, but adapt step 2 by extracting
+the archive _into_ the `/opt/eturnal` directory:
 
-    # mkdir -p /opt/eturnal
     # cd /opt/eturnal
     # tar -xzf "$HOME/src/eturnal/_build/prod/rel/eturnal/eturnal-0.1.0.tar.gz"
 
