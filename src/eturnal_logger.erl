@@ -159,7 +159,6 @@ set_level() ->
 -spec format_template() -> template().
 format_template() ->
     [time, " [", level, "] ",
-     % {mfa, ["(", mfa, {line, [":", line], []}, ") "], []},
      % For progress reports:
      {logger_formatter, [[logger_formatter, title], ":", io_lib:nl()], []},
      % The actual log message:
