@@ -32,11 +32,14 @@ else
 	usage
 fi
 
+export REBAR_COLOR='none'
+
 rel_name='eturnal'
 src_tar="$rel_name-$new_vsn.tar.gz"
 bin_tar="$rel_name-$new_vsn-linux-x64.tar.gz"
 old_vsn="$(git tag -l --sort=version:refname '[0-9]*.[0-9]*.[0-9]*' | tail -1)"
-rebar_vsn="$(rebar3 --version | sed 's/rebar \([0-9a-z.-]\{1,\}\).*/\1/')"
+rebar_vsn="$(rebar3 --version | tail -1 |
+             sed 's/rebar \([0-9a-z.-]\{1,\}\).*/\1/')"
 
 if [ "$new_vsn" = "$old_vsn" ]
 then
