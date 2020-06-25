@@ -61,6 +61,7 @@ n_jobs=$(nproc)
 prefix=$(mktemp -d "$work_dir/.$myself.XXXXXX")
 src_dir="$prefix/src"
 dst_dir="$prefix/$rel_name"
+dst_tar="$rel_name-$rel_vsn-linux-x64.tar.gz"
 build_start=$(date '+%F %T')
 
 trap 'rm -rf "$prefix"' INT TERM EXIT
@@ -996,9 +997,9 @@ find "$dst_dir/lib" -type f -name '*.so' -exec strip -s '{}' '+'
 find "$dst_dir/erts-*/bin" -type f -perm '-u+x' \
                            -exec strip -s '{}' '+' 2>'/dev/null' || :
 tar -C "$prefix" --owner="$rel_name" --group="$rel_name" -cf - "$rel_name" \
-    | gzip -9 >"$rel_tar"
+    | gzip -9 >"$dst_tar"
 
-echo "$myself: Created $rel_tar successfully."
+echo "$myself: Created $dst_tar successfully."
 echo "$myself: Build started: $build_start"
 echo "$myself: Build ended: $(date '+%F %T')"
 
