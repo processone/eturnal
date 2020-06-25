@@ -89,4 +89,4 @@ shasum -a 1 -b "$bin_tar" >"$bin_tar.sha1"
 echo "$myself: If everything looks fine, run something like:"
 echo
 echo "$ git push processone master $new_vsn"
-echo "$ mv $rel_name-$new_vsn*.tar.gz /path/to/download/folder"
+echo "$ mv $rel_name-$new_vsn*.tar.gz* /path/to/download/folder"
