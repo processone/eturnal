@@ -987,8 +987,6 @@ cd "$OLDPWD"
 echo "$myself: Building $rel_name $rel_vsn ..."
 rm -rf "$HOME/.cache/rebar3" '_build' 'rebar.lock'
 rebar3 clean -a
-rebar3 update
-rebar3 upgrade
 rebar3 as binary tar
 mkdir "$dst_dir"
 tar -C "$dst_dir" -xzf "$rel_dir/$rel_tar"
