@@ -1,0 +1,89 @@
+#!/bin/sh
+
+# Build a source tarball.
+
+set -e
+set -u
+
+myself=${0##*/}
+
+usage()
+{
+	echo >&2 "Usage: $myself <version>"
+	exit 2
+}
+
+if ! git rev-parse >'/dev/null' 2>&1
+then
+	echo >&2 'This script can only be executed within the Git repository.'
+	exit 2
+elif ! [ -e 'rebar.config' ] || ! [ -e "scripts/$myself" ]
+then
+	echo >&2 "Please call this script from the repository's root directory."
+	exit 2
+elif [ $# -eq 1 ]
+then
+	if [ "x$1" = 'x-h' ] || [ "x$1" = 'x--help' ]
+	then
+		usage
+	fi
+	new_vsn="$1"
+else
+	usage
+fi
+
+rel_name='eturnal'
+src_tar="$rel_name-$new_vsn.tar.gz"
+bin_tar="$rel_name-$new_vsn-linux-x64.tar.gz"
+old_vsn="$(git tag -l --sort=version:refname '[0-9]*.[0-9]*.[0-9]*' | tail -1)"
+rebar_vsn="$(rebar3 --version | sed 's/rebar \([0-9a-z.-]\{1,\}\).*/\1/')"
+
+if [ "$new_vsn" = "$old_vsn" ]
+then
+	echo >&2 "Tag $new_vsn exists already, aborting."
+	exit 1
+fi
+
+echo "$myself: Creating release $new_vsn (previous version: $old_vsn)."
+echo "$myself: Going to use rebar3 $rebar_vsn."
+read -p "$myself: Is the CHANGELOG.md file up-to-date? (y/n) [n] " response
+response=$(echo "$response" | tr '[:upper:]' '[:lower:]')
+if [ "$response" != 'y' ] && [ "$response" != 'yes' ]
+then
+	echo >&2 "Okay, aborting."
+	exit 1
+fi
+
+echo "$myself: Editing repository files ..."
+sed -i -e "s|^rebar_vsn=.*|rebar_vsn='$rebar_vsn'|" \
+    'scripts/make-source' 'scripts/make-binary'
+sed -i -e "s|$old_vsn|$new_vsn|" \
+    'src/eturnal.app.src' 'rebar.config' 'README.md'
+sed -i -e "s|compare/$old_vsn|compare/$new_vsn|" \
+       -e "s|^## \[Unreleased\]$|&\\
+\\
+## [$new_vsn] - $(date '+%F')|" 'CHANGELOG.md'
+
+echo "$myself: Committing result ..."
+git add 'src/eturnal.app.src' 'rebar.config' 'README.md' 'CHANGELOG.md' \
+    'scripts/make-source' 'scripts/make-binary'
+git commit -m "Release $new_vsn"
+git -P show
+read -p "$myself: Does the commit look fine? (y/n) [n] " response
+response=$(echo "$response" | tr '[:upper:]' '[:lower:]')
+if [ "$response" != 'y' ] && [ "$response" != 'yes' ]
+then
+	echo >&2 "Okay, aborting."
+	exit 1
+fi
+git tag "$new_vsn"
+
+scripts/make-source "$new_vsn"
+shasum -a 1 -b "$src_tar" >"$src_tar.sha1"
+scripts/make-binary "$new_vsn"
+shasum -a 1 -b "$bin_tar" >"$bin_tar.sha1"
+
+echo "$myself: If everything looks fine, run something like:"
+echo
+echo "$ git push processone master $new_vsn"
+echo "$ mv $rel_name-$new_vsn*.tar.gz /path/to/download/folder"

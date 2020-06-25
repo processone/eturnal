@@ -15,9 +15,8 @@ eturnal application
 - Ship `certbot --post-hook` script.
 - Add `Makefile` that generates (temporary) `vars.config` from environment.
 - Add `scripts/make-source` script to produce release source tarball.
-- Add sane workflow for cutting a release (currently, the release version is
-  hard-coded in `rebar.config`, `scripts/make-binary`, `CHANGELOG.md`, and
-  `README.md`; the application version in `src/eturnal.app.src`).
+- Once rebar3 3.14 (or newer) is stable, replace the download URL in `README.md`
+  with <https://rebar3.s3.amazonaws.com/rebar3>.
 - Add built-in REST API (using the Inets HTTP server with `mod_esi`).
 - Support persistent credentials (using Mnesia).
 
