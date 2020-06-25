@@ -25,6 +25,7 @@ project adheres to [Semantic Versioning][SemVer].
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
 [Unreleased]: https://github.com/processone/eturnal/compare/0.2.0...HEAD
+[0.2.0]: https://github.com/processone/eturnal/releases/tag/0.2.0
 [0.1.0]: https://github.com/processone/eturnal/releases/tag/0.1.0
 [0.0.1]: https://github.com/processone/eturnal/releases/tag/0.0.1
 [SemVer]: https://semver.org/spec/v2.0.0.html

@@ -35,6 +35,7 @@ fi
 export REBAR_COLOR='none'
 
 rel_name='eturnal'
+rel_url='https://github.com/processone/eturnal/releases/tag/'
 src_tar="$rel_name-$new_vsn.tar.gz"
 bin_tar="$rel_name-$new_vsn-linux-x64.tar.gz"
 old_vsn="$(git tag -l --sort=version:refname '[0-9]*.[0-9]*.[0-9]*' | tail -1)"
@@ -65,7 +66,9 @@ sed -i -e "s|$old_vsn|$new_vsn|" \
 sed -i -e "s|compare/$old_vsn|compare/$new_vsn|" \
        -e "s|^## \[Unreleased\]$|&\\
 \\
-## [$new_vsn] - $(date '+%F')|" 'CHANGELOG.md'
+## [$new_vsn] - $(date '+%F')|" \
+       -e "s|^\[$old_vsn\]: $rel_url/$old_vsn$|[$new_vsn]: $rel_url/$new_vsn\\
+&|" 'CHANGELOG.md'
 
 echo "$myself: Committing result ..."
 git add 'src/eturnal.app.src' 'rebar.config' 'README.md' 'CHANGELOG.md' \
