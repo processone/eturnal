@@ -60,6 +60,7 @@ set_loglevel(Level) when is_atom(Level) ->
             {error, "Not a valid log level: " ++ atom_to_list(Level)}
     end;
 set_loglevel(Level) ->
+    ?LOG_DEBUG("Invalid API call: set_loglevel(~p)", [Level]),
     {error, "Log level must be specified as an 'atom'"}.
 
 %% Internal functions.
