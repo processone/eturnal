@@ -57,11 +57,9 @@ set_loglevel(Level) when is_atom(Level) ->
                     {error, "Querying eturnal timed out"}
             end;
         false ->
-            ?LOG_ERROR("set_loglevel(~s) argument is invalid", [Level]),
             {error, "Not a valid log level: " ++ atom_to_list(Level)}
     end;
 set_loglevel(Level) ->
-    ?LOG_ERROR("set_loglevel(~p) argument is not an atom", [Level]),
     {error, "Log level must be specified as an 'atom'"}.
 
 %% Internal functions.
@@ -79,6 +77,6 @@ call(Request) ->
             ?LOG_DEBUG("eturnal call (~p) returned ~p", [Request, Err]),
             Err
     catch exit:{timeout, _} ->
-            ?LOG_WARNING("eturnal call (~p) timed out", [Request]),
+            ?LOG_DEBUG("eturnal call (~p) timed out", [Request]),
             {error, timeout}
     end.
