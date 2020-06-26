@@ -8,6 +8,9 @@ project adheres to [Semantic Versioning][SemVer].
 - Change systemd service type in order to support systemd versions older than
   240.
 
+### Fixed
+- Make sure the eturnalctl script can be invoked by the superuser.
+
 ## [0.2.0] - 2020-06-25
 ### Changed
 - Add Erlang process ID to log messages.

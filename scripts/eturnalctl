@@ -47,7 +47,8 @@ else
 fi
 if [ "x$(id -u -n)" != "x$user" ]
 then
-    exec su "$user" -c "$cmd" "$@"
+    arg="$(printf '%s' "$*" | sed 's/[^[:alnum:][:space:]]/\\&/g')"
+    exec su "$user" -c "$cmd $arg"
 else
     exec "$cmd" "$@"
 fi
