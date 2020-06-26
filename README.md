@@ -109,12 +109,16 @@ archive _into_ the `/opt/eturnal` directory:
 
 ## Configuring eturnal
 
-The eturnal server is configured by editing the `eturnal.yml` file. This file is
-written using the (indentation-sensitive!) YAML format. A commented example
-configuration with sane default settings is shipped with the eturnal server.
-However, for TURN relaying to work, you'll have to specify the [shared
-authentication][1] `secret`, and probably also the `relay_ipv4_addr` option,
-which should be set to the server's external IPv4 address.
+The eturnal server is configured by editing the `/opt/eturnal/etc/eturnal.yml`
+file. Alternatively, this file can be copied to `/etc/eturnal.yml`, in which
+case the original copy in `/opt` will be ignored. That way, the configuration
+won't be overwritten during upgrades.
+
+The `eturnal.yml` file uses the (indentation-sensitive!) YAML format. A
+commented example configuration with sane default settings is shipped with the
+eturnal server. However, for TURN relaying to work, you'll have to specify the
+[shared authentication][1] `secret`, and probably also the `relay_ipv4_addr`
+option, which should be set to the server's external IPv4 address.
 
 ## Running eturnal
 
