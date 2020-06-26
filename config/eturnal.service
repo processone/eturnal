@@ -4,7 +4,7 @@ After=network.target
 Documentation=https://github.com/weiss/eturnal/blob/{{release_version}}/README.md
 
 [Service]
-Type=exec
+Type=simple
 Restart=on-failure
 RestartSec=5
 User={{eturnal_user}}

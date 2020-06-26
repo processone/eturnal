@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Changed
+- Change systemd service type in order to support systemd versions older than
+  240.
 
 ## [0.2.0] - 2020-06-25
 ### Changed
