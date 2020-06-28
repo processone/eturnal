@@ -29,12 +29,12 @@ epmd_address="${ERL_EPMD_ADDRESS:-{{erl_epmd_address}}}"
 
 # END OF CONFIGURATION SECTION.
 
-if [ -n "$epmd_address" ]
+if [ -z "$ERL_EPMD_ADDRESS" ] && [ -n "$epmd_address" ]
 then
     ERL_EPMD_ADDRESS="$epmd_address"
     export ERL_EPMD_ADDRESS
 fi
-if [ -n "$etc_prefix" ]
+if [ -z "$ETURNAL_ETC_PREFIX" ] && [ -n "$etc_prefix" ]
 then
     ETURNAL_ETC_PREFIX="$etc_prefix"
     export ETURNAL_ETC_PREFIX
@@ -56,7 +56,7 @@ else
         cmd='eturnal' # Rely on $PATH.
     fi
 fi
-if [ "x$(id -u)" = 'x0' ]
+if [ "$(id -u)" = '0' ]
 then
     arg="$(printf '%s' "$*" | sed 's/[^[:alnum:][:space:]]/\\&/g')"
     exec su "$user" -c "$cmd $arg"
