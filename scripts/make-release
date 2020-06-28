@@ -61,8 +61,8 @@ fi
 echo "$myself: Editing repository files ..."
 sed -i -e "s|^rebar_vsn=.*|rebar_vsn='$rebar_vsn'|" \
     'scripts/make-source' 'scripts/make-binary'
-sed -i -e "s|$old_vsn|$new_vsn|g" \
-    'src/eturnal.app.src' 'rebar.config' 'README.md'
+sed -i -e "s|^rel_vsn=.*|rel_vsn='$new_vsn'|" 'scripts/get-version'
+sed -i -e "s|$old_vsn|$new_vsn|g" 'src/eturnal.app.src' 'README.md'
 sed -i -e "s|compare/$old_vsn|compare/$new_vsn|" \
        -e "s|^## \[Unreleased\]$|&\\
 \\
