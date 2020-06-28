@@ -102,7 +102,7 @@ instructions](#persistent-installation) above, but adapt step 2 to extract the
 archive _into_ the `/opt/eturnal` directory:
 
     # cd /opt/eturnal
-    # tar -xzf /tmp/eturnal-0.4.0/_build/prod/rel/eturnal/eturnal-0.2.0.tar.gz
+    # tar -xzf /tmp/eturnal-0.4.0/_build/prod/rel/eturnal/eturnal-0.4.0.tar.gz
 
 ## Configuring eturnal
 
