@@ -166,7 +166,7 @@ get_log_file() ->
     case application:get_env(log_dir) of
         {ok, LogDir} when is_binary(LogDir) ->
             LogFile = filename:join(LogDir, <<?LOG_FILE_NAME>>),
-            {ok, eturnal_misc:to_string(LogFile)};
+            {ok, unicode:characters_to_list(LogFile)};
         {ok, none} ->
             none
     end.

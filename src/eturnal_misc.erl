@@ -17,17 +17,11 @@
 %%% limitations under the License.
 
 -module(eturnal_misc).
--export([to_string/1, my_ipv4_addr/0, my_ipv6_addr/0]).
+-export([my_ipv4_addr/0, my_ipv6_addr/0]).
 
 -include_lib("kernel/include/logger.hrl").
 
 %% API.
-
--spec to_string(binary() | iolist()) -> string().
-to_string(Binary) when is_binary(Binary) ->
-    binary_to_list(Binary);
-to_string(IoList) when is_list(IoList) ->
-    lists:flatten(IoList).
 
 -spec my_ipv4_addr() -> inet:ip4_address() | undefined.
 my_ipv4_addr() ->

@@ -165,7 +165,7 @@ get_default(Opt) ->
 
 -spec get_default(string(), string()) -> binary().
 get_default(Var, Default) ->
-    list_to_binary(os:getenv(Var, Default)).
+    unicode:characters_to_binary(os:getenv(Var, Default)).
 
 -spec fail({atom, term()}) -> no_return().
 fail(Reason) ->
