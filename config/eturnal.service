@@ -1,7 +1,7 @@
 [Unit]
 Description=eturnal STUN/TURN server
 After=network.target
-Documentation=https://github.com/weiss/eturnal/blob/{{release_version}}/README.md
+Documentation=https://github.com/processone/eturnal/blob/{{release_version}}/README.md
 
 [Service]
 Type=simple
