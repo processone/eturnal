@@ -1,7 +1,7 @@
 {"1.2.0",
 [{<<"conf">>,
   {git,"https://github.com/processone/conf.git",
-       {ref,"e31de80e3a246c9e93b683ade1b858fa1ae5d294"}},
+       {ref,"10342612d1e4c17e544b2ebc088f38647a63f7ed"}},
   0},
  {<<"fast_tls">>,{pkg,<<"fast_tls">>,<<"1.1.6">>},1},
  {<<"fast_yaml">>,
