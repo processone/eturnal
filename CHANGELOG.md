@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Fixed
+- Fix TURN authentication on Erlang/OTP versions older than 22.1.
 
 ## [0.3.0] - 2020-06-28
 ### Changed

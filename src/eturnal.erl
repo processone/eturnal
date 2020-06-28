@@ -442,8 +442,13 @@ clean_run_dir() ->
     end.
 
 -spec derive_password(binary(), binary()) -> binary().
+-ifdef(old_crypto).
+derive_password(Username, Secret) ->
+    base64:encode(crypto:hmac(sha, Secret, Username)).
+-else.
 derive_password(Username, Secret) ->
     base64:encode(crypto:mac(hmac, sha, Secret, Username)).
+-endif.
 
 -spec opt_map() -> [{atom(), atom()}].
 opt_map() ->
