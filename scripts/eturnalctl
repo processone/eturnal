@@ -56,7 +56,7 @@ else
         cmd='eturnal' # Rely on $PATH.
     fi
 fi
-if [ "x$(id -u -n)" != "x$user" ]
+if [ "x$(id -u)" = 'x0' ]
 then
     arg="$(printf '%s' "$*" | sed 's/[^[:alnum:][:space:]]/\\&/g')"
     exec su "$user" -c "$cmd $arg"
