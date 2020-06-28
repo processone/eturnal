@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [0.4.0] - 2020-06-28
 ### Fixed
 - Fix TURN authentication on Erlang/OTP versions older than 22.1.
 
@@ -35,7 +37,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/0.3.0...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/0.4.0...HEAD
+[0.4.0]: https://github.com/processone/eturnal/releases/tag/0.4.0
 [0.3.0]: https://github.com/processone/eturnal/releases/tag/0.3.0
 [0.2.0]: https://github.com/processone/eturnal/releases/tag/0.2.0
 [0.1.0]: https://github.com/processone/eturnal/releases/tag/0.1.0
