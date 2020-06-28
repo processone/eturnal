@@ -131,7 +131,7 @@ get_config() ->
         {ok, LogFile} ->
             case application:get_env(log_rotate_size) of
                 {ok, infinity} ->
-                    ?LOG_DEBUG("Log rotation disabled");
+                    ok;
                 {ok, Size} when is_integer(Size) ->
                     ?LOG_WARNING("Log rotation requires newer Erlang/OTP "
                                  "version, ignoring 'log_rotate_*' options")
