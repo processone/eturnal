@@ -35,7 +35,7 @@ fi
 export REBAR_COLOR='none'
 
 rel_name='eturnal'
-rel_url='https://github.com/processone/eturnal/releases/tag/'
+rel_url='https://github.com/processone/eturnal/releases/tag'
 src_tar="$rel_name-$new_vsn.tar.gz"
 bin_tar="$rel_name-$new_vsn-linux-x64.tar.gz"
 old_vsn="$(git tag -l --sort=version:refname '[0-9]*.[0-9]*.[0-9]*' | tail -1)"
