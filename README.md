@@ -51,11 +51,8 @@ or `sudo -i`, first.
         # systemctl enable eturnal
         # systemctl start eturnal
 
-If you'd like to use a different user and/or installation prefix, you must edit
-the following two files accordingly:
-
-- `$PREFIX/bin/eturnalctl`
-- `/etc/systemd/system/eturnal.service`
+> _Note:_ If you'd like to use a different user and/or installation prefix, you
+> must edit the `/etc/systemd/system/eturnal.service` file accordingly.
 
 ## Building From Source
 

@@ -43,7 +43,18 @@ if [ -x "$bin_prefix/bin/eturnal" ]
 then
     cmd="$bin_prefix/bin/eturnal"
 else
-    cmd='eturnal' # Rely on $PATH.
+    myself="$(readlink "$0" || :)" # Not all readlink(1)'s support "-f".
+    if [ -z "$myself" ]
+    then
+        myself="$0"
+    fi
+    bin_prefix="$(cd "$(dirname "$myself")/.." && pwd -P)"
+    if [ -x "$bin_prefix/bin/eturnal" ]
+    then
+        cmd="$bin_prefix/bin/eturnal"
+    else
+        cmd='eturnal' # Rely on $PATH.
+    fi
 fi
 if [ "x$(id -u -n)" != "x$user" ]
 then
