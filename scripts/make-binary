@@ -985,7 +985,7 @@ chmod +x 'rebar3'
 cd "$OLDPWD"
 
 echo "$myself: Building $rel_name $rel_vsn ..."
-rm -rf "$HOME/.cache/rebar3" '_build' 'rebar.lock'
+rm -rf "$HOME/.cache/rebar3" '_build'
 rebar3 clean -a
 rebar3 as binary tar
 mkdir "$dst_dir"
