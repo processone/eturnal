@@ -10,6 +10,7 @@ project adheres to [Semantic Versioning][SemVer].
 
 ### Fixed
 - Make sure the eturnalctl script can be invoked by the superuser.
+- Fix compatibility with Erlang/OTP 21.0, 21.1, and 21.2.
 
 ## [0.2.0] - 2020-06-25
 ### Changed

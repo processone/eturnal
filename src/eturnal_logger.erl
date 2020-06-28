@@ -125,6 +125,25 @@ init(Config) ->
     set_level().
 
 -spec get_config() -> {ok, map()} | none.
+-ifdef(old_logger). % Erlang/OTP < 21.3.
+get_config() ->
+    case get_log_file() of
+        {ok, LogFile} ->
+            case application:get_env(log_rotate_size) of
+                {ok, infinity} ->
+                    ?LOG_DEBUG("Log rotation disabled");
+                {ok, Size} when is_integer(Size) ->
+                    ?LOG_WARNING("Log rotation requires newer Erlang/OTP "
+                                 "version, ignoring 'log_rotate_*' options")
+            end,
+            {ok, #{sync_mode_qlen => 1000,
+                   drop_mode_qlen => 1000, % Never switch to synchronous mode.
+                   flush_qlen => 5000,
+                   type => {file, LogFile}}};
+        none ->
+            none
+    end.
+-else.
 get_config() ->
     case get_log_file() of
         {ok, LogFile} ->
@@ -140,6 +159,7 @@ get_config() ->
         none ->
             none
     end.
+-endif.
 
 -spec get_log_file() -> {ok, file:filename()} | none.
 get_log_file() ->
