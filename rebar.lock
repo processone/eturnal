@@ -1,7 +1,7 @@
 {"1.2.0",
 [{<<"conf">>,
   {git,"https://github.com/processone/conf.git",
-       {ref,"10342612d1e4c17e544b2ebc088f38647a63f7ed"}},
+       {ref,"4054ae4db1a6dc89a1b7302ebb9fcc0d354b4f49"}},
   0},
  {<<"fast_tls">>,{pkg,<<"fast_tls">>,<<"1.1.6">>},1},
  {<<"fast_yaml">>,
@@ -11,7 +11,7 @@
  {<<"p1_utils">>,{pkg,<<"p1_utils">>,<<"1.0.19">>},1},
  {<<"recon">>,
   {git,"https://github.com/ferd/recon.git",
-       {ref,"46b85c029d3b432de42885b4da9ac07b6f8a3761"}},
+       {ref,"f7b6c08e6e9e2219db58bfb012c58c178822e01e"}},
   0},
  {<<"stun">>,
   {git,"https://github.com/processone/stun.git",
@@ -20,7 +20,7 @@
  {<<"yval">>,
   {git,"https://github.com/processone/yval.git",
        {ref,"dd61371eddba9b077ab8354d3cd9a40ae3edcbee"}},
-  0}]}.
+  1}]}.
 [
 {pkg_hash,[
  {<<"fast_tls">>, <<"C66709013A99EF8151EB1B0F2CC606B6D01EF7BCF8D732E4CC7527A1562E04D7">>},
