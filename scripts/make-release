@@ -72,7 +72,7 @@ sed -i -e "s|compare/$old_vsn|compare/$new_vsn|" \
 
 echo "$myself: Committing result ..."
 git add 'src/eturnal.app.src' 'rebar.config' 'README.md' 'CHANGELOG.md' \
-    'scripts/make-source' 'scripts/make-binary'
+    'scripts/make-source' 'scripts/make-binary' 'scripts/get-version'
 git commit -m "Release $new_vsn"
 git -P show
 read -p "$myself: Does the commit look fine? (y/n) [n] " response
