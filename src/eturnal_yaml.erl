@@ -153,7 +153,7 @@ format_listener({IP, Port, Transport, _UseTURN}) ->
 -spec get_required() -> [atom()].
 get_required() ->
     Required = [secret], % Required, unless specified in environment.
-    [Opt || Opt <- Required, get_default(Opt) =:= "undefined"].
+    [Opt || Opt <- Required, get_default(Opt) =:= <<"undefined">>].
 
 -spec get_env_name(atom()) -> string().
 get_env_name(Opt) ->
