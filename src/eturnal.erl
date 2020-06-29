@@ -45,7 +45,7 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
--spec init(any()) -> {ok, state(), hibernate} | {stop, term()} | no_return().
+-spec init(any()) -> {ok, state(), hibernate} | no_return().
 init(_Opts) ->
     process_flag(trap_exit, true),
     case ensure_run_dir() of
@@ -118,14 +118,10 @@ handle_call(Request, From, State) ->
     {reply, {error, badarg}, State, hibernate}.
 
 -spec handle_cast({config_change, config_changes()} | term(), state())
-      -> {noreply, state(), hibernate} | {stop, term(), state()} | no_return().
+      -> {noreply, state(), hibernate} | no_return().
 handle_cast({config_change, Changes}, State) ->
-    case apply_config_changes(State, Changes) of
-        {ok, State1} ->
-            {noreply, State1, hibernate};
-        {stop, Reason} ->
-            {stop, Reason, State}
-    end;
+    State1 = apply_config_changes(State, Changes),
+    {noreply, State1, hibernate};
 handle_cast(Msg, State) ->
     ?LOG_ERROR("Got unexpected message: ~p", [Msg]),
     {noreply, State, hibernate}.
@@ -476,12 +472,12 @@ opt_filter({relay_ipv6_addr, undefined}) ->
 opt_filter(Opt) ->
     {true, Opt}.
 
--spec abort(term()) -> {stop, term()} | no_return().
+-spec abort(term()) -> no_return().
 abort(Reason) ->
     case application:get_env(eturnal, on_fail, halt) of
-        stop ->
+        exit ->
             ?LOG_CRITICAL("Stopping eturnal STUN/TURN server (~s)", [Reason]),
-            {stop, Reason};
+            exit(Reason);
         _Halt ->
             ?LOG_CRITICAL("Aborting eturnal STUN/TURN server (~s)", [Reason]),
             eturnal_logger:flush(),

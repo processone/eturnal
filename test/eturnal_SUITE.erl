@@ -42,7 +42,7 @@ init_per_testcase(start_eturnal, Config) ->
     ConfFile = filename:join(DataDir, "eturnal.yml"),
     ok = application:set_env(conf, file, ConfFile),
     ok = application:set_env(conf, on_fail, stop),
-    ok = application:set_env(eturnal, on_fail, stop),
+    ok = application:set_env(eturnal, on_fail, exit),
     Config;
 init_per_testcase(_TestCase, Config) ->
     Config.
