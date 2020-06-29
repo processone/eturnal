@@ -18,7 +18,7 @@ The following two commands give you a STUN/TURN server listening on port 3478
 (UDP/TCP) and port 5349 (TLS) using the specified shared secret for [TURN
 authentication][1] (no root privileges required):
 
-    $ curl -L https://eturnal.net/download/eturnal-0.4.0-linux-x64.tar.gz | tar -C /tmp -xzf -
+    $ curl https://eturnal.net/download/eturnal-0.4.0-linux-x64.tar.gz | tar -C /tmp -xzf -
     $ ETURNAL_SECRET='crypt1c' /tmp/eturnal/bin/eturnal foreground
 
 To stop the server, press `<Ctrl>+C`. To remove it, run `rm -rf /tmp/eturnal`.
@@ -39,7 +39,7 @@ or `sudo -i`, first.
 
 2.  Download and extract binary release:
 
-        # curl -L https://eturnal.net/download/eturnal-0.4.0-linux-x64.tar.gz | tar -C /opt -xzf -
+        # curl https://eturnal.net/download/eturnal-0.4.0-linux-x64.tar.gz | tar -C /opt -xzf -
 
 3.  Configure the shared secret, your server's IP address(es), and optionally
     other settings:
