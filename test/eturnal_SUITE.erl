@@ -56,8 +56,7 @@ groups() ->
 all() ->
     [start_eturnal,
      check_version,
-     connect_ipv4,
-     connect_ipv6,
+     connect,
      stop_eturnal].
 
 start_eturnal(_Config) ->
@@ -66,19 +65,10 @@ start_eturnal(_Config) ->
 check_version(_Config) ->
     {ok, _Version} = eturnal_ctl:get_version().
 
-connect_ipv4(_Config) ->
+connect(_Config) ->
     {ok, Addr} = inet:parse_address("127.0.0.1"),
-    ok = connect(Addr).
-
-connect_ipv6(_Config) ->
-    {ok, Addr} = inet:parse_address("::1"),
-    ok = connect(Addr).
+    {ok, Sock} = gen_tcp:connect(Addr, 34780, []),
+    ok = gen_tcp:close(Sock).
 
 stop_eturnal(_Config) ->
     ok = application:stop(eturnal).
-
-%% Internal functions.
-
-connect(Addr) ->
-    {ok, Sock} = gen_tcp:connect(Addr, 34780, []),
-    ok = gen_tcp:close(Sock).
