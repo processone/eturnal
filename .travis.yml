@@ -15,6 +15,7 @@ install:
   - rebar3 get-deps
 
 script:
+  - rebar3 compile
   - rebar3 xref
   - rebar3 dialyzer
   - rebar3 ct
