@@ -62,7 +62,7 @@ echo "$myself: Editing repository files ..."
 sed -i -e "s|^rebar_vsn=.*|rebar_vsn='$rebar_vsn'|" \
     'scripts/make-source' 'scripts/make-binary'
 sed -i -e "s|^rel_vsn=.*|rel_vsn='$new_vsn'|" 'scripts/get-version'
-sed -i -e "s|$old_vsn|$new_vsn|g" 'src/eturnal.app.src' 'README.md'
+sed -i -e "s|$old_vsn|$new_vsn|g" 'README.md'
 sed -i -e "s|compare/$old_vsn|compare/$new_vsn|" \
        -e "s|^## \[Unreleased\]$|&\\
 \\
@@ -71,8 +71,8 @@ sed -i -e "s|compare/$old_vsn|compare/$new_vsn|" \
 &|" 'CHANGELOG.md'
 
 echo "$myself: Committing result ..."
-git add 'src/eturnal.app.src' 'rebar.config' 'README.md' 'CHANGELOG.md' \
-    'scripts/make-source' 'scripts/make-binary' 'scripts/get-version'
+git add 'rebar.config' 'README.md' 'CHANGELOG.md' 'scripts/get-version' \
+    'scripts/make-source' 'scripts/make-binary'
 git commit -m "Release $new_vsn"
 git -P show
 read -p "$myself: Does the commit look fine? (y/n) [n] " response

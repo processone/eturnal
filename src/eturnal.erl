@@ -84,7 +84,7 @@ init(_Opts) ->
             abort()
     end.
 
--spec handle_call(reload | get_loglevel |
+-spec handle_call(reload | get_version | get_loglevel |
                   {set_loglevel, eturnal_logger:level()} | term(),
                   {pid(), term()}, state())
       -> {reply, ok | {ok, term()} | {error, term()}, state(), hibernate}.
@@ -98,6 +98,9 @@ handle_call(reload, _From, State) ->
                        [conf:format_error(Reason)]),
             {reply, {error, Reason}, State, hibernate}
     end;
+handle_call(get_version, _From, State) ->
+    Version = eturnal_misc:version(),
+    {reply, {ok, Version}, State, hibernate};
 handle_call(get_loglevel, _From, State) ->
     Level = eturnal_logger:get_level(),
     {reply, {ok, Level}, State, hibernate};

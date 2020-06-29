@@ -1,0 +1,32 @@
+get_version()
+{
+    local response="$(erl_rpc 'eturnal_ctl' 'get_version' || :)"
+
+    case $response in
+        '{ok,'*)
+            echo "$(echo "$response" | sed -e 's/{ok, *"\(.*\)"}/\1/')"
+            exit 0
+            ;;
+        '{error,'*)
+            echo "$(echo "$response" | sed -e 's/{error, *"\(.*\)"}/\1/')" >&2
+            exit 1
+            ;;
+        *)
+            echo "Unknown error: '$response'" >&2
+            exit 1
+            ;;
+    esac
+}
+
+if [ $# -ge 1 ] && [ "x$1" = 'xhelp' ]
+then
+    echo "Usage: $REL_NAME version"
+    echo "Print $REL_NAME's version string."
+    exit 0
+elif [ $# -eq 0 ]
+then
+    get_version
+else
+    echo "Usage: $REL_NAME version" >&2
+    exit 2
+fi

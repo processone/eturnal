@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Added
+- Let `eturnalctl version` print the version string of the running release.
 
 ## [0.4.0] - 2020-06-28
 ### Fixed

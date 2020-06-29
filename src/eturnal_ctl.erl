@@ -17,7 +17,7 @@
 %%% limitations under the License.
 
 -module(eturnal_ctl).
--export([reload/0, get_loglevel/0, set_loglevel/1]).
+-export([reload/0, get_version/0, get_loglevel/0, set_loglevel/1]).
 
 -include_lib("kernel/include/logger.hrl").
 
@@ -33,6 +33,16 @@ reload() ->
             {error, "Querying eturnal timed out"};
         {error, Reason} ->
             {error, conf:format_error(Reason)}
+    end.
+
+-spec get_version() -> {ok, string()} | {error, string()}.
+get_version() ->
+    ?LOG_DEBUG("Handling API call: get_version()"),
+    case call(get_version) of
+        {ok, Version} ->
+            {ok, unicode:characters_to_list(Version)};
+        {error, timeout} ->
+            {error, "Querying eturnal timed out"}
     end.
 
 -spec get_loglevel() -> {ok, string()} | {error, string()}.

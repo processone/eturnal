@@ -27,12 +27,12 @@
 -spec start(application:start_type(), any()) -> {ok, pid()} | {error, term()}.
 start(_StartType, _StartArgs) ->
     eturnal_logger:start(),
-    ?LOG_NOTICE("Starting eturnal STUN/TURN server"),
+    ?LOG_NOTICE("Starting eturnal ~s", [eturnal_misc:version()]),
     eturnal_sup:start_link().
 
 -spec stop(term()) -> ok.
 stop(_State) ->
-    ?LOG_NOTICE("Stopping eturnal STUN/TURN server"),
+    ?LOG_NOTICE("Stopping eturnal ~s", [eturnal_misc:version()]),
     ok.
 
 -spec config_change([{atom(), term()}], [{atom(), term()}], [atom()]) -> ok.

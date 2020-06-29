@@ -17,7 +17,7 @@
 %%% limitations under the License.
 
 -module(eturnal_misc).
--export([my_ipv4_addr/0, my_ipv6_addr/0]).
+-export([my_ipv4_addr/0, my_ipv6_addr/0, version/0]).
 
 -include_lib("kernel/include/logger.hrl").
 
@@ -38,3 +38,8 @@ my_ipv6_addr() ->
         {ok, Addr} -> Addr;
         {error, _} -> undefined
     end.
+
+-spec version() -> binary().
+version() ->
+    {ok, Version} = application:get_key(vsn),
+    unicode:characters_to_binary(Version).
