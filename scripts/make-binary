@@ -11,7 +11,7 @@ myself=${0##*/}
 
 usage()
 {
-	echo >&2 "Usage: $myself <version>"
+	echo >&2 "Usage: $myself"
 	exit 2
 }
 
@@ -19,14 +19,8 @@ if ! [ -e 'rebar.config' ] || ! [ -e "scripts/$myself" ]
 then
 	echo >&2 "Please call this script from the repository's root directory."
 	exit 2
-elif [ $# -eq 1 ]
+elif [ $# -ne 0 ]
 then
-	if [ "x$1" = 'x-h' ] || [ "x$1" = 'x--help' ]
-	then
-		usage
-	fi
-	rel_vsn="$1"
-else
 	usage
 fi
 
@@ -38,6 +32,7 @@ else
 fi
 
 rel_name='eturnal'
+rel_vsn="$(scripts/get-version | sed 's/+.*//')"
 rebar_vsn='3.14.0-rc2'
 crosstool_vsn='1.24.0'
 zlib_vsn='1.2.11'

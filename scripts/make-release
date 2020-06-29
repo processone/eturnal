@@ -84,9 +84,9 @@ then
 fi
 git tag "$new_vsn"
 
-scripts/make-source "$new_vsn"
+scripts/make-source
 shasum -a 1 -b "$src_tar" >"$src_tar.sha1"
-scripts/make-binary "$new_vsn"
+scripts/make-binary
 shasum -a 1 -b "$bin_tar" >"$bin_tar.sha1"
 
 echo "$myself: If everything looks fine, run something like:"
