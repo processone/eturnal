@@ -29,12 +29,12 @@ epmd_address="${ERL_EPMD_ADDRESS:-{{erl_epmd_address}}}"
 
 # END OF CONFIGURATION SECTION.
 
-if [ -z "$ERL_EPMD_ADDRESS" ] && [ -n "$epmd_address" ]
+if [ -z "${ERL_EPMD_ADDRESS:-}" ] && [ -n "$epmd_address" ]
 then
     ERL_EPMD_ADDRESS="$epmd_address"
     export ERL_EPMD_ADDRESS
 fi
-if [ -z "$ETURNAL_ETC_PREFIX" ] && [ -n "$etc_prefix" ]
+if [ -z "${ETURNAL_ETC_PREFIX:-}" ] && [ -n "$etc_prefix" ]
 then
     ETURNAL_ETC_PREFIX="$etc_prefix"
     export ETURNAL_ETC_PREFIX
