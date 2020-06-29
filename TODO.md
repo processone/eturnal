@@ -8,7 +8,6 @@ eturnal application
 - Document the configuration options.
 - Document the port ranges that need to be accessible.
 - Document the supported RFCs/extensions.
-- Add test cases and set up CI.
 - Create PID file?
 - Support systemd watchdog.
 - Ship init script example.

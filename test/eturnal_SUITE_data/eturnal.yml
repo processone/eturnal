@@ -1,0 +1,14 @@
+eturnal:
+  listen:
+    -
+      ip: "127.0.0.1"
+      port: 34780
+      transport: tcp
+      enable_turn: false
+    -
+      ip: "::1"
+      port: 34780
+      transport: tcp
+      enable_turn: false
+  secret: "crypt1c"
+  log_level: debug

@@ -6,6 +6,7 @@ project adheres to [Semantic Versioning][SemVer].
 ## [Unreleased]
 ### Added
 - Let `eturnalctl version` print the version string of the running release.
+- Add an initial version of a test suite.
 
 ## [0.4.0] - 2020-06-28
 ### Fixed

@@ -45,14 +45,14 @@
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
--spec init(any()) -> {ok, state(), hibernate} | no_return().
+-spec init(any()) -> {ok, state(), hibernate} | {stop, term()} | no_return().
 init(_Opts) ->
     process_flag(trap_exit, true),
     case ensure_run_dir() of
         ok ->
             ok;
         error -> % Has been logged.
-            abort()
+            abort(run_dir_failure)
     end,
     case {turn_enabled(), got_relay_addr()} of
         {true, true} ->
@@ -61,7 +61,7 @@ init(_Opts) ->
             ?LOG_DEBUG("TURN not enabled, ignoring relay configuration");
         {true, false} ->
             ?LOG_CRITICAL("Please specify your external 'relay_ipv4_addr'"),
-            abort()
+            abort(relay_address_failure)
     end,
     case tls_enabled() of
         true ->
@@ -70,7 +70,7 @@ init(_Opts) ->
                             Result =:= unmodified ->
                     ?LOG_DEBUG("Certificate configuration seems fine");
                 error -> % Has been logged.
-                    abort()
+                    abort(certificate_failure)
             end;
         false ->
             ?LOG_DEBUG("TLS not enabled, ignoring certificate configuration")
@@ -81,7 +81,7 @@ init(_Opts) ->
             {ok, #eturnal_state{listeners = Listeners}, hibernate};
         {error, Reason} ->
             ?LOG_DEBUG("Failed to start up listeners: ~p", [Reason]),
-            abort()
+            abort(listener_failure)
     end.
 
 -spec handle_call(reload | get_version | get_loglevel |
@@ -118,10 +118,14 @@ handle_call(Request, From, State) ->
     {reply, {error, badarg}, State, hibernate}.
 
 -spec handle_cast({config_change, config_changes()} | term(), state())
-      -> {noreply, state(), hibernate} | no_return().
+      -> {noreply, state(), hibernate} | {stop, term(), state()} | no_return().
 handle_cast({config_change, Changes}, State) ->
-    State1 = apply_config_changes(State, Changes),
-    {noreply, State1, hibernate};
+    case apply_config_changes(State, Changes) of
+        {ok, State1} ->
+            {noreply, State1, hibernate};
+        {stop, Reason} ->
+            {stop, Reason, State}
+    end;
 handle_cast(Msg, State) ->
     ?LOG_ERROR("Got unexpected message: ~p", [Msg]),
     {noreply, State, hibernate}.
@@ -311,7 +315,7 @@ apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
                 unmodified ->
                     ?LOG_DEBUG("TLS certificate unchanged");
                 error -> % Has been logged.
-                    abort()
+                    abort(certificate_failure)
             end;
         false ->
             ?LOG_DEBUG("TLS not enabled, ignoring certificate configuration")
@@ -323,7 +327,7 @@ apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
                     ?LOG_INFO("Applied new listen configuration settings"),
                     State#eturnal_state{listeners = Listeners};
                 {_, _} -> % Error has been logged.
-                    abort()
+                    abort(listener_failure)
             end;
         false ->
             ?LOG_DEBUG("Listen configuration unchanged"),
@@ -472,8 +476,14 @@ opt_filter({relay_ipv6_addr, undefined}) ->
 opt_filter(Opt) ->
     {true, Opt}.
 
--spec abort() -> no_return().
-abort() ->
-    ?LOG_CRITICAL("Aborting eturnal STUN/TURN server"),
-    eturnal_logger:flush(),
-    halt(1).
+-spec abort(term()) -> {stop, term()} | no_return().
+abort(Reason) ->
+    case application:get_env(eturnal, on_fail, halt) of
+        stop ->
+            ?LOG_CRITICAL("Stopping eturnal STUN/TURN server (~s)", [Reason]),
+            {stop, Reason};
+        _Halt ->
+            ?LOG_CRITICAL("Aborting eturnal STUN/TURN server (~s)", [Reason]),
+            eturnal_logger:flush(),
+            halt(1)
+    end.
