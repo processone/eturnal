@@ -1,5 +1,7 @@
 # eturnal STUN/TURN Server
 
+[![Build Status](https://travis-ci.org/processone/eturnal.svg?branch=master)](https://travis-ci.org/processone/eturnal)
+
 eturnal is a modern, straightforward STUN/TURN server with full IPv6 support.
 For TURN authentication, the mechanism described in the [REST API for Access to
 TURN Services specification][1] is implemented.
