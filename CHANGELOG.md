@@ -4,9 +4,16 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [0.5.0] - 2020-06-30
 ### Added
 - Let `eturnalctl version` print the version string of the running release.
 - Add an initial version of a test suite.
+
+### Changed
+- Allow non-root users to run the eturnalctl script if they have eturnal's
+  Erlang cookie.
+- Make the release directory freely relocatable.
 
 ## [0.4.0] - 2020-06-28
 ### Fixed
@@ -40,7 +47,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/0.4.0...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/0.5.0...HEAD
+[0.5.0]: https://github.com/processone/eturnal/releases/tag/0.5.0
 [0.4.0]: https://github.com/processone/eturnal/releases/tag/0.4.0
 [0.3.0]: https://github.com/processone/eturnal/releases/tag/0.3.0
 [0.2.0]: https://github.com/processone/eturnal/releases/tag/0.2.0
