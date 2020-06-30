@@ -161,7 +161,7 @@ get_default(Var, Default) ->
     case os:getenv(Var) of
         Val when is_list(Val), length(Val) > 0 ->
             unicode:characters_to_binary(Val);
-        false ->
+        _ ->
             Default
     end.
 
