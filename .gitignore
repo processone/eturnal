@@ -1,5 +1,7 @@
 /eturnal-*.tar.gz*
 /rebar3
+/run/
+/log/
 #
 # Auto-added by rebar3:
 #
