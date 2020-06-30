@@ -54,12 +54,15 @@ init(_Opts) ->
         error -> % Has been logged.
             abort(run_dir_failure)
     end,
-    case {turn_enabled(), got_relay_addr()} of
-        {true, true} ->
-            ?LOG_DEBUG("Relay configuration seems fine");
-        {false, _} ->
-            ?LOG_DEBUG("TURN not enabled, ignoring relay configuration");
-        {true, false} ->
+    case {turn_enabled(), got_secret(), got_relay_addr()} of
+        {false, _, _} ->
+            ?LOG_DEBUG("TURN is disabled");
+        {true, true, true} ->
+            ?LOG_DEBUG("TURN configuration seems fine");
+        {true, false, _} ->
+            ?LOG_CRITICAL("Please specify an authentication 'secret'"),
+            abort(auth_secret_failure);
+        {true, _, false} ->
             ?LOG_CRITICAL("Please specify your external 'relay_ipv4_addr'"),
             abort(relay_address_failure)
     end,
@@ -239,6 +242,15 @@ turn_enabled() ->
     lists:any(fun({_IP, _Port, _Transport, EnableTURN}) ->
                       EnableTURN =:= true
               end, Listeners).
+
+-spec got_secret() -> boolean().
+got_secret() ->
+    case application:get_env(secret) of
+        {ok, Secret} when is_binary(Secret), byte_size(Secret) > 0 ->
+            true;
+        {ok, undefined} ->
+            false
+    end.
 
 -spec got_relay_addr() -> boolean().
 got_relay_addr() ->

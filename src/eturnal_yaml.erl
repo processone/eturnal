@@ -60,7 +60,7 @@ validator() ->
         log_rotate_size => pos_int(infinity),
         log_rotate_count => non_neg_int()},
       [unique,
-       {required, get_required()},
+       {required, []},
        {defaults,
         #{listen => [{{0, 0, 0, 0, 0, 0, 0, 0}, 3478, udp, true},
                      {{0, 0, 0, 0, 0, 0, 0, 0}, 3478, tcp, true}],
@@ -75,10 +75,10 @@ validator() ->
           max_bps => none,
           blacklist => ?BLACKLIST,
           realm => <<"eturnal.net">>,
-          secret => get_default(secret),
+          secret => get_default(secret, undefined),
           software_name => <<"eturnal">>,
-          run_dir => get_default("RUNTIME_DIRECTORY", "run"),
-          log_dir => get_default("LOGS_DIRECTORY", "log"),
+          run_dir => get_default("RUNTIME_DIRECTORY", <<"run">>),
+          log_dir => get_default("LOGS_DIRECTORY", <<"log">>),
           log_level => info,
           log_rotate_size => infinity,
           log_rotate_count => 10}}]).
@@ -150,22 +150,20 @@ check_overlapping_listeners(Listeners, PrepareFun) ->
 format_listener({IP, Port, Transport, _UseTURN}) ->
     io_lib:format("~s:~B (~s)", [inet:ntoa(IP), Port, Transport]).
 
--spec get_required() -> [atom()].
-get_required() ->
-    Required = [secret], % Required, unless specified in environment.
-    [Opt || Opt <- Required, get_default(Opt) =:= <<"undefined">>].
-
 -spec get_env_name(atom()) -> string().
 get_env_name(Opt) ->
     "ETURNAL_" ++ string:uppercase(atom_to_list(Opt)).
 
--spec get_default(atom()) -> binary().
-get_default(Opt) ->
-    get_default(get_env_name(Opt), "undefined").
-
--spec get_default(string(), string()) -> binary().
+-spec get_default(atom() | string(), Term) -> binary() | Term.
+get_default(Opt, Default) when is_atom(Opt) ->
+    get_default(get_env_name(Opt), Default);
 get_default(Var, Default) ->
-    unicode:characters_to_binary(os:getenv(Var, Default)).
+    case os:getenv(Var) of
+        Val when is_list(Val), length(Val) > 0 ->
+            unicode:characters_to_binary(Val);
+        false ->
+            Default
+    end.
 
 -spec fail({atom, term()}) -> no_return().
 fail(Reason) ->
