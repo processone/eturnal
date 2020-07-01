@@ -92,9 +92,9 @@ The following command gives you a STUN/TURN server listening on port 3478
 (UDP/TCP) and port 5349 (TLS) using the specified shared secret for [TURN
 authentication][1]:
 
-    $ ETURNAL_SECRET='crypt1c' ./rebar3 run
+    $ ETURNAL_SECRET='crypt1c' ./rebar3 shell
 
-To stop the server, press `<Ctrl>+C` _twice_.
+To stop the server, press `<Ctrl>+C`.
 
 ### Persistent Installation
 
