@@ -128,7 +128,10 @@ On Linux systems, the eturnal server is usually controlled by systemd:
     # systemctl reload eturnal
     # systemctl stop eturnal
 
-On non-systemd platforms, the `eturnalctl` command can be used, see:
+For non-systemd platforms, an example init script is shipped in the `etc/init.d`
+directory.
+
+For controlling eturnal, the `eturnalctl` command can be used; see:
 
     # eturnalctl help
 
