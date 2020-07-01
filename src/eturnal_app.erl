@@ -27,12 +27,18 @@
 -spec start(application:start_type(), any()) -> {ok, pid()} | {error, term()}.
 start(_StartType, _StartArgs) ->
     eturnal_logger:start(),
-    ?LOG_NOTICE("Starting eturnal ~s", [eturnal_misc:version()]),
+    ?LOG_NOTICE("Starting eturnal ~s on Erlang/OTP ~s (ERTS ~s)",
+                [eturnal_misc:version(),
+                 erlang:system_info(otp_release),
+                 erlang:system_info(version)]),
     eturnal_sup:start_link().
 
 -spec stop(term()) -> ok.
 stop(_State) ->
-    ?LOG_NOTICE("Stopping eturnal ~s", [eturnal_misc:version()]),
+    ?LOG_NOTICE("Starting eturnal ~s on Erlang/OTP ~s (ERTS ~s)",
+                [eturnal_misc:version(),
+                 erlang:system_info(otp_release),
+                 erlang:system_info(version)]),
     ok.
 
 -spec config_change([{atom(), term()}], [{atom(), term()}], [atom()]) -> ok.
