@@ -97,7 +97,7 @@ handle_call(reload, _From, State) ->
             ?LOG_DEBUG("Reloaded configuration"),
             {reply, ok, State, hibernate};
         {error, Reason} ->
-            ?LOG_ERROR("Cannot reload configuration: ~s",
+            ?LOG_ERROR("Cannot reload configuration: ~ts",
                        [conf:format_error(Reason)]),
             {reply, {error, Reason}, State, hibernate}
     end;
@@ -353,7 +353,7 @@ update_pem_file() ->
     OutFile = get_pem_file_path(),
     case {Opt, filelib:last_modified(OutFile)} of
         {none, OutTime} when OutTime =/= 0 ->
-            ?LOG_DEBUG("Using existing PEM file (~s)", [OutFile]),
+            ?LOG_DEBUG("Using existing PEM file (~ts)", [OutFile]),
             unmodified;
         {none, OutTime} when OutTime =:= 0 ->
             ?LOG_WARNING("TLS enabled without 'tls_crt_file', creating "
@@ -362,10 +362,10 @@ update_pem_file() ->
         {CrtFile, OutTime} ->
             case filelib:last_modified(CrtFile) of
                 CrtTime when CrtTime =< OutTime ->
-                    ?LOG_DEBUG("Using existing PEM file (~s)", [OutFile]),
+                    ?LOG_DEBUG("Using existing PEM file (~ts)", [OutFile]),
                     unmodified;
                 CrtTime when CrtTime =/= 0 -> % Assert to be true.
-                    ?LOG_DEBUG("Updating PEM file (~s)", [OutFile]),
+                    ?LOG_DEBUG("Updating PEM file (~ts)", [OutFile]),
                     import_cert(CrtFile, OutFile)
             end
     end.
@@ -382,17 +382,17 @@ import_cert(CrtFile, OutFile) ->
         {ok, KeyFile} = application:get_env(tls_key_file),
         if is_binary(KeyFile) ->
                 {ok, _} = file:copy({KeyFile, Read}, {OutFile, Write}),
-                ?LOG_DEBUG("Copied ~s into ~s", [KeyFile, OutFile]);
+                ?LOG_DEBUG("Copied ~ts into ~ts", [KeyFile, OutFile]);
            KeyFile =:= undefined ->
-                ?LOG_INFO("No 'tls_key_file' specified, assuming key in ~s",
+                ?LOG_INFO("No 'tls_key_file' specified, assuming key in ~ts",
                           [CrtFile])
         end,
         {ok, _} = file:copy({CrtFile, Read}, {OutFile, Append}),
-        ?LOG_DEBUG("Copied ~s into ~s", [CrtFile, OutFile]),
+        ?LOG_DEBUG("Copied ~ts into ~ts", [CrtFile, OutFile]),
         ok
     catch
         error:{badarg, {error, Reason}} ->
-            ?LOG_CRITICAL("Cannot create ~s: ~s",
+            ?LOG_CRITICAL("Cannot create ~ts: ~ts",
                           [OutFile, file:format_error(Reason)]),
             error
     end.
@@ -400,17 +400,17 @@ import_cert(CrtFile, OutFile) ->
 -spec create_self_signed(file:filename_all()) -> ok | error.
 create_self_signed(OutFile) ->
     Cmd = io_lib:format("openssl req -x509 -batch -nodes -newkey rsa:4096 "
-                        "-keyout ~s -subj /CN=eturnal.net -days 3650",
+                        "-keyout ~ts -subj /CN=eturnal.net -days 3650",
                         [OutFile]),
     Output = os:cmd(Cmd),
     case string:find(Output, "-----BEGIN CERTIFICATE-----") of
         Cert when is_list(Cert) ->
             case file:write_file(OutFile, Cert, [append, raw]) of
                 ok ->
-                    ?LOG_DEBUG("Created PEM file: ~s", [OutFile]),
+                    ?LOG_DEBUG("Created PEM file: ~ts", [OutFile]),
                     ok;
                 {error, Reason} ->
-                    ?LOG_CRITICAL("Cannot store PEM file ~s: ~s",
+                    ?LOG_CRITICAL("Cannot store PEM file ~ts: ~ts",
                                   [OutFile, file:format_error(Reason)]),
                     error
             end;
@@ -421,7 +421,7 @@ create_self_signed(OutFile) ->
                      length(Err) =:= 0 ->
                           "openssl req -x509 [...] failed"
                   end,
-            ?LOG_CRITICAL("Cannot create ~s: ~s", [OutFile, Txt]),
+            ?LOG_CRITICAL("Cannot create ~ts: ~ts", [OutFile, Txt]),
             error
     end.
 
@@ -430,10 +430,10 @@ ensure_run_dir() ->
     {ok, RunDir} = application:get_env(run_dir),
     case filelib:ensure_dir(filename:join(RunDir, <<"state.dat">>)) of
         ok ->
-            ?LOG_DEBUG("Using run directory ~s", [RunDir]),
+            ?LOG_DEBUG("Using run directory ~ts", [RunDir]),
             ok;
         {error, Reason} ->
-            ?LOG_CRITICAL("Cannot create run directory ~s: ~s",
+            ?LOG_CRITICAL("Cannot create run directory ~ts: ~ts",
                           [RunDir, file:format_error(Reason)]),
             error
     end.
@@ -445,15 +445,15 @@ clean_run_dir() ->
         true ->
             case file:delete(PEMFile) of
                 ok ->
-                    ?LOG_DEBUG("Removed ~s", [PEMFile]),
+                    ?LOG_DEBUG("Removed ~ts", [PEMFile]),
                     ok;
                 {error, Reason} = Err ->
-                    ?LOG_WARNING("Cannot remove ~s: ~s",
+                    ?LOG_WARNING("Cannot remove ~ts: ~ts",
                                  [PEMFile, file:format_error(Reason)]),
                     Err
             end;
         false ->
-            ?LOG_DEBUG("PEM file doesn't exist: ~s", [PEMFile])
+            ?LOG_DEBUG("PEM file doesn't exist: ~ts", [PEMFile])
     end.
 
 -spec derive_password(binary(), binary()) -> binary().
@@ -488,10 +488,10 @@ opt_filter(Opt) ->
 abort(Reason) ->
     case application:get_env(eturnal, on_fail, halt) of
         exit ->
-            ?LOG_CRITICAL("Stopping eturnal STUN/TURN server (~s)", [Reason]),
+            ?LOG_CRITICAL("Stopping eturnal STUN/TURN server (~p)", [Reason]),
             exit(Reason);
         _Halt ->
-            ?LOG_CRITICAL("Aborting eturnal STUN/TURN server (~s)", [Reason]),
+            ?LOG_CRITICAL("Aborting eturnal STUN/TURN server (~p)", [Reason]),
             eturnal_logger:flush(),
             halt(1)
     end.
