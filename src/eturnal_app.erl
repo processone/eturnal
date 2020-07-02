@@ -35,7 +35,7 @@ start(_StartType, _StartArgs) ->
 
 -spec stop(term()) -> ok.
 stop(_State) ->
-    ?LOG_NOTICE("Starting eturnal ~s on Erlang/OTP ~s (ERTS ~s)",
+    ?LOG_NOTICE("Stopping eturnal ~s on Erlang/OTP ~s (ERTS ~s)",
                 [eturnal_misc:version(),
                  erlang:system_info(otp_release),
                  erlang:system_info(version)]),
