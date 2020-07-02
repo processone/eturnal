@@ -21,6 +21,5 @@ eturnal application
 stun application
 ----------------
 
-- Produce proper logging.
 - Shutdown workers cleanly (no `brutal_kill`).
 - Enforce `max_allocations` limit.

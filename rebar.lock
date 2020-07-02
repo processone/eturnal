@@ -15,7 +15,7 @@
   0},
  {<<"stun">>,
   {git,"https://github.com/processone/stun.git",
-       {ref,"3840bac635741446862ac0667b1a918c695dec5c"}},
+       {ref,"1599d55aee3a520893aff27746281c70cda65822"}},
   0},
  {<<"yval">>,
   {git,"https://github.com/processone/yval.git",

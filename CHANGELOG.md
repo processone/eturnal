@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Changed
+- Log more (and improved) info (and debug) level messages.
 
 ## [0.5.0] - 2020-06-30
 ### Added
