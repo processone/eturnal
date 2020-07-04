@@ -15,7 +15,7 @@ the release directory structure.
 Dependency Management
 ---------------------
 
-Besides the dependencies mentioned in the [README.md file][4], eturnal depends
+Besides the dependencies mentioned in the [README.md][4] file, eturnal depends
 on the Erlang libraries referenced as `deps` in the [rebar.config][5] file,
 _except_ for `recon` (which is totally optional and just included with source
 builds as a convenience for debugging purposes). The complete list of direct and
@@ -50,14 +50,14 @@ expects a few files and directories to be available in the following locations:
 - The `bin/../releases` directory (see the output of
   `ls -R _build/distro/rel/eturnal/releases`).
 
-Therefore, distributions might want to install the
-`_build/distro/rel/eturnal/bin` and `_build/distro/rel/eturnal/releases`
-directories into (for example) some private `/usr/lib/eturnal` directory and
-adjust the path to the `eturnal` command within the `eturnalctl` script
-accordingly. The `eturnalctl` script itself can then be installed elsewhere
-(e.g., into `/usr/sbin`).
+Therefore, distributions might want to install the directories
+`_build/distro/rel/eturnal/bin` and `_build/distro/rel/eturnal/releases` into
+(for example) some private `/usr/lib/eturnal` directory and adjust the path to
+the `eturnal` command within the `eturnalctl` script accordingly. The
+`eturnalctl` script itself can then be installed elsewhere (e.g., into
+`/usr/sbin`).
 
-Note that the `build.config` file can be patched before calling `./rebar3` in
+Note that the [build.config][6] file can be patched before calling `./rebar3` in
 order to specify a different system user for running `eturnal`, and for
 specifing a different path to the `eturnalctl` script. Those `build.config`
 settings are (only) used while generating the `eturnalctl` script, the systemd
@@ -73,3 +73,4 @@ be edited in the `sys.config` file located in the
 [3]: https://erlware.github.io/relx/
 [4]: https://github.com/processone/eturnal/blob/master/README.md
 [5]: https://github.com/processone/eturnal/blob/master/rebar.config
+[6]: https://github.com/processone/eturnal/blob/master/build.config
