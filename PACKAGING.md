@@ -15,11 +15,11 @@ the release directory structure.
 Dependency Management
 ---------------------
 
-Besides the dependencies mentioned in the [README.md][4] file, eturnal depends
-on the Erlang libraries referenced as `deps` in the [rebar.config][5] file,
-_except_ for `recon` (which is totally optional and just included with source
-builds as a convenience for debugging purposes). The complete list of direct and
-transitive Erlang dependencies is:
+Besides the dependencies [mentioned][4] in the [README.md][5] file, eturnal
+depends on the Erlang libraries referenced as `deps` in the [rebar.config][6]
+file, _except_ for `recon` (which is totally optional and just included with
+source builds as a convenience for debugging purposes). The complete list of
+direct and transitive Erlang dependencies is:
 
 - [stun](https://github.com/processone/stun)
 - [conf](https://github.com/processone/conf)
@@ -30,7 +30,7 @@ transitive Erlang dependencies is:
 
 Assuming those dependencies are installed into the distribution's Erlang/OTP
 tree, [rebar3][2]'s built-in dependency management can be skipped by building
-eturnal (from the official source tarball) as follows:
+eturnal (from the [official source tarball][7]) as follows:
 
     $ SKIP_DEPS=true ./rebar3 as distro release
 
@@ -40,37 +40,44 @@ files to be installed.
 Directory Structure
 -------------------
 
-The eturnal server is started (and controlled) by calling the `eturnalctl`
+The eturnal server is started (and controlled) by calling the [eturnalctl][8]
 script, which is a small wrapper around the `eturnal` command. The latter
 expects a few files and directories to be available in the following locations:
 
-- The `bin` directory the `eturnal` command itself is installed to (see the
-  output of `ls -R _build/distro/rel/eturnal/bin`).
-
-- The `bin/../releases` directory (see the output of
+- The `bin` directory the `eturnal` command itself is installed to (see
+  `ls -R _build/distro/rel/eturnal/bin`).
+- The `bin/../releases` directory (see
   `ls -R _build/distro/rel/eturnal/releases`).
 
 Therefore, distributions might want to install the directories
 `_build/distro/rel/eturnal/bin` and `_build/distro/rel/eturnal/releases` into
 (for example) some private `/usr/lib/eturnal` directory and adjust the path to
-the `eturnal` command within the `eturnalctl` script accordingly. The
-`eturnalctl` script itself can then be installed elsewhere (e.g., into
+the `eturnal` command within the [eturnalctl][8] script accordingly. The
+[eturnalctl][8] script itself can then be installed elsewhere (e.g., into
 `/usr/sbin`).
 
-Note that the [build.config][6] file can be patched before calling `./rebar3` in
+Note that the [build.config][9] file can be patched before calling `./rebar3` in
 order to specify a different system user for running `eturnal`, and for
-specifing a different path to the `eturnalctl` script. Those `build.config`
-settings are (only) used while generating the `eturnalctl` script, the systemd
-unit file, and the init script shipped with eturnal. The prefix to eturnal's
-`etc` directory can also be specified in the `build.config` file. If the
-`eturnal.yml` file should be placed into some directory _not_ called `etc`,
-(e.g., `/etc/eturnal/eturnal.yml`) the `file` option of the `conf` library must
-be edited in the `sys.config` file located in the
-`_build/prod/rel/eturnal/releases/$version` directory after building eturnal.
+specifing a different path to the [eturnalctl][8] script. Those
+[build.config][9] settings are (only) used while generating the [eturnalctl][8]
+script, the [systemd unit file][10], and the [init script][11] shipped with
+eturnal. The prefix to eturnal's `etc` directory can also be specified in the
+[build.config][9] file. If the [eturnal.yml][12] file should be placed into some
+(sub)directory _not_ called `etc` (e.g., `/etc/eturnal/eturnal.yml`), the `file`
+option of the `conf` library must be edited in the [sys.config][13] file located
+in the `_build/prod/rel/eturnal/releases/$version` directory after building
+eturnal.
 
-[1]: https://erlang.org/doc/design_principles/release_structure.html
-[2]: https://www.rebar3.org
-[3]: https://erlware.github.io/relx/
-[4]: https://github.com/processone/eturnal/blob/master/README.md
-[5]: https://github.com/processone/eturnal/blob/master/rebar.config
-[6]: https://github.com/processone/eturnal/blob/master/build.config
+ [1]: https://erlang.org/doc/design_principles/release_structure.html
+ [2]: https://www.rebar3.org
+ [3]: https://erlware.github.io/relx/
+ [4]: https://github.com/processone/eturnal/blob/master/README.md#requirements
+ [5]: https://github.com/processone/eturnal/blob/master/README.md
+ [6]: https://github.com/processone/eturnal/blob/master/rebar.config
+ [7]: https://eturnal.net/download/
+ [8]: https://github.com/processone/eturnal/blob/master/scripts/eturnalctl
+ [9]: https://github.com/processone/eturnal/blob/master/build.config
+[10]: https://github.com/processone/eturnal/blob/master/config/eturnal.service
+[11]: https://github.com/processone/eturnal/blob/master/scripts/eturnal.init
+[12]: https://github.com/processone/eturnal/blob/master/config/eturnal.yml
+[13]: https://github.com/processone/eturnal/blob/master/config/sys.config
