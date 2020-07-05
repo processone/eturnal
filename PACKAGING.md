@@ -32,6 +32,7 @@ Assuming those dependencies are installed into the distribution's Erlang/OTP
 tree, [rebar3][2]'s built-in dependency management can be skipped by building
 eturnal (from the [official source tarball][7]) as follows:
 
+    $ rm -f rebar.lock
     $ SKIP_DEPS=true ./rebar3 as distro release
 
 This will yield a `_build/distro/rel/eturnal` directory containing the eturnal

@@ -1,4 +1,4 @@
-% Set SKIP_DEPS=true (and ERL_LIBS appropriately) to skip dependency handling.
+% Remove the rebar.lock file and set SKIP_DEPS=true to skip dependency handling.
 
 case os:getenv("SKIP_DEPS") of
     "true" ->
