@@ -109,8 +109,8 @@ archive _into_ the `/opt/eturnal` directory:
 ## Configuring eturnal
 
 The eturnal server is configured by editing the `/opt/eturnal/etc/eturnal.yml`
-file. This file uses the (indentation-sensitive!) YAML format. A commented
-[example configuration][7] with sane default settings is shipped with the
+file. This file uses the (indentation-sensitive!) [YAML][7] format. A commented
+[example configuration][8] with sane default settings is shipped with the
 eturnal server. However, for TURN relaying to work, you'll have to specify the
 [shared authentication][1] `secret`, and probably also the `relay_ipv4_addr`
 option, which should be set to the server's external IPv4 address. As an
@@ -154,7 +154,7 @@ automatically, so there's no need to send a `HUP` signal after log rotation.
 
 ## Feedback/Support
 
-Please use [our issue tracker][8] for bug reports and feature requests. Feel
+Please use [our issue tracker][9] for bug reports and feature requests. Feel
 free to (ab)use it for usage questions as well.
 
 [1]: https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00
@@ -163,5 +163,6 @@ free to (ab)use it for usage questions as well.
 [4]: https://www.openssl.org
 [5]: https://gcc.gnu.org
 [6]: https://github.com/erlang/rebar3/releases/download/3.14.0-rc2/rebar3
-[7]: https://github.com/processone/eturnal/blob/0.6.0/config/eturnal.yml
-[8]: https://github.com/processone/eturnal/issues
+[7]: https://en.wikipedia.org/wiki/YAML
+[8]: https://github.com/processone/eturnal/blob/0.6.0/config/eturnal.yml
+[9]: https://github.com/processone/eturnal/issues
