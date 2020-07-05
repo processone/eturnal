@@ -46,8 +46,8 @@ eturnal:
 
   ## Reject TURN relaying from/to these addresses/networks:
   blacklist:
-    - "127.0.0.0/8"
-    - "::1"
+    - "127.0.0.0/8"         # IPv4 loopback (blacklisted by default).
+    - "::1"                 # IPv6 loopback (blacklisted by default).
     - "2001::/32"           # Teredo (blacklisted by default).
     - "2002::/16"           # 6to4 (blacklisted by default).
 

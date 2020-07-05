@@ -29,7 +29,9 @@
                      boolean()}.
 
 %% RFC 6156, 9.1: "a TURN relay MUST NOT accept Teredo or 6to4 addresses".
--define(BLACKLIST, [{{8193, 0, 0, 0, 0, 0, 0, 0}, 32},   % 2001::/32 (Teredo).
+-define(BLACKLIST, [{{127, 0, 0, 0}, 8},                 % IPv4 loopback.
+                    {{0, 0, 0, 0, 0, 0, 0, 1}, 128},     % IPv6 loopback.
+                    {{8193, 0, 0, 0, 0, 0, 0, 0}, 32},   % 2001::/32 (Teredo).
                     {{8194, 0, 0, 0, 0, 0, 0, 0}, 16}]). % 2002::/16 (6to4).
 
 %% API.
