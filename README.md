@@ -113,7 +113,16 @@ file. This file uses the (indentation-sensitive!) YAML format. A commented
 [example configuration][7] with sane default settings is shipped with the
 eturnal server. However, for TURN relaying to work, you'll have to specify the
 [shared authentication][1] `secret`, and probably also the `relay_ipv4_addr`
-option, which should be set to the server's external IPv4 address.
+option, which should be set to the server's external IPv4 address. As an
+example, a minimal configuration for offering STUN and TURN services on port
+3478 (UDP and TCP) might look like this:
+
+```yaml
+eturnal:
+  secret: "long-and-cryptic"     # Shared secret, CHANGE THIS.
+  relay_ipv4_addr: "203.0.113.4" # The server's public IPv4 address.
+  relay_ipv6_addr: "2001:db8::4" # The server's public IPv6 address.
+```
 
 > _Note:_ The `/opt/eturnal/etc/eturnal.yml` file can be copied to
 > `/etc/eturnal.yml`, in which case the original copy in `/opt` will be ignored.
