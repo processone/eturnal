@@ -37,6 +37,7 @@ temp_dir=$(mktemp -d "/tmp/.$myself.XXXXXX")
 
 trap 'rm -rf "$temp_dir"' INT TERM EXIT
 
+echo "$myself: Putting together $rel_name $rel_vsn source archive ..."
 git archive --prefix="$rel_dir/" -o "$temp_dir/$rel_tar" "$rel_vsn"
 mkdir -p "$temp_dir/$rel_dir"
 curl -L -o "$temp_dir/$rel_dir/rebar3" \
