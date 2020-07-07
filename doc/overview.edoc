@@ -216,7 +216,7 @@ Default: `10'</div>
 This option specifies the maximum number of simultaneous TURN <a
 href="https://tools.ietf.org/html/rfc5766#section-2.2">allocations</a> a given
 user is permitted to create. If it's set to `unlimited', users can create an
-arbitray number of allocations.
+arbitrary number of allocations.
 
 === max_bps ===
 
