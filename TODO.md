@@ -4,10 +4,6 @@ To-Do List
 eturnal application
 -------------------
 
-* Write `doc/overview.edoc`:
-    - Document the configuration options.
-    - Document the port ranges that need to be accessible.
-    - Document the supported RFCs/extensions.
 * Support systemd watchdog.
 * Ship `certbot --post-hook` script.
 * Add `Makefile` that generates (temporary) `vars.config` from environment.

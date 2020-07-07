@@ -2,6 +2,11 @@
 /rebar3
 /run/
 /log/
+/doc/edoc-info
+/doc/erlang.png
+/doc/stylesheet.css
+/doc/*.html
+/index.html
 #
 # Auto-added by rebar3:
 #
