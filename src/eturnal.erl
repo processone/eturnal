@@ -18,14 +18,16 @@
 
 -module(eturnal).
 -behaviour(gen_server).
--export([start_link/0,
+-export([start/0,
+         start_link/0,
          init/1,
          handle_call/3,
          handle_cast/2,
          handle_info/2,
          terminate/2,
          code_change/3,
-         get_password/2]).
+         get_password/2,
+         stop/0]).
 
 -include_lib("kernel/include/logger.hrl").
 -define(PEM_FILE_NAME, "cert.pem").
@@ -40,6 +42,15 @@
 -type state() :: #eturnal_state{}.
 
 %% API.
+
+-spec start() -> ok | {error, term()}.
+start() ->
+    case application:ensure_all_started(?MODULE, permanent) of
+        {ok, _Started} ->
+            ok;
+        {error, _Reason} = Err ->
+            Err
+    end.
 
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
 start_link() ->
@@ -164,6 +175,10 @@ get_password(Username, _Realm) ->
             ?LOG_INFO("Non-numeric expiration field: ~ts", [Username]),
             <<>>
     end.
+
+-spec stop() -> ok | {error, term()}.
+stop() ->
+    application:stop(?MODULE).
 
 %% Internal functions.
 
