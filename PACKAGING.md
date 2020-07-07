@@ -67,7 +67,9 @@ eturnal. The prefix to eturnal's `etc` directory can also be specified in the
 (sub)directory _not_ called `etc` (e.g., `/etc/eturnal/eturnal.yml`), the `file`
 option of the `conf` library must be edited in the [sys.config][13] file located
 in the `_build/prod/rel/eturnal/releases/$version` directory after building
-eturnal.
+eturnal. As an alternative, `-conf file '"/path/to/eturnal.yml"'` (note the
+double quoting) can be appended to the `eturnalctl` command line used for
+starting up eturnal.
 
  [1]: https://erlang.org/doc/design_principles/release_structure.html
  [2]: https://www.rebar3.org
