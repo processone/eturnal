@@ -20,14 +20,14 @@
 -behaviour(gen_server).
 -export([start/0,
          start_link/0,
-         init/1,
+         get_password/2,
+         stop/0]).
+-export([init/1,
          handle_call/3,
          handle_cast/2,
          handle_info/2,
          terminate/2,
-         code_change/3,
-         get_password/2,
-         stop/0]).
+         code_change/3]).
 
 -include_lib("kernel/include/logger.hrl").
 -define(PEM_FILE_NAME, "cert.pem").
@@ -55,6 +55,31 @@ start() ->
 -spec start_link() -> {ok, pid()} | ignore | {error, term()}.
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+-spec get_password(binary(), binary()) -> binary().
+get_password(Username, _Realm) ->
+    [Expiration | _Suffix] = binary:split(Username, <<$:>>),
+    try binary_to_integer(Expiration) of
+        ExpireTime ->
+            case erlang:system_time(second) of
+                Now when Now < ExpireTime ->
+                    ?LOG_DEBUG("Looking up password for: ~ts", [Username]),
+                    {ok, Secret} = application:get_env(eturnal, secret),
+                    derive_password(Username, Secret);
+                Now when Now >= ExpireTime ->
+                    ?LOG_INFO("Credentials expired: ~ts", [Username]),
+                    <<>>
+            end
+    catch _:badarg ->
+            ?LOG_INFO("Non-numeric expiration field: ~ts", [Username]),
+            <<>>
+    end.
+
+-spec stop() -> ok | {error, term()}.
+stop() ->
+    application:stop(?MODULE).
+
+%% Behaviour callbacks.
 
 -spec init(any()) -> {ok, state(), hibernate} | no_return().
 init(_Opts) ->
@@ -156,29 +181,6 @@ terminate(Reason, State) ->
 code_change(_OldVsn, State, _Extra) ->
     ?LOG_INFO("Got code change request"),
     {ok, State}.
-
--spec get_password(binary(), binary()) -> binary().
-get_password(Username, _Realm) ->
-    [Expiration | _Suffix] = binary:split(Username, <<$:>>),
-    try binary_to_integer(Expiration) of
-        ExpireTime ->
-            case erlang:system_time(second) of
-                Now when Now < ExpireTime ->
-                    ?LOG_DEBUG("Looking up password for: ~ts", [Username]),
-                    {ok, Secret} = application:get_env(eturnal, secret),
-                    derive_password(Username, Secret);
-                Now when Now >= ExpireTime ->
-                    ?LOG_INFO("Credentials expired: ~ts", [Username]),
-                    <<>>
-            end
-    catch _:badarg ->
-            ?LOG_INFO("Non-numeric expiration field: ~ts", [Username]),
-            <<>>
-    end.
-
--spec stop() -> ok | {error, term()}.
-stop() ->
-    application:stop(?MODULE).
 
 %% Internal functions.
 
