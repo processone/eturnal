@@ -208,16 +208,6 @@ this limit is exceeded, the log file is rotated. If this option isn't specified
 Note: External rotation is detected automatically, so there's no need to notify
 eturnal (e.g., by sending a `HUP' signal) after log rotation.
 
-=== max_allocations ===
-
-<div class="spec">Type: `positive integer | unlimited'<br/>
-Default: `10'</div>
-
-This option specifies the maximum number of simultaneous TURN <a
-href="https://tools.ietf.org/html/rfc5766#section-2.2">allocations</a> a given
-user is permitted to create. If it's set to `unlimited', users can create an
-arbitrary number of allocations.
-
 === max_bps ===
 
 <div class="spec">Type: `positive integer | unlimited'<br/>
@@ -234,8 +224,10 @@ Default: `10'</div>
 
 This option specifies the maximum number of TURN <a
 href="https://tools.ietf.org/html/rfc5766#section-2.3">permissions</a> that may
-be created for a given allocation. If it's set to `unlimited', an arbitrary
-number of permissions can be created for each allocation.
+be created for a given <a
+href="https://tools.ietf.org/html/rfc5766#section-2.2">allocation</a>. If it's
+set to `unlimited', an arbitrary number of permissions can be created for each
+allocation.
 
 === realm ===
 
