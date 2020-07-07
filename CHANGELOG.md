@@ -5,6 +5,18 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 
+## [0.7.0] - 2020-07-07
+### Added
+- Ship documentation and license with binary release archive.
+- Add reference documentation which can be built by calling `rebar3 edoc` within
+  the source directory.
+- Allow for starting up eturnal without release boot file by calling a command
+  such as `erl -conf file '"/etc/eturnal.yml"' -s eturnal` (assuming the BEAM
+  files are in the code path).
+
+### Changed
+- Refuse TURN relaying from/to loopback addresses by default.
+
 ## [0.6.0] - 2020-07-02
 ### Added
 - Include an example init script for non-systemd platforms.
@@ -55,7 +67,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/0.6.0...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/0.7.0...HEAD
+[0.7.0]: https://github.com/processone/eturnal/releases/tag/0.7.0
 [0.6.0]: https://github.com/processone/eturnal/releases/tag/0.6.0
 [0.5.0]: https://github.com/processone/eturnal/releases/tag/0.5.0
 [0.4.0]: https://github.com/processone/eturnal/releases/tag/0.4.0
