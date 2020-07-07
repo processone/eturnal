@@ -48,7 +48,7 @@ from source, see the <a
 href="https://github.com/processone/eturnal/blob/0.7.0/README.md#building-from-source">README.md</a>
 file shipped with eturnal's <a
 href="https://eturnal.net/download/eturnal-0.7.0.tar.gz">source code
-archives</a>.
+archive</a>.
 
 The binary release archive holds a stand-alone directory that includes
 everything required to run eturnal. It's recommended to create a dedicated
@@ -56,9 +56,10 @@ system user for running eturnal, and to extract the release archive into this
 user's home directory. The example <a
 href="https://github.com/processone/eturnal/blob/0.7.0/config/eturnal.yml">`eturnal.yml'</a>
 file shipped with eturnal can either be edited in place or copied into the
-system's `/etc' directory, first. The release archive also includes a systemd
-unit file (`eturnal.service') that can be copied into the `/etc/systemd/system'
-directory and enabled by calling the following commands with superuser privileges:
+system's `/etc' directory, first. The release archive also includes the systemd
+unit file `eturnal.service', which can be copied into the `/etc/systemd/system'
+directory and enabled by calling the following commands with superuser
+privileges:
 
 ```
 # systemctl daemon-reload
@@ -79,8 +80,9 @@ variables</a>). If `/etc/eturnal.yml' doesn't exist, eturnal will (by default)
 search for `etc/eturnal.yml' within the installation directory. In order to use
 a different path, the environment variable <a
 href="#ETURNAL_ETC_PREFIX">`ETURNAL_ETC_PREFIX'</a> can be specified. As an
-alternative, ``-conf file '"/path/to/eturnal.yml"''' (note the double quoting)
-can be appended to the `eturnalctl' command line used for starting up eturnal.
+alternative, the arguments ``-conf file '"/path/to/eturnal.yml"''' (note the
+double quoting) can be appended to the `eturnalctl' command line used for
+<a href="#daemon">starting up</a> eturnal.
 
 The `eturnal.yml' file uses the <a
 href="https://en.wikipedia.org/wiki/YAML">YAML</a> format. YAML is
