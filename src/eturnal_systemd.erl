@@ -48,15 +48,15 @@ start_link() ->
 
 -spec ready() -> ok.
 ready() ->
-    cast_notification(ready).
+    cast_notification(<<"READY=1">>).
 
 -spec reloading() -> ok.
 reloading() ->
-    cast_notification(reloading).
+    cast_notification(<<"RELOADING=1">>).
 
 -spec stopping() -> ok.
 stopping() ->
-    cast_notification(stopping).
+    cast_notification(<<"STOPPING=1">>).
 
 %% Behaviour callbacks.
 
@@ -119,7 +119,7 @@ handle_cast(Msg, State) ->
       -> {noreply, state(), watchdog_timeout()}.
 handle_info(timeout, #systemd_state{interval = Interval} = State)
   when is_integer(Interval), Interval > 0 ->
-    try notify(State, watchdog)
+    try notify(State, <<"WATCHDOG=1">>)
     catch _:Err ->
             ?LOG_ERROR("Cannot ping watchdog: ~p", [Err])
     end,
@@ -172,20 +172,12 @@ set_last_ping(State) ->
     LastPing = erlang:monotonic_time(millisecond),
     State#systemd_state{last_ping = LastPing}.
 
--spec notify(state(), ready | reloading | stopping | watchdog | binary()) -> ok.
-notify(State, ready) ->
-    notify(State, <<"READY=1">>);
-notify(State, reloading) ->
-    notify(State, <<"RELOADING=1">>);
-notify(State, stopping) ->
-    notify(State, <<"STOPPING=1">>);
-notify(State, watchdog) ->
-    notify(State, <<"WATCHDOG=1">>);
-notify(#systemd_state{socket = Socket, destination = Destination}, Notification)
-  when is_binary(Notification) ->
+-spec notify(state(), binary()) -> ok.
+notify(#systemd_state{socket = Socket, destination = Destination},
+       Notification) ->
     ?LOG_DEBUG("Notifying systemd: ~s", [Notification]),
     ok = gen_udp:send(Socket, Destination, 0, Notification).
 
--spec cast_notification(ready | reloading | stopping) -> ok.
+-spec cast_notification(binary()) -> ok.
 cast_notification(Notification) ->
     gen_server:cast(?MODULE, {notify, Notification}).
