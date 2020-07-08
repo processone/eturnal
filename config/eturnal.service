@@ -6,13 +6,14 @@ Documentation=https://github.com/processone/eturnal/blob/{{release_version}}/REA
 Documentation=https://github.com/processone/eturnal/blob/{{release_version}}/CHANGELOG.md
 
 [Service]
-Type=simple
-Restart=on-failure
-RestartSec=5
+Type=notify
 User={{eturnal_user}}
 ExecStart={{eturnal_bin_prefix}}/bin/eturnalctl foreground
 ExecReload={{eturnal_bin_prefix}}/bin/eturnalctl reload
 ExecStop={{eturnal_bin_prefix}}/bin/eturnalctl stop
+Restart=on-failure
+RestartSec=3
+WatchdogSec=30
 LimitNOFILE=50000
 RuntimeDirectory=eturnal
 LogsDirectory=eturnal

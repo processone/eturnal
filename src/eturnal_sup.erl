@@ -33,6 +33,7 @@ start_link() ->
 -spec init([]) -> {ok, {supervisor:sup_flags(), [supervisor:child_spec()]}}.
 init([]) ->
     SupFlags = #{},
-    ChildSpec = #{id => eturnal, start => {eturnal, start_link, []}},
-    ?LOG_DEBUG("Configuring ~s supervisor: ~p", [?MODULE, ChildSpec]),
-    {ok, {SupFlags, [ChildSpec]}}.
+    ChildSpecs = [#{id => systemd, start => {eturnal_systemd, start_link, []}},
+                  #{id => eturnal, start => {eturnal, start_link, []}}],
+    ?LOG_DEBUG("Configuring ~s supervisor: ~p", [?MODULE, ChildSpecs]),
+    {ok, {SupFlags, ChildSpecs}}.

@@ -18,7 +18,7 @@
 
 -module(eturnal_app).
 -behaviour(application).
--export([start/2, stop/1, config_change/3]).
+-export([start/2, prep_stop/1, stop/1, config_change/3]).
 
 -include_lib("kernel/include/logger.hrl").
 
@@ -26,12 +26,19 @@
 
 -spec start(application:start_type(), any()) -> {ok, pid()} | {error, term()}.
 start(_StartType, _StartArgs) ->
-    eturnal_logger:start(),
+    ok = eturnal_logger:start(),
     ?LOG_NOTICE("Starting eturnal ~s on Erlang/OTP ~s (ERTS ~s)",
                 [eturnal_misc:version(),
                  erlang:system_info(otp_release),
                  erlang:system_info(version)]),
-    eturnal_sup:start_link().
+    Result = eturnal_sup:start_link(),
+    ok = eturnal_systemd:ready(),
+    Result.
+
+-spec prep_stop(term()) -> term().
+prep_stop(State) ->
+    ok = eturnal_systemd:stopping(),
+    State.
 
 -spec stop(term()) -> ok.
 stop(_State) ->
@@ -43,4 +50,6 @@ stop(_State) ->
 
 -spec config_change([{atom(), term()}], [{atom(), term()}], [atom()]) -> ok.
 config_change(Changed, New, Removed) ->
-    gen_server:cast(eturnal, {config_change, {Changed, New, Removed}}).
+    ok = gen_server:cast(eturnal, {config_change, {Changed, New, Removed},
+                                   fun eturnal_systemd:reloading/0,
+                                   fun eturnal_systemd:ready/0}).

@@ -156,10 +156,13 @@ handle_call(Request, From, State) ->
     ?LOG_ERROR("Got unexpected request from ~p: ~p", [From, Request]),
     {reply, {error, badarg}, State, hibernate}.
 
--spec handle_cast({config_change, config_changes()} | term(), state())
+-spec handle_cast({config_change, config_changes(),
+                   fun(() -> ok), fun(() -> ok)} | term(), state())
       -> {noreply, state(), hibernate} | no_return().
-handle_cast({config_change, Changes}, State) ->
+handle_cast({config_change, Changes, BeginFun, EndFun}, State) ->
+    ok = BeginFun(),
     State1 = apply_config_changes(State, Changes),
+    ok = EndFun(),
     {noreply, State1, hibernate};
 handle_cast(Msg, State) ->
     ?LOG_ERROR("Got unexpected message: ~p", [Msg]),

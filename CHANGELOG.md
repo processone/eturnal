@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Added
+- Support systemd's `notify` start-up type.
+- Support systemd's service watchdog feature.
+
 ### Fixed
 - Don't ignore the `log_level` option when the configuration is reloaded.
 
