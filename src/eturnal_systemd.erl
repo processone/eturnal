@@ -69,6 +69,7 @@ init(_Opts) ->
             ?LOG_CRITICAL("Abstract NOTIFY_SOCKET not supported"),
             {error, esocktnosupport};
         Path when is_list(Path), length(Path) > 0 ->
+            ?LOG_DEBUG("Got NOTIFY_SOCKET: ~s", [Path]),
             Destination = {local, Path},
             case gen_udp:open(0, [local]) of
                 {ok, Socket} ->
