@@ -6,18 +6,13 @@
 support. For TURN authentication, the mechanism described in the [REST API for
 Access to TURN Services specification][2] is implemented.
 
-This document should get you started quickly. For details, see the [reference
-documentation][3].
-
-## Installation
-
 On Linux/x64 systems, you can [install the binary
 release](#persistent-installation). On other platforms, eturnal is [built from
 source](#building-from-source).
 
-### Installing the Linux/x64 Binaries
+## Installing the Linux/x64 Binaries
 
-#### Quick Test
+### Quick Test
 
 The following two commands give you a STUN/TURN server listening on port 3478
 (UDP/TCP) and port 5349 (TLS) using the specified shared secret for [TURN
@@ -28,7 +23,7 @@ authentication][2] (no root privileges required):
 
 To stop the server, press `<Ctrl>+C`. To remove it, run `rm -rf /tmp/eturnal`.
 
-#### Persistent Installation
+### Persistent Installation
 
 You'll need root privileges for the following commands. Therefore, call `su -`
 or `sudo -i`, first.
@@ -61,14 +56,14 @@ or `sudo -i`, first.
 > _Note:_ If you'd like to use a different user and/or installation prefix, you
 > must edit the `/etc/systemd/system/eturnal.service` file accordingly.
 
-### Building From Source
+## Building From Source
 
-#### Requirements
+### Requirements
 
-- [Erlang/OTP][4] (21.0 or newer).
-- [LibYAML][5] (0.1.4 or newer).
-- [OpenSSL][6] (1.0.0 or newer).
-- [GCC][7] (other C compilers might work as well).
+- [Erlang/OTP][3] (21.0 or newer).
+- [LibYAML][4] (0.1.4 or newer).
+- [OpenSSL][5] (1.0.0 or newer).
+- [GCC][6] (other C compilers might work as well).
 
 Note that you need the development headers of the libraries as well. Linux
 distributions often put those into separate `*-dev` or `*-devel` packages. For
@@ -76,10 +71,10 @@ example, on DEB-based distributions you'd typically install `libyaml-dev` and
 `libssl-dev`, on RPM-based distributions you'll probably need `libyaml-devel`
 and `openssl-devel`.
 
-#### Compilation
+### Compilation
 
 > _Note:_ If you build directly from the Git repository rather than using the
-> official source tarball, you must [download rebar3][8] and make it executable
+> official source tarball, you must [download rebar3][7] and make it executable
 > (`chmod +x rebar3`), first.
 
     $ curl https://eturnal.net/download/eturnal-0.7.0.tar.gz | tar -C /tmp -xzf -
@@ -91,7 +86,7 @@ The default installation prefix is set to `/opt/eturnal`, and it's assumed the
 server will be executed by a user named `eturnal`. To change these defaults,
 edit the `build.config` file and re-run `./rebar3 as prod tar`.
 
-#### Quick Test
+### Quick Test
 
 The following command gives you a STUN/TURN server listening on port 3478
 (UDP/TCP) and port 5349 (TLS) using the specified shared secret for [TURN
@@ -101,7 +96,7 @@ authentication][2]:
 
 To stop the server, press `<Ctrl>+C`.
 
-#### Persistent Installation
+### Persistent Installation
 
 The generated archive file holds the _contents_ of the installation prefix.
 Therefore, you'd follow the [binary installation
@@ -114,8 +109,8 @@ archive _into_ the `/opt/eturnal` directory:
 ## Configuration
 
 The eturnal server is configured by editing the `/opt/eturnal/etc/eturnal.yml`
-file. This file uses the (indentation-sensitive!) [YAML][9] format. A commented
-[example configuration][10] with sane default settings is shipped with the
+file. This file uses the (indentation-sensitive!) [YAML][8] format. A commented
+[example configuration][9] with sane default settings is shipped with the
 eturnal server. However, for TURN relaying to work, you'll have to specify the
 [shared authentication][2] `secret`, and probably also the `relay_ipv4_addr`
 option, which should be set to the server's external IPv4 address. As an
@@ -157,19 +152,26 @@ utility, remove the `log_rotate_*` options from your `eturnal.yml` configuration
 file and run `systemctl reload eturnal`. eturnal will detect external rotation
 automatically, so there's no need to send a `HUP` signal after log rotation.
 
+## Documentation
+
+For a detailed description of eturnal's configuration options, see the
+[reference documentation][10]. For notable changes between eturnal releases, see
+the [change log][11].
+
 ## Feedback/Support
 
-Please use [our issue tracker][11] for bug reports and feature requests. Feel
+Please use [our issue tracker][12] for bug reports and feature requests. Feel
 free to (ab)use it for usage questions as well.
 
  [1]: https://eturnal.net/
  [2]: https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00
- [3]: https://eturnal.net/documentation/
- [4]: https://www.erlang.org
- [5]: https://pyyaml.org/wiki/LibYAML
- [6]: https://www.openssl.org
- [7]: https://gcc.gnu.org
- [8]: https://github.com/erlang/rebar3/releases/download/3.14.0-rc2/rebar3
- [9]: https://en.wikipedia.org/wiki/YAML
-[10]: https://github.com/processone/eturnal/blob/0.7.0/config/eturnal.yml
-[11]: https://github.com/processone/eturnal/issues
+ [3]: https://www.erlang.org
+ [4]: https://pyyaml.org/wiki/LibYAML
+ [5]: https://www.openssl.org
+ [6]: https://gcc.gnu.org
+ [7]: https://github.com/erlang/rebar3/releases/download/3.14.0-rc2/rebar3
+ [8]: https://en.wikipedia.org/wiki/YAML
+ [9]: https://github.com/processone/eturnal/blob/0.7.0/config/eturnal.yml
+[10]: https://eturnal.net/documentation/
+[11]: https://github.com/processone/eturnal/blob/0.7.0/CHANGELOG.md
+[12]: https://github.com/processone/eturnal/issues
