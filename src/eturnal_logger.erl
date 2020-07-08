@@ -63,7 +63,8 @@ reconfigure() ->
         {ok, Config} ->
             case logger:get_handler_config(eturnal_log) of
                 {ok, _OldConfig} ->
-                    ok = logger:set_handler_config(eturnal_log, config, Config);
+                    ok = logger:set_handler_config(eturnal_log, config, Config),
+                    ok = set_level();
                 {error, {not_found, _}} ->
                     ok = init(Config)
             end;

@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Fixed
+- Don't ignore the `log_level` option when the configuration is reloaded.
 
 ## [0.7.0] - 2020-07-07
 ### Added
