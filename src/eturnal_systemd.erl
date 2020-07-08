@@ -37,7 +37,7 @@
          interval :: pos_integer() | undefined,
          last_ping :: integer() | undefined}).
 
--type systemd_timeout() :: pos_integer() | hibernate.
+-type watchdog_timeout() :: pos_integer() | hibernate.
 -type state() :: #systemd_state{}.
 
 %% API.
@@ -61,13 +61,13 @@ stopping() ->
 %% Behaviour callbacks.
 
 -spec init(any())
-      -> {ok, state()} | {ok, state(), systemd_timeout()} | {error, term()}.
+      -> {ok, state()} | {ok, state(), watchdog_timeout()} | {error, term()}.
 init(_Opts) ->
     process_flag(trap_exit, true),
     case os:getenv("NOTIFY_SOCKET") of
         [$@ | _Abstract] ->
             ?LOG_CRITICAL("Abstract NOTIFY_SOCKET not supported"),
-            {error, badarg};
+            {error, esocktnosupport};
         Path when is_list(Path), length(Path) > 0 ->
             Destination = {local, Path},
             case gen_udp:open(0, [local]) of
@@ -93,13 +93,13 @@ init(_Opts) ->
     end.
 
 -spec handle_call(term(), {pid(), term()}, state())
-      -> {reply, {error, badarg}, state(), systemd_timeout()}.
+      -> {reply, {error, badarg}, state(), watchdog_timeout()}.
 handle_call(Request, From, State) ->
     ?LOG_ERROR("Got unexpected request from ~p: ~p", [From, Request]),
     {reply, {error, badarg}, State, get_timeout(State)}.
 
 -spec handle_cast({notify, binary()} | term(), state())
-      -> {noreply, state(), systemd_timeout()}.
+      -> {noreply, state(), watchdog_timeout()}.
 handle_cast({notify, Notification},
             #systemd_state{destination = undefined} = State) ->
     ?LOG_DEBUG("No NOTIFY_SOCKET, dropping '~s' notification", [Notification]),
@@ -115,7 +115,7 @@ handle_cast(Msg, State) ->
     {noreply, State, get_timeout(State)}.
 
 -spec handle_info(timeout | term(), state())
-      -> {noreply, state(), systemd_timeout()}.
+      -> {noreply, state(), watchdog_timeout()}.
 handle_info(timeout, #systemd_state{interval = Interval} = State)
   when is_integer(Interval), Interval > 0 ->
     try notify(State, watchdog)
@@ -153,7 +153,7 @@ get_watchdog_interval() ->
             undefined
     end.
 
--spec get_timeout(state()) -> systemd_timeout().
+-spec get_timeout(state()) -> watchdog_timeout().
 get_timeout(#systemd_state{interval = undefined}) ->
     hibernate;
 get_timeout(#systemd_state{interval = Interval, last_ping = LastPing}) ->
