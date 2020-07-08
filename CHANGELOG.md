@@ -4,9 +4,16 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [0.8.0] - 2020-07-08
 ### Added
 - Support systemd's `notify` start-up type.
 - Support systemd's service watchdog feature.
+
+### Changed
+- Remove `max_allocations` option from the documentation and from the example
+  configuration. The `stun` application currently ignores this option, and it's
+  not all that useful with ephemeral TURN credentials anyway.
 
 ### Fixed
 - Don't ignore the `log_level` option when the configuration is reloaded.
@@ -73,7 +80,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/0.7.0...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/0.8.0...HEAD
+[0.8.0]: https://github.com/processone/eturnal/releases/tag/0.8.0
 [0.7.0]: https://github.com/processone/eturnal/releases/tag/0.7.0
 [0.6.0]: https://github.com/processone/eturnal/releases/tag/0.6.0
 [0.5.0]: https://github.com/processone/eturnal/releases/tag/0.5.0
