@@ -172,7 +172,7 @@ handle_info(Info, State) ->
 
 -spec terminate(normal | shutdown | {shutdown, term()} | term(), state()) -> ok.
 terminate(Reason, State) ->
-    ?LOG_DEBUG("Terminating eturnd (~p)", [Reason]),
+    ?LOG_DEBUG("Terminating ~s (~p)", [?MODULE, Reason]),
     _ = stop_listeners(State),
     _ = clean_run_dir(),
     ok.
