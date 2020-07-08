@@ -31,9 +31,13 @@ start(_StartType, _StartArgs) ->
                 [eturnal_misc:version(),
                  erlang:system_info(otp_release),
                  erlang:system_info(version)]),
-    Result = eturnal_sup:start_link(),
-    ok = eturnal_systemd:ready(),
-    Result.
+    case eturnal_sup:start_link() of
+        {ok, _PID} = Result ->
+            ok = eturnal_systemd:ready(),
+            Result;
+        {error, _Reason} = Err ->
+            Err
+    end.
 
 -spec prep_stop(term()) -> term().
 prep_stop(State) ->

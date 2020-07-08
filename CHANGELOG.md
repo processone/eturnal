@@ -4,10 +4,12 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Fixed
+- Only signal readiness to systemd if eturnal's startup actually was successful.
 
 ## [0.8.0] - 2020-07-08
 ### Added
-- Support systemd's `notify` start-up type.
+- Support systemd's `notify` startup type.
 - Support systemd's service watchdog feature.
 
 ### Changed
