@@ -170,7 +170,6 @@ get_timeout(#systemd_state{interval = Interval, last_ping = LastPing}) ->
 -spec set_last_ping(state()) -> state().
 set_last_ping(State) ->
     LastPing = erlang:monotonic_time(millisecond),
-    ?LOG_DEBUG("Setting last ping timestamp to ~B", [LastPing]),
     State#systemd_state{last_ping = LastPing}.
 
 -spec notify(state(), ready | reloading | stopping | watchdog | binary()) -> ok.
