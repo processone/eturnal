@@ -89,7 +89,7 @@ reconfigure() ->
 is_valid_level(Level) ->
     lists:member(Level, ?VALID_LEVELS).
 
--spec get_level() -> logger:level().
+-spec get_level() -> logger:level() | all | none.
 get_level() ->
     #{level := Level} = logger:get_primary_config(),
     Level.
