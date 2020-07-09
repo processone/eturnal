@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Added
+- Allow for setting the `log_dir` option to the special value `stdout`, which
+  tells eturnal to print log messages to the standard output rather than logging
+  to a file.
+
 ### Fixed
 - Only signal readiness to systemd if eturnal's startup actually was successful.
 

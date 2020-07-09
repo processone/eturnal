@@ -168,11 +168,13 @@ listen:
 
 === log_dir ===
 
-<div class="spec">Type: `path name'<br/>
+<div class="spec">Type: `path name | stdout'<br/>
 Default: `log'</div>
 
-This option specifies the directory the `eturnal.log' file is written into. If
-this option isn't defined, the value of the envionment variable <a
+This option specifies the directory the `eturnal.log' file is written into.
+Alternatively, this option can be set to the special value `stdout', which tells
+eturnal to print log messages to the standard output rather than logging to a
+file. If this option isn't defined, the value of the envionment variable <a
 href="#LOGS_DIRECTORY">`LOGS_DIRECTORY'</a> is used instead. If this environment
 variable is unset as well, a `log' directory is created within the installation
 prefix.
@@ -193,17 +195,20 @@ Default: `10'</div>
 
 The value of this option determines the number of rotated log file archives to
 keep if the <a href="#log_rotate_size">`log_rotate_size'</a> option is set to a
-positive integer value. Otherwise, this option is ignored.
+positive integer value and the <a href="#log_dir">`log_dir'</a> option isn't set
+to `stdout'. Otherwise, this option is ignored.
 
 === log_rotate_size ===
 
 <div class="spec">Type: `positive integer | unlimited'<br/>
 Default: `unlimited'</div>
 
-If this option is set to a positive integer value, internal log rotation is
-enabled. The value of this option specifies the log file size limit in bytes. If
-this limit is exceeded, the log file is rotated. If this option isn't specified
-(or set to `unlimited'), external log rotation tools can be used.
+If this option is set to a positive integer value and the <a
+href="#log_dir">`log_dir'</a> option isn't set to `stdout', internal log
+rotation is enabled. The value of this option specifies the log file size limit
+in bytes. If this limit is exceeded, the log file is rotated. If this option
+isn't specified (or set to `unlimited'), external log rotation tools can be
+used.
 
 Note: External rotation is detected automatically, so there's no need to notify
 eturnal (e.g., by sending a `HUP' signal) after log rotation.

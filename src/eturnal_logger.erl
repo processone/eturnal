@@ -42,7 +42,8 @@ start() ->
             init(Config);
         none -> % Logging disabled.
             ok
-    end.
+    end,
+    ok = configure_default_handler().
 
 -spec progress_filter(logger:log_event(), any()) -> logger:filter_return().
 progress_filter(#{level := info,
@@ -63,7 +64,13 @@ reconfigure() ->
         {ok, Config} ->
             case logger:get_handler_config(eturnal_log) of
                 {ok, _OldConfig} ->
-                    ok = logger:set_handler_config(eturnal_log, config, Config),
+                    case logger:set_handler_config(eturnal_log, config,
+                                                   Config) of
+                        ok ->
+                            ok;
+                        {error, {illegal_config_change, _, _, _}} ->
+                            ?LOG_ERROR("New logging settings require restart")
+                    end,
                     ok = set_level();
                 {error, {not_found, _}} ->
                     ok = init(Config)
@@ -75,7 +82,8 @@ reconfigure() ->
                 {error, {not_found, _}} ->
                     ok
             end
-    end.
+    end,
+    ok = configure_default_handler().
 
 -spec is_valid_level(atom()) -> boolean().
 is_valid_level(Level) ->
@@ -128,7 +136,12 @@ init(Config) ->
 -spec get_config() -> {ok, map()} | none.
 -ifdef(old_logger). % Erlang/OTP < 21.3.
 get_config() ->
+    Config = #{sync_mode_qlen => 1000,
+               drop_mode_qlen => 1000, % Never switch to synchronous mode.
+               flush_qlen => 5000},
     case get_log_file() of
+        {ok, stdout} ->
+            {ok, Config};
         {ok, LogFile} ->
             case application:get_env(log_rotate_size) of
                 {ok, infinity} ->
@@ -137,37 +150,38 @@ get_config() ->
                     ?LOG_WARNING("Log rotation requires newer Erlang/OTP "
                                  "version, ignoring 'log_rotate_*' options")
             end,
-            {ok, #{sync_mode_qlen => 1000,
-                   drop_mode_qlen => 1000, % Never switch to synchronous mode.
-                   flush_qlen => 5000,
-                   type => {file, LogFile}}};
+            {ok, Config#{type => {file, LogFile}}};
         none ->
             none
     end.
 -else.
 get_config() ->
+    Config = #{sync_mode_qlen => 1000,
+               drop_mode_qlen => 1000, % Never switch to synchronous mode.
+               flush_qlen => 5000},
     case get_log_file() of
+        {ok, stdout} ->
+            {ok, Config};
         {ok, LogFile} ->
             {ok, MaxNoBytes} = application:get_env(log_rotate_size),
             {ok, MaxNoFiles} = application:get_env(log_rotate_count),
-            {ok, #{sync_mode_qlen => 1000,
-                   drop_mode_qlen => 1000, % Never switch to synchronous mode.
-                   flush_qlen => 5000,
-                   file_check => 1000,
-                   file => LogFile,
-                   max_no_bytes => MaxNoBytes,
-                   max_no_files => MaxNoFiles}};
+            {ok, Config#{file_check => 1000,
+                         file => LogFile,
+                         max_no_bytes => MaxNoBytes,
+                         max_no_files => MaxNoFiles}};
         none ->
             none
     end.
 -endif.
 
--spec get_log_file() -> {ok, file:filename()} | none.
+-spec get_log_file() -> {ok, file:filename() | stdout} | none.
 get_log_file() ->
     case application:get_env(log_dir) of
         {ok, LogDir} when is_binary(LogDir) ->
             LogFile = filename:join(LogDir, <<?LOG_FILE_NAME>>),
             {ok, unicode:characters_to_list(LogFile)};
+        {ok, stdout} ->
+            {ok, stdout};
         {ok, none} ->
             none
     end.
@@ -187,3 +201,14 @@ format_template() ->
      % Append ("<PID>" and, if available, "@Module:Function/Arity:Line"):
      " (", pid, {mfa, ["@", mfa, {line, [":", line], []}], []}, ")",
      io_lib:nl()].
+
+-spec configure_default_handler() -> ok.
+configure_default_handler() ->
+    case application:get_env(log_dir) of
+        {ok, stdout} ->
+            ok = logger:set_handler_config(default, level, none);
+        {ok, _Dir} ->
+            ok = logger:set_handler_config(default, level, warning);
+        none ->
+            ok = logger:set_handler_config(default, level, critical)
+    end.

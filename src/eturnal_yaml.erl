@@ -57,7 +57,7 @@ validator() ->
         realm => non_empty(binary()),
         software_name => non_empty(binary()),
         run_dir => directory(write),
-        log_dir => either(none, directory(write)),
+        log_dir => either(stdout, directory(write)),
         log_level => enum([critical, error, warning, notice, info, debug]),
         log_rotate_size => pos_int(infinity),
         log_rotate_count => non_neg_int()},
