@@ -150,7 +150,7 @@ check_overlapping_listeners(Listeners, PrepareFun) ->
 
 -spec format_listener(listener()) -> io_lib:chars().
 format_listener({IP, Port, Transport, _UseTURN}) ->
-    io_lib:format("~s:~B (~s)", [inet:ntoa(IP), Port, Transport]).
+    io_lib:format("~s (~s)", [eturnal_misc:addr_to_str(IP, Port), Transport]).
 
 -spec get_env_name(atom()) -> string().
 get_env_name(Opt) ->

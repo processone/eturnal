@@ -17,7 +17,7 @@
 %%% limitations under the License.
 
 -module(eturnal_misc).
--export([my_ipv4_addr/0, my_ipv6_addr/0, version/0]).
+-export([my_ipv4_addr/0, my_ipv6_addr/0, addr_to_str/2, version/0]).
 
 -include_lib("kernel/include/logger.hrl").
 
@@ -38,6 +38,12 @@ my_ipv6_addr() ->
         {ok, Addr} -> Addr;
         {error, _} -> undefined
     end.
+
+-spec addr_to_str(inet:ip_address(), 0..65535) -> iolist().
+addr_to_str({_, _, _, _, _, _, _, _} = Addr, Port) ->
+    [$[, inet_parse:ntoa(Addr), $], $:, integer_to_list(Port)];
+addr_to_str({_, _, _, _} = Addr, Port) ->
+    [inet_parse:ntoa(Addr), $:, integer_to_list(Port)].
 
 -spec version() -> binary().
 version() ->

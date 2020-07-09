@@ -206,8 +206,9 @@ start_listeners() ->
                               _ ->
                                   Opts1
                           end,
-                  ?LOG_DEBUG("Starting listener ~s:~B (~s) with options:~n~p",
-                             [inet:ntoa(IP), Port, Transport, Opts2]),
+                  ?LOG_DEBUG("Starting listener ~s (~s) with options:~n~p",
+                             [eturnal_misc:addr_to_str(IP, Port),
+                              Transport, Opts2]),
                   case stun_listener:add_listener(IP, Port, Transport, Opts2) of
                       ok ->
                           Type = case EnableTURN of
@@ -216,11 +217,13 @@ start_listeners() ->
                                      false ->
                                          <<"STUN only">>
                                  end,
-                          ?LOG_INFO("Listening on ~s:~B (~s) (~s)",
-                                    [inet:ntoa(IP), Port, Transport, Type]);
+                          ?LOG_INFO("Listening on ~s (~s) (~s)",
+                                    [eturnal_misc:addr_to_str(IP, Port),
+                                     Transport, Type]);
                       {error, Reason} = Err ->
-                          ?LOG_ERROR("Cannot listen on ~s:~B (~s): ~p",
-                                     [inet:ntoa(IP), Port, Transport, Reason]),
+                          ?LOG_ERROR("Cannot listen on ~s (~s): ~p",
+                                     [eturnal_misc:addr_to_str(IP, Port),
+                                      Transport, Reason]),
                           throw(Err)
                   end,
                   {IP, Port, Transport}
@@ -237,11 +240,13 @@ stop_listeners(#eturnal_state{listeners = Listeners}) ->
           fun({IP, Port, Transport}) ->
                   case stun_listener:del_listener(IP, Port, Transport) of
                       ok ->
-                          ?LOG_INFO("Stopped listening on ~s:~B (~s)",
-                                    [inet:ntoa(IP), Port, Transport]);
+                          ?LOG_INFO("Stopped listening on ~s (~s)",
+                                    [eturnal_misc:addr_to_str(IP, Port),
+                                     Transport]);
                       {error, Reason} = Err ->
-                          ?LOG_ERROR("Cannot stop listening on ~s:~B (~s): ~p",
-                                     [inet:ntoa(IP), Port, Transport, Reason]),
+                          ?LOG_ERROR("Cannot stop listening on ~s (~s): ~p",
+                                     [eturnal_misc:addr_to_str(IP, Port),
+                                      Transport, Reason]),
                       throw(Err)
                   end
           end, Listeners)
