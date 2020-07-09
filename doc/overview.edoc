@@ -96,7 +96,7 @@ The eturnal server recognizes the following configuration options.
 
 === blacklist ===
 
-<div class="spec">Type: `list' of IP addresses/CIDRs<br/>
+<div class="spec">Type: `list of IP addresses/CIDRs'<br/>
 Default: Loopback, Toredo, and 6to4 addresses</div>
 
 The `blacklist' option specifies a list of one or more IPv4 and/or IPv6
