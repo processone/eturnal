@@ -9,6 +9,9 @@ project adheres to [Semantic Versioning][SemVer].
   tells eturnal to print log messages to the standard output rather than logging
   to a file.
 
+### Changed
+- Allow for binding to privileged ports.
+
 ### Fixed
 - Only signal readiness to systemd if eturnal's startup actually was successful.
 

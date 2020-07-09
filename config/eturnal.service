@@ -20,6 +20,7 @@ RuntimeDirectory=eturnal
 LogsDirectory=eturnal
 ProtectSystem=full
 NoNewPrivileges=true
+AmbientCapabilities=CAP_NET_BIND_SERVICE
 
 [Install]
 WantedBy=multi-user.target
