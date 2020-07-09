@@ -103,12 +103,12 @@ handle_call(Request, From, State) ->
       -> {noreply, state(), watchdog_timeout()}.
 handle_cast({notify, Notification},
             #systemd_state{destination = undefined} = State) ->
-    ?LOG_DEBUG("No NOTIFY_SOCKET, dropping '~s' notification", [Notification]),
+    ?LOG_DEBUG("No NOTIFY_SOCKET, dropping ~s notification", [Notification]),
     {noreply, State, get_timeout(State)};
 handle_cast({notify, Notification}, State) ->
     try notify(State, Notification)
     catch _:Err ->
-            ?LOG_ERROR("Cannot send '~s' notification: ~p", [Notification, Err])
+            ?LOG_ERROR("Cannot send ~s notification: ~p", [Notification, Err])
     end,
     {noreply, State, get_timeout(State)};
 handle_cast(Msg, State) ->
