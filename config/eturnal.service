@@ -1,6 +1,7 @@
 [Unit]
 Description=eturnal STUN/TURN server
-After=network.target
+Wants=epmd.service
+After=epmd.service network.target
 Documentation=https://eturnal.net/documentation/
 Documentation=https://github.com/processone/eturnal/blob/{{release_version}}/README.md
 Documentation=https://github.com/processone/eturnal/blob/{{release_version}}/CHANGELOG.md
