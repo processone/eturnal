@@ -161,7 +161,9 @@ the [change log][11].
 ## Feedback/Support
 
 Please use [our issue tracker][12] for bug reports and feature requests. Feel
-free to (ab)use it for usage questions as well.
+free to (ab)use it for usage questions as well. If you happen to be using
+[XMPP][13], you could also join our public channel
+`eturnal@conference.process-one.net`.
 
  [1]: https://eturnal.net/
  [2]: https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00
@@ -175,3 +177,4 @@ free to (ab)use it for usage questions as well.
 [10]: https://eturnal.net/documentation/
 [11]: https://github.com/processone/eturnal/blob/0.8.0/CHANGELOG.md
 [12]: https://github.com/processone/eturnal/issues
+[13]: https://xmpp.org
