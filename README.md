@@ -121,7 +121,7 @@ example, a minimal configuration for offering STUN and TURN services on port
 eturnal:
   secret: "long-and-cryptic"     # Shared secret, CHANGE THIS.
   relay_ipv4_addr: "203.0.113.4" # The server's public IPv4 address.
-  relay_ipv6_addr: "2001:db8::4" # The server's public IPv6 address.
+  relay_ipv6_addr: "2001:db8::4" # The server's public IPv6 address (optional).
 ```
 
 > _Note:_ The `/opt/eturnal/etc/eturnal.yml` file can be copied to
