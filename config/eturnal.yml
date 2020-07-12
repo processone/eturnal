@@ -42,12 +42,6 @@ eturnal:
   relay_min_port: 49152     # This is the default.
   relay_max_port: 65535     # This is the default.
 
-  ## Max. number of TURN permissions per connection:
-  max_permissions: 10       # This is the default.
-
-  ## Max. B/s for TCP/TLS connections:
-  max_bps: unlimited        # This is the default.
-
   ## Reject TURN relaying from/to these addresses/networks:
   blacklist:
     - "127.0.0.0/8"         # IPv4 loopback (blacklisted by default).
