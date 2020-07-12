@@ -122,5 +122,4 @@ status)
     exit 2
     ;;
 esac
-
 exit 0

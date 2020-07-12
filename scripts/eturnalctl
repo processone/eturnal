@@ -43,7 +43,7 @@ if [ -x "$bin_prefix/bin/eturnal" ]
 then
     cmd="$bin_prefix/bin/eturnal"
 else
-    myself="$(readlink "$0" || :)" # Not all readlink(1)'s support "-f".
+    myself="$(readlink "$0" || :)" # Not all readlink(1)s support "-f".
     if [ -z "$myself" ]
     then
         myself="$0"

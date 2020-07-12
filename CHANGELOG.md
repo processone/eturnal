@@ -11,7 +11,7 @@ project adheres to [Semantic Versioning][SemVer].
 - Publish DEB and RPM packages, and adjust the documentation accordingly.
 
 ### Changed
-- Allow for binding to privileged ports.
+- Allow for binding to privileged ports (if started via systemd).
 - Disable TURN support in the example configuration file.
 
 ### Fixed
