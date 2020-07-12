@@ -135,7 +135,7 @@ listens on. Each `listen' entry holds one or more of the following key-value
 pairs:
 
 <ul>
-  <li><a name="ip" style="font-size:90%">`ip:' <em>address</em></a><br/>
+  <li><a name="ip" class="cue">`ip:' <em>address</em></a><br/>
       The `ip' <em>address</em> must be a string denoting the IPv4 or IPv6
       address (note that IPv6 addresses with leading `"::"' must be enclosed
       with quotation marks). This is the only mandatory key-value pair for each
@@ -143,17 +143,15 @@ pairs:
       IPv4 interfaces. Specifying `"::"' tells eturnal to listen on all IPv6
       interfaces, and possibly also all IPv4 interfaces, depending on the
       operating system (configuration).</li>
-  <li><a name="port" style="font-size:90%">`port:' <em>number</em></a><br/>
+  <li><a name="port" class="cue">`port:' <em>number</em></a><br/>
       The (optional) `port' <em>number</em> must be between `0' and `65535',
       and is usually between `1024' and `49151'. The default value is `5349'
       if the <a href="#transport">transport</a> is set to `tls', otherwise
       `3478'.</li>
-  <li><a name="transport" style="font-size:90%">`transport:'
-      <em>protocol</em></a><br/>
+  <li><a name="transport" class="cue">`transport:' <em>protocol</em></a><br/>
       The (optional) `transport' <em>protocol</em> must be one of `udp', `tcp',
       or `tls'. The default value is `udp'.</li>
-  <li><a name="enable_turn" style="font-size:90%">`enable_turn:'
-      <em>flag</em></a><br/>
+  <li><a name="enable_turn" class="cue">`enable_turn:' <em>flag</em></a><br/>
       The (optional) `enable_turn' <em>flag</em> must be `true' to enable TURN
       in addition to STUN, or `false' to offer just STUN on this socket. The
       default value is `true'.</li>
@@ -416,38 +414,38 @@ See the following list for a subset of the available `eturnalctl' commands:
 
 <ul>
   <li><a name="daemon"
-         style="font-size:90%">`eturnalctl daemon'</a><br/>
+         class="cue">`eturnalctl daemon'</a><br/>
       Start eturnal in the background.</li>
   <li><a name="foreground"
-         style="font-size:90%">`eturnalctl foreground'</a><br/>
+         class="cue">`eturnalctl foreground'</a><br/>
       Start eturnal in the foreground.</li>
   <li><a name="console"
-         style="font-size:90%">`eturnalctl console'</a><br/>
+         class="cue">`eturnalctl console'</a><br/>
       Start eturnal in the foreground with an interactive Erlang shell.</li>
   <li><a name="remote_console"
-         style="font-size:90%">`eturnalctl remote_console'</a><br/>
+         class="cue">`eturnalctl remote_console'</a><br/>
       Connect to the running eturnal instance with an interactive Erlang
       shell.</li>
   <li><a name="eval"
-         style="font-size:90%">`eturnalctl eval' <em>code</em></a><br/>
+         class="cue">`eturnalctl eval' <em>code</em></a><br/>
       Let the running eturnal VM evaluate the specified Erlang
       <em>code</em>.</li>
   <li><a name="reload"
-         style="font-size:90%">`eturnalctl reload'</a><br/>
+         class="cue">`eturnalctl reload'</a><br/>
       Reload the configuration file.</li>
   <li><a name="get_loglevel"
-         style="font-size:90%">`eturnalctl loglevel'</a><br/>
+         class="cue">`eturnalctl loglevel'</a><br/>
       Print the <a href="#log_level">`log_level'</a> of the running eturnal
       instance.</li>
   <li><a name="set_loglevel"
-         style="font-size:90%">`eturnalctl loglevel' <em>level</em></a><br/>
+         class="cue">`eturnalctl loglevel' <em>level</em></a><br/>
       Set the <a href="#log_level">`log_level'</a> of the running eturnal
       instance to <em>level</em>.</li>
   <li><a name="version"
-         style="font-size:90%">`eturnalctl version'</a><br/>
+         class="cue">`eturnalctl version'</a><br/>
       Print the release version of the running eturnal instance.</li>
   <li><a name="stop"
-         style="font-size:90%">`eturnalctl stop'</a><br/>
+         class="cue">`eturnalctl stop'</a><br/>
       Stop the running eturnal instance.</li>
 </ul>
 
