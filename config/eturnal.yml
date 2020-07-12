@@ -1,8 +1,7 @@
 # eturnal STUN/TURN server configuration file.
 #
-# This file is written in YAML.
-#
-# YAML IS INDENTATION-SENSITIVE, MAKE SURE YOU INDENT CORRECTLY.
+# This file is written in YAML. The YAML format is indentation-sensitive, please
+# MAKE SURE YOU INDENT CORRECTLY.
 
 eturnal:
 
@@ -29,7 +28,7 @@ eturnal:
   ## The server's public IPv6 address (optional):
   #relay_ipv6_addr: "2001:db8::4"
 
-  ## TLS certificate/key files (must be readable by 'eturnal' user):
+  ## TLS certificate/key files (must be readable by 'eturnal' user!):
   #tls_crt_file: /etc/eturnal/tls/crt.pem
   #tls_key_file: /etc/eturnal/tls/key.pem
 
