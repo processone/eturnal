@@ -11,6 +11,7 @@ project adheres to [Semantic Versioning][SemVer].
 
 ### Changed
 - Allow for binding to privileged ports.
+- Disable TURN support in the example configuration file.
 
 ### Fixed
 - Only signal readiness to systemd if eturnal's startup actually was successful.

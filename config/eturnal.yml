@@ -5,20 +5,10 @@
 
 eturnal:
 
-  ## Offer STUN and TURN on 3478 (UDP/TCP) and 5349 (TLS):
-  listen:
-    -
-      ip: "::"
-      port: 3478
-      transport: udp
-    -
-      ip: "::"
-      port: 3478
-      transport: tcp
-    -
-      ip: "::"
-      port: 5349
-      transport: tls
+  ## ---------------------------------------------------------------------- ##
+  ## To enable TURN support, specify a 'secret' and 'relay_ipv4_addr', and  ##
+  ## remove the 'enable_turn: false' lines in the 'listen' section below.   ##
+  ## ---------------------------------------------------------------------- ##
 
   ## Shared secret for deriving temporary TURN credentials (MUST be specified):
   #secret: "long-and-cryptic"
@@ -27,6 +17,22 @@ eturnal:
   #relay_ipv4_addr: "203.0.113.4"
   ## The server's public IPv6 address (optional):
   #relay_ipv6_addr: "2001:db8::4"
+
+  listen:
+    -
+      ip: "::"
+      port: 3478
+      transport: udp
+      enable_turn: false
+    -
+      ip: "::"
+      port: 3478
+      transport: tcp
+      enable_turn: false
+    #-
+    #  ip: "::"
+    #  port: 5349
+    #  transport: tls
 
   ## TLS certificate/key files (must be readable by 'eturnal' user!):
   #tls_crt_file: /etc/eturnal/tls/crt.pem

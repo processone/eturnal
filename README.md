@@ -14,9 +14,8 @@ source](#building-from-source).
 
 ### Quick Test
 
-The following two commands give you a STUN/TURN server listening on port 3478
-(UDP/TCP) and port 5349 (TLS) using the specified shared secret for [TURN
-authentication][2] (no root privileges required):
+The following two commands give you a STUN server listening on port 3478
+(UDP/TCP) (no root privileges required):
 
     $ curl https://eturnal.net/download/eturnal-0.8.0-linux-x64.tar.gz | tar -C /tmp -xzf -
     $ ETURNAL_SECRET='crypt1c' /tmp/eturnal/bin/eturnal foreground
@@ -88,9 +87,7 @@ edit the `build.config` file and re-run `./rebar3 as prod tar`.
 
 ### Quick Test
 
-The following command gives you a STUN/TURN server listening on port 3478
-(UDP/TCP) and port 5349 (TLS) using the specified shared secret for [TURN
-authentication][2]:
+The following command gives you a STUN server listening on port 3478 (UDP/TCP):
 
     $ ETURNAL_SECRET='crypt1c' ./rebar3 shell
 
@@ -110,12 +107,13 @@ archive _into_ the `/opt/eturnal` directory:
 
 The eturnal server is configured by editing the `/opt/eturnal/etc/eturnal.yml`
 file. This file uses the (indentation-sensitive!) [YAML][8] format. A commented
-[example configuration][9] with sane default settings is shipped with the
-eturnal server. However, for TURN relaying to work, you'll have to specify the
-[shared authentication][2] `secret`, and probably also the `relay_ipv4_addr`
-option, which should be set to the server's external IPv4 address. As an
-example, a minimal configuration for offering STUN and TURN services on port
-3478 (UDP and TCP) might look like this:
+[example configuration][9] is shipped with the eturnal server. However, for
+TURN relaying to work, you'll have to specify the [shared authentication][2]
+`secret` and probably also the `relay_ipv4_addr` option (which should be set to
+the server's external IPv4 address), and then either remove the `enable_turn:
+false` lines within the `listen` section or remove the `listen` section
+altogether. As an example, a minimal configuration for offering STUN and TURN
+services on port 3478 (UDP and TCP) might look like this:
 
 ```yaml
 eturnal:
