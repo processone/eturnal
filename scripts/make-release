@@ -100,9 +100,11 @@ scripts/make-source
 shasum -a 1 -b "$src_tar" >"$src_tar.sha1"
 scripts/make-binary
 shasum -a 1 -b "$bin_tar" >"$bin_tar.sha1"
+scripts/make-packages 2>&1 | tail -n 1
 
 echo "$myself: If everything looks fine, run something like:"
 echo
 echo "$ git push processone master $new_vsn"
 echo "$ mv $rel_name-$new_vsn*.tar.gz* /var/www/download"
+echo "$ mv $rel_name*.{deb,rpm} /var/www/download/package"
 echo "$ mv index.html /var/www/documentation"

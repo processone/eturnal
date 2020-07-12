@@ -8,6 +8,7 @@ project adheres to [Semantic Versioning][SemVer].
 - Allow for setting the `log_dir` option to the special value `stdout`, which
   tells eturnal to print log messages to the standard output rather than logging
   to a file.
+- Publish DEB and RPM packages, and adjust the documentation accordingly.
 
 ### Changed
 - Allow for binding to privileged ports.

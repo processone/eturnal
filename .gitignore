@@ -1,3 +1,5 @@
+/eturnal-*.rpm
+/eturnal_*.deb
 /eturnal-*.tar.gz*
 /rebar3
 /run/

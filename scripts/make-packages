@@ -1,0 +1,113 @@
+#!/bin/sh
+
+# Build DEB and RPM packages for Linux (x64).
+
+set -e
+set -u
+
+myself=${0##*/}
+
+usage()
+{
+	echo >&2 "Usage: $myself"
+	exit 2
+}
+
+if ! [ -e 'rebar.config' ] || ! [ -e "scripts/$myself" ]
+then
+	echo >&2 "Please call this script from the repository's root directory."
+	exit 2
+elif [ $# -ne 0 ]
+then
+	usage
+fi
+
+rel_name='eturnal'
+rel_vsn="$(scripts/get-version | sed 's/+.*//')"
+tar_name="$rel_name-$rel_vsn-linux-x64.tar.gz"
+tmp_dir=$(mktemp -d "/tmp/.$myself.XXXXXX")
+
+trap 'rm -rf "$tmp_dir"' INT TERM EXIT
+
+create_scripts()
+{
+	cat >"$tmp_dir/before-install" <<-EOF
+	if ! getent group '$rel_name' >'/dev/null'
+	then groupadd -r '$rel_name'
+	fi
+	if ! getent passwd '$rel_name' >'/dev/null'
+	then useradd -r -d '/opt/$rel_name' -g '$rel_name' '$rel_name'
+	fi
+	EOF
+
+	cat >"$tmp_dir/after-install" <<-EOF
+	chown '$rel_name:$rel_name' '/opt/$rel_name'
+	EOF
+
+	cat >"$tmp_dir/after-remove" <<-EOF
+	rm -f '/opt/$rel_name/.erlang.cookie'
+	if getent passwd '$rel_name' >'/dev/null'
+	then userdel '$rel_name'
+	fi
+	if getent group '$rel_name' >'/dev/null'
+	then groupdel '$rel_name'
+	fi
+	EOF
+}
+
+make_package()
+{
+	local output_type="$1"
+
+	cd "$tmp_dir" # FPM's "--chdir" option doesn't work (as I'd expect).
+	fpm --output-type "$output_type" \
+	    --input-type 'dir' \
+	    --name "$rel_name" \
+	    --version "$rel_vsn" \
+	    --iteration '1' \
+	    --license 'Apache' \
+	    --category 'net' \
+	    --no-depends \
+	    --no-auto-depends \
+	    --config-files './etc' \
+	    --directories "/opt/$rel_name" \
+	    --architecture 'native' \
+	    --maintainer 'Holger Weiss <holger@zedat.fu-berlin.de>' \
+	    --description 'Modern, straightforward STUN and TURN server.' \
+	    --url 'https://eturnal.net' \
+	    --deb-systemd "./$rel_name.service" \
+	    --deb-init "./$rel_name" \
+	    --rpm-init "./$rel_name" \
+	    --before-install './before-install' \
+	    --after-install './after-install' \
+	    --before-upgrade './before-install' \
+	    --after-upgrade './after-install' \
+	    --after-remove './after-remove' \
+	    './opt' './usr' './etc'
+	cd "$OLDPWD"
+}
+
+opt_dir="$tmp_dir/opt"
+etc_dir="$tmp_dir/etc"
+bin_dir="$tmp_dir/usr/sbin"
+dst_dir="$opt_dir/$rel_name"
+
+echo "$myself: Putting together DEB and RPM packages ..."
+mkdir -p "$opt_dir" "$bin_dir"
+tar -C "$opt_dir" -xzf "$tar_name"
+
+mv "$dst_dir/bin/eturnalctl" "$bin_dir"
+mv "$dst_dir/etc" "$etc_dir"
+mv "$etc_dir/init.d/$rel_name" "$tmp_dir"
+rmdir "$etc_dir/init.d"
+sed -i "s|opt/$rel_name/bin/eturnalctl|usr/sbin/eturnalctl|" \
+    "$etc_dir/systemd/system/$rel_name.service" "$tmp_dir/$rel_name"
+create_scripts
+make_package 'rpm'
+
+mv "$etc_dir/systemd/system/$rel_name.service" "$tmp_dir"
+rm -r "$etc_dir/systemd"
+make_package 'deb'
+
+mv "$tmp_dir/$rel_name"?$rel_vsn*.??? .
+echo "$myself: Created DEB and RPM packages successfully."

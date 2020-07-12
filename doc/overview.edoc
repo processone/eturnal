@@ -41,7 +41,8 @@ reference documentation below.
 
 == Installation ==
 
-On Linux/x64 systems, the <a
+Linux/x64 packages for DEB- and RPM-based distributions can be retrieved from
+[https://eturnal.net/download/package/]. On other Linux/x64 systems, the <a
 href="https://eturnal.net/download/eturnal-0.8.0-linux-x64.tar.gz">binary
 release</a> can be installed as described in this section. For building eturnal
 from source, see the <a
@@ -52,16 +53,29 @@ archive</a>.
 
 The binary release archive holds a stand-alone directory that includes
 everything required to run eturnal. It's recommended to create a dedicated
-system user for running eturnal, and to extract the release archive into this
-user's home directory. The example <a
-href="https://github.com/processone/eturnal/blob/0.8.0/config/eturnal.yml">`eturnal.yml'</a>
-file shipped with eturnal can either be edited in place or copied into the
-system's `/etc' directory, first. The release archive also includes the systemd
-unit file `eturnal.service', which can be copied into the `/etc/systemd/system'
-directory and enabled by calling the following commands with superuser
-privileges:
+system user for running eturnal (if not already done), and to extract the
+release archive into this user's home directory by running the following
+commands with superuser privileges:
 
 ```
+# useradd -r -d /opt/eturnal eturnal
+# curl https://eturnal.net/download/eturnal-0.8.0-linux-x64.tar.gz | tar -C /opt -xzf -
+'''
+
+The example <a
+href="https://github.com/processone/eturnal/blob/0.8.0/config/eturnal.yml">configuration
+file</a> shipped with eturnal can either be edited in place or copied into the
+system's `/etc' directory, first:
+
+```
+# cp -i /opt/eturnal/etc/eturnal.yml /etc/
+'''
+
+The release archive also includes a systemd unit file, which can be enabled by
+running the following commands with superuser privileges:
+
+```
+# cp /opt/eturnal/etc/systemd/system/eturnal.service /etc/systemd/system/
 # systemctl daemon-reload
 # systemctl enable eturnal
 # systemctl start eturnal
