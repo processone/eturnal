@@ -7,22 +7,10 @@ support. For TURN authentication, the mechanism described in the [REST API for
 Access to TURN Services specification][2] is implemented.
 
 On Linux/x64 systems, you can [install the binary
-release](#persistent-installation). On other platforms, eturnal is [built from
-source](#building-from-source).
+release](#installing-the-linuxx64-binaries). On other platforms, eturnal is
+[built from source](#building-from-source).
 
 ## Installing the Linux/x64 Binaries
-
-### Quick Test
-
-The following two commands give you a STUN server listening on port 3478
-(UDP/TCP) (no root privileges required):
-
-    $ curl https://eturnal.net/download/eturnal-0.8.0-linux-x64.tar.gz | tar -C /tmp -xzf -
-    $ ETURNAL_SECRET='crypt1c' /tmp/eturnal/bin/eturnal foreground
-
-To stop the server, press `<Ctrl>+C`. To remove it, run `rm -rf /tmp/eturnal`.
-
-### Persistent Installation
 
 You'll need root privileges for the following commands. Therefore, call `su -`
 or `sudo -i`, first.
@@ -85,20 +73,12 @@ The default installation prefix is set to `/opt/eturnal`, and it's assumed the
 server will be executed by a user named `eturnal`. To change these defaults,
 edit the `build.config` file and re-run `./rebar3 as prod tar`.
 
-### Quick Test
-
-The following command gives you a STUN server listening on port 3478 (UDP/TCP):
-
-    $ ETURNAL_SECRET='crypt1c' ./rebar3 shell
-
-To stop the server, press `<Ctrl>+C`.
-
-### Persistent Installation
+### Installation
 
 The generated archive file holds the _contents_ of the installation prefix.
-Therefore, you'd follow the [binary installation
-instructions](#persistent-installation) above, but adapt step 2 to extract the
-archive _into_ the `/opt/eturnal` directory:
+Therefore, you'd follow the [installation
+instructions](#installing-the-linuxx64-binaries) above, but adapt step 2 to
+extract the archive _into_ the `/opt/eturnal` directory:
 
     # cd /opt/eturnal
     # tar -xzf /tmp/eturnal-0.8.0/_build/prod/rel/eturnal/eturnal-0.8.0.tar.gz
