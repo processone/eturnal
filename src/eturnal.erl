@@ -143,15 +143,13 @@ handle_call(get_version, _From, State) ->
 handle_call(get_loglevel, _From, State) ->
     Level = eturnal_logger:get_level(),
     {reply, {ok, Level}, State, hibernate};
-handle_call({set_loglevel, Level}, _From, State)
-  when Level =:= critical;
-       Level =:= error;
-       Level =:= warning;
-       Level =:= notice;
-       Level =:= info;
-       Level =:= debug ->
-    ok = eturnal_logger:set_level(Level),
-    {reply, ok, State, hibernate};
+handle_call({set_loglevel, Level}, _From, State) ->
+    try
+        ok = eturnal_logger:set_level(Level),
+        {reply, ok, State, hibernate}
+    catch error:{badmatch, {error, _Reason} = Err} ->
+        {reply, Err, State, hibernate}
+    end;
 handle_call(Request, From, State) ->
     ?LOG_ERROR("Got unexpected request from ~p: ~p", [From, Request]),
     {reply, {error, badarg}, State, hibernate}.
