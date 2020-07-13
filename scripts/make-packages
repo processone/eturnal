@@ -65,7 +65,7 @@ make_package()
 	    --name "$rel_name" \
 	    --version "$rel_vsn" \
 	    --iteration '1' \
-	    --license 'Apache' \
+	    --license 'Apache-2.0' \
 	    --category 'net' \
 	    --no-depends \
 	    --no-auto-depends \
