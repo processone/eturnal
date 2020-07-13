@@ -73,6 +73,7 @@ make_package()
 	    --directories "/opt/$rel_name" \
 	    --architecture 'native' \
 	    --maintainer 'Holger Weiss <holger@zedat.fu-berlin.de>' \
+	    --vendor 'ProcessOne, SARL' \
 	    --description 'Modern, straightforward STUN and TURN server.' \
 	    --url 'https://eturnal.net' \
 	    --deb-systemd "./$rel_name.service" \
