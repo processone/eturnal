@@ -132,10 +132,10 @@ handle_call(reload, _From, State) ->
         ok ->
             ?LOG_DEBUG("Reloaded configuration"),
             {reply, ok, State, hibernate};
-        {error, Reason} ->
+        {error, Reason} = Err ->
             ?LOG_ERROR("Cannot reload configuration: ~ts",
                        [conf:format_error(Reason)]),
-            {reply, {error, Reason}, State, hibernate}
+            {reply, Err, State, hibernate}
     end;
 handle_call(get_version, _From, State) ->
     Version = eturnal_misc:version(),
