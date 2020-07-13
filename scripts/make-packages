@@ -45,7 +45,7 @@ create_scripts()
 	EOF
 
 	cat >"$tmp_dir/after-remove" <<-EOF
-	rm -f '/opt/$rel_name/.erlang.cookie'
+	rm -rf '/opt/$rel_name/run' '/opt/$rel_name/.erlang.cookie'
 	if getent passwd '$rel_name' >'/dev/null'
 	then userdel '$rel_name'
 	fi
