@@ -162,17 +162,17 @@ Example:
 ```
 listen:
   -
-    ip: "2001:db8::4"  # Default "::".
+    ip: "::"
     port: 3478         # This is the default for "transport: udp".
     transport: udp     # This is the default.
     enable_turn: true  # This is the default.
   -
-    ip: "2001:db8::4"  # Default "::".
+    ip: "::"
     port: 3478         # This is the default for "transport: tcp".
     transport: tcp     # Default: "udp".
     enable_turn: true  # This is the default.
   -
-    ip: "2001:db8::4"  # Default "::".
+    ip: "::"
     port: 5349         # This is the default for "transport: tls".
     transport: tls     # Default: "udp".
     enable_turn: true  # This is the default.
