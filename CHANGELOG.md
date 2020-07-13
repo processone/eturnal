@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [1.0.0] - 2020-07-13
 ### Added
 - Allow for setting the `log_dir` option to the special value `stdout`, which
   tells eturnal to print log messages to the standard output rather than logging
@@ -13,6 +15,9 @@ project adheres to [Semantic Versioning][SemVer].
 ### Changed
 - Allow for binding to privileged ports (if started via systemd).
 - Disable TURN support in the example configuration file.
+- If the distribution provides an `epmd.service`, make sure eturnal uses it
+  rather than starting its own epmd instance.
+- Don't bind epmd to 127.0.0.1 by default.
 
 ### Fixed
 - Only signal readiness to systemd if eturnal's startup actually was successful.
@@ -92,7 +97,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/0.8.0...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.0.0...HEAD
+[1.0.0]: https://github.com/processone/eturnal/releases/tag/1.0.0
 [0.8.0]: https://github.com/processone/eturnal/releases/tag/0.8.0
 [0.7.0]: https://github.com/processone/eturnal/releases/tag/0.7.0
 [0.6.0]: https://github.com/processone/eturnal/releases/tag/0.6.0

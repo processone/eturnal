@@ -14,13 +14,13 @@ release](#installation-on-linuxx64-systems). On other platforms, eturnal is
 
 On **DEB-based** Linux/x64 distributions, run:
 
-    $ curl -O https://eturnal.net/download/package/eturnal_0.8.0-1_amd64.deb
-    $ sudo dpkg -i eturnal_0.8.0-1_amd64.deb
+    $ curl -O https://eturnal.net/download/package/eturnal_1.0.0-1_amd64.deb
+    $ sudo dpkg -i eturnal_1.0.0-1_amd64.deb
 
 On **RPM-based** Linux/x64 distributions, run:
 
-    $ curl -O https://eturnal.net/download/package/eturnal-0.8.0-1.x86_64.rpm
-    $ sudo rpm -i eturnal-0.8.0-1.x86_64.rpm
+    $ curl -O https://eturnal.net/download/package/eturnal-1.0.0-1.x86_64.rpm
+    $ sudo rpm -i eturnal-1.0.0-1.x86_64.rpm
     $ sudo systemctl daemon-reload
     $ sudo systemctl enable eturnal
     $ sudo systemctl start eturnal
@@ -49,11 +49,11 @@ and `openssl-devel`.
 > official source tarball, you must [download rebar3][9] and make it executable
 > (`chmod +x rebar3`), first.
 
-    $ curl https://eturnal.net/download/eturnal-0.8.0.tar.gz | tar -C /tmp -xzf -
-    $ cd /tmp/eturnal-0.8.0
+    $ curl https://eturnal.net/download/eturnal-1.0.0.tar.gz | tar -C /tmp -xzf -
+    $ cd /tmp/eturnal-1.0.0
     $ ./rebar3 as prod tar
 
-This generates the archive file `_build/prod/rel/eturnal/eturnal-0.8.0.tar.gz`.
+This generates the archive file `_build/prod/rel/eturnal/eturnal-1.0.0.tar.gz`.
 The default installation prefix is set to `/opt/eturnal`, and it's assumed the
 server will be executed by a user named `eturnal`. To change these defaults,
 edit the `build.config` file, re-run `./rebar3 as prod tar`, and adapt the
@@ -76,7 +76,7 @@ or `sudo -i`, first.
 2.  Extract the archive generated [above](#compilation):
 
         # cd /opt/eturnal
-        # tar -xzf /tmp/eturnal-0.8.0/_build/prod/rel/eturnal/eturnal-0.8.0.tar.gz
+        # tar -xzf /tmp/eturnal-1.0.0/_build/prod/rel/eturnal/eturnal-1.0.0.tar.gz
 
 3.  Copy the `eturnal.yml` file to `/etc` (optional):
 
@@ -154,8 +154,8 @@ free to (ab)use it for usage questions as well. If you happen to be using
  [8]: https://gcc.gnu.org
  [9]: https://github.com/erlang/rebar3/releases/download/3.14.0-rc2/rebar3
 [10]: https://en.wikipedia.org/wiki/YAML
-[11]: https://github.com/processone/eturnal/blob/0.8.0/config/eturnal.yml
+[11]: https://github.com/processone/eturnal/blob/1.0.0/config/eturnal.yml
 [12]: https://eturnal.net/documentation/
-[13]: https://github.com/processone/eturnal/blob/0.8.0/CHANGELOG.md
+[13]: https://github.com/processone/eturnal/blob/1.0.0/CHANGELOG.md
 [14]: https://github.com/processone/eturnal/issues
 [15]: https://xmpp.org

@@ -7,7 +7,7 @@ set -u
 
 export PATH='/usr/local/bin:/usr/bin:/bin'
 
-rel_vsn='0.8.0'
+rel_vsn='1.0.0'
 
 ( git describe --tags --match '[0-9]*' 2>'/dev/null' || echo "$rel_vsn" ) \
     | sed -e 's/-g.*//' -e 's/-/+/' | tr -d '[:space:]'
