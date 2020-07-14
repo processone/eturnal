@@ -56,7 +56,7 @@ and `openssl-devel`.
 This generates the archive file `_build/prod/rel/eturnal/eturnal-1.0.0.tar.gz`.
 The default installation prefix is set to `/opt/eturnal`, and it's assumed the
 server will be executed by a user named `eturnal`. To change these defaults,
-edit the `build.config` file, re-run `./rebar3 as prod tar`, and adapt the
+edit the [build.config][10] file, re-run `./rebar3 as prod tar`, and adapt the
 following installation instructions accordingly.
 
 ### Installation
@@ -92,8 +92,8 @@ or `sudo -i`, first.
 ## Configuration
 
 The eturnal server is configured by editing the `/etc/eturnal.yml` file. This
-file uses the (indentation-sensitive!) [YAML][10] format. A commented [example
-configuration][11] is shipped with the eturnal server. However, for TURN
+file uses the (indentation-sensitive!) [YAML][11] format. A commented [example
+configuration][12] is shipped with the eturnal server. However, for TURN
 relaying to work, you'll have to specify the [shared authentication][3] `secret`
 and probably also the `relay_ipv4_addr` option (which should be set to the
 server's external IPv4 address). Then, either remove the `enable_turn: false`
@@ -134,14 +134,14 @@ send a `HUP` signal after log rotation.
 ## Documentation
 
 For a detailed description of eturnal's configuration options and the
-`eturnalctl` tool, see the [reference documentation][12]. For notable changes
-between eturnal releases, see the [change log][13].
+`eturnalctl` tool, see the [reference documentation][13]. For notable changes
+between eturnal releases, see the [change log][14].
 
 ## Feedback/Support
 
-Please use [our issue tracker][14] for bug reports and feature requests. Feel
+Please use [our issue tracker][15] for bug reports and feature requests. Feel
 free to (ab)use it for usage questions as well. If you happen to be using
-[XMPP][15], you could also join our public channel
+[XMPP][16], you could also join our public channel
 `eturnal@conference.process-one.net`.
 
  [1]: https://travis-ci.org/processone/eturnal
@@ -153,9 +153,10 @@ free to (ab)use it for usage questions as well. If you happen to be using
  [7]: https://www.openssl.org
  [8]: https://gcc.gnu.org
  [9]: https://github.com/erlang/rebar3/releases/download/3.14.0-rc2/rebar3
-[10]: https://en.wikipedia.org/wiki/YAML
-[11]: https://github.com/processone/eturnal/blob/1.0.0/config/eturnal.yml
-[12]: https://eturnal.net/documentation/
-[13]: https://github.com/processone/eturnal/blob/1.0.0/CHANGELOG.md
-[14]: https://github.com/processone/eturnal/issues
-[15]: https://xmpp.org
+[10]: https://github.com/processone/eturnal/blob/1.0.0/build.config
+[11]: https://en.wikipedia.org/wiki/YAML
+[12]: https://github.com/processone/eturnal/blob/1.0.0/config/eturnal.yml
+[13]: https://eturnal.net/documentation/
+[14]: https://github.com/processone/eturnal/blob/1.0.0/CHANGELOG.md
+[15]: https://github.com/processone/eturnal/issues
+[16]: https://xmpp.org
