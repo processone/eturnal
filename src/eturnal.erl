@@ -353,11 +353,11 @@ apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
     end,
     case listener_config_changed(ConfigChanges) of
         true ->
-            case {stop_listeners(State), start_listeners()} of
-                {ok, {ok, Listeners}} ->
+            case {stop_listeners(State), timer:sleep(500), start_listeners()} of
+                {ok, ok, {ok, Listeners}} ->
                     ?LOG_INFO("Applied new listen configuration settings"),
                     State#eturnal_state{listeners = Listeners};
-                {_, _} -> % Error has been logged.
+                {_, ok, _} -> % Error has been logged.
                     abort(listener_failure)
             end;
         false ->
