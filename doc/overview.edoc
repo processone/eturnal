@@ -264,7 +264,7 @@ Default: Host name's IPv4 address</div>
 
 This option specifies the IPv4 address used for relaying data from/to TURN
 peers. Note that this <em>must</em> be the server's public IPv4 address; i.e.,
-it cannot be set to, for example, `"0.0.0.0"`. If this option isn't specified,
+it cannot be set to, for example, `"0.0.0.0"'. If this option isn't specified,
 eturnal will use the host name's IPv4 address. If `relay_ipv4_addr' is
 unspecified and the host name doesn't resolve to a public IPv4 address, eturnal
 will refuse to start, unless TURN is disabled for all <a
