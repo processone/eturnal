@@ -7,7 +7,7 @@ reload()
             exit 0
             ;;
         '{error,'*)
-            echo "$(echo "$response" | sed -e 's/{error, *"\(.*\)"}/\1/')" >&2
+            echo "$response" | sed 's/{error, *"\(.*\)"}/\1/' >&2
             exit 1
             ;;
         *)

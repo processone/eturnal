@@ -4,11 +4,11 @@ get_version()
 
     case $response in
         '{ok,'*)
-            echo "$(echo "$response" | sed -e 's/{ok, *"\(.*\)"}/\1/')"
+            echo "$response" | sed 's/{ok, *"\(.*\)"}/\1/'
             exit 0
             ;;
         '{error,'*)
-            echo "$(echo "$response" | sed -e 's/{error, *"\(.*\)"}/\1/')" >&2
+            echo "$response" | sed 's/{error, *"\(.*\)"}/\1/' >&2
             exit 1
             ;;
         *)
