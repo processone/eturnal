@@ -11,7 +11,7 @@
  {<<"p1_utils">>,{pkg,<<"p1_utils">>,<<"1.0.19">>},1},
  {<<"stun">>,
   {git,"https://github.com/processone/stun.git",
-       {ref,"8c90ae36488392624478a1784ebdcfbca224e953"}},
+       {ref,"03ef39e66b9d437631518cec57dbdfc8fab12678"}},
   0},
  {<<"yval">>,
   {git,"https://github.com/processone/yval.git",

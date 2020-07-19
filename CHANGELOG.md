@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Changed
+- Append session ID, transport, username, and client IP addresses/ports to
+  STUN/TURN log messages.
+- Append relay/peer IP addresses/ports to TURN log messages.
+- Log amount of relayed traffic per TURN session.
+- Log plain STUN (Binding) responses.
+- Log more info level messages during TURN sessions.
+- Log error responses sent to STUN/TURN clients.
 
 ## [1.0.0] - 2020-07-13
 ### Added
