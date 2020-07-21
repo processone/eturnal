@@ -110,7 +110,7 @@ query_state(PID) -> % Until we add a proper API to 'stun'.
 -spec query_sessions() -> [session()].
 query_sessions() ->
     lists:map(
-      fun({turn, PID, worker, _ModList}) ->
+      fun({_, PID, worker, _}) ->
               State = query_state(PID),
               User = element(6, State),
               SockMod = element(2, State),
