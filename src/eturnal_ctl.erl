@@ -17,7 +17,10 @@
 %%% limitations under the License.
 
 -module(eturnal_ctl).
--export([get_sessions/0, get_version/0, get_loglevel/0, set_loglevel/1,
+-export([get_sessions/0,
+         get_version/0,
+         get_loglevel/0,
+         set_loglevel/1,
          reload/0]).
 
 -include_lib("kernel/include/logger.hrl").

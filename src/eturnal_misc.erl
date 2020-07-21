@@ -17,7 +17,10 @@
 %%% limitations under the License.
 
 -module(eturnal_misc).
--export([my_ipv4_addr/0, my_ipv6_addr/0, addr_to_str/1, addr_to_str/2,
+-export([my_ipv4_addr/0,
+         my_ipv6_addr/0,
+         addr_to_str/1,
+         addr_to_str/2,
          version/0]).
 
 -include_lib("kernel/include/logger.hrl").

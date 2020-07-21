@@ -18,7 +18,10 @@
 
 -module(eturnal_app).
 -behaviour(application).
--export([start/2, prep_stop/1, stop/1, config_change/3]).
+-export([start/2,
+         prep_stop/1,
+         stop/1,
+         config_change/3]).
 
 -include_lib("kernel/include/logger.hrl").
 

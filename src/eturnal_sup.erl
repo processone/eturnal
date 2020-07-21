@@ -18,7 +18,8 @@
 
 -module(eturnal_sup).
 -behaviour(supervisor).
--export([start_link/0, init/1]).
+-export([start_link/0,
+         init/1]).
 
 -include_lib("kernel/include/logger.hrl").
 -define(SERVER, ?MODULE).
