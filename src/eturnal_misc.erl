@@ -17,7 +17,8 @@
 %%% limitations under the License.
 
 -module(eturnal_misc).
--export([my_ipv4_addr/0, my_ipv6_addr/0, addr_to_str/2, version/0]).
+-export([my_ipv4_addr/0, my_ipv6_addr/0, addr_to_str/1, addr_to_str/2,
+         version/0]).
 
 -include_lib("kernel/include/logger.hrl").
 
@@ -39,11 +40,20 @@ my_ipv6_addr() ->
         {error, _} -> undefined
     end.
 
--spec addr_to_str(inet:ip_address(), 0..65535) -> iolist().
-addr_to_str({_, _, _, _, _, _, _, _} = Addr, Port) ->
-    [$[, inet_parse:ntoa(Addr), $], $:, integer_to_list(Port)];
-addr_to_str({_, _, _, _} = Addr, Port) ->
-    [inet_parse:ntoa(Addr), $:, integer_to_list(Port)].
+-spec addr_to_str(inet:ip_address(), inet:port_number()) -> iolist().
+addr_to_str(Addr, Port) ->
+    addr_to_str({Addr, Port}).
+
+-spec addr_to_str({inet:ip_address(), inet:port_number()} | inet:ip_address())
+      -> iolist().
+addr_to_str({Addr, Port}) when is_tuple(Addr) ->
+    [addr_to_str(Addr), [$: | integer_to_list(Port)]];
+addr_to_str({0, 0, 0, 0, 0, 16#FFFF, D7, D8}) ->
+    addr_to_str({D7 bsr 8, D7 band 255, D8 bsr 8, D8 band 255});
+addr_to_str({_, _, _, _, _, _, _, _} = Addr) ->
+    [$[, inet:ntoa(Addr), $]];
+addr_to_str(Addr) ->
+    inet:ntoa(Addr).
 
 -spec version() -> binary().
 version() ->

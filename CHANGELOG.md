@@ -5,6 +5,8 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 ### Changed
+- Add `eturnalctl session` command, which lists the currently active TURN
+  sessions.
 - Append session ID, transport, username, and client IP addresses/ports to
   STUN/TURN log messages.
 - Append relay/peer IP addresses/ports to TURN log messages.

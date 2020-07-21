@@ -1,0 +1,33 @@
+get_sessions()
+{
+    local response="$(erl_rpc 'eturnal_ctl' 'get_sessions' || :)"
+
+    case $response in
+        '{ok,'*)
+            echo "$response" | sed -e 's/{ok, *"\(.*\)"}/\1/' -e 's/~n/\
+/g'
+            exit 0
+            ;;
+        '{error,'*)
+            echo "$response" | sed 's/{error, *"\(.*\)"}/\1/' >&2
+            exit 1
+            ;;
+        *)
+            echo "Unknown error: '$response'" >&2
+            exit 1
+            ;;
+    esac
+}
+
+if [ $# -ge 1 ] && [ "x$1" = 'xhelp' ]
+then
+    echo "Usage: $REL_NAME sessions"
+    echo "Print the list of currently active TURN sessions."
+    exit 0
+elif [ $# -eq 0 ]
+then
+    get_sessions
+else
+    echo "Usage: $REL_NAME sessions" >&2
+    exit 2
+fi

@@ -434,6 +434,9 @@ See the following list for a subset of the available `eturnalctl' commands:
   <li><a name="reload"
          class="cue">`eturnalctl reload'</a><br/>
       Reload the configuration file.</li>
+  <li><a name="sessions"
+         class="cue">`eturnalctl sessions'</a><br/>
+      Print the list of currently active TURN sessions.</li>
   <li><a name="get_loglevel"
          class="cue">`eturnalctl loglevel'</a><br/>
       Print the <a href="#log_level">`log_level'</a> of the running eturnal
