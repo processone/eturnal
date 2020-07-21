@@ -24,6 +24,7 @@ then
     exit 0
 elif [ $# -eq 0 ]
 then
+    ping_or_exit
     reload
 else
     echo "Usage: $REL_NAME reload" >&2
