@@ -17,6 +17,7 @@
 %%% limitations under the License.
 
 -module(eturnal).
+-author('holger@zedat.fu-berlin.de').
 -behaviour(gen_server).
 -export([start/0,
          start_link/0,

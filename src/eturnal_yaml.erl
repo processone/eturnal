@@ -17,6 +17,7 @@
 %%% limitations under the License.
 
 -module(eturnal_yaml).
+-author('holger@zedat.fu-berlin.de').
 -behaviour(conf).
 -export([validator/0]).
 -import(yval, [and_then/2, binary/0, bool/0, directory/1, either/2, enum/1,

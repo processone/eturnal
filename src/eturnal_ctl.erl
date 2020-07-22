@@ -17,6 +17,7 @@
 %%% limitations under the License.
 
 -module(eturnal_ctl).
+-author('holger@zedat.fu-berlin.de').
 -export([get_sessions/0,
          get_version/0,
          get_loglevel/0,

@@ -17,6 +17,7 @@
 %%% limitations under the License.
 
 -module(eturnal_misc).
+-author('holger@zedat.fu-berlin.de').
 -export([my_ipv4_addr/0,
          my_ipv6_addr/0,
          addr_to_str/1,
