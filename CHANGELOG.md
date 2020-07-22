@@ -4,9 +4,13 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [1.1.0] - 2020-07-22
+### Added
+- Add `eturnalctl session` command, which lists some details about the currently
+  active TURN sessions.
+
 ### Changed
-- Add `eturnalctl session` command, which lists the currently active TURN
-  sessions.
 - Append session ID, transport, username, and client IP addresses/ports to
   STUN/TURN log messages.
 - Append relay/peer IP addresses/ports to TURN log messages.
@@ -14,6 +18,12 @@ project adheres to [Semantic Versioning][SemVer].
 - Log plain STUN (Binding) responses.
 - Log more info level messages during TURN sessions.
 - Log error responses sent to STUN/TURN clients.
+
+## Fixed
+- Make configuration reloads performed after changing the `listen` configuration
+  more robust against timing issues.
+- Let eturnalctl commands that query the running node fail gracefully if eturnal
+  isn't running.
 
 ## [1.0.0] - 2020-07-13
 ### Added
@@ -107,7 +117,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/1.0.0...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.1.0...HEAD
+[1.1.0]: https://github.com/processone/eturnal/releases/tag/1.1.0
 [1.0.0]: https://github.com/processone/eturnal/releases/tag/1.0.0
 [0.8.0]: https://github.com/processone/eturnal/releases/tag/0.8.0
 [0.7.0]: https://github.com/processone/eturnal/releases/tag/0.7.0

@@ -14,13 +14,13 @@ release](#installation-on-linuxx64-systems). On other platforms, eturnal is
 
 On **DEB-based** Linux/x64 distributions, run:
 
-    $ curl -O https://eturnal.net/download/package/eturnal_1.0.0-1_amd64.deb
-    $ sudo dpkg -i eturnal_1.0.0-1_amd64.deb
+    $ curl -O https://eturnal.net/download/package/eturnal_1.1.0-1_amd64.deb
+    $ sudo dpkg -i eturnal_1.1.0-1_amd64.deb
 
 On **RPM-based** Linux/x64 distributions, run:
 
-    $ curl -O https://eturnal.net/download/package/eturnal-1.0.0-1.x86_64.rpm
-    $ sudo rpm -i eturnal-1.0.0-1.x86_64.rpm
+    $ curl -O https://eturnal.net/download/package/eturnal-1.1.0-1.x86_64.rpm
+    $ sudo rpm -i eturnal-1.1.0-1.x86_64.rpm
     $ sudo systemctl daemon-reload
     $ sudo systemctl enable eturnal
     $ sudo systemctl start eturnal
@@ -34,7 +34,7 @@ On other Linux/x64 systems, the binary release tarball can be installed as
 
 - [Erlang/OTP][5] (21.0 or newer).
 - [LibYAML][6] (0.1.4 or newer).
-- [OpenSSL][7] (1.0.0 or newer).
+- [OpenSSL][7] (1.1.0 or newer).
 - [GCC][8] (other C compilers might work as well).
 
 Note that you need the development headers of the libraries as well. Linux
@@ -49,11 +49,11 @@ and `openssl-devel`.
 > official source tarball, you must [download rebar3][9] and make it executable
 > (`chmod +x rebar3`), first.
 
-    $ curl https://eturnal.net/download/eturnal-1.0.0.tar.gz | tar -C /tmp -xzf -
-    $ cd /tmp/eturnal-1.0.0
+    $ curl https://eturnal.net/download/eturnal-1.1.0.tar.gz | tar -C /tmp -xzf -
+    $ cd /tmp/eturnal-1.1.0
     $ ./rebar3 as prod tar
 
-This generates the archive file `_build/prod/rel/eturnal/eturnal-1.0.0.tar.gz`.
+This generates the archive file `_build/prod/rel/eturnal/eturnal-1.1.0.tar.gz`.
 The default installation prefix is set to `/opt/eturnal`, and it's assumed the
 server will be executed by a user named `eturnal`. To change these defaults,
 edit the [build.config][10] file, re-run `./rebar3 as prod tar`, and adapt the
@@ -76,7 +76,7 @@ or `sudo -i`, first.
 2.  Extract the archive generated [above](#compilation):
 
         # cd /opt/eturnal
-        # tar -xzf /tmp/eturnal-1.0.0/_build/prod/rel/eturnal/eturnal-1.0.0.tar.gz
+        # tar -xzf /tmp/eturnal-1.1.0/_build/prod/rel/eturnal/eturnal-1.1.0.tar.gz
 
 3.  Copy the `eturnal.yml` file to `/etc` (optional):
 
@@ -153,10 +153,10 @@ free to (ab)use it for usage questions as well. If you happen to be using
  [7]: https://www.openssl.org
  [8]: https://gcc.gnu.org
  [9]: https://github.com/erlang/rebar3/releases/download/3.14.0-rc2/rebar3
-[10]: https://github.com/processone/eturnal/blob/1.0.0/build.config
+[10]: https://github.com/processone/eturnal/blob/1.1.0/build.config
 [11]: https://en.wikipedia.org/wiki/YAML
-[12]: https://github.com/processone/eturnal/blob/1.0.0/config/eturnal.yml
+[12]: https://github.com/processone/eturnal/blob/1.1.0/config/eturnal.yml
 [13]: https://eturnal.net/documentation/
-[14]: https://github.com/processone/eturnal/blob/1.0.0/CHANGELOG.md
+[14]: https://github.com/processone/eturnal/blob/1.1.0/CHANGELOG.md
 [15]: https://github.com/processone/eturnal/issues
 [16]: https://xmpp.org
