@@ -22,6 +22,7 @@
 -export([start/0,
          start_link/0,
          get_password/2,
+         run_hook/2,
          stop/0]).
 -export([init/1,
          handle_call/3,
@@ -34,12 +35,14 @@
 -define(PEM_FILE_NAME, "cert.pem").
 
 -record(eturnal_state,
-        {listeners :: [listener()]}).
+        {listeners :: listeners(),
+         modules :: modules()}).
 
 -type config_changes() :: {[{atom(), term()}], [{atom(), term()}], [atom()]}.
 -type transport() :: udp | tcp | tls.
 -type port_num() :: 0..65535.
--type listener() :: {port_num(), transport()}.
+-type listeners() :: [{port_num(), transport()}].
+-type modules() :: #{module() => eturnal_module:state()}.
 -type state() :: #eturnal_state{}.
 
 %% API.
@@ -76,13 +79,17 @@ get_password(Username, _Realm) ->
             <<>>
     end.
 
+-spec run_hook(eturnal_module:event(), eturnal_module:info()) -> ok.
+run_hook(Event, Info) ->
+    gen_server:cast(?MODULE, {run_hook, Event, Info}).
+
 -spec stop() -> ok | {error, term()}.
 stop() ->
     application:stop(?MODULE).
 
 %% Behaviour callbacks.
 
--spec init(any()) -> {ok, state(), hibernate} | no_return().
+-spec init(any()) -> {ok, state()} | no_return().
 init(_Opts) ->
     process_flag(trap_exit, true),
     case ensure_run_dir() of
@@ -115,67 +122,88 @@ init(_Opts) ->
         false ->
             ?LOG_DEBUG("TLS not enabled, ignoring certificate configuration")
     end,
-    case start_listeners() of
-        {ok, Listeners} ->
-            ?LOG_DEBUG("Started up ~B listeners", [length(Listeners)]),
-            {ok, #eturnal_state{listeners = Listeners}, hibernate};
-        {error, Reason} ->
-            ?LOG_DEBUG("Failed to start up listeners: ~p", [Reason]),
-            abort(listener_failure)
-    end.
+    Ms = case start_modules() of
+             {ok, Modules} ->
+                 ?LOG_DEBUG("Started ~B modules", [maps:size(Modules)]),
+                 Modules;
+             {error, Reason1} ->
+                 ?LOG_DEBUG("Failed to start modules: ~p", [Reason1]),
+                 abort(module_failure)
+         end,
+    Ls = case start_listeners() of
+             {ok, Listeners} ->
+                 ?LOG_DEBUG("Started ~B listeners", [length(Listeners)]),
+                 Listeners;
+             {error, Reason2} ->
+                 ?LOG_DEBUG("Failed to start listeners: ~p", [Reason2]),
+                 abort(listener_failure)
+         end,
+    {ok, #eturnal_state{listeners = Ls, modules = Ms}}.
 
 -spec handle_call(reload | get_version | get_loglevel |
                   {set_loglevel, eturnal_logger:level()} | term(),
                   {pid(), term()}, state())
-      -> {reply, ok | {ok, term()} | {error, term()}, state(), hibernate}.
+      -> {reply, ok | {ok, term()} | {error, term()}, state()}.
 handle_call(reload, _From, State) ->
     case conf:reload_file() of
         ok ->
             ?LOG_DEBUG("Reloaded configuration"),
-            {reply, ok, State, hibernate};
+            {reply, ok, State};
         {error, Reason} = Err ->
             ?LOG_ERROR("Cannot reload configuration: ~ts",
                        [conf:format_error(Reason)]),
-            {reply, Err, State, hibernate}
+            {reply, Err, State}
     end;
 handle_call(get_version, _From, State) ->
     Version = eturnal_misc:version(),
-    {reply, {ok, Version}, State, hibernate};
+    {reply, {ok, Version}, State};
 handle_call(get_loglevel, _From, State) ->
     Level = eturnal_logger:get_level(),
-    {reply, {ok, Level}, State, hibernate};
+    {reply, {ok, Level}, State};
 handle_call({set_loglevel, Level}, _From, State) ->
     try
         ok = eturnal_logger:set_level(Level),
-        {reply, ok, State, hibernate}
+        {reply, ok, State}
     catch error:{badmatch, {error, _Reason} = Err} ->
-        {reply, Err, State, hibernate}
+        {reply, Err, State}
     end;
 handle_call(Request, From, State) ->
     ?LOG_ERROR("Got unexpected request from ~p: ~p", [From, Request]),
-    {reply, {error, badarg}, State, hibernate}.
+    {reply, {error, badarg}, State}.
 
--spec handle_cast({config_change, config_changes(),
+-spec handle_cast({run_hook, eturnal_module:event(), eturnal_module:info()} |
+                  {config_change, config_changes(),
                    fun(() -> ok), fun(() -> ok)} | term(), state())
-      -> {noreply, state(), hibernate} | no_return().
+      -> {noreply, state()} | no_return().
+handle_cast({run_hook, Event, Info},
+            #eturnal_state{modules = Modules} = State) ->
+    ?LOG_DEBUG("Running '~s' hook", [Event]),
+    Modules1 = maps:fold(fun(Mod, ModState, ModMap) ->
+                                 {ok, ModState1} = eturnal_module:handle_event(
+                                                     Mod, Event, Info,
+                                                     ModState),
+                                 ModMap#{Mod => ModState1}
+                         end, #{}, Modules),
+    {noreply, State#eturnal_state{modules = Modules1}};
 handle_cast({config_change, Changes, BeginFun, EndFun}, State) ->
     ok = BeginFun(),
     State1 = apply_config_changes(State, Changes),
     ok = EndFun(),
-    {noreply, State1, hibernate};
+    {noreply, State1};
 handle_cast(Msg, State) ->
     ?LOG_ERROR("Got unexpected message: ~p", [Msg]),
-    {noreply, State, hibernate}.
+    {noreply, State}.
 
--spec handle_info(term(), state()) -> {noreply, state(), hibernate}.
+-spec handle_info(term(), state()) -> {noreply, state()}.
 handle_info(Info, State) ->
     ?LOG_ERROR("Got unexpected info: ~p", [Info]),
-    {noreply, State, hibernate}.
+    {noreply, State}.
 
 -spec terminate(normal | shutdown | {shutdown, term()} | term(), state()) -> ok.
 terminate(Reason, State) ->
     ?LOG_DEBUG("Terminating ~s (~p)", [?MODULE, Reason]),
     _ = stop_listeners(State),
+    _ = stop_modules(State),
     _ = clean_run_dir(),
     ok.
 
@@ -186,13 +214,52 @@ code_change(_OldVsn, State, _Extra) ->
 
 %% Internal functions.
 
--spec start_listeners() -> {ok, [listener()]} | {error, term()}.
+-spec start_modules() -> {ok, modules()} | {error, term()}.
+start_modules() ->
+    {ok, Modules} = application:get_env(modules),
+    ?LOG_DEBUG("Got modules option:~n~p", [Modules]),
+    try maps:fold(
+          fun(Mod, _Opts, ModMap) ->
+                  case eturnal_module:start(Mod) of
+                      {ok, State} ->
+                          ?LOG_INFO("Started ~s", [Mod]),
+                          ModMap#{Mod => State};
+                      {error, Reason} = Err ->
+                          ?LOG_CRITICAL("Failed to start ~s: ~p",
+                                        [Mod, Reason]),
+                          throw(Err)
+                  end
+          end, #{}, Modules) of
+        ModMap ->
+            {ok, ModMap}
+    catch throw:{error, Reason} ->
+            {error, Reason}
+    end.
+
+-spec stop_modules(state()) -> ok | {error, term()}.
+stop_modules(#eturnal_state{modules = Modules}) ->
+    try maps:fold(
+          fun(Mod, State, _Acc) ->
+                  case eturnal_module:stop(Mod, State) of
+                      ok ->
+                          ?LOG_INFO("Stopped ~s", [Mod]);
+                      {error, Reason} = Err ->
+                          ?LOG_CRITICAL("Failed to stop ~s: ~p", [Mod, Reason]),
+                      throw(Err)
+                  end
+          end, undefined, Modules)
+    catch throw:{error, Reason} ->
+            {error, Reason}
+    end.
+
+-spec start_listeners() -> {ok, listeners()} | {error, term()}.
 start_listeners() ->
     Opts = lists:filtermap(
              fun({InKey, OutKey}) ->
                      {ok, Val} = application:get_env(InKey),
                      opt_filter({OutKey, Val})
-             end, opt_map()) ++ [{auth_fun, fun ?MODULE:get_password/2}],
+             end, opt_map()) ++ [{auth_fun, fun ?MODULE:get_password/2},
+                                 {hook_fun, fun ?MODULE:run_hook/2}],
     {ok, Listen} = application:get_env(listen),
     ?LOG_DEBUG("Got listen option:~n~p", [Listen]),
     try lists:map(
@@ -220,9 +287,9 @@ start_listeners() ->
                                     [eturnal_misc:addr_to_str(IP, Port),
                                      Transport, Type]);
                       {error, Reason} = Err ->
-                          ?LOG_ERROR("Cannot listen on ~s (~s): ~p",
-                                     [eturnal_misc:addr_to_str(IP, Port),
-                                      Transport, Reason]),
+                          ?LOG_CRITICAL("Cannot listen on ~s (~s): ~p",
+                                        [eturnal_misc:addr_to_str(IP, Port),
+                                         Transport, Reason]),
                           throw(Err)
                   end,
                   {IP, Port, Transport}
@@ -243,9 +310,9 @@ stop_listeners(#eturnal_state{listeners = Listeners}) ->
                                     [eturnal_misc:addr_to_str(IP, Port),
                                      Transport]);
                       {error, Reason} = Err ->
-                          ?LOG_ERROR("Cannot stop listening on ~s (~s): ~p",
-                                     [eturnal_misc:addr_to_str(IP, Port),
-                                      Transport, Reason]),
+                          ?LOG_CRITICAL("Cannot stop listening on ~s (~s): ~p",
+                                        [eturnal_misc:addr_to_str(IP, Port),
+                                         Transport, Reason]),
                       throw(Err)
                   end
           end, Listeners)
@@ -314,6 +381,12 @@ listener_config_changed({Changed, New, Removed}) ->
                     software_name],
     lists:any(fun(Key) -> lists:member(Key, ModifiedKeys) end, ListenerKeys).
 
+-spec module_config_changed(config_changes()) -> boolean().
+module_config_changed({Changed, New, Removed}) ->
+    ModifiedKeys = proplists:get_keys(Changed ++ New ++ Removed),
+    ModuleKeys = [modules],
+    lists:any(fun(Key) -> lists:member(Key, ModifiedKeys) end, ModuleKeys).
+
 -spec apply_config_changes(state(), config_changes()) -> state() | no_return().
 apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
     if length(Changed) > 0 ->
@@ -334,7 +407,7 @@ apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
     case logging_config_changed(ConfigChanges) of
         true ->
             ok = eturnal_logger:reconfigure(),
-            ?LOG_INFO("Applied new logging configuration settings");
+            ?LOG_INFO("Applied new logging configuration");
         false ->
             ?LOG_DEBUG("Logging configuration unchanged")
     end,
@@ -352,19 +425,34 @@ apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
         false ->
             ?LOG_DEBUG("TLS not enabled, ignoring certificate configuration")
     end,
-    case listener_config_changed(ConfigChanges) of
-        true ->
-            case {stop_listeners(State), timer:sleep(500), start_listeners()} of
-                {ok, ok, {ok, Listeners}} ->
-                    ?LOG_INFO("Applied new listen configuration settings"),
-                    State#eturnal_state{listeners = Listeners};
-                {_, ok, _} -> % Error has been logged.
-                    abort(listener_failure)
-            end;
-        false ->
-            ?LOG_DEBUG("Listen configuration unchanged"),
-            State
-    end.
+    State1 = case module_config_changed(ConfigChanges) of
+                 true ->
+                     case {stop_modules(State), start_modules()} of
+                         {ok, {ok, Modules}} ->
+                             ?LOG_INFO("Applied new module configuration"),
+                             State#eturnal_state{modules = Modules};
+                         {_, _} -> % Error has been logged.
+                             abort(module_failure)
+                     end;
+                 false ->
+                     ?LOG_DEBUG("Module configuration unchanged"),
+                     State
+             end,
+    State2 = case listener_config_changed(ConfigChanges) of
+                 true ->
+                     case {stop_listeners(State), timer:sleep(500),
+                           start_listeners()} of
+                         {ok, ok, {ok, Listeners}} ->
+                             ?LOG_INFO("Applied new listen configuration"),
+                             State1#eturnal_state{listeners = Listeners};
+                         {_, ok, _} -> % Error has been logged.
+                             abort(listener_failure)
+                     end;
+                 false ->
+                     ?LOG_DEBUG("Listen configuration unchanged"),
+                     State1
+             end,
+    State2.
 
 -spec get_pem_file_path() -> file:filename_all().
 get_pem_file_path() ->
@@ -512,10 +600,10 @@ opt_filter(Opt) ->
 abort(Reason) ->
     case application:get_env(eturnal, on_fail, halt) of
         exit ->
-            ?LOG_CRITICAL("Stopping eturnal STUN/TURN server (~p)", [Reason]),
+            ?LOG_ALERT("Stopping eturnal STUN/TURN server (~p)", [Reason]),
             exit(Reason);
         _Halt ->
-            ?LOG_CRITICAL("Aborting eturnal STUN/TURN server (~p)", [Reason]),
+            ?LOG_ALERT("Aborting eturnal STUN/TURN server (~p)", [Reason]),
             eturnal_logger:flush(),
             halt(1)
     end.

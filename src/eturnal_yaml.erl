@@ -20,10 +20,10 @@
 -author('holger@zedat.fu-berlin.de').
 -behaviour(conf).
 -export([validator/0]).
--import(yval, [and_then/2, binary/0, bool/0, directory/1, either/2, enum/1,
-               file/1, int/2, ip/0, ipv4/0, ipv6/0, ip_mask/0, list/1,
-               list_or_single/1, non_empty/1, non_neg_int/0, options/2, port/0,
-               pos_int/1]).
+-import(yval, [and_then/2, any/0, beam/1, binary/0, bool/0, directory/1,
+               either/2, enum/1, file/1, int/2, ip/0, ipv4/0, ipv6/0, ip_mask/0,
+               list/1, list_or_single/1, map/3, non_empty/1, non_neg_int/0,
+               options/1, options/2, port/0, pos_int/1]).
 
 -type transport() :: udp | tcp | tls.
 -type listener() :: {inet:ip_address(), inet:port_number(), transport(),
@@ -61,7 +61,8 @@ validator() ->
         log_dir => either(stdout, directory(write)),
         log_level => enum([critical, error, warning, notice, info, debug]),
         log_rotate_size => pos_int(infinity),
-        log_rotate_count => non_neg_int()},
+        log_rotate_count => non_neg_int(),
+        modules => module_validator()},
       [unique,
        {required, []},
        {defaults,
@@ -84,9 +85,27 @@ validator() ->
           log_dir => get_default("LOGS_DIRECTORY", <<"log">>),
           log_level => info,
           log_rotate_size => infinity,
-          log_rotate_count => 10}}]).
+          log_rotate_count => 10,
+          modules => #{}}}]).
 
 %% Internal functions.
+
+-spec module_validator() -> yval:validator().
+module_validator() ->
+    and_then(
+      map(
+        beam([{handle_event, 3}, {options, 0}]),
+        options(#{'_' => any()}),
+        [unique]),
+      fun(L) ->
+              lists:foldl(
+                fun({Mod, Opts}, Acc) ->
+                        {Validators,
+                         ValidatorOpts0} = eturnal_module:options(Mod),
+                        ValidatorOpts = [unique | ValidatorOpts0],
+                        Acc#{Mod => (options(Validators, ValidatorOpts))(Opts)}
+                end, #{}, L)
+      end).
 
 -spec listen_validator() -> yval:validator().
 listen_validator() ->

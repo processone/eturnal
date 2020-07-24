@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Added
+- Add experimental support for modules and include a `mod_example` with the
+  source code.  The APIs aren't documented yet and may change in the future.
 
 ## [1.1.0] - 2020-07-22
 ### Added
