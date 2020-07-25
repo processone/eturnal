@@ -178,12 +178,20 @@ handle_call(Request, From, State) ->
 handle_cast({run_hook, Event, Info},
             #eturnal_state{modules = Modules} = State) ->
     ?LOG_DEBUG("Running '~s' hook", [Event]),
-    Modules1 = maps:fold(fun(Mod, ModState, ModMap) ->
-                                 {ok, ModState1} = eturnal_module:handle_event(
-                                                     Mod, Event, Info,
-                                                     ModState),
-                                 ModMap#{Mod => ModState1}
-                         end, #{}, Modules),
+    Modules1 = maps:fold(
+                 fun(Mod, ModState, ModMap) ->
+                         case eturnal_module:handle_event(Mod, Event, Info,
+                                                          ModState) of
+                             {ok, ModState1} ->
+                                 ?LOG_DEBUG("Module '~s' handled '~s'",
+                                            [Mod, Event]),
+                                 ModMap#{Mod => ModState1};
+                             {error, Reason} ->
+                                 ?LOG_ERROR("Module '~s' failed to handle "
+                                            "'~s': ~p", [Mod, Event, Reason]),
+                                 ModMap#{Mod => ModState}
+                         end
+                 end, #{}, Modules),
     {noreply, State#eturnal_state{modules = Modules1}};
 handle_cast({config_change, Changes, BeginFun, EndFun}, State) ->
     ok = BeginFun(),
