@@ -114,7 +114,7 @@ non-systemd platforms, an [example init script][14] is shipped in the
 
 For controlling eturnal, the `eturnalctl` command can be used; see:
 
-    $ sudo eturnalctl help
+    $ eturnalctl help
 
 ## Logging
 
