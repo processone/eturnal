@@ -22,7 +22,8 @@
          stop/2,
          handle_event/4,
          options/1,
-         get_opt/2]).
+         get_opt/2,
+         ensure_deps/2]).
 -export_type([state/0,
               event/0,
               info/0,
@@ -33,6 +34,7 @@
 -type info() :: #{atom() => term()}.
 -type option() :: atom().
 -type options() :: {yval:validators(), proplists:proplist()}.
+-type dep() :: atom().
 -type module_ret() :: ok | {ok, state()}.
 
 -callback start() -> module_ret().
@@ -108,3 +110,83 @@ get_opt(Mod, Opt) ->
     {ok, #{Mod := Opts}} = application:get_env(modules),
     {Opt, Val} = proplists:lookup(Opt, Opts),
     Val.
+
+-spec ensure_deps(module(), [dep()]) -> ok | no_return().
+ensure_deps(Mod, Deps) ->
+    lists:foreach(fun(Dep) -> ok = ensure_dep(Mod, Dep) end, Deps).
+
+%% Internal functions.
+
+-spec ensure_dep(module(), dep()) -> ok | no_return().
+ensure_dep(Mod, Dep) ->
+    case application:ensure_started(Dep) of
+        ok ->
+            ?LOG_DEBUG("Dependency ~s started already", [Dep]),
+            ok;
+        {error, _Reason1} ->
+            ?LOG_DEBUG("Dependency ~s isn't started, loading it", [Dep]),
+            case start_app(Dep) of
+                ok ->
+                    ?LOG_INFO("Dependency ~s is available", [Dep]),
+                    ok;
+                {error, _Reason2} ->
+                    ?LOG_CRITICAL(
+                      "Dependency ~s is missing; install it below ~s, or "
+                      "point ERL_LIBS to it, or disable ~s",
+                      [Dep, code:lib_dir(), Mod]),
+                    eturnal:abort(dependency_failure)
+            end
+    end.
+
+-spec start_app(dep()) -> ok | {error, term()}.
+start_app(App) ->
+    case load_app(App) of
+        ok ->
+            ?LOG_DEBUG("Loaded ~s, trying to start it", [App]),
+            case application:ensure_started(App) of
+                ok ->
+                    ok;
+                {error, {not_started, Dep}} ->
+                    ?LOG_DEBUG("~s depends on ~s, loading it", [App, Dep]),
+                    case start_app(Dep) of
+                        ok ->
+                            start_app(App);
+                        {error, _Reason} = Err ->
+                            Err
+                    end;
+                {error, Reason} = Err ->
+                    ?LOG_DEBUG("Cannot start ~s: ~p", [App, Reason]),
+                    Err
+            end;
+        {error, Reason} = Err ->
+            ?LOG_DEBUG("Cannot load ~s: ~p", [App, Reason]),
+            Err
+    end.
+
+-spec load_app(dep()) -> ok | {error, term()}.
+load_app(App) ->
+    try
+        LibDir = code:lib_dir(),
+        AppDir = lists:max(filelib:wildcard([App | "-*"], LibDir)),
+        EbinDir = filename:join([LibDir, AppDir, "ebin"]),
+        BeamFiles = filelib:wildcard("*.beam", EbinDir),
+        Mods = lists:map(
+                 fun(File) ->
+                         list_to_atom(
+                           unicode:characters_to_list(
+                             string:replace(File, ".beam", "", trailing)))
+                 end, BeamFiles),
+        true = code:add_path(EbinDir),
+        case lists:any(fun(Mod) ->
+                               code:module_status(Mod) =:= not_loaded
+                       end, Mods) of
+            true ->
+                ?LOG_DEBUG("Loading modules: ~p", [Mods]),
+                ok = code:atomic_load(Mods);
+            false ->
+                ?LOG_DEBUG("Modules loaded already: ~p", [Mods]),
+                ok
+        end
+    catch _:Err ->
+              {error, Err}
+    end.

@@ -23,7 +23,8 @@
          start_link/0,
          get_password/2,
          run_hook/2,
-         stop/0]).
+         stop/0,
+         abort/1]).
 -export([init/1,
          handle_call/3,
          handle_cast/2,
@@ -86,6 +87,18 @@ run_hook(Event, Info) ->
 -spec stop() -> ok | {error, term()}.
 stop() ->
     application:stop(?MODULE).
+
+-spec abort(term()) -> no_return().
+abort(Reason) ->
+    case application:get_env(eturnal, on_fail, halt) of
+        exit ->
+            ?LOG_ALERT("Stopping eturnal STUN/TURN server (~p)", [Reason]),
+            exit(Reason);
+        _Halt ->
+            ?LOG_ALERT("Aborting eturnal STUN/TURN server (~p)", [Reason]),
+            eturnal_logger:flush(),
+            halt(1)
+    end.
 
 %% Behaviour callbacks.
 
@@ -603,15 +616,3 @@ opt_filter({relay_ipv6_addr, undefined}) ->
     false; % The 'stun' application currently wouldn't accept 'undefined'.
 opt_filter(Opt) ->
     {true, Opt}.
-
--spec abort(term()) -> no_return().
-abort(Reason) ->
-    case application:get_env(eturnal, on_fail, halt) of
-        exit ->
-            ?LOG_ALERT("Stopping eturnal STUN/TURN server (~p)", [Reason]),
-            exit(Reason);
-        _Halt ->
-            ?LOG_ALERT("Aborting eturnal STUN/TURN server (~p)", [Reason]),
-            eturnal_logger:flush(),
-            halt(1)
-    end.
