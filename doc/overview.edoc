@@ -78,8 +78,7 @@ running the following commands with superuser privileges:
 ```
 # cp /opt/eturnal/etc/systemd/system/eturnal.service /etc/systemd/system/
 # systemctl daemon-reload
-# systemctl enable eturnal
-# systemctl start eturnal
+# systemctl --now enable eturnal
 '''
 
 By default, the binary release assumes the user running eturnal is called

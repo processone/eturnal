@@ -22,8 +22,7 @@ On **RPM-based** Linux/x64 distributions, run:
     $ curl -O https://eturnal.net/download/package/eturnal-1.1.0-1.x86_64.rpm
     $ sudo rpm -i eturnal-1.1.0-1.x86_64.rpm
     $ sudo systemctl daemon-reload
-    $ sudo systemctl enable eturnal
-    $ sudo systemctl start eturnal
+    $ sudo systemctl --now enable eturnal
 
 On other Linux/x64 systems, the binary release tarball can be installed as
 [described][4] in the reference documentation.
@@ -86,8 +85,7 @@ or `sudo -i`, first.
 
         # cp /opt/eturnal/etc/systemd/system/eturnal.service /etc/systemd/system/
         # systemctl daemon-reload
-        # systemctl enable eturnal
-        # systemctl start eturnal
+        # systemctl --now enable eturnal
 
 ## Configuration
 
@@ -110,38 +108,31 @@ eturnal:
 
 ## Running eturnal
 
-On Linux systems, the eturnal server is usually controlled by systemd:
-
-    # systemctl start eturnal
-    # systemctl reload eturnal
-    # systemctl stop eturnal
-
-For non-systemd platforms, an example init script is shipped in the `etc/init.d`
-directory.
+On Linux systems, the eturnal server is usually invoked by [systemd][13]. For
+non-systemd platforms, an [example init script][14] is shipped in the
+`etc/init.d` directory.
 
 For controlling eturnal, the `eturnalctl` command can be used; see:
 
-    # eturnalctl help
+    $ sudo eturnalctl help
 
 ## Logging
 
 If eturnal was started by systemd, log files are written into the
-`/var/log/eturnal` directory by default. To use an external log rotation
-utility, remove the `log_rotate_*` options from your `eturnal.yml` configuration
-file. eturnal will detect external rotation automatically, so there's no need to
-send a `HUP` signal after log rotation.
+`/var/log/eturnal` directory by default. In order to log to the [journal][15]
+instead, the `log_dir` option can be set to `stdout` in the configuration file.
 
 ## Documentation
 
 For a detailed description of eturnal's configuration options and the
-`eturnalctl` tool, see the [reference documentation][13]. For notable changes
-between eturnal releases, see the [change log][14].
+`eturnalctl` tool, see the [reference documentation][16]. For notable changes
+between eturnal releases, see the [change log][17].
 
 ## Feedback/Support
 
-Please use [our issue tracker][15] for bug reports and feature requests. Feel
+Please use [our issue tracker][18] for bug reports and feature requests. Feel
 free to (ab)use it for usage questions as well. If you happen to be using
-[XMPP][16], you could also join our public channel
+[XMPP][19], you could also join our public channel
 `eturnal@conference.process-one.net`.
 
  [1]: https://travis-ci.org/processone/eturnal
@@ -156,7 +147,10 @@ free to (ab)use it for usage questions as well. If you happen to be using
 [10]: https://github.com/processone/eturnal/blob/1.1.0/build.config
 [11]: https://en.wikipedia.org/wiki/YAML
 [12]: https://github.com/processone/eturnal/blob/1.1.0/config/eturnal.yml
-[13]: https://eturnal.net/documentation/
-[14]: https://github.com/processone/eturnal/blob/1.1.0/CHANGELOG.md
-[15]: https://github.com/processone/eturnal/issues
-[16]: https://xmpp.org
+[13]: https://www.freedesktop.org/software/systemd/man/systemctl.html
+[14]: https://github.com/processone/eturnal/blob/1.1.0/scripts/eturnal.init
+[15]: https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html
+[16]: https://eturnal.net/documentation/
+[17]: https://github.com/processone/eturnal/blob/1.1.0/CHANGELOG.md
+[18]: https://github.com/processone/eturnal/issues
+[19]: https://xmpp.org
