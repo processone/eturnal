@@ -167,7 +167,7 @@ start_app(App) ->
 load_app(App) ->
     try
         LibDir = code:lib_dir(),
-        AppDir = lists:max(filelib:wildcard([App | "-*"], LibDir)),
+        AppDir = lists:max(filelib:wildcard([App, $*], LibDir)),
         EbinDir = filename:join([LibDir, AppDir, "ebin"]),
         BeamFiles = filelib:wildcard("*.beam", EbinDir),
         Mods = lists:map(
