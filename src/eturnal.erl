@@ -21,6 +21,7 @@
 -behaviour(gen_server).
 -export([start/0,
          start_link/0,
+         get_opt/1,
          get_password/2,
          run_hook/2,
          stop/0,
@@ -39,10 +40,14 @@
         {listeners :: listeners(),
          modules :: modules()}).
 
--type config_changes() :: {[{atom(), term()}], [{atom(), term()}], [atom()]}.
 -type transport() :: udp | tcp | tls.
 -type listeners() :: [{inet:port_number(), transport()}].
 -type modules() :: #{module() => eturnal_module:state()}.
+-type option() :: atom().
+-type value() :: term().
+-type config_changes() :: {[{option(), value()}],
+                           [{option(), value()}],
+                           [option()]}.
 -type state() :: #eturnal_state{}.
 
 %% API.
@@ -60,6 +65,11 @@ start() ->
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
+-spec get_opt(option()) -> value().
+get_opt(Opt) ->
+    {ok, Val} = application:get_env(eturnal, Opt),
+    Val.
+
 -spec get_password(binary(), binary()) -> binary().
 get_password(Username, _Realm) ->
     [Expiration | _Suffix] = binary:split(Username, <<$:>>),
@@ -68,8 +78,7 @@ get_password(Username, _Realm) ->
             case erlang:system_time(second) of
                 Now when Now < ExpireTime ->
                     ?LOG_DEBUG("Looking up password for: ~ts", [Username]),
-                    {ok, Secret} = application:get_env(eturnal, secret),
-                    derive_password(Username, Secret);
+                    derive_password(Username, get_opt(secret));
                 Now when Now >= ExpireTime ->
                     ?LOG_INFO("Credentials expired: ~ts", [Username]),
                     <<>>
@@ -236,8 +245,6 @@ code_change(_OldVsn, State, _Extra) ->
 
 -spec start_modules() -> {ok, modules()} | {error, term()}.
 start_modules() ->
-    {ok, Modules} = application:get_env(modules),
-    ?LOG_DEBUG("Got modules option:~n~p", [Modules]),
     try maps:fold(
           fun(Mod, _Opts, ModMap) ->
                   case eturnal_module:start(Mod) of
@@ -249,7 +256,7 @@ start_modules() ->
                                         [Mod, Reason]),
                           throw(Err)
                   end
-          end, #{}, Modules) of
+          end, #{}, get_opt(modules)) of
         ModMap ->
             {ok, ModMap}
     catch throw:{error, Reason} ->
@@ -276,12 +283,9 @@ stop_modules(#eturnal_state{modules = Modules}) ->
 start_listeners() ->
     Opts = lists:filtermap(
              fun({InKey, OutKey}) ->
-                     {ok, Val} = application:get_env(InKey),
-                     opt_filter({OutKey, Val})
+                     opt_filter({OutKey, get_opt(InKey)})
              end, opt_map()) ++ [{auth_fun, fun ?MODULE:get_password/2},
                                  {hook_fun, fun ?MODULE:run_hook/2}],
-    {ok, Listen} = application:get_env(listen),
-    ?LOG_DEBUG("Got listen option:~n~p", [Listen]),
     try lists:map(
           fun({IP, Port, Transport, EnableTURN}) ->
                   Opts1 = [{use_turn, EnableTURN} | Opts],
@@ -313,7 +317,7 @@ start_listeners() ->
                           throw(Err)
                   end,
                   {IP, Port, Transport}
-          end, Listen) of
+          end, get_opt(listen)) of
         Listeners ->
             {ok, Listeners}
     catch throw:{error, Reason} ->
@@ -342,37 +346,35 @@ stop_listeners(#eturnal_state{listeners = Listeners}) ->
 
 -spec tls_enabled() -> boolean().
 tls_enabled() ->
-    {ok, Listeners} = application:get_env(listen),
     lists:any(fun({_IP, _Port, Transport, _EnableTURN}) ->
                       Transport =:= tls
-              end, Listeners).
+              end, get_opt(listen)).
 
 -spec turn_enabled() -> boolean().
 turn_enabled() ->
-    {ok, Listeners} = application:get_env(listen),
     lists:any(fun({_IP, _Port, _Transport, EnableTURN}) ->
                       EnableTURN =:= true
-              end, Listeners).
+              end, get_opt(listen)).
 
 -spec got_secret() -> boolean().
 got_secret() ->
-    case application:get_env(secret) of
-        {ok, Secret} when is_binary(Secret), byte_size(Secret) > 0 ->
+    case get_opt(secret) of
+        Secret when is_binary(Secret), byte_size(Secret) > 0 ->
             true;
-        {ok, undefined} ->
+        undefined ->
             false
     end.
 
 -spec got_relay_addr() -> boolean().
 got_relay_addr() ->
-    case application:get_env(relay_ipv4_addr) of
-        {ok, undefined} ->
+    case get_opt(relay_ipv4_addr) of
+        undefined ->
             false;
-        {ok, {127, _, _, _}} ->
+        {127, _, _, _} ->
             false;
-        {ok, {0, 0, 0, 0}} ->
+        {0, 0, 0, 0} ->
             false;
-        {ok, {_, _, _, _}} ->
+        {_, _, _, _} ->
             true
     end.
 
@@ -476,14 +478,12 @@ apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
 
 -spec get_pem_file_path() -> file:filename_all().
 get_pem_file_path() ->
-    {ok, RunDir} = application:get_env(run_dir),
-    filename:join(RunDir, <<?PEM_FILE_NAME>>).
+    filename:join(get_opt(run_dir), <<?PEM_FILE_NAME>>).
 
 -spec update_pem_file() -> ok | unmodified | error.
 update_pem_file() ->
-    {ok, Opt} = application:get_env(tls_crt_file),
     OutFile = get_pem_file_path(),
-    case {Opt, filelib:last_modified(OutFile)} of
+    case {get_opt(tls_crt_file), filelib:last_modified(OutFile)} of
         {none, OutTime} when OutTime =/= 0 ->
             ?LOG_DEBUG("Using existing PEM file (~ts)", [OutFile]),
             unmodified;
@@ -511,11 +511,11 @@ import_cert(CrtFile, OutFile) ->
         {ok, Fd} = file:open(OutFile, Write),
         ok = file:close(Fd),
         ok = file:change_mode(OutFile, 8#00600),
-        {ok, KeyFile} = application:get_env(tls_key_file),
-        if is_binary(KeyFile) ->
+        case get_opt(tls_key_file) of
+            KeyFile when is_binary(KeyFile) ->
                 {ok, _} = file:copy({KeyFile, Read}, {OutFile, Write}),
                 ?LOG_DEBUG("Copied ~ts into ~ts", [KeyFile, OutFile]);
-           KeyFile =:= undefined ->
+            undefined ->
                 ?LOG_INFO("No 'tls_key_file' specified, assuming key in ~ts",
                           [CrtFile])
         end,
@@ -559,7 +559,7 @@ create_self_signed(OutFile) ->
 
 -spec ensure_run_dir() -> ok | error.
 ensure_run_dir() ->
-    {ok, RunDir} = application:get_env(run_dir),
+    RunDir = get_opt(run_dir),
     case filelib:ensure_dir(filename:join(RunDir, <<"state.dat">>)) of
         ok ->
             ?LOG_DEBUG("Using run directory ~ts", [RunDir]),
@@ -610,7 +610,7 @@ opt_map() ->
      {realm, auth_realm},
      {software_name, server_name}].
 
--spec opt_filter(Opt) -> {true, Opt} | false when Opt :: {atom(), term()}.
+-spec opt_filter(Opt) -> {true, Opt} | false when Opt :: {option(), value()}.
 opt_filter({relay_ipv6_addr, undefined}) ->
     false; % The 'stun' application currently wouldn't accept 'undefined'.
 opt_filter(Opt) ->

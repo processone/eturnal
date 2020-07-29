@@ -149,12 +149,12 @@ get_config() ->
         {ok, stdout} ->
             {ok, Config};
         {ok, LogFile} ->
-            case application:get_env(log_rotate_size) of
-                {ok, infinity} ->
-                    ok;
-                {ok, Size} when is_integer(Size) ->
+            case eturnal:get_opt(log_rotate_size) of
+                Size when is_integer(Size) ->
                     ?LOG_WARNING("Log rotation requires newer Erlang/OTP "
-                                 "version, ignoring 'log_rotate_*' options")
+                                 "version, ignoring 'log_rotate_*' options");
+                infinity ->
+                    ok
             end,
             {ok, Config#{type => {file, LogFile}}};
         none ->
@@ -169,12 +169,10 @@ get_config() ->
         {ok, stdout} ->
             {ok, Config};
         {ok, LogFile} ->
-            {ok, MaxNoBytes} = application:get_env(log_rotate_size),
-            {ok, MaxNoFiles} = application:get_env(log_rotate_count),
             {ok, Config#{file_check => 1000,
                          file => LogFile,
-                         max_no_bytes => MaxNoBytes,
-                         max_no_files => MaxNoFiles}};
+                         max_no_bytes => eturnal:get_opt(log_rotate_size),
+                         max_no_files => eturnal:get_opt(log_rotate_count)}};
         none ->
             none
     end.
@@ -182,20 +180,19 @@ get_config() ->
 
 -spec get_log_file() -> {ok, file:filename() | stdout} | none.
 get_log_file() ->
-    case application:get_env(log_dir) of
-        {ok, LogDir} when is_binary(LogDir) ->
+    case eturnal:get_opt(log_dir) of
+        LogDir when is_binary(LogDir) ->
             LogFile = filename:join(LogDir, <<?LOG_FILE_NAME>>),
             {ok, unicode:characters_to_list(LogFile)};
-        {ok, stdout} ->
+        stdout ->
             {ok, stdout};
-        {ok, none} ->
+        none ->
             none
     end.
 
 -spec set_level() -> ok.
 set_level() ->
-    {ok, Level} = application:get_env(log_level),
-    ok = set_level(Level).
+    ok = set_level(eturnal:get_opt(log_level)).
 
 -spec format_template() -> template().
 format_template() ->
@@ -210,11 +207,11 @@ format_template() ->
 
 -spec configure_default_handler() -> ok.
 configure_default_handler() ->
-    case application:get_env(log_dir) of
-        {ok, stdout} ->
-            ok = logger:set_handler_config(default, level, none);
-        {ok, _Dir} ->
+    case eturnal:get_opt(log_dir) of
+        LogDir when is_binary(LogDir) ->
             ok = logger:set_handler_config(default, level, warning);
+        stdout ->
+            ok = logger:set_handler_config(default, level, none);
         none ->
             ok = logger:set_handler_config(default, level, critical)
     end.

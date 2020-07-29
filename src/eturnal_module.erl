@@ -107,7 +107,7 @@ options(Mod) ->
 
 -spec get_opt(module(), option()) -> term().
 get_opt(Mod, Opt) ->
-    {ok, #{Mod := Opts}} = application:get_env(modules),
+    #{Mod := Opts} = eturnal:get_opt(modules),
     {Opt, Val} = proplists:lookup(Opt, Opts),
     Val.
 
