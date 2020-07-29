@@ -41,8 +41,7 @@
 
 -type config_changes() :: {[{atom(), term()}], [{atom(), term()}], [atom()]}.
 -type transport() :: udp | tcp | tls.
--type port_num() :: 0..65535.
--type listeners() :: [{port_num(), transport()}].
+-type listeners() :: [{inet:port_number(), transport()}].
 -type modules() :: #{module() => eturnal_module:state()}.
 -type state() :: #eturnal_state{}.
 
