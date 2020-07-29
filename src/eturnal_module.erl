@@ -119,9 +119,9 @@ ensure_deps(Mod, Deps) ->
 
 -spec ensure_dep(module(), dep()) -> ok | no_return().
 ensure_dep(Mod, Dep) ->
-    case application:ensure_started(Dep) of
-        ok ->
-            ?LOG_DEBUG("Dependency ~s started already", [Dep]),
+    case application:ensure_all_started(Dep) of
+        {ok, _Apps} ->
+            ?LOG_DEBUG("Dependency ~s was available already", [Dep]),
             ok;
         {error, _Reason1} ->
             ?LOG_DEBUG("Dependency ~s isn't started, loading it", [Dep]),
