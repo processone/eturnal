@@ -45,31 +45,34 @@ The eturnal server is started (and controlled) by calling the [eturnalctl][8]
 script, which is a small wrapper around the `eturnal` command. The latter
 expects a few files and directories to be available in the following locations:
 
-- The `bin` directory the `eturnal` command itself is installed to (see
-  `ls -R _build/distro/rel/eturnal/bin`).
-- The `bin/../releases` directory (see
-  `ls -R _build/distro/rel/eturnal/releases`).
+- The `bin` directory the `eturnal` command itself is installed to.
+- The `releases` directory, which is assumed to be in the same folder as the
+  `bin` directory.
 
 Therefore, distributions might want to install the directories
 `_build/distro/rel/eturnal/bin` and `_build/distro/rel/eturnal/releases` into
-(for example) some private `/usr/lib/eturnal` directory and adjust the path to
-the `eturnal` command within the [eturnalctl][8] script accordingly. The
-[eturnalctl][8] script itself can then be installed elsewhere (e.g., into
-`/usr/sbin`).
+some (for example) `/usr/lib/eturnal` folder and adjust the path to the
+`eturnal` command within the [eturnalctl][8] script accordingly. The
+[eturnalctl][8] script itself can be installed elsewhere (e.g., into
+`/usr/sbin`). The `_build/distro/rel/eturnal/lib/eturnal-$version` folder should
+be installed into the main Erlang library directory as returned by:
 
-Note that the [build.config][9] file can be patched before calling `./rebar3` in
-order to specify a different system user for running `eturnal`, and for
-specifing a different path to the [eturnalctl][8] script. Those
-[build.config][9] settings are (only) used while generating the [eturnalctl][8]
-script, the [systemd unit file][10], and the [init script][11] shipped with
-eturnal. The prefix to eturnal's `etc` directory can also be specified in the
-[build.config][9] file. If the [eturnal.yml][12] file should be placed into some
-(sub)directory _not_ called `etc` (e.g., `/etc/eturnal/eturnal.yml`), the `file`
-option of the `conf` library must be edited in the [sys.config][13] file located
-in the `_build/prod/rel/eturnal/releases/$version` directory after building
-eturnal. As an alternative, `-conf file '"/path/to/eturnal.yml"'` (note the
-double quoting) can be appended to the `eturnalctl` command line used for
-starting up eturnal.
+    $ erl -noinput -eval 'io:put_chars(code:lib_dir()), io:nl(), halt()'
+
+The `_build/stripped/rel/eturnal/etc` directory holds a [sample configuration
+file][9], a [systemd unit][10], and an [init script][11]. The [LICENSE.txt][12]
+file can be found in the `_build/stripped/rel/eturnal/doc` directory. Other
+directories created below the `_build` folder can be ignored.
+
+The following list of files could be patched before calling `./rebar3` in order
+to specify a different system user for running eturnal, to adjust the paths to
+the [eturnalctl][8] and `eturnal` scripts, and to change the default
+configuration file path:
+
+- [scripts/eturnalctl][8]
+- [scripts/eturnal.init][11]
+- [config/eturnal.service][10]
+- [config/sys.config][13]
 
  [1]: https://erlang.org/doc/design_principles/release_structure.html
  [2]: https://www.rebar3.org
@@ -79,8 +82,8 @@ starting up eturnal.
  [6]: https://github.com/processone/eturnal/blob/master/rebar.config
  [7]: https://eturnal.net/download/
  [8]: https://github.com/processone/eturnal/blob/master/scripts/eturnalctl
- [9]: https://github.com/processone/eturnal/blob/master/build.config
+ [9]: https://github.com/processone/eturnal/blob/master/config/eturnal.yml
 [10]: https://github.com/processone/eturnal/blob/master/config/eturnal.service
 [11]: https://github.com/processone/eturnal/blob/master/scripts/eturnal.init
-[12]: https://github.com/processone/eturnal/blob/master/config/eturnal.yml
+[12]: https://github.com/processone/eturnal/blob/master/LICENSE
 [13]: https://github.com/processone/eturnal/blob/master/config/sys.config
