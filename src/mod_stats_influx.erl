@@ -78,7 +78,7 @@ stop(_State) ->
 on_turn_session_start(#{id := Id},
                       #events_influx_state{sessions = Sessions0} = State) ->
     ?LOG_DEBUG("Handling start event for TURN session ~s", [Id]),
-    Sessions = Sessions0#{Id => erlang:system_time(microsecond)},
+    Sessions = Sessions0#{Id => erlang:monotonic_time(microsecond)},
     {ok, State#events_influx_state{sessions = Sessions}}.
 
 -spec on_turn_session_stop(eturnal_module:info(), state()) -> ret().
@@ -90,7 +90,7 @@ on_turn_session_stop(#{id := Id,
     case Sessions of
         #{Id := Start} ->
             ?LOG_DEBUG("Writing stats of TURN session ~s to InfluxDB", [Id]),
-            Duration = erlang:system_time(microsecond) - Start,
+            Duration = erlang:monotonic_time(microsecond) - Start,
 	    Points = [{type, <<"turn">>}, {transport, string:lowercase(Transport)}, {duration, Duration},
 		      {sent_bytes, Sent}, {rcvd_bytes, Rcvd}],
             ok = influx_udp:write_to(?INFLUX_POOL, <<"events">>, Points),
