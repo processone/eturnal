@@ -89,9 +89,9 @@ on_turn_session_stop(#{id := Id,
     case Sessions of
         #{Id := Start} ->
             Duration = erlang:system_time(microsecond) - Start,
-	    Points = [{type, "turn"}, {transport, string:lowercase(Transport)}, {duration, Duration},
+	    Points = [{type, <<"turn">>}, {transport, string:lowercase(Transport)}, {duration, Duration},
 		      {sent_bytes, Sent}, {rcvd_bytes, Rcvd}],
-            ok = influx_udp:write_to(?INFLUX_POOL, "events", Points),
+            ok = influx_udp:write_to(?INFLUX_POOL, <<"events">>, Points),
             {ok, State#events_influx_state{sessions = maps:remove(Id, Sessions)}};
         #{} ->
             ?LOG_WARNING("Got stop event for unknown TURN session ~s", [Id]),
@@ -100,7 +100,7 @@ on_turn_session_stop(#{id := Id,
 
 -spec on_stun_query(eturnal_module:info(), state()) -> ret().
 on_stun_query(#{transport := Transport}, State) ->
-    ok = influx_udp:write_to(?INFLUX_POOL, "events", [{type, "stun"}, {transport, string:lowercase(Transport)}]),
+    ok = influx_udp:write_to(?INFLUX_POOL, <<"events">>, [{type, <<"stun">>}, {transport, string:lowercase(Transport)}]),
     {ok, State}.
 
 -spec options() -> eturnal_module:options().
