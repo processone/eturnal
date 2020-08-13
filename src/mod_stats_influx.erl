@@ -33,7 +33,7 @@
          stop/1,
          handle_event/3,
          options/0]).
--import(yval, [port/0, string/0]).
+-import(yval, [either/2, ip/0, port/0, string/0]).
 
 -include_lib("kernel/include/logger.hrl").
 -define(INFLUX_POOL, events_influx_pool).
@@ -105,7 +105,7 @@ on_stun_query(#{transport := Transport}, State) ->
 
 -spec options() -> eturnal_module:options().
 options() ->
-    {#{host => string(),
+    {#{host => either(ip(), string()),
        port => port()},
      [{defaults,
        #{host => "localhost",
