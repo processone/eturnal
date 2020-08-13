@@ -107,5 +107,6 @@ on_stun_query(#{transport := Transport}, State) ->
 options() ->
     {#{host => string(),
        port => port()},
-     [{required, [host, port]},
-      {defaults, #{}}]}.
+     [{defaults,
+       #{host => "localhost",
+         port => 8089}}]}.
