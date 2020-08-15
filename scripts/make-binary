@@ -985,7 +985,6 @@ rebar3 clean -a
 rebar3 as stripped tar
 mkdir "$dst_dir"
 tar -C "$dst_dir" -xzf "$rel_dir/$rel_tar"
-erl -noinput -eval "{ok, _} = beam_lib:strip_release('$dst_dir'), halt()"
 find "$dst_dir/lib" -type f -name '*.so' -exec strip -s '{}' '+'
 find "$dst_dir/erts-*/bin" -type f -perm '-u+x' \
                            -exec strip -s '{}' '+' 2>'/dev/null' || :
