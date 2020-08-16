@@ -17,9 +17,9 @@ Dependency Management
 
 Besides the dependencies [mentioned][4] in the [README.md][5] file, eturnal
 depends on the Erlang libraries referenced as `deps` in the [rebar.config][6]
-file, _except_ for `recon` (which is totally optional and just included with
-source builds as a convenience for debugging purposes). The complete list of
-(direct and transitive) Erlang dependencies is:
+file, _except_ for `recon` (which is just included for debugging purposes) and
+`influx_udp` (see below). The complete list of (direct and transitive) Erlang
+dependencies is:
 
 - [stun](https://github.com/processone/stun)
 - [conf](https://github.com/processone/conf)
@@ -28,9 +28,17 @@ source builds as a convenience for debugging purposes). The complete list of
 - [fast\_tls](https://github.com/processone/fast_tls)
 - [p1\_utils](https://github.com/processone/p1_utils)
 
-Assuming those dependencies are installed into the distribution's Erlang/OTP
-tree, [rebar3][2]'s built-in dependency management can be skipped by building
-eturnal (from the [official source tarball][7]) as follows:
+The `mod_stats_influx` module adds the following list of optional dependencies
+(if the module is enabled without those being available, eturnal will refuse to
+start up and log a proper error message):
+
+- [influx\_udp](https://github.com/weiss/influx_udp)
+- [poolboy](https://github.com/devinus/poolboy)
+- [ulitos](https://github.com/palkan/ulitos)
+
+Assuming the required dependencies are installed into the distribution's
+Erlang/OTP tree, [rebar3][2]'s built-in dependency management can be skipped by
+building eturnal (from the [official source tarball][7]) as follows:
 
     $ rm -f rebar.lock
     $ SKIP_DEPS=true ./rebar3 as distro release
