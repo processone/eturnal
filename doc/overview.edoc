@@ -399,7 +399,7 @@ and has the following configuration option:
 
 ==== time_unit ====
 
-<div class="spec">Type: `second, millisecond, microsecond, nanosecond'<br/>
+<div class="spec">Type: `second | millisecond'<br/>
 Default: `second'</div>
 
 This option defines the time unit used for logging the duration of TURN
