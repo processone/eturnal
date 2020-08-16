@@ -16,14 +16,7 @@
 %%% limitations under the License.
 
 %%% This example module logs the duration and some metadata of TURN sessions.
-%%% The module is enabled by adding the following settings to the eturnal.yml
-%%% file:
-%%%
-%%% eturnal:
-%%%   modules:
-%%%     mod_example:
-%%%       time_unit: second % This is the default.
-%%%
+
 %%% Note that returning some state() from the callback functions is optional,
 %%% and so is exporting start/0 and/or stop/1 functions.
 

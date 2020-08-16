@@ -8,7 +8,12 @@
   {git,"https://github.com/processone/fast_yaml.git",
        {ref,"efeabe80f02b627ea2da1721704ab7cfd7dc2b1e"}},
   1},
+ {<<"influx_udp">>,
+  {git,"https://github.com/weiss/influx_udp.git",
+       {ref,"a89e917584512c612812d88d4009d1a248566258"}},
+  0},
  {<<"p1_utils">>,{pkg,<<"p1_utils">>,<<"1.0.19">>},1},
+ {<<"poolboy">>,{pkg,<<"poolboy">>,<<"1.5.2">>},1},
  {<<"recon">>,
   {git,"https://github.com/ferd/recon.git",
        {ref,"f7b6c08e6e9e2219db58bfb012c58c178822e01e"}},
@@ -17,6 +22,7 @@
   {git,"https://github.com/processone/stun.git",
        {ref,"8f82fbe30cbccb79bbc663254dbc67bc78166eaa"}},
   0},
+ {<<"ulitos">>,{pkg,<<"ulitos">>,<<"0.4.0">>},1},
  {<<"yval">>,
   {git,"https://github.com/processone/yval.git",
        {ref,"dd61371eddba9b077ab8354d3cd9a40ae3edcbee"}},
@@ -24,8 +30,12 @@
 [
 {pkg_hash,[
  {<<"fast_tls">>, <<"EDFD5C2B98E95C7C5971041FC7C9AC4878983EF855B59533050B51A55A716F8B">>},
- {<<"p1_utils">>, <<"68373D154CC199CDE33B2FD0B574E8FED0B805FF173EF0BB25792071CD3B7AB2">>}]},
+ {<<"p1_utils">>, <<"68373D154CC199CDE33B2FD0B574E8FED0B805FF173EF0BB25792071CD3B7AB2">>},
+ {<<"poolboy">>, <<"392B007A1693A64540CEAD79830443ABF5762F5D30CF50BC95CB2C1AAAFA006B">>},
+ {<<"ulitos">>, <<"BCDF0528AF4B59F1CB7D710E4B056688751C600833F31F504FEC4BAA88F0F42B">>}]},
 {pkg_hash_ext,[
  {<<"fast_tls">>, <<"550E33CBED13391E0158FC807BE375E15691E200236B15DC0F526B1398459B36">>},
- {<<"p1_utils">>, <<"461634CA3C47C3378EE949664C77123BCEDCE82DD62496514158815C9B8E1393">>}]}
+ {<<"p1_utils">>, <<"461634CA3C47C3378EE949664C77123BCEDCE82DD62496514158815C9B8E1393">>},
+ {<<"poolboy">>, <<"DAD79704CE5440F3D5A3681C8590B9DC25D1A561E8F5A9C995281012860901E3">>},
+ {<<"ulitos">>, <<"AFDCE50A77081EB8D931799A6E015458482EABF9BA8AF367C50CD8660A749B88">>}]}
 ].

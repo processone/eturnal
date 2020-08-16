@@ -86,7 +86,7 @@ By default, the binary release assumes the user running eturnal is called
 installation prefix is to be used, the systemd unit file and the `eturnalctl'
 script must be adjusted accordingly.
 
-== Configuration ==
+== Global Configuration ==
 
 The eturnal server is configured by editing the `eturnal.yml' file (and
 optionally setting one or more <a href="#Environment_Variables">environment
@@ -246,6 +246,26 @@ href="https://tools.ietf.org/html/rfc5766#section-2.2">allocation</a>. If it's
 set to `unlimited', an arbitrary number of permissions can be created for each
 allocation.
 
+=== modules ===
+
+<div class="spec">Type: `map of module configurations'<br/>
+Default: `{}'</div>
+
+Modules are enabled by adding them to the `modules' map, where each module name
+is specified as the key and the value defines the module's configuration. See
+<a href="#Module_Configuration">below</a> for the available modules and their
+configuration options.
+
+Example:
+
+```
+modules:
+  mod_example: {}
+  mod_stats_influx:
+    host: `localhost'
+    port: 8089
+'''
+
 === realm ===
 
 <div class="spec">Type: `string'<br/>
@@ -365,6 +385,46 @@ running the eturnal server. If a `tls_crt_file' but no `tls_key_file' is
 specified, it is assumed that the `tls_crt_file' contains both the certificate
 chain and the private key.
 
+== Module Configuration ==
+
+The eturnal server ships the following list of modules, which can be configured
+as described below.
+
+=== mod_example ===
+
+This module just serves as an example for module developers and might be removed
+from a future release. It logs the duration and some metadata of TURN sessions,
+and has the following configuration option:
+
+==== time_unit ====
+
+<div class="spec">Type: `second, millisecond, microsecond, nanosecond'<br/>
+Default: `second'</div>
+
+This option defines the time unit used for logging the duration of TURN
+sessions.
+
+=== mod_stats_influx ===
+
+This module logs STUN/TURN events/statistics into InfluxDB. It requires an
+InfluxDB database (created with an arbitrary name) to be accessible via UDP, and
+has the following configuration options:
+
+==== host ====
+
+<div class="spec">Type: `string | IP address'<br/>
+Default: `localhost'</div>
+
+This option specifies the host name or IP address InfluxDB's UDP service is
+listening on.
+
+==== port ====
+
+<div class="spec">Type: `port number'<br/>
+Default: `8089'</div>
+
+This option specifies the port number InfluxDB's UDP service is listening on.
+
 == Environment Variables ==
 
 The eturnal server recognizes the following environment variables.
@@ -372,8 +432,8 @@ The eturnal server recognizes the following environment variables.
 === ETURNAL_ETC_PREFIX ===
 
 This environment variable specifies the path to the `etc' directory containing
-the `eturnal.yml' <a href="#Configuration">configuration</a> file. If, for
-example, `ETURNAL_ETC_PREFIX' is set to `/usr/local/opt/eturnal', the file
+the `eturnal.yml' <a href="#Global_Configuration">configuration</a> file. If,
+for example, `ETURNAL_ETC_PREFIX' is set to `/usr/local/opt/eturnal', the file
 `/usr/local/opt/eturnal/etc/eturnal.yml' will be used.
 
 === ETURNAL_SECRET ===
