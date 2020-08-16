@@ -106,7 +106,8 @@ section of the configuration file. (This section will usually be the only one in
 that file, but the `eturnal.yml' file <em>could</em> also be used to adjust the
 behavior of the underlying virtual machine by adding other sections.)
 
-The eturnal server recognizes the following configuration options.
+The eturnal server recognizes the following global configuration options. Module
+configuration options are described <a href="#Module_Configuration">below</a>.
 
 === blacklist ===
 
@@ -262,7 +263,7 @@ Example:
 modules:
   mod_example: {}
   mod_stats_influx:
-    host: `localhost'
+    host: localhost
     port: 8089
 '''
 
@@ -387,8 +388,8 @@ chain and the private key.
 
 == Module Configuration ==
 
-The eturnal server ships the following list of modules, which can be configured
-as described below.
+The eturnal server ships the following modules, which can be configured as
+described in this section.
 
 === mod_example ===
 
