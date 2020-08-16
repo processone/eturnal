@@ -5,6 +5,11 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 
+## [1.2.1] - 2020-08-16
+## Fixed
+- Strip the BEAM files shipped with the binary release. Due to a bug in the
+  build tooling, this didn't happen for the previous release.
+
 ## [1.2.0] - 2020-08-16
 ### Added
 - Add experimental support for modules and include a `mod_example` with the
@@ -124,7 +129,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/1.2.0...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.2.1...HEAD
+[1.2.1]: https://github.com/processone/eturnal/releases/tag/1.2.1
 [1.2.0]: https://github.com/processone/eturnal/releases/tag/1.2.0
 [1.1.0]: https://github.com/processone/eturnal/releases/tag/1.1.0
 [1.0.0]: https://github.com/processone/eturnal/releases/tag/1.0.0
