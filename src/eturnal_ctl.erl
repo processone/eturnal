@@ -30,7 +30,7 @@
 -type addr_port() :: {inet:ip_address(), inet:port_number()}.
 -type session() :: {binary(), sock_mod(), addr_port(), addr_port(),
                     [addr_port()], non_neg_integer(), non_neg_integer(),
-                    non_neg_integer(), non_neg_integer()}.
+                     non_neg_integer(), non_neg_integer(), non_neg_integer()}.
 
 %% API.
 
@@ -122,15 +122,17 @@ query_sessions() ->
               SentPkts = element(28, State),
               RcvdBytes = element(25, State),
               RcvdPkts = element(26, State),
+              Duration = element(27, State),
               {User, SockMod, ClientAddr, RelayAddr, maps:keys(PeerMap),
-               SentBytes, SentPkts, RcvdBytes, RcvdPkts}
+               SentBytes, SentPkts, RcvdBytes, RcvdPkts, Duration}
       end, supervisor:which_children(turn_tmp_sup)).
 
 -spec format_sessions([session()]) -> iolist().
 format_sessions(Sessions) ->
     lists:map(
       fun({User, SockMod, ClientAddr, RelayAddr, PeerAddrs, SentBytes, SentPkts,
-           RcvdBytes, RcvdPkts}) ->
+           RcvdBytes, RcvdPkts, Duration0}) ->
+              Duration = erlang:convert_time_unit(Duration0, native, second),
               Transport = format_transport(SockMod),
               Client = eturnal_misc:addr_to_str(ClientAddr),
               Relay = eturnal_misc:addr_to_str(RelayAddr),
@@ -138,14 +140,15 @@ format_sessions(Sessions) ->
                                                  PeerAddrs)),
               io_lib:format(
                 "-- TURN session of ~s --~s"
-                "    Client: ~s (~s)~s"
-                "     Relay: ~s (UDP)~s"
-                "   Peer(s): ~s (UDP)~s"
-                "      Sent: ~B KiB (~B packets)~s"
-                "  Received: ~B KiB (~B packets)",
+                "       Client: ~s (~s)~s"
+                "        Relay: ~s (UDP)~s"
+                "      Peer(s): ~s (UDP)~s"
+                "         Sent: ~B KiB (~B packets)~s"
+                "     Received: ~B KiB (~B packets)~s"
+                "  Running for: ~B seconds",
                 [User, nl(), Client, Transport, nl(), Relay, nl(), Peers, nl(),
                  round(SentBytes / 1024), SentPkts, nl(),
-                 round(RcvdBytes / 1024), RcvdPkts])
+                 round(RcvdBytes / 1024), RcvdPkts, nl(), Duration])
       end, Sessions).
 
 -spec format_transport(sock_mod()) -> binary().
