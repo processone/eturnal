@@ -28,11 +28,11 @@ described in the <a
 href="https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00">REST API for
 Access to TURN Services</a> specification. The idea is that WebRTC (or other)
 clients receive temporary TURN credentials where the user name is comprised of
-the (Unix) expiry timestamp and the password is derived from a <a
-href="#secret">`secret'</a> shared between the service generating those
-credentials and eturnal. The service offering the credentails performs a
-`Base64(HMAC-SHA1($secret, $timestamp))' operation to generate the ephemeral
-password, and eturnal does the same to verify it.
+the (Unix) expiry timestamp and the password is derived from a {@section secret}
+shared between the service generating those credentials and eturnal. The service
+offering the credentails performs a `Base64(HMAC-SHA1($secret, $timestamp))'
+operation to generate the ephemeral password, and eturnal does the same to
+verify it.
 
 The <a
 href="https://github.com/processone/eturnal/blob/1.2.1/README.md">README.md</a>
@@ -89,14 +89,13 @@ script must be adjusted accordingly.
 == Global Configuration ==
 
 The eturnal server is configured by editing the `eturnal.yml' file (and
-optionally setting one or more <a href="#Environment_Variables">environment
-variables</a>). If `/etc/eturnal.yml' doesn't exist, eturnal will (by default)
-search for `etc/eturnal.yml' within the installation directory. In order to use
-a different path, the environment variable <a
-href="#ETURNAL_ETC_PREFIX">`ETURNAL_ETC_PREFIX'</a> can be specified. As an
-alternative, the arguments ``-conf file '"/path/to/eturnal.yml"''' (note the
-double quoting) can be appended to the `eturnalctl' command line used for
-<a href="#daemon">starting up</a> eturnal.
+optionally setting one or more {@section Environment Variables}. If
+`/etc/eturnal.yml' doesn't exist, eturnal will (by default) search for
+`etc/eturnal.yml' within the installation directory. In order to use a different
+path, the environment variable {@section ETURNAL_ETC_PREFIX} can be specified.
+As an alternative, the arguments ``-conf file '"/path/to/eturnal.yml"''' (note
+the double quoting) can be appended to the `eturnalctl' command line used for <a
+href="#daemon">starting up</a> eturnal.
 
 The `eturnal.yml' file uses the <a
 href="https://en.wikipedia.org/wiki/YAML">YAML</a> format. YAML is
@@ -106,8 +105,8 @@ section of the configuration file. (This section will usually be the only one in
 that file, but the `eturnal.yml' file <em>could</em> also be used to adjust the
 behavior of the underlying virtual machine by adding other sections.)
 
-The eturnal server recognizes the following global configuration options. Module
-configuration options are described <a href="#Module_Configuration">below</a>.
+The eturnal server recognizes the following global configuration options.
+{@section Module Configuration} options are described below.
 
 === blacklist ===
 
@@ -147,8 +146,7 @@ pairs:
   <li><a name="port" class="cue">`port:' <em>number</em></a><br/>
       The (optional) `port' <em>number</em> must be between `0' and `65535',
       and is usually between `1024' and `49151'. The default value is `5349'
-      if the <a href="#transport">transport</a> is set to `tls', otherwise
-      `3478'.</li>
+      if the {@section transport} is set to `tls', otherwise `3478'.</li>
   <li><a name="transport" class="cue">`transport:' <em>protocol</em></a><br/>
       The (optional) `transport' <em>protocol</em> must be one of `udp', `tcp',
       or `tls'. The default value is `udp'.</li>
@@ -187,10 +185,9 @@ Default: `log'</div>
 This option specifies the directory the `eturnal.log' file is written into.
 Alternatively, this option can be set to the special value `stdout', which tells
 eturnal to print log messages to the standard output rather than logging to a
-file. If this option isn't defined, the value of the envionment variable <a
-href="#LOGS_DIRECTORY">`LOGS_DIRECTORY'</a> is used instead. If this environment
-variable is unset as well, a `log' directory is created within the installation
-prefix.
+file. If this option isn't defined, the value of the envionment variable
+{@section LOGS_DIRECTORY} is used instead. If this environment variable is unset
+as well, a `log' directory is created within the installation prefix.
 
 === log_level ===
 
@@ -207,21 +204,20 @@ log levels are, ordered from least to most amount of output: `critical',
 Default: `10'</div>
 
 The value of this option determines the number of rotated log file archives to
-keep if the <a href="#log_rotate_size">`log_rotate_size'</a> option is set to a
-positive integer value and the <a href="#log_dir">`log_dir'</a> option isn't set
-to `stdout'. Otherwise, this option is ignored.
+keep if the {@section log_rotate_size} option is set to a positive integer value
+and the {@section log_dir} option isn't set to `stdout'. Otherwise, this option
+is ignored.
 
 === log_rotate_size ===
 
 <div class="spec">Type: `positive integer | unlimited'<br/>
 Default: `unlimited'</div>
 
-If this option is set to a positive integer value and the <a
-href="#log_dir">`log_dir'</a> option isn't set to `stdout', internal log
-rotation is enabled. The value of this option specifies the log file size limit
-in bytes. If this limit is exceeded, the log file is rotated. If this option
-isn't specified (or set to `unlimited'), external log rotation tools can be
-used.
+If this option is set to a positive integer value and the {@section log_dir}
+option isn't set to `stdout', internal log rotation is enabled. The value of
+this option specifies the log file size limit in bytes. If this limit is
+exceeded, the log file is rotated. If this option isn't specified (or set to
+`unlimited'), external log rotation tools can be used.
 
 Note: External rotation is detected automatically, so there's no need to notify
 eturnal (e.g., by sending a `HUP' signal) after log rotation.
@@ -254,7 +250,7 @@ Default: `{}'</div>
 
 Modules are enabled by adding them to the `modules' map, where each module name
 is specified as the key and the value defines the module's configuration. See
-<a href="#Module_Configuration">below</a> for the available modules and their
+the {@section Module Configuration} section for the available modules and their
 configuration options.
 
 Example:
@@ -274,9 +270,9 @@ Default: `eturnal.net'</div>
 
 This option defines the realm. A realm is <a
 href="https://tools.ietf.org/html/rfc5389#section-15.10">required</a> for
-authentication as per the STUN/TURN protocols, but with shared <a
-href="#secret">`secret'</a> authentication, the actual value of the realm is
-meaningless. Therefore, this option can usually be left unspecified.
+authentication as per the STUN/TURN protocols, but with shared {@section secret}
+authentication, the actual value of the realm is meaningless. Therefore, this
+option can usually be left unspecified.
 
 === relay_ipv4_addr ===
 
@@ -288,8 +284,7 @@ peers. Note that this <em>must</em> be the server's public IPv4 address; i.e.,
 it cannot be set to, for example, `"0.0.0.0"'. If this option isn't specified,
 eturnal will use the host name's IPv4 address. If `relay_ipv4_addr' is
 unspecified and the host name doesn't resolve to a public IPv4 address, eturnal
-will refuse to start, unless TURN is disabled for all <a
-href="#listen">`listen'</a> entries.
+will refuse to start, unless TURN is disabled for all {@section listen} entries.
 
 === relay_ipv6_addr ===
 
@@ -322,7 +317,7 @@ Default: `49152'</div>
 
 This option defines the lower bound of the UDP port range to be used for TURN
 relaying. The value should usually be above `49151' and (well) below the
-<a href="#relay_max_port">`relay_max_port'</a> number.
+{@section relay_max_port} number.
 
 === run_dir ===
 
@@ -330,10 +325,9 @@ relaying. The value should usually be above `49151' and (well) below the
 Default: `run'</div>
 
 This option specifies the directory eturnal will use for storing runtime data.
-If this option isn't defined, the value of the envionment variable <a
-href="#RUNTIME_DIRECTORY">`RUNTIME_DIRECTORY'</a> is used instead. If this
-environment variable is unset as well, a `run' directory is created within the
-installation prefix.
+If this option isn't defined, the value of the envionment variable {@section
+RUNTIME_DIRECTORY} is used instead. If this environment variable is unset as
+well, a `run' directory is created within the installation prefix.
 
 === secret ===
 
@@ -344,9 +338,8 @@ This option defines the shared authentication secret used to derive the
 passwords for ephemeral TURN user names as described in the <a
 href="https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00">REST API for
 Access to TURN Services</a> specification. Specifying this option (or the
-environment variable <a href="#ETURNAL_SECRET">`ETURNAL_SECRET'</a>) is
-mandatory unless TURN relaying is disabled for all <a
-href="#listen">`listen'</a> entries.
+environment variable {@section ETURNAL_SECRET}) is mandatory unless TURN
+relaying is disabled for all {@section listen} entries.
 
 === software_name ===
 
@@ -365,15 +358,14 @@ Default: `none'</div>
 This option specifies the path to the PEM file containing the certificate
 (chain) offered while negotiating TLS connections. The PEM file must be readable
 by the user running the eturnal server. The file may also contain the private
-key, in which case the <a href="#tls_key_file">`tls_key_file'</a> option can be
-left unspecified.
+key, in which case the {@section tls_key_file} option can be left unspecified.
 
 If the `tls_crt_file' option isn't specified but TLS is enabled for one or more
-<a href="#listen">`listen'</a> entries, eturnal will attempt to create a
-self-signed certificate during startup. If TLS is to be used for security
-reasons (rather than just for circumventing restrictive packet filters), clients
-may well refuse to accept such a certificate. Therefore, it's <em>strongly
-recommended</em> to specify this option if TLS is enabled.
+{@section listen} entries, eturnal will attempt to create a self-signed
+certificate during startup. If TLS is to be used for security reasons (rather
+than just for circumventing restrictive packet filters), clients may well refuse
+to accept such a certificate. Therefore, it's <em>strongly recommended</em> to
+specify this option if TLS is enabled.
 
 === tls_key_file ===
 
@@ -433,34 +425,34 @@ The eturnal server recognizes the following environment variables.
 === ETURNAL_ETC_PREFIX ===
 
 This environment variable specifies the path to the `etc' directory containing
-the `eturnal.yml' <a href="#Global_Configuration">configuration</a> file. If,
-for example, `ETURNAL_ETC_PREFIX' is set to `/usr/local/opt/eturnal', the file
+the `eturnal.yml' configuration file. If, for example, `ETURNAL_ETC_PREFIX' is
+set to `/usr/local/opt/eturnal', the file
 `/usr/local/opt/eturnal/etc/eturnal.yml' will be used.
 
 === ETURNAL_SECRET ===
 
-If the <a href="#secret">`secret'</a> option isn't specified, this environment
-variable defines the shared authentication secret used to derive the passwords
-for ephemeral TURN user names as described in the <a
+If the {@section secret} option isn't specified, this environment variable
+defines the shared authentication secret used to derive the passwords for
+ephemeral TURN user names as described in the <a
 href="https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00">REST API for
 Access to TURN Services</a> specification. Specifying either this environment
-variable or the <a href="#secret">`secret'</a> option is mandatory unless TURN
-relaying is disabled for all <a href="#listen">`listen'</a> entries.
+variable or the {@section secret} option is mandatory unless TURN relaying is
+disabled for all {@section listen} entries.
 
 === LOGS_DIRECTORY ===
 
-If the <a href="#log_dir">`log_dir'</a> option isn't specified, this environment
-variable specifies the directory the `eturnal.log' file is written into. Note
-that <a href="https://www.freedesktop.org/wiki/Software/systemd/">systemd</a>
-235 and higher set this environment variable if systemd's `[Service]' option
+If the {@section log_dir} option isn't specified, this environment variable
+specifies the directory the `eturnal.log' file is written into. Note that <a
+href="https://www.freedesktop.org/wiki/Software/systemd/">systemd</a> 235 and
+higher set this environment variable if systemd's `[Service]' option
 `LogsDirectory' is specified.
 
 === RUNTIME_DIRECTORY ===
 
-If the <a href="#run_dir">`run_dir'</a> option isn't specified, this environment
-variable specifies the directory eturnal will use for storing runtime data. Note
-that <a href="https://www.freedesktop.org/wiki/Software/systemd/">systemd</a>
-235 and higher set this environment variable if systemd's `[Service]' option
+If the {@section run_dir} option isn't specified, this environment variable
+specifies the directory eturnal will use for storing runtime data. Note that <a
+href="https://www.freedesktop.org/wiki/Software/systemd/">systemd</a> 235 and
+higher set this environment variable if systemd's `[Service]' option
 `RuntimeDirectory' is specified.
 
 == Operation ==
@@ -499,12 +491,11 @@ See the following list for a subset of the available `eturnalctl' commands:
       Print the list of currently active TURN sessions.</li>
   <li><a name="get_loglevel"
          class="cue">`eturnalctl loglevel'</a><br/>
-      Print the <a href="#log_level">`log_level'</a> of the running eturnal
-      instance.</li>
+      Print the {@section log_level} of the running eturnal instance.</li>
   <li><a name="set_loglevel"
          class="cue">`eturnalctl loglevel' <em>level</em></a><br/>
-      Set the <a href="#log_level">`log_level'</a> of the running eturnal
-      instance to <em>level</em>.</li>
+      Set the {@section log_level} of the running eturnal instance to
+      <em>level</em>.</li>
   <li><a name="version"
          class="cue">`eturnalctl version'</a><br/>
       Print the release version of the running eturnal instance.</li>
