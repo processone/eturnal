@@ -5,6 +5,7 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 ### Added
+- Document the module API for developers.
 - Add the TURN session duration to the `eturnalctl sessions` output.
 
 ### Changed

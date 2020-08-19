@@ -16,6 +16,60 @@
 %%% See the License for the specific language governing permissions and
 %%% limitations under the License.
 
+%%% @doc An eturnal module adds functionality to the eturnal server. It is to be
+%%% named `mod_foo', where `foo' describes the added functionality. The module
+%%% must export `handle_event/2' and `options/0' callbacks, and may optionally
+%%% export `start/0' and `stop/0' functions.
+%%%
+%%% The optional `start/0' function must return `ok' or `{ok, Events}', where
+%%% `Events' is the list of events the module is interested in. Currently, the
+%%% following events may be triggered: `stun_query', `turn_session_start', and
+%%% `turn_session_stop'. If the `start/0' function doesn't return a list of
+%%% events (or returns `{ok, [all]}'), the `handle_event/2' callback will be
+%%% called for all events.
+%%%
+%%% The `handle_event/2' function is called with the event name as the first
+%%% argument and a map with metadata related to the event as the second. The
+%%% contents of that map depend on the event. Note that the `handle_event/2'
+%%% callback is executed by the process handling the STUN/TURN session, so it
+%%% should never block. If it might, and/or if it needs some `#state{}', one or
+%%% more handler processes must be created.
+%%%
+%%% The `options/0' callback returns an {@type options()} tuple with two
+%%% elements. The first is a map of configuration options, where the keys are
+%%% the {@type option} names specified as {@type atom()}s, and the values are
+%%% functions that validate the option values. Those functions are returned by
+%%% the <a
+%%% href="https://github.com/processone/yval/blob/master/src/yval.erl">yval</a>
+%%% library. The second tuple element is a list of optional tuples to specify
+%%% `{required, [Options]}' and/or `{defaults, #{Option => Value}}'. For
+%%% example:
+%%%
+%%% ```
+%%% options() ->
+%%%     {#{threshold => yval:pos_int()},
+%%%      [{defaults,
+%%%       #{threshold => 42}}]}.
+%%% '''
+%%%
+%%% The option values are queried by calling {@link eturnal_module:get_opt/2}
+%%% with the `?MODULE' name as the first and the option name as the second
+%%% argument. Note that the lookup is very efficient, so there's no point in
+%%% saving option values into some `#state{}'.
+%%%
+%%% The optional `stop/0' function must return `ok'. Note that the `start/0' and
+%%% `stop/0' functions might not just be called on eturnal startup and shutdown,
+%%% but also on configuration reloads.
+%%%
+%%% If the module depends on other applications, those must be added to the
+%%% `rebar.config' file, but not to the app file. They are to be started by
+%%% calling {@link eturnal_module:ensure_deps/2}, where the first argument is
+%%% the `?MODULE' name and the second is the dependency's name.
+%%%
+%%% The module is enabled by adding its configuration to the `modules' section
+%%% of eturnal's configuration file as described in `doc/overview.edoc'. The
+%%% module configuration options are to be documented in that file as well.
+
 -module(eturnal_module).
 -author('holger@zedat.fu-berlin.de').
 -export([start/1,

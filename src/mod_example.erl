@@ -18,12 +18,7 @@
 
 %%% This example module logs the duration and some metadata of TURN sessions.
 
-%%% Note that exporting start/0 and/or stop/0 functions is optional: If start/0
-%%% doesn't return a list of events, the Mod:handle_event/2 callback is called
-%%% for all events. Also note that this function is called by the process
-%%% handling the STUN/TURN session, so it should never block. If it might,
-%%% and/or if it needs some #state{}, one or more handler processes must be
-%%% created.
+%%% See: https://eturnal.net/documentation/code/eturnal_module.html
 
 -module(mod_example).
 -author('alice@example.com').
