@@ -98,8 +98,13 @@
 -optional_callbacks([start/0, stop/0]).
 
 -include_lib("kernel/include/logger.hrl").
+-ifdef(old_persistent_term).
+-define(m(Name), {m, Name}).
+-define(e(Name), {e, Name}).
+-else.
 -define(m(Name), {?MODULE, m, Name}).
 -define(e(Name), {?MODULE, e, Name}).
+-endif.
 
 %% API.
 
@@ -143,8 +148,6 @@ stop(Mod) ->
 -spec handle_event(event(), info()) -> ok.
 handle_event(Event, Info) ->
     ?LOG_DEBUG("Got '~s' event", [Event]),
-    Mods1 = persistent_term:get(?e(Event), ordsets:new()),
-    Mods2 = persistent_term:get(?e(all), ordsets:new()),
     ok = lists:foreach(
            fun(Mod) ->
                    ?LOG_DEBUG("Calling ~s:handle_event/2", [Mod]),
@@ -153,7 +156,7 @@ handle_event(Event, Info) ->
                            ?LOG_ERROR("Module ~s failed at handling '~s': ~p",
                                       [Mod, Event, Err])
                    end
-           end, ordsets:union(Mods1, Mods2)).
+           end, get_subscribers(Event)).
 
 -spec options(module()) -> options().
 options(Mod) ->
@@ -172,6 +175,57 @@ ensure_deps(Mod, Deps) ->
 %% Internal functions.
 
 -spec subscribe_events(event() | [event()], module()) -> ok.
+-spec unsubscribe_events(module()) -> ok.
+-spec get_subscribers(event()) -> [module()].
+-ifdef(old_persistent_term).
+subscribe_events(Event, Mod) when is_atom(Event) ->
+    ok = subscribe_events([Event], Mod);
+subscribe_events(Events, Mod) ->
+    case ets:whereis(events) of
+        undefined ->
+            events = ets:new(events, [named_table, {read_concurrency, true}]);
+        _TID ->
+            ok
+    end,
+    Entries = lists:map(
+                fun(Event) ->
+                        case ets:lookup(events, ?e(Event)) of
+                            [] ->
+                                {?e(Event), [Mod]};
+                            [{_, Ms}] ->
+                                {?e(Event), ordsets:add_element(Mod, Ms)}
+                        end
+                end, Events),
+    true = ets:insert(events, [{?m(Mod), Events} | Entries]),
+    ok.
+
+unsubscribe_events(Mod) ->
+    case ets:lookup(events, ?m(Mod)) of
+        [] ->
+            ok;
+        [{?m(Mod), Es}] ->
+            Entries = lists:map(
+                        fun(Event) ->
+                                [{_, Ms}] = ets:lookup(events, ?e(Event)),
+                                {?e(Event), ordsets:del_element(Mod, Ms)}
+                        end, Es),
+            true = ets:insert(events, Entries),
+            true = ets:delete(?m(Mod)),
+            ok
+    end.
+
+get_subscribers(Event) ->
+    Mods = lists:map(
+             fun(E) ->
+                     case ets:lookup(events, ?e(E)) of
+                         [] ->
+                             ordsets:new();
+                         [{_, Ms}] ->
+                             Ms
+                     end
+             end, [Event, all]),
+    ordsets:union(Mods).
+-else.
 subscribe_events(Event, Mod) when is_atom(Event) ->
     ok = subscribe_events([Event], Mod);
 subscribe_events(Events, Mod) ->
@@ -182,17 +236,21 @@ subscribe_events(Events, Mod) ->
                    ok = persistent_term:put(?e(Event),
                                             ordsets:add_element(Mod, Ms))
            end, Events).
-
--spec unsubscribe_events(module()) -> ok.
 unsubscribe_events(Mod) ->
     Es = persistent_term:get(?m(Mod), []),
     _R = persistent_term:erase(?m(Mod)),
     ok = lists:foreach(
            fun(Event) ->
-                   Ms = persistent_term:get(?e(Event), ordsets:new()),
+                   Ms = persistent_term:get(?e(Event)),
                    ok = persistent_term:put(?e(Event),
                                             ordsets:del_element(Mod, Ms))
            end, Es).
+
+get_subscribers(Event) ->
+    Mods1 = persistent_term:get(?e(Event), ordsets:new()),
+    Mods2 = persistent_term:get(?e(all), ordsets:new()),
+    ordsets:union(Mods1, Mods2).
+-endif.
 
 -spec ensure_dep(module(), dep()) -> ok | no_return().
 ensure_dep(Mod, Dep) ->
