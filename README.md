@@ -31,7 +31,7 @@ On other Linux/x64 systems, the binary release tarball can be installed as
 
 ### Requirements
 
-- [Erlang/OTP][5] (21.0 or newer).
+- [Erlang/OTP][5] (21.2 or newer).
 - [LibYAML][6] (0.1.4 or newer).
 - [OpenSSL][7] (1.2.1 or newer).
 - [GCC][8] (other C compilers might work as well).

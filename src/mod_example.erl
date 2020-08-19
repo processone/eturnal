@@ -1,5 +1,6 @@
 %%% eturnal STUN/TURN server module.
 %%%
+%%% Copyright (c) 2020 Alice Wonder <alice@example.com>.
 %%% Copyright (c) 2020 ProcessOne, SARL.
 %%% All rights reserved.
 %%%
@@ -17,82 +18,58 @@
 
 %%% This example module logs the duration and some metadata of TURN sessions.
 
-%%% Note that returning some state() from the callback functions is optional,
-%%% and so is exporting start/0 and/or stop/1 functions.
+%%% Note that exporting start/0 and/or stop/0 functions is optional: If start/0
+%%% doesn't return a list of events, the Mod:handle_event/2 callback is called
+%%% for all events. Also note that this function is called by the process
+%%% handling the STUN/TURN session, so it should never block. If it might,
+%%% and/or if it needs some #state{}, one or more handler processes must be
+%%% created.
 
 -module(mod_example).
 -author('alice@example.com').
 -behaviour(eturnal_module).
 -export([start/0,
-         stop/1,
-         handle_event/3,
+         stop/0,
+         handle_event/2,
          options/0]).
 -import(yval, [enum/1]).
 
 -include_lib("kernel/include/logger.hrl").
 
--record(example_state,
-        {sessions = #{} :: #{id() => integer()}}).
-
--type id() :: binary().
--type ret() :: ok | {ok, state()}.
--type state() :: #example_state{}.
-
 %% API.
 
--spec start() -> ret().
+-spec start() -> ok | {ok, eturnal_module:events()}.
 start() ->
     ?LOG_DEBUG("Starting ~s", [?MODULE]),
-    {ok, #example_state{}}.
+    {ok, [turn_session_stop]}. % Subscribe to this list of events.
 
--spec handle_event(eturnal_module:event(), eturnal_module:info(), state())
-      -> ret().
-handle_event(turn_session_start, Info, State) ->
-    ?LOG_DEBUG("Handling 'turn_session_start' event: ~p", [Info]),
-    on_turn_session_start(Info, State);
-handle_event(turn_session_stop, Info, State) ->
+-spec handle_event(eturnal_module:event(), eturnal_module:info()) -> ok.
+handle_event(turn_session_stop, Info) ->
     ?LOG_DEBUG("Handling 'turn_session_stop' event: ~p", [Info]),
-    on_turn_session_stop(Info, State);
-handle_event(Event, Info, State) -> % Ignore 'stun_query' events.
-    ?LOG_DEBUG("Ignoring '~s' event: ~p", [Event, Info]),
-    {ok, State}.
+    on_turn_session_stop(Info).
 
--spec stop(state()) -> ok.
-stop(_State) ->
+-spec stop() -> ok.
+stop() ->
     ?LOG_DEBUG("Stopping ~s", [?MODULE]),
     ok.
 
 %% Internal functions.
 
--spec on_turn_session_start(eturnal_module:info(), state()) -> ret().
-on_turn_session_start(#{id := ID},
-                      #example_state{sessions = Sessions0} = State) ->
-    Unit = eturnal_module:get_opt(?MODULE, time_unit),
-    Sessions = Sessions0#{ID => erlang:monotonic_time(Unit)},
-    {ok, State#example_state{sessions = Sessions}}.
-
--spec on_turn_session_stop(eturnal_module:info(), state()) -> ret().
+-spec on_turn_session_stop(eturnal_module:info()) -> ok.
 on_turn_session_stop(#{id := ID,
                        user := User,
                        client := AddrPort,
                        transport := Transport,
                        sent_bytes := Sent,
-                       rcvd_bytes := Rcvd},
-                     #example_state{sessions = Sessions} = State) ->
-    case Sessions of
-        #{ID := Start} ->
-            KiB = round((Sent + Rcvd) / 1024),
-            Unit = eturnal_module:get_opt(?MODULE, time_unit),
-            Duration = erlang:monotonic_time(Unit) - Start,
-            Client = eturnal_misc:addr_to_str(AddrPort),
-            ?LOG_NOTICE("Relayed ~B KiB in ~B ~ss "
-                        "[~s, session ~s, user ~s, client ~s]",
-                        [KiB, Duration, Unit, Transport, ID, User, Client]),
-            {ok, State#example_state{sessions = maps:remove(ID, Sessions)}};
-        #{} ->
-            ?LOG_WARNING("Got stop event for unknown TURN session ~s", [ID]),
-            {ok, State}
-    end.
+                       rcvd_bytes := Rcvd,
+                       duration := Duration0}) ->
+    KiB = round((Sent + Rcvd) / 1024),
+    Unit = eturnal_module:get_opt(?MODULE, time_unit),
+    Duration = erlang:convert_time_unit(Duration0, native, Unit),
+    Client = eturnal_misc:addr_to_str(AddrPort),
+    ?LOG_NOTICE("Relayed ~B KiB in ~B ~ss [~s, session ~s, user ~s, client ~s]",
+                [KiB, Duration, Unit, Transport, ID, User, Client]),
+    ok.
 
 -spec options() -> eturnal_module:options().
 options() -> % See: https://github.com/processone/yval/blob/master/src/yval.erl

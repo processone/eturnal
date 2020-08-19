@@ -19,36 +19,37 @@
 -module(eturnal_module).
 -author('holger@zedat.fu-berlin.de').
 -export([start/1,
-         stop/2,
-         handle_event/4,
+         stop/1,
+         handle_event/2,
          options/1,
          get_opt/2,
          ensure_deps/2]).
--export_type([state/0,
-              event/0,
+-export_type([event/0,
+              events/0,
               info/0,
               options/0]).
 
--type state() :: term().
 -type event() :: atom().
+-type events() :: [atom()].
 -type info() :: #{atom() => term()}.
 -type option() :: atom().
 -type options() :: {yval:validators(), proplists:proplist()}.
 -type dep() :: atom().
--type module_ret() :: ok | {ok, state()}.
 
--callback start() -> module_ret().
--callback stop(state()) -> ok.
--callback handle_event(event(), info(), state()) -> module_ret().
+-callback start() -> ok | {ok, [event()]}.
+-callback stop() -> ok.
+-callback handle_event(event(), info()) -> ok.
 -callback options() -> options().
 
--optional_callbacks([start/0, stop/1]).
+-optional_callbacks([start/0, stop/0]).
 
 -include_lib("kernel/include/logger.hrl").
+-define(m(Name), {?MODULE, m, Name}).
+-define(e(Name), {?MODULE, e, Name}).
 
 %% API.
 
--spec start(module()) -> {ok, state()} | {error, term()}.
+-spec start(module()) -> ok | {error, term()}.
 start(Mod) ->
     case erlang:function_exported(Mod, start, 0) of
         true ->
@@ -56,9 +57,9 @@ start(Mod) ->
             try
                 case Mod:start() of
                     ok ->
-                        {ok, undefined};
-                    {ok, State} ->
-                        {ok, State}
+                        ok = subscribe_events(all, Mod);
+                    {ok, Events} ->
+                        ok = subscribe_events(Events, Mod)
                 end
             catch _:Err ->
                     ?LOG_DEBUG("Module ~s failed at starting: ~p", [Mod, Err]),
@@ -66,15 +67,16 @@ start(Mod) ->
             end;
         false ->
             ?LOG_DEBUG("Module ~s doesn't export start/0", [Mod]),
-            {ok, undefined}
+            ok = subscribe_events(all, Mod)
     end.
 
--spec stop(module(), state()) -> ok | {error, term()}.
-stop(Mod, State) ->
+-spec stop(module()) -> ok | {error, term()}.
+stop(Mod) ->
+    ok = unsubscribe_events(Mod),
     case erlang:function_exported(Mod, stop, 1) of
         true ->
             ?LOG_DEBUG("Calling ~s:stop/1", [Mod]),
-            try ok = Mod:stop(State)
+            try ok = Mod:stop()
             catch _:Err ->
                     ?LOG_DEBUG("Module ~s failed at stopping: ~p", [Mod, Err]),
                     {error, Err}
@@ -84,22 +86,20 @@ stop(Mod, State) ->
             ok
     end.
 
--spec handle_event(module(), event(), info(), state())
-      -> {ok, state()} | {error, term()}.
-handle_event(Mod, Event, Info, State) ->
-    ?LOG_DEBUG("Calling ~s:handle_event/3", [Mod]),
-    try
-        case Mod:handle_event(Event, Info, State) of
-            ok ->
-                {ok, State};
-            {ok, State1} ->
-                {ok, State1}
-        end
-    catch _:Err ->
-            ?LOG_DEBUG("Module ~s failed at handling '~s' event: ~p",
-                       [Mod, Event, Err]),
-            {error, Err}
-    end.
+-spec handle_event(event(), info()) -> ok.
+handle_event(Event, Info) ->
+    ?LOG_DEBUG("Got '~s' event", [Event]),
+    Mods1 = persistent_term:get(?e(Event), ordsets:new()),
+    Mods2 = persistent_term:get(?e(all), ordsets:new()),
+    ok = lists:foreach(
+           fun(Mod) ->
+                   ?LOG_DEBUG("Calling ~s:handle_event/2", [Mod]),
+                   try ok = Mod:handle_event(Event, Info)
+                   catch _:Err ->
+                           ?LOG_ERROR("Module ~s failed at handling '~s': ~p",
+                                      [Mod, Event, Err])
+                   end
+           end, ordsets:union(Mods1, Mods2)).
 
 -spec options(module()) -> options().
 options(Mod) ->
@@ -116,6 +116,29 @@ ensure_deps(Mod, Deps) ->
     lists:foreach(fun(Dep) -> ok = ensure_dep(Mod, Dep) end, Deps).
 
 %% Internal functions.
+
+-spec subscribe_events(event() | [event()], module()) -> ok.
+subscribe_events(Event, Mod) when is_atom(Event) ->
+    ok = subscribe_events([Event], Mod);
+subscribe_events(Events, Mod) ->
+    ok = persistent_term:put(?m(Mod), Events),
+    ok = lists:foreach(
+           fun(Event) ->
+                   Ms = persistent_term:get(?e(Event), ordsets:new()),
+                   ok = persistent_term:put(?e(Event),
+                                            ordsets:add_element(Mod, Ms))
+           end, Events).
+
+-spec unsubscribe_events(module()) -> ok.
+unsubscribe_events(Mod) ->
+    Es = persistent_term:get(?m(Mod), []),
+    _R = persistent_term:erase(?m(Mod)),
+    ok = lists:foreach(
+           fun(Event) ->
+                   Ms = persistent_term:get(?e(Event), ordsets:new()),
+                   ok = persistent_term:put(?e(Event),
+                                            ordsets:del_element(Mod, Ms))
+           end, Es).
 
 -spec ensure_dep(module(), dep()) -> ok | no_return().
 ensure_dep(Mod, Dep) ->

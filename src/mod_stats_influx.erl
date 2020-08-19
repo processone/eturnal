@@ -23,24 +23,17 @@
 -author('dev@zapb.de').
 -behaviour(eturnal_module).
 -export([start/0,
-         stop/1,
-         handle_event/3,
+         stop/0,
+         handle_event/2,
          options/0]).
 -import(yval, [either/2, ip/0, port/0, string/0]).
 
 -include_lib("kernel/include/logger.hrl").
 -define(INFLUX_POOL, stats_influx_pool).
 
--record(stats_influx_state,
-        {sessions = #{} :: #{id() => integer()}}).
-
--type id() :: binary().
--type ret() :: ok | {ok, state()}.
--type state() :: #stats_influx_state{}.
-
 %% API.
 
--spec start() -> ret().
+-spec start() -> {ok, eturnal_module:events()}.
 start() ->
     ?LOG_DEBUG("Starting ~s", [?MODULE]),
     ok = eturnal_module:ensure_deps(?MODULE, [influx_udp]),
@@ -49,62 +42,42 @@ start() ->
     {ok, _} = influx_udp:start_pool(?INFLUX_POOL, #{host => Host,
                                                     port => Port,
                                                     pool_size => 1}),
-    {ok, #stats_influx_state{}}.
+    {ok, [turn_session_stop, stun_query]}.
 
--spec handle_event(eturnal_module:event(), eturnal_module:info(), state())
-      -> ret().
-handle_event(turn_session_start, Info, State) ->
-    on_turn_session_start(Info, State);
-handle_event(turn_session_stop, Info, State) ->
-    on_turn_session_stop(Info, State);
-handle_event(stun_query, Info, State) ->
-    on_stun_query(Info, State);
-handle_event(_Event, _Info, State) ->
-    {ok, State}.
+-spec handle_event(eturnal_module:event(), eturnal_module:info()) -> ok.
+handle_event(stun_query, Info) ->
+    on_stun_query(Info);
+handle_event(turn_session_stop, Info) ->
+    on_turn_session_stop(Info).
 
--spec stop(state()) -> ok.
-stop(_State) ->
+-spec stop() -> ok.
+stop() ->
     ?LOG_DEBUG("Stopping ~s", [?MODULE]),
     ok.
 
 %% Internal functions.
 
--spec on_turn_session_start(eturnal_module:info(), state()) -> ret().
-on_turn_session_start(#{id := ID},
-                      #stats_influx_state{sessions = Sessions0} = State) ->
-    ?LOG_DEBUG("Handling start event for TURN session ~s", [ID]),
-    Sessions = Sessions0#{ID => erlang:monotonic_time(microsecond)},
-    {ok, State#stats_influx_state{sessions = Sessions}}.
-
--spec on_turn_session_stop(eturnal_module:info(), state()) -> ret().
-on_turn_session_stop(#{id := ID,
-                       transport := Transport,
-                       sent_bytes := Sent,
-                       rcvd_bytes := Rcvd},
-                     #stats_influx_state{sessions = Sessions} = State) ->
-    case Sessions of
-        #{ID := Start} ->
-            ?LOG_DEBUG("Writing stats of TURN session ~s to InfluxDB", [ID]),
-            Duration = erlang:monotonic_time(microsecond) - Start,
-            Points = [{type, <<"turn">>},
-                      {transport, string:lowercase(Transport)},
-                      {duration, Duration},
-                      {sent_bytes, Sent},
-                      {rcvd_bytes, Rcvd}],
-            ok = influx_udp:write_to(?INFLUX_POOL, <<"events">>, Points),
-            {ok, State#stats_influx_state{sessions = maps:remove(ID, Sessions)}};
-        #{} ->
-            ?LOG_WARNING("Got stop event for unknown TURN session ~s", [ID]),
-            {ok, State}
-    end.
-
--spec on_stun_query(eturnal_module:info(), state()) -> ret().
-on_stun_query(#{transport := Transport}, State) ->
+-spec on_stun_query(eturnal_module:info()) -> ok.
+on_stun_query(#{transport := Transport}) ->
     ?LOG_DEBUG("Writing STUN query event to InfluxDB"),
     Points = [{type, <<"stun">>},
               {transport, string:lowercase(Transport)}],
-    ok = influx_udp:write_to(?INFLUX_POOL, <<"events">>, Points),
-    {ok, State}.
+    ok = influx_udp:write_to(?INFLUX_POOL, <<"events">>, Points).
+
+-spec on_turn_session_stop(eturnal_module:info()) -> ok.
+on_turn_session_stop(#{id := ID,
+                       transport := Transport,
+                       sent_bytes := Sent,
+                       rcvd_bytes := Rcvd,
+                       duration := Duration0}) ->
+    ?LOG_DEBUG("Writing stats of TURN session ~s to InfluxDB", [ID]),
+    Duration = erlang:convert_time_unit(Duration0, native, microsecond),
+    Points = [{type, <<"turn">>},
+              {transport, string:lowercase(Transport)},
+              {duration, Duration},
+              {sent_bytes, Sent},
+              {rcvd_bytes, Rcvd}],
+    ok = influx_udp:write_to(?INFLUX_POOL, <<"events">>, Points).
 
 -spec options() -> eturnal_module:options().
 options() ->

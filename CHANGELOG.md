@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Changed
+- Refactor the module API to avoid bottlenecks.
 
 ## [1.2.1] - 2020-08-16
 ## Fixed

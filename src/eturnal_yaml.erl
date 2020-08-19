@@ -94,7 +94,7 @@ validator() ->
 module_validator() ->
     and_then(
       map(
-        beam([{handle_event, 3}, {options, 0}]),
+        beam([{handle_event, 2}, {options, 0}]),
         options(#{'_' => any()}),
         [unique]),
       fun(L) ->

@@ -42,7 +42,7 @@
 
 -type transport() :: udp | tcp | tls.
 -type listeners() :: [{inet:port_number(), transport()}].
--type modules() :: #{module() => eturnal_module:state()}.
+-type modules() :: [module()].
 -type option() :: atom().
 -type value() :: term().
 -type config_changes() :: {[{option(), value()}],
@@ -90,7 +90,7 @@ get_password(Username, _Realm) ->
 
 -spec run_hook(eturnal_module:event(), eturnal_module:info()) -> ok.
 run_hook(Event, Info) ->
-    gen_server:cast(?MODULE, {run_hook, Event, Info}).
+    eturnal_module:handle_event(Event, Info).
 
 -spec stop() -> ok | {error, term()}.
 stop() ->
@@ -145,7 +145,7 @@ init(_Opts) ->
     end,
     Ms = case start_modules() of
              {ok, Modules} ->
-                 ?LOG_DEBUG("Started ~B modules", [maps:size(Modules)]),
+                 ?LOG_DEBUG("Started ~B modules", [length(Modules)]),
                  Modules;
              {error, Reason1} ->
                  ?LOG_DEBUG("Failed to start modules: ~p", [Reason1]),
@@ -192,28 +192,9 @@ handle_call(Request, From, State) ->
     ?LOG_ERROR("Got unexpected request from ~p: ~p", [From, Request]),
     {reply, {error, badarg}, State}.
 
--spec handle_cast({run_hook, eturnal_module:event(), eturnal_module:info()} |
-                  {config_change, config_changes(),
+-spec handle_cast({config_change, config_changes(),
                    fun(() -> ok), fun(() -> ok)} | term(), state())
       -> {noreply, state()} | no_return().
-handle_cast({run_hook, Event, Info},
-            #eturnal_state{modules = Modules} = State) ->
-    ?LOG_DEBUG("Running '~s' hook", [Event]),
-    Modules1 = maps:fold(
-                 fun(Mod, ModState, ModMap) ->
-                         case eturnal_module:handle_event(Mod, Event, Info,
-                                                          ModState) of
-                             {ok, ModState1} ->
-                                 ?LOG_DEBUG("Module '~s' handled '~s'",
-                                            [Mod, Event]),
-                                 ModMap#{Mod => ModState1};
-                             {error, Reason} ->
-                                 ?LOG_ERROR("Module '~s' failed to handle "
-                                            "'~s': ~p", [Mod, Event, Reason]),
-                                 ModMap#{Mod => ModState}
-                         end
-                 end, #{}, Modules),
-    {noreply, State#eturnal_state{modules = Modules1}};
 handle_cast({config_change, Changes, BeginFun, EndFun}, State) ->
     ok = BeginFun(),
     State1 = apply_config_changes(State, Changes),
@@ -245,36 +226,36 @@ code_change(_OldVsn, State, _Extra) ->
 
 -spec start_modules() -> {ok, modules()} | {error, term()}.
 start_modules() ->
-    try maps:fold(
-          fun(Mod, _Opts, ModMap) ->
+    try lists:map(
+          fun({Mod, _Opts}) ->
                   case eturnal_module:start(Mod) of
-                      {ok, State} ->
+                      ok ->
                           ?LOG_INFO("Started ~s", [Mod]),
-                          ModMap#{Mod => State};
+                          Mod;
                       {error, Reason} = Err ->
                           ?LOG_CRITICAL("Failed to start ~s: ~p",
                                         [Mod, Reason]),
                           throw(Err)
                   end
-          end, #{}, get_opt(modules)) of
-        ModMap ->
-            {ok, ModMap}
+          end, maps:to_list(get_opt(modules))) of
+        Modules ->
+            {ok, Modules}
     catch throw:{error, Reason} ->
             {error, Reason}
     end.
 
 -spec stop_modules(state()) -> ok | {error, term()}.
 stop_modules(#eturnal_state{modules = Modules}) ->
-    try maps:fold(
-          fun(Mod, State, _Acc) ->
-                  case eturnal_module:stop(Mod, State) of
+    try lists:foreach(
+          fun(Mod) ->
+                  case eturnal_module:stop(Mod) of
                       ok ->
                           ?LOG_INFO("Stopped ~s", [Mod]);
                       {error, Reason} = Err ->
                           ?LOG_CRITICAL("Failed to stop ~s: ~p", [Mod, Reason]),
                       throw(Err)
                   end
-          end, undefined, Modules)
+          end, Modules)
     catch throw:{error, Reason} ->
             {error, Reason}
     end.
