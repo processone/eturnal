@@ -113,13 +113,11 @@ start(Mod) ->
     case erlang:function_exported(Mod, start, 0) of
         true ->
             ?LOG_DEBUG("Calling ~s:start/0", [Mod]),
-            try
-                case Mod:start() of
-                    ok ->
-                        ok = subscribe_events(all, Mod);
-                    {ok, Events} ->
-                        ok = subscribe_events(Events, Mod)
-                end
+            try Mod:start() of
+                ok ->
+                    ok = subscribe_events(all, Mod);
+                {ok, Events} ->
+                    ok = subscribe_events(Events, Mod)
             catch _:Err ->
                     ?LOG_DEBUG("Module ~s failed at starting: ~p", [Mod, Err]),
                     {error, Err}
