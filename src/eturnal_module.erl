@@ -87,7 +87,7 @@
 -type events() :: [atom()].
 -type info() :: #{atom() => term()}.
 -type option() :: atom().
--type options() :: {yval:validators(), proplists:proplist()}.
+-type options() :: {yval:validators(), yval:validator_option()}.
 -type dep() :: atom().
 
 -callback start() -> ok | {ok, [event()]}.
