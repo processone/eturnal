@@ -17,9 +17,8 @@ Dependency Management
 
 Besides the dependencies [mentioned][4] in the [README.md][5] file, eturnal
 depends on the Erlang libraries referenced as `deps` in the [rebar.config][6]
-file, _except_ for `recon` (which is just included for debugging purposes) and
-`influx_udp` (see below). The complete list of (direct and transitive) Erlang
-dependencies is:
+file, _except_ for `recon` (which is just included for debugging purposes). The
+complete list of (direct and transitive) Erlang dependencies is:
 
 - [stun](https://github.com/processone/stun)
 - [conf](https://github.com/processone/conf)
