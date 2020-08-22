@@ -210,7 +210,7 @@ unsubscribe_events(Mod) ->
                                 {?e(Event), ordsets:del_element(Mod, Ms)}
                         end, Es),
             true = ets:insert(events, Entries),
-            true = ets:delete(?m(Mod)),
+            true = ets:delete(events, ?m(Mod)),
             ok
     end.
 
