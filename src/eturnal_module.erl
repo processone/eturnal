@@ -118,8 +118,9 @@ start(Mod) ->
                     ok = subscribe_events(all, Mod);
                 {ok, Events} ->
                     ok = subscribe_events(Events, Mod)
-            catch _:Err ->
-                    ?LOG_DEBUG("Module ~s failed at starting: ~p", [Mod, Err]),
+            catch _:Err:Stack ->
+                    ?LOG_DEBUG("Module ~s failed at starting:~n~p",
+                               [Mod, Stack]),
                     {error, Err}
             end;
         false ->
@@ -134,8 +135,9 @@ stop(Mod) ->
         true ->
             ?LOG_DEBUG("Calling ~s:stop/1", [Mod]),
             try ok = Mod:stop()
-            catch _:Err ->
-                    ?LOG_DEBUG("Module ~s failed at stopping: ~p", [Mod, Err]),
+            catch _:Err:Stack ->
+                    ?LOG_DEBUG("Module ~s failed at stopping:~n~p",
+                               [Mod, Stack]),
                     {error, Err}
             end;
         false ->
@@ -150,9 +152,9 @@ handle_event(Event, Info) ->
            fun(Mod) ->
                    ?LOG_DEBUG("Calling ~s:handle_event/2", [Mod]),
                    try ok = Mod:handle_event(Event, Info)
-                   catch _:Err ->
-                           ?LOG_ERROR("Module ~s failed at handling '~s': ~p",
-                                      [Mod, Event, Err])
+                   catch _:_Err:Stack ->
+                           ?LOG_ERROR("Module ~s failed at handling '~s':~n~p",
+                                      [Mod, Stack])
                    end
            end, get_subscribers(Event)).
 
