@@ -48,7 +48,7 @@ files to be installed.
 Directory Structure
 -------------------
 
-The eturnal server is started (and controlled) by calling the [eturnalctl][8]
+The eturnal server is started (and controlled) by calling the `eturnalctl`
 script, which is a small wrapper around the `eturnal` command. The latter
 expects a few files and directories to be available in the following locations:
 
@@ -59,10 +59,10 @@ expects a few files and directories to be available in the following locations:
 Therefore, distributions might want to install the directories
 `_build/distro/rel/eturnal/bin` and `_build/distro/rel/eturnal/releases` into
 some (for example) `/usr/lib/eturnal` folder and adjust the path to the
-`eturnal` command within the [eturnalctl][8] script accordingly. The
-[eturnalctl][8] script itself can be installed elsewhere (e.g., into
-`/usr/sbin`). The `_build/distro/rel/eturnal/lib/eturnal-$version` folder should
-be installed into the main Erlang library directory as returned by:
+`eturnal` command within the `eturnalctl` script accordingly. The `eturnalctl`
+script itself can be installed elsewhere (e.g., into `/usr/sbin`). The
+`_build/distro/rel/eturnal/lib/eturnal-$version` folder should be installed into
+the main Erlang library directory as returned by:
 
     $ erl -noinput -eval 'io:put_chars(code:lib_dir()), io:nl(), halt()'
 
@@ -73,8 +73,8 @@ directories created below the `_build` folder can be ignored.
 
 The following list of files could be patched before calling `./rebar3` in order
 to specify a different system user for running eturnal, to adjust the paths to
-the [eturnalctl][8] and `eturnal` scripts, and to change the default
-configuration file path:
+the `eturnalctl` and `eturnal` scripts, and to change the default configuration
+file path:
 
 - [scripts/eturnalctl][8]
 - [scripts/eturnal.init][11]
