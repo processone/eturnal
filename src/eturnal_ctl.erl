@@ -19,6 +19,7 @@
 -module(eturnal_ctl).
 -author('holger@zedat.fu-berlin.de').
 -export([get_sessions/0,
+         get_info/0,
          get_version/0,
          get_loglevel/0,
          set_loglevel/1,
@@ -31,6 +32,9 @@
 -type session() :: {binary(), sock_mod(), addr_port(), addr_port(),
                     [addr_port()], non_neg_integer(), non_neg_integer(),
                      non_neg_integer(), non_neg_integer(), non_neg_integer()}.
+-type node_info() :: {binary(), {string(), string()}, non_neg_integer(),
+                      non_neg_integer(), non_neg_integer(), non_neg_integer(),
+                      non_neg_integer(), non_neg_integer()}.
 
 %% API.
 
@@ -46,6 +50,16 @@ get_sessions() ->
             {ok, unicode:characters_to_list(Output)};
         [] ->
             {ok, "No active TURN sessions"}
+    end.
+
+-spec get_info() -> {ok, string()} | {error, string()}.
+get_info() ->
+    ?LOG_DEBUG("Handling API call: get_info()"),
+    case call(get_info) of
+        {ok, Info} ->
+            {ok, unicode:characters_to_list(format_info(Info))};
+        {error, timeout} ->
+            {error, "Querying eturnal timed out"}
     end.
 
 -spec get_version() -> {ok, string()} | {error, string()}.
@@ -150,6 +164,23 @@ format_sessions(Sessions) ->
                  round(SentBytes / 1024), SentPkts, nl(),
                  round(RcvdBytes / 1024), RcvdPkts, nl(), Duration])
       end, Sessions).
+
+-spec format_info(node_info()) -> io_lib:chars().
+format_info({EturnalVsn, {OtpVsn, ErtsVsn}, Uptime, Sessions, Procs, QueueLen,
+             Reductions, Memory}) ->
+    MiB = round(Memory / 1024 / 1024),
+    Seconds = erlang:convert_time_unit(Uptime, millisecond,  second),
+    {Ds, {Hs, Ms, Ss}} = calendar:seconds_to_daystime(Seconds),
+    io_lib:format(
+      "eturnal ~s on Erlang/OTP ~s (ERTS ~s)~s"
+      "Uptime: ~B days, ~B hours, ~B minutes, ~B seconds~s"
+      "Active TURN sessions: ~B~s"
+      "Processes: ~B~s"
+      "Total length of run queues: ~B~s"
+      "Total CPU usage (reductions): ~B~s"
+      "Allocated memory (MiB): ~B",
+      [EturnalVsn, OtpVsn, ErtsVsn, nl(), Ds, Hs, Ms, Ss, nl(), Sessions, nl(),
+       Procs, nl(), QueueLen, nl(), Reductions, nl(), MiB]).
 
 -spec format_transport(sock_mod()) -> binary().
 format_transport(gen_udp) ->

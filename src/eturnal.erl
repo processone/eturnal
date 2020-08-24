@@ -161,7 +161,7 @@ init(_Opts) ->
          end,
     {ok, #eturnal_state{listeners = Ls, modules = Ms}}.
 
--spec handle_call(reload | get_version | get_loglevel |
+-spec handle_call(reload | get_info | get_version | get_loglevel |
                   {set_loglevel, eturnal_logger:level()} | term(),
                   {pid(), term()}, state())
       -> {reply, ok | {ok, term()} | {error, term()}, state()}.
@@ -175,6 +175,18 @@ handle_call(reload, _From, State) ->
                        [conf:format_error(Reason)]),
             {reply, Err, State}
     end;
+handle_call(get_info, _From, State) ->
+    EturnalVsn = eturnal_misc:version(),
+    ErlangVsn = {erlang:system_info(otp_release), erlang:system_info(version)},
+    Uptime = element(1, erlang:statistics(wall_clock)),
+    Sessions = length(supervisor:which_children(turn_tmp_sup)),
+    Procs = erlang:system_info(process_count),
+    QueueLen = erlang:statistics(total_run_queue_lengths),
+    Reductions = element(1, erlang:statistics(reductions)),
+    Memory = erlang:memory(total),
+    Info = {EturnalVsn, ErlangVsn, Uptime, Sessions, Procs, QueueLen,
+            Reductions, Memory},
+    {reply, {ok, Info}, State};
 handle_call(get_version, _From, State) ->
     Version = eturnal_misc:version(),
     {reply, {ok, Version}, State};

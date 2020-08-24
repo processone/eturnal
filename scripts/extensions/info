@@ -1,0 +1,34 @@
+get_info()
+{
+    local response="$(erl_rpc 'eturnal_ctl' 'get_info' || :)"
+
+    case $response in
+        '{ok,'*)
+            echo "$response" | sed -e 's/{ok, *"\(.*\)"}/\1/' -e 's/~n/\
+/g'
+            exit 0
+            ;;
+        '{error,'*)
+            echo "$response" | sed 's/{error, *"\(.*\)"}/\1/' >&2
+            exit 1
+            ;;
+        *)
+            echo "Unknown error: '$response'" >&2
+            exit 1
+            ;;
+    esac
+}
+
+if [ $# -ge 1 ] && [ "x$1" = 'xhelp' ]
+then
+    echo "Usage: $REL_NAME info"
+    echo "Print some information regarding the running $REL_NAME instance."
+    exit 0
+elif [ $# -eq 0 ]
+then
+    ping_or_exit
+    get_info
+else
+    echo "Usage: $REL_NAME info" >&2
+    exit 2
+fi
