@@ -7,10 +7,10 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [1.3.0] - 2020-08-26
 ### Added
-- Document the module API for developers.
-- Add the TURN session duration to the `eturnalctl sessions` output.
 - Add `eturnalctl info` command, which prints some details regarding the running
   eturnal instance.
+- Add the TURN session duration to the `eturnalctl sessions` output.
+- Document the module API for developers.
 
 ### Changed
 - Refactor the module API to avoid bottlenecks.
