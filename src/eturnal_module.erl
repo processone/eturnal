@@ -174,10 +174,8 @@ ensure_deps(Mod, Deps) ->
 
 %% Internal functions.
 
--spec subscribe_events(event() | [event()], module()) -> ok.
--spec unsubscribe_events(module()) -> ok.
--spec get_subscribers(event()) -> [module()].
 -ifdef(old_persistent_term).
+-spec subscribe_events(event() | [event()], module()) -> ok.
 subscribe_events(Event, Mod) when is_atom(Event) ->
     ok = subscribe_events([Event], Mod);
 subscribe_events(Events, Mod) ->
@@ -199,6 +197,7 @@ subscribe_events(Events, Mod) ->
     true = ets:insert(events, [{?m(Mod), Events} | Entries]),
     ok.
 
+-spec unsubscribe_events(module()) -> ok.
 unsubscribe_events(Mod) ->
     case ets:lookup(events, ?m(Mod)) of
         [] ->
@@ -214,6 +213,7 @@ unsubscribe_events(Mod) ->
             ok
     end.
 
+-spec get_subscribers(event()) -> [module()].
 get_subscribers(Event) ->
     Mods = lists:map(
              fun(E) ->
@@ -226,6 +226,7 @@ get_subscribers(Event) ->
              end, [Event, all]),
     ordsets:union(Mods).
 -else.
+-spec subscribe_events(event() | [event()], module()) -> ok.
 subscribe_events(Event, Mod) when is_atom(Event) ->
     ok = subscribe_events([Event], Mod);
 subscribe_events(Events, Mod) ->
@@ -236,6 +237,8 @@ subscribe_events(Events, Mod) ->
                    ok = persistent_term:put(?e(Event),
                                             ordsets:add_element(Mod, Ms))
            end, Events).
+
+-spec unsubscribe_events(module()) -> ok.
 unsubscribe_events(Mod) ->
     Es = persistent_term:get(?m(Mod), []),
     _R = persistent_term:erase(?m(Mod)),
@@ -246,6 +249,7 @@ unsubscribe_events(Mod) ->
                                             ordsets:del_element(Mod, Ms))
            end, Es).
 
+-spec get_subscribers(event()) -> [module()].
 get_subscribers(Event) ->
     Mods1 = persistent_term:get(?e(Event), ordsets:new()),
     Mods2 = persistent_term:get(?e(all), ordsets:new()),
