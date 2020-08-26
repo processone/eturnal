@@ -89,7 +89,7 @@ script must be adjusted accordingly.
 == Global Configuration ==
 
 The eturnal server is configured by editing the `eturnal.yml' file (and
-optionally setting one or more {@section Environment Variables}. If
+optionally setting one or more {@section Environment Variables}). If
 `/etc/eturnal.yml' doesn't exist, eturnal will (by default) search for
 `etc/eturnal.yml' within the installation directory. In order to use a different
 path, the environment variable {@section ETURNAL_ETC_PREFIX} can be specified.
