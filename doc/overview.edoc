@@ -295,7 +295,7 @@ This option specifies the IPv6 address used for relaying data from/to TURN
 peers. Note that this <em>must</em> be the server's public IPv6 address; i.e.,
 it cannot be set to, for example, `"::"'. If this option isn't specified,
 eturnal will use the host name's IPv6 address. If `relay_ipv6_addr' is
-unspecified and the host name doesn't resolve to a public IPv4 address, eturnal
+unspecified and the host name doesn't resolve to a public IPv6 address, eturnal
 won't offer TURN relaying from/to IPv6 peers.
 
 === relay_max_port ===
