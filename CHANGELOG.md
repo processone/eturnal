@@ -16,7 +16,7 @@ project adheres to [Semantic Versioning][SemVer].
 - Refactor the module API to avoid bottlenecks.
 
 ## [1.2.1] - 2020-08-16
-## Fixed
+### Fixed
 - Strip the BEAM files shipped with the binary release. Due to a bug in the
   build tooling, this didn't happen for the previous release.
 
@@ -41,7 +41,7 @@ project adheres to [Semantic Versioning][SemVer].
 - Log more info level messages during TURN sessions.
 - Log error responses sent to STUN/TURN clients.
 
-## Fixed
+### Fixed
 - Make configuration reloads performed after changing the `listen` configuration
   more robust against timing issues.
 - Let eturnalctl commands that query the running node fail gracefully if eturnal
