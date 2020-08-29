@@ -66,9 +66,9 @@ the main Erlang library directory as returned by:
 
     $ erl -noinput -eval 'io:put_chars(code:lib_dir()), io:nl(), halt()'
 
-The `_build/stripped/rel/eturnal/etc` directory holds a [sample configuration
+The `_build/distro/rel/eturnal/etc` directory holds a [sample configuration
 file][9], a [systemd unit][10], and an [init script][11]. The [LICENSE.txt][12]
-file can be found in the `_build/stripped/rel/eturnal/doc` directory. Other
+file can be found in the `_build/distro/rel/eturnal/doc` directory. Other
 directories created below the `_build` folder can be ignored.
 
 The following list of files could be patched before calling `./rebar3` in order
