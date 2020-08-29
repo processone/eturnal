@@ -55,15 +55,36 @@ groups() ->
 
 all() ->
     [start_eturnal,
+     check_info,
+     check_sessions,
+     check_loglevel,
      check_version,
+     reload,
      connect,
      stop_eturnal].
 
 start_eturnal(_Config) ->
     {ok, _} = application:ensure_all_started(eturnal).
 
+check_info(_Config) ->
+    {ok, Info} = eturnal_ctl:get_info(),
+    true = is_list(Info).
+
+check_sessions(_Config) ->
+    {ok, Sessions} = eturnal_ctl:get_version(),
+    true = is_list(Sessions).
+
+check_loglevel(_Config) ->
+    {ok, Level} = eturnal_ctl:get_loglevel(),
+    true = Level =:= "debug".
+
 check_version(_Config) ->
-    {ok, _Version} = eturnal_ctl:get_version().
+    {ok, Version} = eturnal_ctl:get_version(),
+    match = re:run(Version, "^[0-9]+\\.[0-9]+\\.[0-9](\\+[0-9]+)?",
+                   [{capture, none}]).
+
+reload(_Config) ->
+    ok = eturnal_ctl:reload().
 
 connect(_Config) ->
     {ok, Addr} = inet:parse_address("127.0.0.1"),
