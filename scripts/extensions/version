@@ -25,8 +25,13 @@ then
     exit 0
 elif [ $# -eq 0 ]
 then
-    ping_or_exit
-    get_version
+    if erl_rpc 'erlang' 'is_alive' >'/dev/null' 2>&1
+    then
+        get_version
+    else
+        echo "{{release_version}} (not running)"
+        exit 0
+    fi
 else
     echo "Usage: $REL_NAME version" >&2
     exit 2
