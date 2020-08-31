@@ -143,7 +143,7 @@ free to (ab)use it for usage questions as well. If you happen to be using
  [6]: https://pyyaml.org/wiki/LibYAML
  [7]: https://www.openssl.org
  [8]: https://gcc.gnu.org
- [9]: https://github.com/erlang/rebar3/releases/download/3.14.0-rc2/rebar3
+ [9]: https://s3.amazonaws.com/rebar3/rebar3
 [10]: https://github.com/processone/eturnal/blob/1.3.0/build.config
 [11]: https://en.wikipedia.org/wiki/YAML
 [12]: https://github.com/processone/eturnal/blob/1.3.0/config/eturnal.yml
