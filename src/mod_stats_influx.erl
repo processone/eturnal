@@ -55,6 +55,14 @@ stop() ->
     ?LOG_DEBUG("Stopping ~s", [?MODULE]),
     ok.
 
+-spec options() -> eturnal_module:options().
+options() ->
+    {#{host => either(ip(), string()),
+       port => port()},
+     [{defaults,
+       #{host => "localhost",
+         port => 8089}}]}.
+
 %% Internal functions.
 
 -spec on_stun_query(eturnal_module:info()) -> ok.
@@ -78,11 +86,3 @@ on_turn_session_stop(#{id := ID,
               {sent_bytes, Sent},
               {rcvd_bytes, Rcvd}],
     ok = influx_udp:write_to(?INFLUX_POOL, <<"events">>, Points).
-
--spec options() -> eturnal_module:options().
-options() ->
-    {#{host => either(ip(), string()),
-       port => port()},
-     [{defaults,
-       #{host => "localhost",
-         port => 8089}}]}.

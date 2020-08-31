@@ -48,6 +48,13 @@ stop() ->
     ?LOG_DEBUG("Stopping ~s", [?MODULE]),
     ok.
 
+-spec options() -> eturnal_module:options().
+options() -> % See: https://github.com/processone/yval/blob/master/src/yval.erl
+    {#{time_unit => enum([second, millisecond, microsecond, nanosecond])},
+     [{required, []}, % List of required options.
+      {defaults,
+       #{time_unit => second}}]}.
+
 %% Internal functions.
 
 -spec on_turn_session_stop(eturnal_module:info()) -> ok.
@@ -65,10 +72,3 @@ on_turn_session_stop(#{id := ID,
     ?LOG_NOTICE("Relayed ~B KiB in ~B ~ss [~s, session ~s, user ~s, client ~s]",
                 [KiB, Duration, Unit, Transport, ID, User, Client]),
     ok.
-
--spec options() -> eturnal_module:options().
-options() -> % See: https://github.com/processone/yval/blob/master/src/yval.erl
-    {#{time_unit => enum([second, millisecond, microsecond, nanosecond])},
-     [{required, []}, % List of required options.
-      {defaults,
-       #{time_unit => second}}]}.
