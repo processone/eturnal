@@ -28,6 +28,9 @@
 -import(yval, [enum/1]).
 
 -include_lib("kernel/include/logger.hrl").
+-ifndef(LOG). % Erlang/OTP 21.0.
+-define(LOG(Level, Format, Args), logger:log(Level, Format, Args)).
+-endif.
 
 %% API.
 
