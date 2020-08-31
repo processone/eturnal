@@ -21,7 +21,7 @@ get_loglevel()
 set_loglevel()
 {
     local level="$1"
-    local response="$(erl_rpc 'eturnal_ctl' 'set_loglevel' "[$level]." || :)"
+    local response="$(erl_rpc 'eturnal_ctl' 'set_loglevel' "[$level]" || :)"
 
     case $response in
         'ok')
