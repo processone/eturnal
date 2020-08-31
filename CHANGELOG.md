@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Added
+- Add `mod_log_stun` for logging STUN requests. Without this module, they will
+  now only show up in the `debug` log output.
 
 ## [1.3.0] - 2020-08-26
 ### Added

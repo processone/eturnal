@@ -257,7 +257,7 @@ Example:
 
 ```
 modules:
-  mod_example: {}
+  mod_log_stun: {}
   mod_stats_influx:
     host: localhost
     port: 8089
@@ -396,6 +396,18 @@ Default: `second'</div>
 
 This option defines the time unit used for logging the duration of TURN
 sessions.
+
+=== mod_log_stun ===
+
+This module enables logging of STUN queries. Without this module, STUN requests
+only show up in the `debug' output.
+
+==== level ====
+
+<div class="spec">Type: `log level'<br/>
+Default: `info'</div>
+
+The value of this option determines the level used for logging STUN requests.
 
 === mod_stats_influx ===
 
