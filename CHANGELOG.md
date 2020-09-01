@@ -6,7 +6,10 @@ project adheres to [Semantic Versioning][SemVer].
 ## [Unreleased]
 ### Added
 - Add `mod_log_stun` for logging STUN requests. Without this module, they will
-  now only show up in the `debug` log output.
+  now only show up in the debug log output.
+
+### Changed
+- Always log reason for TCP/TLS connection termination (at info level).
 
 ## [1.3.0] - 2020-08-26
 ### Added
