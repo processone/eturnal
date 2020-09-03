@@ -201,8 +201,8 @@ format_template() ->
      {logger_formatter, [[logger_formatter, title], ":", io_lib:nl()], []},
      % The actual log message:
      msg,
-     % Append ("<PID>" and, if available, "@Module:Function/Arity:Line"):
-     " (", pid, {mfa, ["@", mfa, {line, [":", line], []}], []}, ")",
+     % Append (Module:Function/Arity and maybe :Line), if available:
+     {mfa, [" (", mfa, {line, [":", line], []}, ")"], []},
      io_lib:nl()].
 
 -spec configure_default_handler() -> ok.
