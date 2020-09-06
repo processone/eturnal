@@ -160,8 +160,8 @@ format_sessions(Sessions) ->
                 "-- TURN session of ~s --~s"
                 "          Client: ~s (~s)~s"
                 "           Relay: ~s (UDP)~s"
-                "   Permission(s): ~s (UDP)~s"
-                "         Peer(s): ~s (UDP)~s"
+                "   Permission(s): ~s~s"
+                "         Peer(s): ~s~s"
                 "            Sent: ~B KiB (~B packets)~s"
                 "        Received: ~B KiB (~B packets)~s"
                 "     Running for: ~B seconds",
@@ -200,7 +200,8 @@ format_transport(fast_tls) ->
 format_addrs([]) ->
     <<"none">>;
 format_addrs(PeerAddrs) ->
-    lists:join(", ", lists:map(fun eturnal_misc:addr_to_str/1, PeerAddrs)).
+    [lists:join(", ", lists:map(fun eturnal_misc:addr_to_str/1, PeerAddrs)),
+     <<" (UDP)">>].
 
 -spec nl() -> string().
 nl() ->
