@@ -28,10 +28,11 @@
 -include_lib("kernel/include/logger.hrl").
 
 -type sock_mod() :: gen_udp | gen_tcp | fast_tls.
+-type addr() :: inet:ip_address().
 -type addr_port() :: {inet:ip_address(), inet:port_number()}.
--type session() :: {binary(), sock_mod(), addr_port(), addr_port(),
+-type session() :: {binary(), sock_mod(), addr_port(), addr_port(), [addr()],
                     [addr_port()], non_neg_integer(), non_neg_integer(),
-                     non_neg_integer(), non_neg_integer(), integer()}.
+                    non_neg_integer(), non_neg_integer(), integer()}.
 -type node_info() :: {binary(), {string(), string()}, non_neg_integer(),
                       non_neg_integer(), non_neg_integer(), non_neg_integer(),
                       non_neg_integer(), non_neg_integer()}.
@@ -131,36 +132,41 @@ query_sessions() ->
               SockMod = element(2, State),
               ClientAddr = element(4, State),
               RelayAddr = element(18, State),
+              PermMap = element(12, State),
               PeerMap = element(10, State),
               SentBytes = element(29, State),
               SentPkts = element(30, State),
               RcvdBytes = element(27, State),
               RcvdPkts = element(28, State),
               Start = element(31, State),
-              {User, SockMod, ClientAddr, RelayAddr, maps:keys(PeerMap),
-               SentBytes, SentPkts, RcvdBytes, RcvdPkts, Start}
+              {User, SockMod, ClientAddr, RelayAddr, maps:keys(PermMap),
+               maps:keys(PeerMap), SentBytes, SentPkts, RcvdBytes, RcvdPkts,
+               Start}
       end, supervisor:which_children(turn_tmp_sup)).
 
 -spec format_sessions([session()]) -> iolist().
 format_sessions(Sessions) ->
     lists:map(
-      fun({User, SockMod, ClientAddr, RelayAddr, PeerAddrs, SentBytes, SentPkts,
-           RcvdBytes, RcvdPkts, Start}) ->
+      fun({User, SockMod, ClientAddr, RelayAddr, PermAddrs, PeerAddrs,
+           SentBytes, SentPkts, RcvdBytes, RcvdPkts, Start}) ->
               Duration0 = erlang:monotonic_time() - Start,
               Duration = erlang:convert_time_unit(Duration0, native, second),
               Transport = format_transport(SockMod),
               Client = eturnal_misc:addr_to_str(ClientAddr),
               Relay = eturnal_misc:addr_to_str(RelayAddr),
-              Peers = format_peers(PeerAddrs),
+              Peers = format_addrs(PeerAddrs),
+              Perms = format_addrs(PermAddrs),
               io_lib:format(
                 "-- TURN session of ~s --~s"
-                "       Client: ~s (~s)~s"
-                "        Relay: ~s (UDP)~s"
-                "      Peer(s): ~s (UDP)~s"
-                "         Sent: ~B KiB (~B packets)~s"
-                "     Received: ~B KiB (~B packets)~s"
-                "  Running for: ~B seconds",
-                [User, nl(), Client, Transport, nl(), Relay, nl(), Peers, nl(),
+                "          Client: ~s (~s)~s"
+                "           Relay: ~s (UDP)~s"
+                "   Permission(s): ~s (UDP)~s"
+                "         Peer(s): ~s (UDP)~s"
+                "            Sent: ~B KiB (~B packets)~s"
+                "        Received: ~B KiB (~B packets)~s"
+                "     Running for: ~B seconds",
+                [User, nl(), Client, Transport, nl(),
+                 Relay, nl(), Perms, nl(), Peers, nl(),
                  round(SentBytes / 1024), SentPkts, nl(),
                  round(RcvdBytes / 1024), RcvdPkts, nl(), Duration])
       end, Sessions).
@@ -190,10 +196,10 @@ format_transport(gen_tcp) ->
 format_transport(fast_tls) ->
     <<"TLS">>.
 
--spec format_peers([addr_port()]) -> iolist() | binary().
-format_peers([]) ->
+-spec format_addrs([addr() | addr_port()]) -> iolist() | binary().
+format_addrs([]) ->
     <<"none">>;
-format_peers(PeerAddrs) ->
+format_addrs(PeerAddrs) ->
     lists:join(", ", lists:map(fun eturnal_misc:addr_to_str/1, PeerAddrs)).
 
 -spec nl() -> string().

@@ -7,6 +7,7 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Add `mod_log_stun` for logging STUN requests. Without this module, they will
   now only show up in the debug log output.
+- Add list of TURN permissions to the `eturnalctl sessions` output.
 
 ### Changed
 - Always log reason for TCP/TLS connection termination (at info level).
