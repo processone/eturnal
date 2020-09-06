@@ -31,7 +31,7 @@
 -type addr_port() :: {inet:ip_address(), inet:port_number()}.
 -type session() :: {binary(), sock_mod(), addr_port(), addr_port(),
                     [addr_port()], non_neg_integer(), non_neg_integer(),
-                     non_neg_integer(), non_neg_integer(), non_neg_integer()}.
+                     non_neg_integer(), non_neg_integer(), integer()}.
 -type node_info() :: {binary(), {string(), string()}, non_neg_integer(),
                       non_neg_integer(), non_neg_integer(), non_neg_integer(),
                       non_neg_integer(), non_neg_integer()}.
@@ -132,26 +132,26 @@ query_sessions() ->
               ClientAddr = element(4, State),
               RelayAddr = element(18, State),
               PeerMap = element(10, State),
-              SentBytes = element(27, State),
-              SentPkts = element(28, State),
-              RcvdBytes = element(25, State),
-              RcvdPkts = element(26, State),
-              Duration = element(27, State),
+              SentBytes = element(29, State),
+              SentPkts = element(30, State),
+              RcvdBytes = element(27, State),
+              RcvdPkts = element(28, State),
+              Start = element(31, State),
               {User, SockMod, ClientAddr, RelayAddr, maps:keys(PeerMap),
-               SentBytes, SentPkts, RcvdBytes, RcvdPkts, Duration}
+               SentBytes, SentPkts, RcvdBytes, RcvdPkts, Start}
       end, supervisor:which_children(turn_tmp_sup)).
 
 -spec format_sessions([session()]) -> iolist().
 format_sessions(Sessions) ->
     lists:map(
       fun({User, SockMod, ClientAddr, RelayAddr, PeerAddrs, SentBytes, SentPkts,
-           RcvdBytes, RcvdPkts, Duration0}) ->
+           RcvdBytes, RcvdPkts, Start}) ->
+              Duration0 = erlang:monotonic_time() - Start,
               Duration = erlang:convert_time_unit(Duration0, native, second),
               Transport = format_transport(SockMod),
               Client = eturnal_misc:addr_to_str(ClientAddr),
               Relay = eturnal_misc:addr_to_str(RelayAddr),
-              Peers = lists:join(", ", lists:map(fun eturnal_misc:addr_to_str/1,
-                                                 PeerAddrs)),
+              Peers = format_peers(PeerAddrs),
               io_lib:format(
                 "-- TURN session of ~s --~s"
                 "       Client: ~s (~s)~s"
@@ -189,6 +189,12 @@ format_transport(gen_tcp) ->
     <<"TCP">>;
 format_transport(fast_tls) ->
     <<"TLS">>.
+
+-spec format_peers([addr_port()]) -> iolist() | binary().
+format_peers([]) ->
+    <<"none">>;
+format_peers(PeerAddrs) ->
+    lists:join(", ", lists:map(fun eturnal_misc:addr_to_str/1, PeerAddrs)).
 
 -spec nl() -> string().
 nl() ->

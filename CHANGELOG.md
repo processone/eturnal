@@ -11,6 +11,10 @@ project adheres to [Semantic Versioning][SemVer].
 ### Changed
 - Always log reason for TCP/TLS connection termination (at info level).
 
+### Fixed
+- Make the `eturnalctl sessions` command work with recent versions of the `stun`
+  application.
+
 ## [1.3.0] - 2020-08-26
 ### Added
 - Add `eturnalctl info` command, which prints some details regarding the running
