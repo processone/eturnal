@@ -525,8 +525,8 @@ import_cert(CrtFile, OutFile) ->
 -spec create_self_signed(file:filename_all()) -> ok | error.
 create_self_signed(OutFile) ->
     Cmd = io_lib:format("openssl req -x509 -batch -nodes -newkey rsa:4096 "
-                        "-keyout ~ts -subj /CN=eturnal.net -days 3650",
-                        [OutFile]),
+                        "-keyout ~ts -subj /CN=~ts -days 3650",
+                        [OutFile, get_opt(realm)]),
     Output = os:cmd(Cmd),
     case string:find(Output, "-----BEGIN CERTIFICATE-----") of
         Cert when is_list(Cert) ->
