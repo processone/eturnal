@@ -125,23 +125,33 @@ query_state(PID) -> % Until we add a proper API to 'stun'.
 
 -spec query_sessions() -> [session()].
 query_sessions() ->
-    lists:map(
+    lists:filtermap(
       fun({_, PID, worker, _}) ->
-              State = query_state(PID),
-              User = element(6, State),
-              SockMod = element(2, State),
-              ClientAddr = element(4, State),
-              RelayAddr = element(18, State),
-              PermMap = element(12, State),
-              PeerMap = element(10, State),
-              SentBytes = element(29, State),
-              SentPkts = element(30, State),
-              RcvdBytes = element(27, State),
-              RcvdPkts = element(28, State),
-              Start = element(31, State),
-              {User, SockMod, ClientAddr, RelayAddr, maps:keys(PermMap),
-               maps:keys(PeerMap), SentBytes, SentPkts, RcvdBytes, RcvdPkts,
-               Start}
+              try query_state(PID) of
+                  State ->
+                      User = element(6, State),
+                      SockMod = element(2, State),
+                      ClientAddr = element(4, State),
+                      RelayAddr = element(18, State),
+                      PermMap = element(12, State),
+                      PeerMap = element(10, State),
+                      SentBytes = element(29, State),
+                      SentPkts = element(30, State),
+                      RcvdBytes = element(27, State),
+                      RcvdPkts = element(28, State),
+                      Start = element(31, State),
+                      {true, {User, SockMod, ClientAddr, RelayAddr,
+                              maps:keys(PermMap), maps:keys(PeerMap),
+                              SentBytes, SentPkts, RcvdBytes, RcvdPkts, Start}}
+              catch exit:{Reason, _} when Reason =:= noproc;
+                                          Reason =:= normal;
+                                          Reason =:= shutdown;
+                                          Reason =:= killed;
+                                          Reason =:= timeout ->
+                      ?LOG_DEBUG("Cannot query TURN session ~p: ~s",
+                                 [PID, Reason]),
+                      false
+              end
       end, supervisor:which_children(turn_tmp_sup)).
 
 -spec format_sessions([session()]) -> iolist().
