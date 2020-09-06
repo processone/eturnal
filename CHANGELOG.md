@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [1.4.0] - 2020-09-06
 ### Added
 - Add `mod_log_stun` for logging STUN requests. Without this module, they will
   now only show up in the debug log output.
@@ -11,6 +13,7 @@ project adheres to [Semantic Versioning][SemVer].
 
 ### Changed
 - Always log reason for TCP/TLS connection termination (at info level).
+- Omit Erlang process ID from log messages (now that a session ID is logged).
 
 ### Fixed
 - Make the `eturnalctl sessions` command work with recent versions of the `stun`
@@ -150,7 +153,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/1.3.0...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.4.0...HEAD
+[1.4.0]: https://github.com/processone/eturnal/releases/tag/1.4.0
 [1.3.0]: https://github.com/processone/eturnal/releases/tag/1.3.0
 [1.2.1]: https://github.com/processone/eturnal/releases/tag/1.2.1
 [1.2.0]: https://github.com/processone/eturnal/releases/tag/1.2.0

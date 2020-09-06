@@ -19,7 +19,7 @@ limitations under the License.
 --------------------------------------------------------------------------------
 
 @title eturnal Documentation
-@version 1.3.0 ({@date})
+@version 1.4.0 ({@date})
 @copyright 2020 ProcessOne, SARL
 @author Holger Weiss
 
@@ -35,7 +35,7 @@ operation to generate the ephemeral password, and eturnal does the same to
 verify it.
 
 The <a
-href="https://github.com/processone/eturnal/blob/1.3.0/README.md">README.md</a>
+href="https://github.com/processone/eturnal/blob/1.4.0/README.md">README.md</a>
 file shipped with eturnal should get you started quickly. For details, see the
 reference documentation below.
 
@@ -44,12 +44,12 @@ reference documentation below.
 Linux/x64 packages for DEB- and RPM-based distributions can be retrieved <a
 href="https://eturnal.net/download/package/">from eturnal.net</a>. On other
 Linux/x64 systems, the <a
-href="https://eturnal.net/download/eturnal-1.3.0-linux-x64.tar.gz">binary
+href="https://eturnal.net/download/eturnal-1.4.0-linux-x64.tar.gz">binary
 release</a> can be installed as described in this section. For building eturnal
 from source, see the <a
-href="https://github.com/processone/eturnal/blob/1.3.0/README.md#building-from-source">README.md</a>
+href="https://github.com/processone/eturnal/blob/1.4.0/README.md#building-from-source">README.md</a>
 file shipped with eturnal's <a
-href="https://eturnal.net/download/eturnal-1.3.0.tar.gz">source code
+href="https://eturnal.net/download/eturnal-1.4.0.tar.gz">source code
 archive</a>.
 
 The binary release archive holds a stand-alone directory that includes
@@ -60,11 +60,11 @@ commands with superuser privileges:
 
 ```
 # useradd -r -d /opt/eturnal eturnal
-# curl https://eturnal.net/download/eturnal-1.3.0-linux-x64.tar.gz | tar -C /opt -xzf -
+# curl https://eturnal.net/download/eturnal-1.4.0-linux-x64.tar.gz | tar -C /opt -xzf -
 '''
 
 The example <a
-href="https://github.com/processone/eturnal/blob/1.3.0/config/eturnal.yml">configuration
+href="https://github.com/processone/eturnal/blob/1.4.0/config/eturnal.yml">configuration
 file</a> shipped with eturnal can either be edited in place or copied into the
 system's `/etc' directory, first:
 
