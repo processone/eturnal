@@ -148,7 +148,7 @@ code_change(_OldVsn, State, _Extra) ->
 get_watchdog_interval() ->
     case os:getenv("WATCHDOG_USEC") of
         WatchdogUSec when is_list(WatchdogUSec), length(WatchdogUSec) > 0 ->
-            Interval = erlang:round(0.5 * list_to_integer(WatchdogUSec)),
+            Interval = round(0.5 * list_to_integer(WatchdogUSec)),
             ?LOG_DEBUG("Watchdog interval: ~B microseconds", [Interval]),
             erlang:convert_time_unit(Interval, microsecond, millisecond);
         _ ->
@@ -157,6 +157,7 @@ get_watchdog_interval() ->
 
 -spec get_timeout(state()) -> watchdog_timeout().
 get_timeout(#systemd_state{interval = undefined}) ->
+    ?LOG_DEBUG("Watchdog interval is undefined, hibernating"),
     hibernate;
 get_timeout(#systemd_state{interval = Interval, last_ping = LastPing}) ->
     case Interval - LastPing + erlang:monotonic_time(millisecond) of
@@ -181,4 +182,4 @@ notify(#systemd_state{socket = Socket, destination = Destination},
 
 -spec cast_notification(binary()) -> ok.
 cast_notification(Notification) ->
-    gen_server:cast(?MODULE, {notify, Notification}).
+    ok = gen_server:cast(?MODULE, {notify, Notification}).
