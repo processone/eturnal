@@ -160,7 +160,7 @@ get_timeout(#systemd_state{interval = undefined}) ->
     ?LOG_DEBUG("Watchdog interval is undefined, hibernating"),
     hibernate;
 get_timeout(#systemd_state{interval = Interval, last_ping = LastPing}) ->
-    case Interval - LastPing + erlang:monotonic_time(millisecond) of
+    case Interval - (erlang:monotonic_time(millisecond) - LastPing) of
         Timeout when Timeout > 0 ->
             ?LOG_DEBUG("Calculated new timeout value: ~B", [Timeout]),
             Timeout;
