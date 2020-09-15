@@ -408,6 +408,8 @@ only show up in the `debug' output.
 Default: `info'</div>
 
 The value of this option determines the level used for logging STUN requests.
+Valid log levels are `critical', `error', `warning', `notice', `info', and
+`debug'.
 
 === mod_stats_influx ===
 
