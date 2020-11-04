@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Changed
+- Make sure the `eturnal.yml` file isn't installed world-readable, as it might
+  contain the shared TURN secret.
 
 ## [1.4.1] - 2020-09-09
 ### Fixed

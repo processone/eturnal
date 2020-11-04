@@ -42,6 +42,8 @@ create_scripts()
 
 	cat >"$tmp_dir/after-install" <<-EOF
 	chown '$rel_name:$rel_name' '/opt/$rel_name'
+	chgrp '$rel_name' '/etc/$rel_name.yml'
+	chmod 'o-rw' '/etc/$rel_name.yml'
 	EOF
 
 	cat >"$tmp_dir/after-remove" <<-EOF
