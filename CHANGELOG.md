@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Changed
+- Binary release: Update Erlang/OTP from 22.2 to 23.1.
+- Binary release: Update OpenSSL from 1.1.1g to 1.1.1h.
 
 ## [1.4.2] - 2020-11-04
 ### Changed
