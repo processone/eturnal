@@ -33,7 +33,7 @@ fi
 
 rel_name='eturnal'
 rel_vsn="$(scripts/get-version | sed 's/+.*//')"
-rebar_vsn='3.14.1'
+rebar_vsn='3.14.2'
 crosstool_vsn='1.24.0'
 zlib_vsn='1.2.11'
 yaml_vsn='0.2.5'
