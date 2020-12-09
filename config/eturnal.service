@@ -21,6 +21,7 @@ LogsDirectory=eturnal
 ProtectSystem=full
 NoNewPrivileges=true
 AmbientCapabilities=CAP_NET_BIND_SERVICE
+#Environment="ERL_EPMD_ADDRESS=127.0.0.1"
 
 [Install]
 WantedBy=multi-user.target
