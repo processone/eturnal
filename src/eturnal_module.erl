@@ -25,7 +25,7 @@
 %%% `Events' is the list of events the module is interested in. Currently, the
 %%% following events may be triggered: `stun_query', `turn_session_start', and
 %%% `turn_session_stop'. If the `start/0' function doesn't return a list of
-%%% events (or returns `{ok, [all]}'), the `handle_event/2' callback will be
+%%% events (or returns `{ok, all}'), the `handle_event/2' callback will be
 %%% called for all events.
 %%%
 %%% The `handle_event/2' function is called with the event name as the first
@@ -90,7 +90,7 @@
 -type options() :: {yval:validators(), yval:validator_option()}.
 -type dep() :: atom().
 
--callback start() -> ok | {ok, [event()]}.
+-callback start() -> ok | {ok, event() | [event()]}.
 -callback stop() -> ok.
 -callback handle_event(event(), info()) -> ok.
 -callback options() -> options().
