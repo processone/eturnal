@@ -8,6 +8,10 @@ project adheres to [Semantic Versioning][SemVer].
 - Binary release: Update Erlang/OTP from 22.2 to 23.1.
 - Binary release: Update OpenSSL from 1.1.1g to 1.1.1h.
 
+### Fixed
+- Don't log stack traces if clients attempt authentication while TURN is
+  disabled.
+
 ## [1.4.2] - 2020-11-04
 ### Changed
 - Make sure the `eturnal.yml` file isn't installed world-readable, as it might

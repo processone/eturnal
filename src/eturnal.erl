@@ -281,7 +281,14 @@ start_listeners() ->
                                  {hook_fun, fun ?MODULE:run_hook/2}],
     try lists:map(
           fun({IP, Port, Transport, EnableTURN}) ->
-                  Opts1 = [{use_turn, EnableTURN} | Opts],
+                  Opts1 = case EnableTURN of
+                              true ->
+                                  [{use_turn, true},
+                                   {auth_type, user} | Opts];
+                              false ->
+                                  [{use_turn, false},
+                                   {auth_type, anonymous} | Opts]
+                          end,
                   Opts2 = case Transport of
                               tls ->
                                   [{tls, true},
