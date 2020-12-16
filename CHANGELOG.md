@@ -4,9 +4,11 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [1.4.3] - 2020-12-16
 ### Changed
-- Binary release: Update Erlang/OTP from 22.2 to 23.1.
-- Binary release: Update OpenSSL from 1.1.1g to 1.1.1h.
+- Binary release: Update Erlang/OTP from 22.2 to 23.2.
+- Binary release: Update OpenSSL from 1.1.1g to 1.1.1i.
 
 ### Fixed
 - Don't log stack traces if clients attempt authentication while TURN is
@@ -169,7 +171,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/1.4.2...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.4.3...HEAD
+[1.4.3]: https://github.com/processone/eturnal/releases/tag/1.4.3
 [1.4.2]: https://github.com/processone/eturnal/releases/tag/1.4.2
 [1.4.1]: https://github.com/processone/eturnal/releases/tag/1.4.1
 [1.4.0]: https://github.com/processone/eturnal/releases/tag/1.4.0
