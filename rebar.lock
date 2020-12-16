@@ -3,7 +3,7 @@
   {git,"https://github.com/processone/conf.git",
        {ref,"f1485b5b4df0337ca730e7668a941f18d21a9c6f"}},
   0},
- {<<"fast_tls">>,{pkg,<<"fast_tls">>,<<"1.1.8">>},1},
+ {<<"fast_tls">>,{pkg,<<"fast_tls">>,<<"1.1.10">>},1},
  {<<"fast_yaml">>,
   {git,"https://github.com/processone/fast_yaml.git",
        {ref,"5c8e4a0511117617a3b9ff36c3385cbce40f3fb4"}},
@@ -12,7 +12,7 @@
   {git,"https://github.com/palkan/influx_udp.git",
        {ref,"217aa37f2eaa7d5c577876f99ccfd1675bdbe462"}},
   0},
- {<<"p1_utils">>,{pkg,<<"p1_utils">>,<<"1.0.20">>},1},
+ {<<"p1_utils">>,{pkg,<<"p1_utils">>,<<"1.0.21">>},1},
  {<<"poolboy">>,{pkg,<<"poolboy">>,<<"1.5.2">>},1},
  {<<"recon">>,
   {git,"https://github.com/ferd/recon.git",
@@ -20,7 +20,7 @@
   0},
  {<<"stun">>,
   {git,"https://github.com/processone/stun.git",
-       {ref,"e53a1e8450ffadc8f4b4809a3fa9c903a5d9eeaf"}},
+       {ref,"36ba97df675212abca6b3a72458983b63bb9be83"}},
   0},
  {<<"ulitos">>,{pkg,<<"ulitos">>,<<"0.4.0">>},1},
  {<<"yval">>,
@@ -29,13 +29,13 @@
   1}]}.
 [
 {pkg_hash,[
- {<<"fast_tls">>, <<"D8F78D433B7CFAE0548C2BC00B9CA4F9644BA894834AE34A0D2B39C8C97A316B">>},
- {<<"p1_utils">>, <<"559313C0EA267A646317FD122CDFBB041DB86B1ED00DF91902FD273CE08D4A45">>},
+ {<<"fast_tls">>, <<"C2A14D66D73B589C6D06841F72433611BF0360953B2E9164B1435D045BF1944D">>},
+ {<<"p1_utils">>, <<"9D6244BBD4AF881E85AF71655E8BE5720B5B965B1BDD51A35C7871FD4142AF9A">>},
  {<<"poolboy">>, <<"392B007A1693A64540CEAD79830443ABF5762F5D30CF50BC95CB2C1AAAFA006B">>},
  {<<"ulitos">>, <<"BCDF0528AF4B59F1CB7D710E4B056688751C600833F31F504FEC4BAA88F0F42B">>}]},
 {pkg_hash_ext,[
- {<<"fast_tls">>, <<"6CCA3C9B14C2BCACBEB271959ADC9F655707B301B7A483438C77C20068121668">>},
- {<<"p1_utils">>, <<"0B2C98EDFE3E82DD49B287A70913F265E09EB630E40774BEE88E0A9F06B0C061">>},
+ {<<"fast_tls">>, <<"17FB7DAC5F64B9215B57E5315F4EAFD682520D5A821B5B49CBE204882375BB85">>},
+ {<<"p1_utils">>, <<"4B9B90E5863F5FED17F06427BA99B2DC37B216E4DD1308891F0903745E2FCCBD">>},
  {<<"poolboy">>, <<"DAD79704CE5440F3D5A3681C8590B9DC25D1A561E8F5A9C995281012860901E3">>},
  {<<"ulitos">>, <<"AFDCE50A77081EB8D931799A6E015458482EABF9BA8AF367C50CD8660A749B88">>}]}
 ].
