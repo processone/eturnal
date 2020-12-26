@@ -439,13 +439,13 @@ The eturnal server recognizes the following environment variables.
 === ERL_EPMD_ADDRESS ===
 
 On eturnal startup, an Erlang Port Mapper Daemon (epmd) service is spawned (if
-not running already). This service listens on all available interfaces by
-default. Setting the `ERL_EPMD_ADDRESS' environment variable tells epmd to
+not running already). By default, this service listens on all available
+interfaces. Setting the `ERL_EPMD_ADDRESS' environment variable tells epmd to
 listen on the specified comma-seperated list of IP addresses instead. Note that
 the IPv4 and IPv6 loopback addresses are implicitly added to this list if not
 specified. It's usually recommended to set `ERL_EPMD_ADDRESS' to `127.0.0.1'
-(e.g., by calling `systemctl edit eturnal' and adding an
-`Environment="ERL_EPMD_ADDRESS=127.0.0.1"' line to the `[Service]' section).
+(e.g., by calling `systemctl edit eturnal' and adding the following line to the
+`[Service]' section: `Environment="ERL_EPMD_ADDRESS=127.0.0.1"').
 
 === ERL_EPMD_PORT ===
 
