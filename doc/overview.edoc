@@ -47,7 +47,7 @@ Linux/x64 systems, the <a
 href="https://eturnal.net/download/eturnal-1.4.3-linux-x64.tar.gz">binary
 release</a> can be installed as described in this section. For building eturnal
 from source, see the <a
-href="https://github.com/processone/eturnal/blob/1.4.3/README.md#building-from-source">README.md</a>
+href="https://github.com/processone/eturnal/blob/1.4.3/INSTALL.md">INSTALL.md</a>
 file shipped with eturnal's <a
 href="https://eturnal.net/download/eturnal-1.4.3.tar.gz">source code
 archive</a>.
