@@ -62,13 +62,13 @@ stopping() ->
 %% Behaviour callbacks.
 
 -spec init(any())
-      -> {ok, state()} | {ok, state(), watchdog_timeout()} | {error, term()}.
+      -> {ok, state()} | {ok, state(), watchdog_timeout()} | {stop, term()}.
 init(_Opts) ->
     process_flag(trap_exit, true),
     case os:getenv("NOTIFY_SOCKET") of
         [$@ | _Abstract] ->
             ?LOG_CRITICAL("Abstract NOTIFY_SOCKET not supported"),
-            {error, esocktnosupport};
+            {stop, esocktnosupport};
         Path when is_list(Path), length(Path) > 0 ->
             ?LOG_DEBUG("Got NOTIFY_SOCKET: ~s", [Path]),
             Destination = {local, Path},
@@ -85,9 +85,9 @@ init(_Opts) ->
                             ?LOG_INFO("Watchdog notifications disabled"),
                             {ok, State}
                     end;
-                {error, Reason} = Err ->
+                {error, Reason} ->
                     ?LOG_CRITICAL("Cannot open IPC socket: ~p", [Reason]),
-                    Err
+                    {stop, Reason}
             end;
         _ ->
             ?LOG_INFO("Got no NOTIFY_SOCKET, notifications disabled"),
