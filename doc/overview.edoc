@@ -121,8 +121,6 @@ addresses is refused. The following example shows the default `blacklist':
 blacklist:
   - "127.0.0.0/8"
   - "::1"
-  - "2001::/32"
-  - "2002::/16"
 '''
 
 === listen ===

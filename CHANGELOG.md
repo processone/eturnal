@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Changed
+- Reject Teredo and 6to4 peers unconditionally.
+- Reject 0.0.0.0/8 and ::/128 peers unconditionally.
+
+### Fixed
+- Never request certificates from TLS clients.
 
 ## [1.4.3] - 2020-12-16
 ### Changed

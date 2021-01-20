@@ -20,7 +20,7 @@
   0},
  {<<"stun">>,
   {git,"https://github.com/processone/stun.git",
-       {ref,"36ba97df675212abca6b3a72458983b63bb9be83"}},
+       {ref,"8b265d2c7d5bb9cad0ce5069b87e396530dfd4fa"}},
   0},
  {<<"ulitos">>,{pkg,<<"ulitos">>,<<"0.4.0">>},1},
  {<<"yval">>,
