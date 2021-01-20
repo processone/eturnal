@@ -1,8 +1,8 @@
 Documentation for the eturnal STUN/TURN server.
 
 --------------------------------------------------------------------------------
-Copyright (c) 2020 Holger Weiss <holger@zedat.fu-berlin.de>.
-Copyright (c) 2020 ProcessOne, SARL.
+Copyright (c) 2020, 2021 Holger Weiss <holger@zedat.fu-berlin.de>.
+Copyright (c) 2020, 2021 ProcessOne, SARL.
 All rights reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@ limitations under the License.
 
 @title eturnal Documentation
 @version 1.4.3 ({@date})
-@copyright 2020 ProcessOne, SARL
+@copyright 2020, 2021 ProcessOne, SARL
 @author Holger Weiss
 
 @doc eturnal is a STUN/TURN server that implements the authentication mechanism
