@@ -4,7 +4,7 @@
 
 - [Erlang/OTP][1] (21.0 or newer).
 - [LibYAML][2] (0.1.4 or newer).
-- [OpenSSL][3] (1.4.3 or newer).
+- [OpenSSL][3] (1.4.4 or newer).
 - [GCC][4] (other C compilers might work as well).
 
 Note that you need the development headers of the libraries as well. Linux
@@ -19,11 +19,11 @@ and `openssl-devel`.
 > official source tarball, you must [download rebar3][5] and make it executable
 > (`chmod +x rebar3`), first.
 
-    $ curl https://eturnal.net/download/eturnal-1.4.3.tar.gz | tar -C /tmp -xzf -
-    $ cd /tmp/eturnal-1.4.3
+    $ curl https://eturnal.net/download/eturnal-1.4.4.tar.gz | tar -C /tmp -xzf -
+    $ cd /tmp/eturnal-1.4.4
     $ ./rebar3 as prod tar
 
-This generates the archive file `_build/prod/rel/eturnal/eturnal-1.4.3.tar.gz`.
+This generates the archive file `_build/prod/rel/eturnal/eturnal-1.4.4.tar.gz`.
 The default installation prefix is set to `/opt/eturnal`, and it's assumed the
 server will be executed by a user named `eturnal`. To change these defaults,
 edit the [build.config][6] file, re-run `./rebar3 as prod tar`, and adapt the
@@ -46,7 +46,7 @@ or `sudo -i`, first.
 2.  Extract the archive generated [above](#compilation):
 
         # cd /opt/eturnal
-        # tar -xzf /tmp/eturnal-1.4.3/_build/prod/rel/eturnal/eturnal-1.4.3.tar.gz
+        # tar -xzf /tmp/eturnal-1.4.4/_build/prod/rel/eturnal/eturnal-1.4.4.tar.gz
 
 3.  Copy the `eturnal.yml` file to `/etc` (optional):
 
@@ -68,6 +68,6 @@ configuration and usage instructions.
 [3]: https://www.openssl.org
 [4]: https://gcc.gnu.org
 [5]: https://s3.amazonaws.com/rebar3/rebar3
-[6]: https://github.com/processone/eturnal/blob/1.4.3/build.config
-[7]: https://github.com/processone/eturnal/blob/1.4.3/README.md
+[6]: https://github.com/processone/eturnal/blob/1.4.4/build.config
+[7]: https://github.com/processone/eturnal/blob/1.4.4/README.md
 [8]: https://eturnal.net/documentation/
