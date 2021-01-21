@@ -111,7 +111,7 @@ The eturnal server recognizes the following global configuration options.
 === blacklist ===
 
 <div class="spec">Type: `list of IP addresses/CIDRs'<br/>
-Default: Loopback, Toredo, and 6to4 addresses</div>
+Default: Loopback addresses</div>
 
 The `blacklist' option specifies a list of one or more IPv4 and/or IPv6
 addresses and/or CIDR blocks. TURN relaying from or to any of the listed
