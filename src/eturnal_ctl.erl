@@ -167,7 +167,7 @@ format_sessions(Sessions) ->
               Peers = format_addrs(PeerAddrs),
               Perms = format_addrs(PermAddrs),
               io_lib:format(
-                "-- TURN session of ~s --~s"
+                "-- TURN session of ~ts --~s"
                 "          Client: ~s (~s)~s"
                 "           Relay: ~s (UDP)~s"
                 "   Permission(s): ~s~s"
