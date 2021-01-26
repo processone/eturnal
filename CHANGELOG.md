@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Fixed
+- Binary release: Let `eturnalctl remote_console` actually connect to the
+  running eturnal instance.
 
 ## [1.4.4] - 2021-01-21
 ### Changed
