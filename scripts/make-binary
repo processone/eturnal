@@ -32,7 +32,7 @@ else
 fi
 
 rel_name='eturnal'
-rel_vsn="$(scripts/get-version | sed 's/+.*//')"
+rel_vsn=$(scripts/get-version)
 rebar_vsn='3.14.3'
 crosstool_vsn='1.24.0'
 termcap_vsn='1.3.1'
