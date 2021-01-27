@@ -21,6 +21,11 @@ elif [ $# -ne 0 ]
 then
 	usage
 fi
+if ! type fpm >'/dev/null'
+then
+	echo >&2 "This script requires fpm: https://fpm.readthedocs.io"
+	exit 1
+fi
 
 rel_name='eturnal'
 rel_vsn="$(scripts/get-version | sed 's/+.*//')"
