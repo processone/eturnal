@@ -76,6 +76,12 @@ make_package()
 	    --category 'net' \
 	    --no-depends \
 	    --no-auto-depends \
+	    --deb-maintainerscripts-force-errorchecks \
+	    --deb-systemd-enable \
+	    --deb-systemd-auto-start \
+	    --deb-systemd "./$rel_name.service" \
+	    --deb-init "./$rel_name" \
+	    --rpm-init "./$rel_name" \
 	    --config-files './etc' \
 	    --directories "/opt/$rel_name" \
 	    --architecture 'native' \
@@ -83,9 +89,6 @@ make_package()
 	    --vendor 'ProcessOne, SARL' \
 	    --description 'Modern, straightforward STUN and TURN server.' \
 	    --url 'https://eturnal.net' \
-	    --deb-systemd "./$rel_name.service" \
-	    --deb-init "./$rel_name" \
-	    --rpm-init "./$rel_name" \
 	    --before-install './before-install' \
 	    --after-install './after-install' \
 	    --before-upgrade './before-install' \
