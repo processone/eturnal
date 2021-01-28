@@ -194,14 +194,31 @@ get_log_file() ->
 set_level() ->
     ok = set_level(eturnal:get_opt(log_level)).
 
+-spec logging_to_journal() -> boolean().
+logging_to_journal() ->
+    (eturnal:get_opt(log_dir) =:= stdout) and
+        (os:getenv("JOURNAL_STREAM") =/= false).
+
 -spec format_template() -> template().
 format_template() ->
-    [time, " [", level, "] ",
-     % For progress reports:
-     {logger_formatter, [[logger_formatter, title], ":", io_lib:nl()], []},
-     % The actual log message:
+    format_prefix() ++ format_message().
+
+-spec format_prefix() -> template().
+format_prefix() ->
+    case logging_to_journal() of
+        true ->
+            ["[", level, "] "];
+        false ->
+            [time, " [", level, "] "]
+    end.
+
+-spec format_message() -> template().
+format_message() ->
+    % For progress reports:
+    [{logger_formatter, [[logger_formatter, title], ":", io_lib:nl()], []},
+    % The actual log message:
      msg,
-     % Append (Module:Function/Arity and maybe :Line), if available:
+    % Append (Module:Function/Arity and maybe :Line), if available:
      {mfa, [" (", mfa, {line, [":", line], []}, ")"], []},
      io_lib:nl()].
 

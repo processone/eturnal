@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Changed
+- Don't include timestamp when logging to the systemd journal.
+
 ### Fixed
 - Let `eturnalctl sessions` cope with non-latin characters in user names.
 - Binary release: Let `eturnalctl remote_console` actually connect to the
