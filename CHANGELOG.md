@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [1.4.5] - 2021-01-28
 ### Changed
 - Don't include timestamp when logging to the systemd journal.
 
@@ -186,7 +188,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/1.4.4...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.4.5...HEAD
+[1.4.5]: https://github.com/processone/eturnal/releases/tag/1.4.5
 [1.4.4]: https://github.com/processone/eturnal/releases/tag/1.4.4
 [1.4.3]: https://github.com/processone/eturnal/releases/tag/1.4.3
 [1.4.2]: https://github.com/processone/eturnal/releases/tag/1.4.2
