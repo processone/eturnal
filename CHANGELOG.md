@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Changed
+- Binary release: Update OpenSSL from 1.1.1i to 1.1.1j.
 
 ## [1.4.5] - 2021-01-28
 ### Changed
