@@ -29,9 +29,8 @@
 -type listener() :: {inet:ip_address(), inet:port_number(), transport(),
                      boolean()}.
 
-%% RFC 6156, 9.1: "a TURN relay MUST NOT accept Teredo or 6to4 addresses".
 -define(BLACKLIST, [{{127, 0, 0, 0}, 8},               % IPv4 loopback.
-                    {{0, 0, 0, 0, 0, 0, 0, 1}, 128}]). % 2002::/16 (6to4).
+                    {{0, 0, 0, 0, 0, 0, 0, 1}, 128}]). % IPv6 loopback.
 
 %% API.
 
