@@ -64,7 +64,8 @@
 %%% If the module depends on other applications, those must be added to the
 %%% `rebar.config' file, but not to the app file. They are to be started by
 %%% calling {@link eturnal_module:ensure_deps/2}, where the first argument is
-%%% the `?MODULE' name and the second is the dependency's name.
+%%% the `?MODULE' name and the second is a list of dependency names. Note that
+%%% there's no need to list transitive dependencies.
 %%%
 %%% The module is enabled by adding its configuration to the `modules' section
 %%% of eturnal's configuration file as described in `doc/overview.edoc'. The
