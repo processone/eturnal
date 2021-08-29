@@ -3,7 +3,7 @@
   {git,"https://github.com/processone/conf.git",
        {ref,"0663e704fb7f9f126f8c56a6f6b958c9b88b14d8"}},
   0},
- {<<"fast_tls">>,{pkg,<<"fast_tls">>,<<"1.1.12">>},1},
+ {<<"fast_tls">>,{pkg,<<"fast_tls">>,<<"1.1.13">>},1},
  {<<"fast_yaml">>,
   {git,"https://github.com/processone/fast_yaml.git",
        {ref,"997b7364b5c7d9da1cb7b35c42787b1faedd556c"}},
@@ -12,15 +12,15 @@
   {git,"https://github.com/palkan/influx_udp.git",
        {ref,"23e0ef865405743fd0fbf8711183ce9ea236a7d5"}},
   0},
- {<<"p1_utils">>,{pkg,<<"p1_utils">>,<<"1.0.22">>},1},
+ {<<"p1_utils">>,{pkg,<<"p1_utils">>,<<"1.0.23">>},1},
  {<<"poolboy">>,{pkg,<<"poolboy">>,<<"1.5.2">>},1},
  {<<"recon">>,
   {git,"https://github.com/ferd/recon.git",
-       {ref,"f7b6c08e6e9e2219db58bfb012c58c178822e01e"}},
+       {ref,"34194da6d9f8ed25f274e0ebb098dc9e95bcf547"}},
   0},
  {<<"stun">>,
   {git,"https://github.com/processone/stun.git",
-       {ref,"6177a7d063aa2f2c389080ea2b59510be0a236c7"}},
+       {ref,"912013033ed97712a502cf1bbbc4319e59faa2a6"}},
   0},
  {<<"ulitos">>,{pkg,<<"ulitos">>,<<"0.4.0">>},1},
  {<<"yval">>,
@@ -29,13 +29,13 @@
   1}]}.
 [
 {pkg_hash,[
- {<<"fast_tls">>, <<"B11997D96D4306ABCD4CDB9FFA77CCFC0F826F64BED77ECACEB48B2DC46B9202">>},
- {<<"p1_utils">>, <<"10A70FAA665D1F8F6995FA100D068B4D910EE2A0111FA3567E9D6232CBB86F21">>},
+ {<<"fast_tls">>, <<"828CDC75E1E8FCE8158846D2B971D8B4FE2B2DDCC75B759E88D751079BF78AFD">>},
+ {<<"p1_utils">>, <<"7F94466ADA69BD982EA7BB80FBCA18E7053E7D0B82C9D9E37621FA508587069B">>},
  {<<"poolboy">>, <<"392B007A1693A64540CEAD79830443ABF5762F5D30CF50BC95CB2C1AAAFA006B">>},
  {<<"ulitos">>, <<"BCDF0528AF4B59F1CB7D710E4B056688751C600833F31F504FEC4BAA88F0F42B">>}]},
 {pkg_hash_ext,[
- {<<"fast_tls">>, <<"C3D80828F5D985CBA4C93660FFBF2C9B9CD831303382B97832DD66429FB16F8A">>},
- {<<"p1_utils">>, <<"0E49FF5586515E3C44901D6FB06B1473BDA492D749F0B1705CBF9D96D4CD5A38">>},
+ {<<"fast_tls">>, <<"D1F422AF40C7777FE534496F508EE86515CB929AD10F7D1D56AA94CE899B44A0">>},
+ {<<"p1_utils">>, <<"47F21618694EEEE5006AF1C88731AD86B757161E7823C29B6F73921B571C8502">>},
  {<<"poolboy">>, <<"DAD79704CE5440F3D5A3681C8590B9DC25D1A561E8F5A9C995281012860901E3">>},
  {<<"ulitos">>, <<"AFDCE50A77081EB8D931799A6E015458482EABF9BA8AF367C50CD8660A749B88">>}]}
 ].
