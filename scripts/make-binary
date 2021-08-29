@@ -904,7 +904,7 @@ curl -LO "https://ftp.gnu.org/gnu/termcap/$termcap_tar"
 curl -LO "https://zlib.net/$zlib_tar"
 curl -LO "https://pyyaml.org/download/libyaml/$yaml_tar"
 curl -LO "https://www.openssl.org/source/$ssl_tar"
-curl -LO "https://erlang.org/download/$otp_tar"
+curl -LO "https://github.com/erlang/otp/releases/download/OTP-$otp_vsn/$otp_tar"
 cd "$OLDPWD"
 
 echo "$myself: Unpacking dependencies ..."
