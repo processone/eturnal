@@ -119,17 +119,11 @@ init(_Opts) ->
         error -> % Has been logged.
             abort(run_dir_failure)
     end,
-    case {turn_enabled(), got_secret(), got_relay_addr()} of
-        {false, _, _} ->
-            ?LOG_DEBUG("TURN is disabled");
-        {true, true, true} ->
-            ?LOG_DEBUG("TURN configuration seems fine");
-        {true, false, _} ->
-            ?LOG_CRITICAL("Please specify an authentication 'secret'"),
-            abort(auth_secret_failure);
-        {true, _, false} ->
-            ?LOG_CRITICAL("Please specify your external 'relay_ipv4_addr'"),
-            abort(relay_address_failure)
+    case turn_enabled() of
+        true ->
+            check_turn_config(got_secret(), got_relay_addr());
+        false ->
+            ?LOG_DEBUG("TURN is disabled")
     end,
     case tls_enabled() of
         true ->
@@ -281,21 +275,8 @@ start_listeners() ->
                                  {hook_fun, fun ?MODULE:run_hook/2}],
     try lists:map(
           fun({IP, Port, Transport, EnableTURN}) ->
-                  Opts1 = case EnableTURN of
-                              true ->
-                                  [{use_turn, true},
-                                   {auth_type, user} | Opts];
-                              false ->
-                                  [{use_turn, false},
-                                   {auth_type, anonymous} | Opts]
-                          end,
-                  Opts2 = case Transport of
-                              tls ->
-                                  [{tls, true},
-                                   {certfile, get_pem_file_path()} | Opts1];
-                              _ ->
-                                  Opts1
-                          end,
+                  Opts1 = turn_opts(EnableTURN) ++ Opts,
+                  Opts2 = tls_opts(Transport) ++ Opts1,
                   ?LOG_DEBUG("Starting listener ~s (~s) with options:~n~p",
                              [eturnal_misc:addr_to_str(IP, Port),
                               Transport, Opts2]),
@@ -342,6 +323,24 @@ stop_listeners(#eturnal_state{listeners = Listeners}) ->
           end, Listeners)
     catch throw:{error, Reason} ->
             {error, Reason}
+    end.
+
+-spec tls_opts(transport()) -> proplists:proplist().
+tls_opts(tls) ->
+    [{tls, true},
+     {certfile, get_pem_file_path()}];
+tls_opts(_) ->
+    [].
+
+-spec turn_opts(boolean()) -> proplists:proplist().
+turn_opts(EnableTURN) ->
+    case {EnableTURN, got_secret(), got_relay_addr()} of
+        {true, true, true} ->
+            [{use_turn, true},
+             {auth_type, user}];
+        {_, _, _} ->
+            [{use_turn, false},
+             {auth_type, anonymous}]
     end.
 
 -spec tls_enabled() -> boolean().
@@ -587,6 +586,16 @@ clean_run_dir() ->
         false ->
             ?LOG_DEBUG("PEM file doesn't exist: ~ts", [PEMFile])
     end.
+
+-spec check_turn_config(boolean(), boolean()) -> ok.
+check_turn_config(_GotSecret = true, _GotAddr = true) ->
+    ?LOG_DEBUG("TURN configuration seems fine");
+check_turn_config(_GotSecret = false, _GotAddr = true) ->
+    ?LOG_WARNING("Specify a 'secret' to enable TURN");
+check_turn_config(_GotSecret = true, _GotAddr = false) ->
+    ?LOG_WARNING("Specify a 'relay_ipv4_addr' to enable TURN");
+check_turn_config(_GotSecret = false, _GotAddr = false) ->
+    ?LOG_WARNING("Specify a 'secret' and 'relay_ipv4_addr' to enable TURN").
 
 -spec derive_password(binary(), binary()) -> binary().
 -ifdef(old_crypto).

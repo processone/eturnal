@@ -6,8 +6,7 @@
 eturnal:
 
   ## ---------------------------------------------------------------------- ##
-  ## To enable TURN support, specify a 'secret' and 'relay_ipv4_addr', and  ##
-  ## remove the 'enable_turn: false' lines in the 'listen' section below.   ##
+  ## To enable TURN support, specify a 'secret' and your 'relay_ipv4_addr'. ##
   ## ---------------------------------------------------------------------- ##
 
   ## Shared secret for deriving temporary TURN credentials (MUST be specified):
@@ -23,12 +22,10 @@ eturnal:
       ip: "::"
       port: 3478
       transport: udp
-      enable_turn: false
     -
       ip: "::"
       port: 3478
       transport: tcp
-      enable_turn: false
     #-
     #  ip: "::"
     #  port: 5349

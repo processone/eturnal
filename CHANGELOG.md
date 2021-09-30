@@ -5,6 +5,8 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 ### Changed
+- Don't abort (but log an appropriate warning) if TURN is enabled without a
+  shared secret.
 - Binary release: Update Erlang/OTP from 23.2 to 23.3.
 - Binary release: Update OpenSSL from 1.1.1i to 1.1.1l.
 
