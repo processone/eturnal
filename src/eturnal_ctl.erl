@@ -33,9 +33,6 @@
 -type session() :: {binary(), sock_mod(), addr_port(), addr_port(), [addr()],
                     [addr_port()], non_neg_integer(), non_neg_integer(),
                     non_neg_integer(), non_neg_integer(), integer()}.
--type node_info() :: {binary(), {string(), string()}, non_neg_integer(),
-                      non_neg_integer(), non_neg_integer(), non_neg_integer(),
-                      non_neg_integer(), non_neg_integer()}.
 
 %% API.
 
@@ -181,7 +178,7 @@ format_sessions(Sessions) ->
                  round(RcvdBytes / 1024), RcvdPkts, nl(), Duration])
       end, Sessions).
 
--spec format_info(node_info()) -> io_lib:chars().
+-spec format_info(eturnal_misc:node_info()) -> io_lib:chars().
 format_info({EturnalVsn, {OtpVsn, ErtsVsn}, Uptime, Sessions, Procs, QueueLen,
              Reductions, Memory}) ->
     MiB = round(Memory / 1024 / 1024),
@@ -206,7 +203,7 @@ format_transport(gen_tcp) ->
 format_transport(fast_tls) ->
     <<"TLS">>.
 
--spec format_addrs([addr() | addr_port()]) -> iolist() | binary().
+-spec format_addrs([addr() | addr_port()]) -> iodata().
 format_addrs([]) ->
     <<"none">>;
 format_addrs(PeerAddrs) ->

@@ -140,7 +140,7 @@ check_overlapping_listeners(Listeners) ->
       -> ok | no_return().
 check_overlapping_listeners(Listeners, PrepareFun) ->
     _ = lists:foldl(
-          fun({IP, Port, Transport, _UseTURN} = Listener, Acc) ->
+          fun({IP, Port, Transport, _EnableTURN} = Listener, Acc) ->
                   Key = {IP, Port, Transport},
                   case lists:member(Key, Acc) of
                       true ->
@@ -166,7 +166,7 @@ check_overlapping_listeners(Listeners, PrepareFun) ->
     ok.
 
 -spec format_listener(listener()) -> io_lib:chars().
-format_listener({IP, Port, Transport, _UseTURN}) ->
+format_listener({IP, Port, Transport, _EnableTURN}) ->
     io_lib:format("~s (~s)", [eturnal_misc:addr_to_str(IP, Port), Transport]).
 
 -spec get_env_name(atom()) -> string().

@@ -54,7 +54,7 @@
 
 -spec start() -> ok | {error, term()}.
 start() ->
-    case application:ensure_all_started(?MODULE, permanent) of
+    case application:ensure_all_started(eturnal, permanent) of
         {ok, _Started} ->
             ok;
         {error, _Reason} = Err ->
@@ -94,7 +94,7 @@ run_hook(Event, Info) ->
 
 -spec stop() -> ok | {error, term()}.
 stop() ->
-    application:stop(?MODULE).
+    application:stop(eturnal).
 
 -spec abort(term()) -> no_return().
 abort(Reason) ->
@@ -130,7 +130,7 @@ init(_Opts) ->
             case update_pem_file() of
                 Result when Result =:= ok;
                             Result =:= unmodified ->
-                    ?LOG_DEBUG("Certificate configuration seems fine");
+                    ok;
                 error -> % Has been logged.
                     abort(certificate_failure)
             end;
@@ -170,16 +170,7 @@ handle_call(reload, _From, State) ->
             {reply, Err, State}
     end;
 handle_call(get_info, _From, State) ->
-    EturnalVsn = eturnal_misc:version(),
-    ErlangVsn = {erlang:system_info(otp_release), erlang:system_info(version)},
-    Uptime = element(1, erlang:statistics(wall_clock)),
-    Sessions = length(supervisor:which_children(turn_tmp_sup)),
-    Procs = erlang:system_info(process_count),
-    QueueLen = erlang:statistics(total_run_queue_lengths),
-    Reductions = element(1, erlang:statistics(reductions)),
-    Memory = erlang:memory(total),
-    Info = {EturnalVsn, ErlangVsn, Uptime, Sessions, Procs, QueueLen,
-            Reductions, Memory},
+    Info = eturnal_misc:info(),
     {reply, {ok, Info}, State};
 handle_call(get_version, _From, State) ->
     Version = eturnal_misc:version(),
@@ -275,22 +266,16 @@ start_listeners() ->
                                  {hook_fun, fun ?MODULE:run_hook/2}],
     try lists:map(
           fun({IP, Port, Transport, EnableTURN}) ->
-                  Opts1 = turn_opts(EnableTURN) ++ Opts,
-                  Opts2 = tls_opts(Transport) ++ Opts1,
+                  Opts1 = tls_opts(Transport) ++ Opts,
+                  Opts2 = turn_opts(EnableTURN) ++ Opts1,
                   ?LOG_DEBUG("Starting listener ~s (~s) with options:~n~p",
                              [eturnal_misc:addr_to_str(IP, Port),
                               Transport, Opts2]),
                   case stun_listener:add_listener(IP, Port, Transport, Opts2) of
                       ok ->
-                          Type = case EnableTURN of
-                                     true ->
-                                         <<"STUN/TURN">>;
-                                     false ->
-                                         <<"STUN only">>
-                                 end,
                           ?LOG_INFO("Listening on ~s (~s) (~s)",
                                     [eturnal_misc:addr_to_str(IP, Port),
-                                     Transport, Type]);
+                                     Transport, describe_listener(EnableTURN)]);
                       {error, Reason} = Err ->
                           ?LOG_CRITICAL("Cannot listen on ~s (~s): ~p",
                                         [eturnal_misc:addr_to_str(IP, Port),
@@ -596,6 +581,12 @@ check_turn_config(_GotSecret = true, _GotAddr = false) ->
     ?LOG_WARNING("Specify a 'relay_ipv4_addr' to enable TURN");
 check_turn_config(_GotSecret = false, _GotAddr = false) ->
     ?LOG_WARNING("Specify a 'secret' and 'relay_ipv4_addr' to enable TURN").
+
+-spec describe_listener(boolean()) -> binary().
+describe_listener(_EnableTURN = true) ->
+    <<"STUN/TURN">>;
+describe_listener(_EnableTURN = false) ->
+    <<"STUN only">>.
 
 -spec derive_password(binary(), binary()) -> binary().
 -ifdef(old_crypto).

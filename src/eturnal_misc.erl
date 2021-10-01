@@ -22,9 +22,15 @@
          my_ipv6_addr/0,
          addr_to_str/1,
          addr_to_str/2,
-         version/0]).
+         version/0,
+         info/0]).
+-export_type([node_info/0]).
 
 -include_lib("kernel/include/logger.hrl").
+
+-type node_info() :: {binary(), {string(), string()}, non_neg_integer(),
+                      non_neg_integer(), non_neg_integer(), non_neg_integer(),
+                      non_neg_integer(), non_neg_integer()}.
 
 %% API.
 
@@ -63,3 +69,15 @@ addr_to_str(Addr) ->
 version() ->
     {ok, Version} = application:get_key(vsn),
     unicode:characters_to_binary(Version).
+
+-spec info() -> node_info().
+info() ->
+    EturnalVsn = version(),
+    ErlangVsn = {erlang:system_info(otp_release), erlang:system_info(version)},
+    Uptime = element(1, erlang:statistics(wall_clock)),
+    Sessions = length(supervisor:which_children(turn_tmp_sup)),
+    Procs = erlang:system_info(process_count),
+    QLen = erlang:statistics(total_run_queue_lengths),
+    Reductions = element(1, erlang:statistics(reductions)),
+    Memory = erlang:memory(total),
+    {EturnalVsn, ErlangVsn, Uptime, Sessions, Procs, QLen, Reductions, Memory}.
