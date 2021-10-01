@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    paths-ignore:
+      - '*.md'
+  pull_request:
+    paths-ignore:
+      - '*.md'
+
+jobs:
+  test:
+    name: Erlang/OTP ${{ matrix.otp }}
+    strategy:
+      fail-fast: false
+      matrix:
+        otp:
+          - '21.0'
+          - '21.3'
+          - '22.0'
+          - '24.1'
+        include:
+          - otp: '21.0'
+            rebar: '3.15.2'
+          - otp: '21.3'
+            rebar: '3.15.2'
+          - otp: '22.0'
+            rebar: '3.17.0'
+          - otp: '24.1'
+            rebar: '3.17.0'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install prerequisites
+        run: |
+          sudo apt-get -qq update
+          sudo apt-get -qq install libyaml-dev
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Download Erlang/OTP ${{ matrix.otp }}
+        uses: ErlGang/setup-erlang@master
+        with:
+          otp-version: ${{ matrix.otp }}
+      - name: Download Rebar ${{ matrix.rebar }}
+        run: >
+          curl --no-progress-meter -LO
+          https://github.com/erlang/rebar3/releases/download/${{ matrix.rebar }}/rebar3
+      - name: Make Rebar executable
+        run: chmod +x rebar3
+      - name: Cache Rebar data
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/rebar3
+          key: ${{ runner.os }}-${{ matrix.otp }}-${{ hashFiles('rebar.config') }}
+      - name: Download dependencies
+        run: ./rebar3 get-deps
+      - name: Compile code
+        run: ./rebar3 compile
+      - name: Analyze cross references
+        run: ./rebar3 xref
+      - name: Perform static code analysis
+        run: ./rebar3 dialyzer
+      - name: Run test suite
+        run: ./rebar3 ct

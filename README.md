@@ -1,6 +1,6 @@
 # eturnal STUN/TURN Server
 
-[![Build Status](https://travis-ci.com/weiss/eturnal.svg?branch=master)][1]
+[![CI](https://github.com/processone/eturnal/actions/workflows/ci.yml/badge.svg)][1]
 
 [eturnal][2] is a modern, straightforward STUN and TURN server with full IPv6
 support. For TURN authentication, the mechanism described in the [REST API for
@@ -74,7 +74,7 @@ free to (ab)use it for usage questions as well. If you happen to be using
 [XMPP][15], you could also join our public channel
 `eturnal@conference.process-one.net`.
 
- [1]: https://app.travis-ci.com/github/weiss/eturnal
+ [1]: https://github.com/processone/eturnal/actions/workflows/ci.yml
  [2]: https://eturnal.net/
  [3]: https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00
  [4]: https://software.opensuse.org/download/?package=eturnal&project=devel:languages:erlang
