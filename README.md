@@ -35,10 +35,8 @@ file uses the (indentation-sensitive!) [YAML][7] format. A commented [example
 configuration][8] is shipped with the eturnal server. However, for TURN relaying
 to work, you'll have to specify the [shared authentication][3] `secret` and
 probably also the `relay_ipv4_addr` option (which should be set to the server's
-external IPv4 address). Then, either remove the `enable_turn: false` lines
-within the `listen` section or remove the `listen` section altogether. As an
-example, a minimal configuration for offering STUN and TURN services on port
-3478 (UDP and TCP) might look like this:
+external IPv4 address). As an example, a minimal configuration for offering STUN
+and TURN services on port 3478 (UDP and TCP) might look like this:
 
 ```yaml
 eturnal:
