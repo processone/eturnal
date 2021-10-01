@@ -4,7 +4,7 @@ otp_release:
   - 21.0
   - 21.3
   - 22.0
-  - 24.0
+  - 24.1
 
 before_install:
   - >
