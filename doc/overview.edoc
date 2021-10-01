@@ -381,20 +381,6 @@ chain and the private key.
 The eturnal server ships the following modules, which can be configured as
 described in this section.
 
-=== mod_example ===
-
-This module just serves as an example for module developers and might be removed
-from a future release. It logs the duration and some metadata of TURN sessions,
-and has the following configuration option:
-
-==== time_unit ====
-
-<div class="spec">Type: `second | millisecond'<br/>
-Default: `second'</div>
-
-This option defines the time unit used for logging the duration of TURN
-sessions.
-
 === mod_log_stun ===
 
 This module enables logging of STUN queries. Without this module, STUN requests
