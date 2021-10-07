@@ -31,12 +31,11 @@ On other Linux/x64 systems, the binary release tarball can be installed as
 ## Configuration
 
 The eturnal server is configured by editing the `/etc/eturnal.yml` file. This
-file uses the (indentation-sensitive!) [YAML][7] format. A commented [example
-configuration][8] is shipped with the eturnal server. However, for TURN relaying
-to work, you'll have to specify the [shared authentication][3] `secret` and
-probably also the `relay_ipv4_addr` option (which should be set to the server's
-external IPv4 address). As an example, a minimal configuration for offering STUN
-and TURN services on port 3478 (UDP and TCP) might look like this:
+file uses the (indentation-sensitive!) [YAML][7] format. For TURN relaying to
+work, you'll have to specify the [shared authentication][3] `secret` and usually
+also the `relay_ipv4_addr` option (which should be set to the server's external
+IPv4 address). As an example, a minimal configuration for offering STUN and TURN
+services on port 3478 (UDP and TCP) might look like this:
 
 ```yaml
 eturnal:
@@ -44,6 +43,9 @@ eturnal:
   relay_ipv4_addr: "203.0.113.4" # The server's public IPv4 address.
   relay_ipv6_addr: "2001:db8::4" # The server's public IPv6 address (optional).
 ```
+
+A more detailed, commented [example configuration][8] is shipped with the
+eturnal server.
 
 ## Running eturnal
 
