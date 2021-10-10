@@ -64,6 +64,67 @@ build_start=$(date '+%F %T')
 
 trap 'rm -rf "$prefix"' INT TERM EXIT
 
+#' Try to find a browser for checking dependency versions
+have_browser()
+{
+	for browser in 'lynx' 'links' 'elinks'
+	do
+		$browser -dump 'https://eturnal.net/' >'/dev/null' && return 0
+	done
+	return 1
+}
+#.
+
+#' Check whether the given dependency version is up-to-date
+check_vsn()
+{
+	local name="$1"
+	local our_vsn="$2"
+	local src_url="$3"
+	local reg_exp="$4"
+	local cur_vsn=$($browser -dump "$src_url" |
+	                sed -n "s/.*$reg_exp.*/\\1/p" |
+	                head -1)
+
+	if [ "$our_vsn" = "$cur_vsn" ]
+	then
+		return 0
+	else
+		echo >&2 "$myself: Current $name version is: $cur_vsn"
+		echo >&2 "$myself: But our $name version is: $our_vsn"
+		echo >&2 "$myself: Update $0 or set CHECK_DEPS=false"
+		exit 1
+	fi
+}
+#.
+
+#' Check whether our dependency versions are up-to-date
+check_deps()
+{
+	check_vsn 'OpenSSL' "$ssl_vsn" \
+	          'https://www.openssl.org/source/' \
+	          'openssl-\(1\.[0-9][0-9a-z.]*\)\.tar\.gz'
+	check_vsn 'LibYAML' "$yaml_vsn" \
+	          'https://pyyaml.org/wiki/LibYAML' \
+	          'yaml-\([0-9][0-9.]*\)\.tar\.gz'
+	check_vsn 'zlib' "$zlib_vsn" \
+	          'https://zlib.net/' \
+	          'zlib-\([0-9][0-9.]*\)\.tar\.gz'
+	check_vsn 'Termcap' "$termcap_vsn" \
+	          'https://ftp.gnu.org/gnu/termcap/' \
+	          'termcap-\([0-9][0-9.]*\)\.tar\.gz'
+	check_vsn 'Crosstool-NG' "$crosstool_vsn" \
+	          'https://crosstool-ng.github.io/' \
+	          'crosstool-ng-\([0-9][0-9.]*\)\.tar\.bz2'
+	check_vsn 'Rebar3' "$rebar_vsn" \
+	          'https://github.com/erlang/rebar3/tags' \
+	          '\(3\.[0-9][0-9.]*\)\.tar\.gz'
+	check_vsn 'Erlang/OTP' "$otp_vsn" \
+	          'https://github.com/erlang/otp/releases' \
+	          'otp_src_\([0-9][0-9.]*\)\.tar\.gz'
+}
+#.
+
 #' Create Crosstool-NG configuration file
 create_crosstool_config()
 {
@@ -887,6 +948,20 @@ create_crosstool_config()
 	EOF
 }
 #.
+
+if [ "${CHECK_DEPS:-true}" = 'true' ]
+then
+	if have_browser
+	then
+		check_deps
+	else
+		echo >&2 "$myself: Cannot check dependency versions."
+		echo >&2 "$myself: Install a browser or set CHECK_DEPS=false"
+		exit 1
+	fi
+else
+	echo "$myself: Won't check dependency versions."
+fi
 
 echo "$myself: You need about 10 GiB of free space in $(dirname "$prefix")."
 echo "$myself: Building everything will take ages."
