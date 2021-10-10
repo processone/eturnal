@@ -9,6 +9,16 @@ export PATH='/usr/local/bin:/usr/bin:/bin'
 
 myself=${0##*/}
 
+info()
+{
+	echo "$myself: $*"
+}
+
+error()
+{
+	echo >&2 "$myself: $*"
+}
+
 usage()
 {
 	echo >&2 "Usage: $myself"
@@ -17,7 +27,7 @@ usage()
 
 if ! [ -e 'rebar.config' ] || ! [ -e "scripts/$myself" ]
 then
-	echo >&2 "Please call this script from the repository's root directory."
+	error "Please call this script from the repository's root directory."
 	exit 2
 elif [ $# -ne 0 ]
 then
@@ -90,9 +100,9 @@ check_vsn()
 	then
 		return 0
 	else
-		echo >&2 "$myself: Current $name version is: $cur_vsn"
-		echo >&2 "$myself: But our $name version is: $our_vsn"
-		echo >&2 "$myself: Update $0 or set CHECK_DEPS=false"
+		error "Current $name version is: $cur_vsn"
+		error "But our $name version is: $our_vsn"
+		error "Update $0 or set CHECK_DEPS=false"
 		exit 1
 	fi
 }
@@ -955,24 +965,24 @@ then
 	then
 		check_deps
 	else
-		echo >&2 "$myself: Cannot check dependency versions."
-		echo >&2 "$myself: Install a browser or set CHECK_DEPS=false"
+		error "Cannot check dependency versions."
+		error "Install a browser or set CHECK_DEPS=false"
 		exit 1
 	fi
 else
-	echo "$myself: Won't check dependency versions."
+	info "Won't check dependency versions."
 fi
 
-echo "$myself: You need about 10 GiB of free space in $(dirname "$prefix")."
-echo "$myself: Building everything will take ages."
-echo "$myself: I'll go ahead in a few seconds."
-echo "$myself: Press <Ctrl>+<C> to abort."
+info "You need about 10 GiB of free space in $(dirname "$prefix")."
+info "Building everything will take ages."
+info "I'll go ahead in a few seconds."
+info "Press <Ctrl>+<C> to abort."
 
 sleep 5
 
 mkdir "$src_dir"
 
-echo "$myself: Downloading dependencies ..."
+info "Downloading dependencies ..."
 cd "$src_dir"
 curl -LO "http://crosstool-ng.org/download/crosstool-ng/$crosstool_tar"
 curl -LO "https://ftp.gnu.org/gnu/termcap/$termcap_tar"
@@ -982,7 +992,7 @@ curl -LO "https://www.openssl.org/source/$ssl_tar"
 curl -LO "https://github.com/erlang/otp/releases/download/OTP-$otp_vsn/$otp_tar"
 cd "$OLDPWD"
 
-echo "$myself: Unpacking dependencies ..."
+info "Unpacking dependencies ..."
 cd "$src_dir"
 tar -xJf "$crosstool_tar"
 tar -xzf "$termcap_tar"
@@ -992,7 +1002,7 @@ tar -xzf "$ssl_tar"
 tar -xzf "$otp_tar"
 cd "$OLDPWD"
 
-echo "$myself: Building Crosstool-NG $crosstool_vsn ..."
+info "Building Crosstool-NG $crosstool_vsn ..."
 cd "$src_dir/$crosstool_dir"
 ./configure --prefix="$prefix"
 make
@@ -1003,7 +1013,7 @@ export PATH="$prefix/bin:$PATH"
 export CT_TOP_DIR="$prefix"
 export CT_PREFIX="$prefix/x-tools"
 
-echo "$myself: Building toolchain ..."
+info "Building toolchain ..."
 create_crosstool_config "$prefix/.config"
 cd "$prefix"
 ct-ng build CT_JOBS="$n_jobs"
@@ -1016,7 +1026,7 @@ export CFLAGS="-g0 -O2 -pipe -fomit-frame-pointer -static-libgcc -I$prefix/inclu
 export CXXFLAGS="$CFLAGS -static-libstdc++"
 export LDFLAGS="-L$prefix/lib"
 
-echo "$myself: Building Termcap $termcap_vsn ..."
+info "Building Termcap $termcap_vsn ..."
 cd "$src_dir/$termcap_dir"
 ./configure --prefix="$prefix"
 cat >'config.h' <<-'EOF'
@@ -1044,21 +1054,21 @@ make CPPFLAGS='-DHAVE_CONFIG_H=1'
 make install
 cd "$OLDPWD"
 
-echo "$myself: Building zlib $zlib_vsn ..."
+info "Building zlib $zlib_vsn ..."
 cd "$src_dir/$zlib_dir"
 CFLAGS="$CFLAGS -O3 -fPIC" ./configure --prefix="$prefix" --static
 make
 make install
 cd "$OLDPWD"
 
-echo "$myself: Building LibYAML $yaml_vsn ..."
+info "Building LibYAML $yaml_vsn ..."
 cd "$src_dir/$yaml_dir"
 ./configure --prefix="$prefix" --disable-shared CFLAGS="$CFLAGS -fPIC"
 make
 make install
 cd "$OLDPWD"
 
-echo "$myself: Building OpenSSL $ssl_vsn ..."
+info "Building OpenSSL $ssl_vsn ..."
 cd "$src_dir/$ssl_dir"
 ./config --prefix="$prefix" --openssldir="$prefix" no-shared no-ui-console \
     CFLAGS="$CFLAGS -O3 -fPIC"
@@ -1068,7 +1078,7 @@ cd "$OLDPWD"
 
 export ERL_COMPILER_OPTIONS='[deterministic, no_debug_info]'
 
-echo "$myself: Building Erlang/OTP $otp_vsn ..."
+info "Building Erlang/OTP $otp_vsn ..."
 cd "$src_dir/$otp_dir"
 ./configure                   \
     --prefix="$prefix"        \
@@ -1080,13 +1090,13 @@ make
 make install
 cd "$OLDPWD"
 
-echo "$myself: Downloading rebar $rebar_vsn ..."
+info "Downloading rebar $rebar_vsn ..."
 cd "$prefix/bin"
 curl -LO "https://github.com/erlang/rebar3/releases/download/$rebar_vsn/rebar3"
 chmod +x 'rebar3'
 cd "$OLDPWD"
 
-echo "$myself: Building $rel_name $rel_vsn ..."
+info "Building $rel_name $rel_vsn ..."
 rm -rf "$HOME/.cache/rebar3" '_build'
 rebar3 clean -a
 rebar3 as stripped tar
@@ -1100,8 +1110,8 @@ find "$dst_dir/erts-*/bin" -type f -perm '-u+x' \
 tar -C "$prefix" --owner="$rel_name" --group="$rel_name" -cf - "$rel_name" \
     | gzip -9 >"$dst_tar"
 
-echo "$myself: Created $dst_tar successfully."
-echo "$myself: Build started: $build_start"
-echo "$myself: Build ended: $(date '+%F %T')"
+info "Created $dst_tar successfully."
+info "Build started: $build_start"
+info "Build ended: $(date '+%F %T')"
 
 # vim:set foldmarker=#',#. foldmethod=marker:
