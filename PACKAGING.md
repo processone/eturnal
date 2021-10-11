@@ -15,7 +15,7 @@ the release directory structure.
 Dependency Management
 ---------------------
 
-Besides the dependencies [mentioned][4] in the [README.md][5] file, eturnal
+Besides the dependencies [mentioned][4] in the [INSTALL.md][5] file, eturnal
 depends on the Erlang libraries referenced as `deps` in the [rebar.config][6]
 file, _except_ for `recon` (which is just included for debugging purposes). The
 complete list of (direct and transitive) Erlang dependencies is:
@@ -84,8 +84,8 @@ file path:
  [1]: https://erlang.org/doc/design_principles/release_structure.html
  [2]: https://www.rebar3.org
  [3]: https://erlware.github.io/relx/
- [4]: https://github.com/processone/eturnal/blob/master/README.md#requirements
- [5]: https://github.com/processone/eturnal/blob/master/README.md
+ [4]: https://github.com/processone/eturnal/blob/master/INSTALL.md#requirements
+ [5]: https://github.com/processone/eturnal/blob/master/INSTALL.md
  [6]: https://github.com/processone/eturnal/blob/master/rebar.config
  [7]: https://eturnal.net/download/
  [8]: https://github.com/processone/eturnal/blob/master/scripts/eturnalctl
