@@ -9,6 +9,7 @@
 /doc/stylesheet.css
 /doc/*.html
 /index.html
+/.make-binary.*/
 #
 # Auto-added by rebar3:
 #
