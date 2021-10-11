@@ -1,4 +1,4 @@
-%%% Eturnal STUN/TURN server.
+%%% eturnal STUN/TURN server.
 %%%
 %%% Copyright (c) 2021 Holger Weiss <holger@zedat.fu-berlin.de>.
 %%% Copyright (c) 2021 ProcessOne, SARL.
