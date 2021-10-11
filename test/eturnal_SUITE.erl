@@ -60,7 +60,8 @@ all() ->
      check_loglevel,
      check_version,
      reload,
-     connect,
+     connect_tcp,
+     connect_tls,
      stop_eturnal].
 
 start_eturnal(_Config) ->
@@ -86,10 +87,16 @@ check_version(_Config) ->
 reload(_Config) ->
     ok = eturnal_ctl:reload().
 
-connect(_Config) ->
+connect_tcp(_Config) ->
     {ok, Addr} = inet:parse_address("127.0.0.1"),
     {ok, Sock} = gen_tcp:connect(Addr, 34780, []),
     ok = gen_tcp:close(Sock).
+
+connect_tls(_Config) ->
+    {ok, Addr} = inet:parse_address("127.0.0.1"),
+    {ok, TCPSock} = gen_tcp:connect(Addr, 53490, []),
+    {ok, TLSSock} = fast_tls:tcp_to_tls(TCPSock, [connect]),
+    ok = fast_tls:close(TLSSock).
 
 stop_eturnal(_Config) ->
     ok = application:stop(eturnal).
