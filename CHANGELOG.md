@@ -9,7 +9,7 @@ project adheres to [Semantic Versioning][SemVer].
   shared secret.
 - Drop the runtime dependency on the `openssl` command for generating
   self-signed certificates.
-- Binary release: Update Erlang/OTP from 23.2 to 24.1.1.
+- Binary release: Update Erlang/OTP from 23.2 to 24.1.2.
 - Binary release: Update OpenSSL from 1.1.1i to 1.1.1l.
 
 ### Removed
