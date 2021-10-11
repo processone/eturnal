@@ -7,6 +7,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Changed
 - Don't abort (but log an appropriate warning) if TURN is enabled without a
   shared secret.
+- Drop the runtime dependency on the `openssl` command for generating
+  self-signed certificates.
 - Binary release: Update Erlang/OTP from 23.2 to 24.1.1.
 - Binary release: Update OpenSSL from 1.1.1i to 1.1.1l.
 

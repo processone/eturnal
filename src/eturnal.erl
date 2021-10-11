@@ -492,9 +492,7 @@ import_cert(CrtFile, OutFile) ->
         Read = [read, binary, raw],
         Write = [write, binary, raw],
         Append = [append, binary, raw],
-        {ok, Fd} = file:open(OutFile, Write),
-        ok = file:close(Fd),
-        ok = file:change_mode(OutFile, 8#00600),
+        ok = touch(OutFile),
         case get_opt(tls_key_file) of
             KeyFile when is_binary(KeyFile) ->
                 {ok, _} = file:copy({KeyFile, Read}, {OutFile, Write}),
@@ -514,30 +512,15 @@ import_cert(CrtFile, OutFile) ->
     end.
 
 -spec create_self_signed(file:filename_all()) -> ok | error.
-create_self_signed(OutFile) ->
-    Cmd = io_lib:format("openssl req -x509 -batch -nodes -newkey rsa:4096 "
-                        "-keyout ~ts -subj /CN=~ts -days 3650",
-                        [OutFile, get_opt(realm)]),
-    Output = os:cmd(Cmd),
-    case string:find(Output, "-----BEGIN CERTIFICATE-----") of
-        Cert when is_list(Cert) ->
-            case file:write_file(OutFile, Cert, [append, raw]) of
-                ok ->
-                    ?LOG_DEBUG("Created PEM file: ~ts", [OutFile]),
-                    ok;
-                {error, Reason} ->
-                    ?LOG_CRITICAL("Cannot store PEM file ~ts: ~ts",
-                                  [OutFile, file:format_error(Reason)]),
-                    error
-            end;
-        nomatch ->
-            Err = string:trim(Output),
-            Txt = if length(Err) > 0 ->
-                          Err;
-                     length(Err) =:= 0 ->
-                          "openssl req -x509 [...] failed"
-                  end,
-            ?LOG_CRITICAL("Cannot create ~ts: ~ts", [OutFile, Txt]),
+create_self_signed(File) ->
+    try
+        PEM = eturnal_cert:create(get_opt(realm)),
+        ok = touch(File),
+        ok = file:write_file(File, PEM, [raw])
+    catch
+        error:{badarg, {error, Reason}} ->
+            ?LOG_CRITICAL("Cannot create ~ts: ~ts",
+                          [File, file:format_error(Reason)]),
             error
     end.
 
@@ -571,6 +554,12 @@ clean_run_dir() ->
         false ->
             ?LOG_DEBUG("PEM file doesn't exist: ~ts", [PEMFile])
     end.
+
+-spec touch(file:filename_all()) -> ok.
+touch(File) ->
+    {ok, Fd} = file:open(File, [append, binary, raw]),
+    ok = file:close(Fd),
+    ok = file:change_mode(File, 8#00600).
 
 -spec check_turn_config(boolean(), boolean()) -> ok.
 check_turn_config(_GotSecret = true, _GotAddr = true) ->
