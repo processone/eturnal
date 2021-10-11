@@ -15,13 +15,13 @@ platforms, eturnal is [built from source][5].
 
 On **DEB-based** Linux/x64 distributions, run:
 
-    $ curl -O https://eturnal.net/download/package/eturnal_1.4.5-1_amd64.deb
-    $ sudo dpkg -i eturnal_1.4.5-1_amd64.deb
+    $ curl -O https://eturnal.net/download/package/eturnal_1.4.6-1_amd64.deb
+    $ sudo dpkg -i eturnal_1.4.6-1_amd64.deb
 
 On **RPM-based** Linux/x64 distributions, run:
 
-    $ curl -O https://eturnal.net/download/package/eturnal-1.4.5-1.x86_64.rpm
-    $ sudo rpm -i eturnal-1.4.5-1.x86_64.rpm
+    $ curl -O https://eturnal.net/download/package/eturnal-1.4.6-1.x86_64.rpm
+    $ sudo rpm -i eturnal-1.4.6-1.x86_64.rpm
     $ sudo systemctl daemon-reload
     $ sudo systemctl --now enable eturnal
 
@@ -80,14 +80,14 @@ free to (ab)use it for usage questions as well. If you happen to be using
  [2]: https://eturnal.net/
  [3]: https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00
  [4]: https://software.opensuse.org/download/?package=eturnal&project=devel:languages:erlang
- [5]: https://github.com/processone/eturnal/blob/1.4.5/INSTALL.md
+ [5]: https://github.com/processone/eturnal/blob/1.4.6/INSTALL.md
  [6]: https://eturnal.net/documentation/#Installation
  [7]: https://en.wikipedia.org/wiki/YAML
- [8]: https://github.com/processone/eturnal/blob/1.4.5/config/eturnal.yml
+ [8]: https://github.com/processone/eturnal/blob/1.4.6/config/eturnal.yml
  [9]: https://www.freedesktop.org/software/systemd/man/systemctl.html
-[10]: https://github.com/processone/eturnal/blob/1.4.5/scripts/eturnal.init
+[10]: https://github.com/processone/eturnal/blob/1.4.6/scripts/eturnal.init
 [11]: https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html
 [12]: https://eturnal.net/documentation/
-[13]: https://github.com/processone/eturnal/blob/1.4.5/CHANGELOG.md
+[13]: https://github.com/processone/eturnal/blob/1.4.6/CHANGELOG.md
 [14]: https://github.com/processone/eturnal/issues
 [15]: https://xmpp.org

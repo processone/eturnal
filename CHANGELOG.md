@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [1.4.6] - 2021-10-11
 ### Changed
 - Don't abort (but log an appropriate warning) if TURN is enabled without a
   shared secret.
@@ -198,7 +200,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/1.4.5...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.4.6...HEAD
+[1.4.6]: https://github.com/processone/eturnal/releases/tag/1.4.6
 [1.4.5]: https://github.com/processone/eturnal/releases/tag/1.4.5
 [1.4.4]: https://github.com/processone/eturnal/releases/tag/1.4.4
 [1.4.3]: https://github.com/processone/eturnal/releases/tag/1.4.3
