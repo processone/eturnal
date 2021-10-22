@@ -214,7 +214,7 @@ format_addrs(PeerAddrs) ->
 nl() ->
     [$~, $n]. % Let the caller convert "~n"s to actual newline characters.
 
--spec call(term()) -> ok | {error, term()}.
+-spec call(term()) -> ok | {ok | error, term()}.
 call(Request) ->
     try gen_server:call(eturnal, Request) of
         ok ->

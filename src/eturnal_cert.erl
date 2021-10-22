@@ -56,7 +56,7 @@ certificate(Domain, Key) ->
              extensions = extensions(Domain)},
     public_key:pkix_sign(TBS, Key).
 
--spec serial_number() -> non_neg_integer().
+-spec serial_number() -> pos_integer().
 serial_number() ->
     rand:uniform(1000000000).
 

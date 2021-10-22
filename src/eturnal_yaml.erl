@@ -165,9 +165,11 @@ check_overlapping_listeners(Listeners, PrepareFun) ->
           end, [], PrepareFun(Listeners)),
     ok.
 
--spec format_listener(listener()) -> io_lib:chars().
+-spec format_listener(listener()) -> binary().
 format_listener({IP, Port, Transport, _EnableTURN}) ->
-    io_lib:format("~s (~s)", [eturnal_misc:addr_to_str(IP, Port), Transport]).
+    list_to_binary(
+      io_lib:format("~s (~s)",
+                    [eturnal_misc:addr_to_str(IP, Port), Transport])).
 
 -spec get_env_name(atom()) -> string().
 get_env_name(Opt) ->
@@ -184,6 +186,6 @@ get_default(Var, Default) ->
             Default
     end.
 
--spec fail({atom, term()}) -> no_return().
+-spec fail({atom(), term()}) -> no_return().
 fail(Reason) ->
    yval:fail(yval, Reason).

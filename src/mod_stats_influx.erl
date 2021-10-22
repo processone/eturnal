@@ -33,6 +33,10 @@
 
 %% API.
 
+%% The influx_udp:start_pool/2 function claims to return 'ok', but actually
+%% returns {ok, pid()} | {error, term()}. Therefore:
+-dialyzer({[no_match, no_return], start/0}).
+
 -spec start() -> {ok, eturnal_module:events()}.
 start() ->
     ?LOG_DEBUG("Starting ~s", [?MODULE]),
