@@ -167,9 +167,8 @@ check_overlapping_listeners(Listeners, PrepareFun) ->
 
 -spec format_listener(listener()) -> binary().
 format_listener({IP, Port, Transport, _EnableTURN}) ->
-    list_to_binary(
-      io_lib:format("~s (~s)",
-                    [eturnal_misc:addr_to_str(IP, Port), Transport])).
+    Addr = eturnal_misc:addr_to_str(IP, Port),
+    list_to_binary(io_lib:format("~s (~s)", [Addr, Transport])).
 
 -spec get_env_name(atom()) -> string().
 get_env_name(Opt) ->
