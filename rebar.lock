@@ -1,12 +1,12 @@
 {"1.2.0",
 [{<<"conf">>,
   {git,"https://github.com/processone/conf.git",
-       {ref,"0663e704fb7f9f126f8c56a6f6b958c9b88b14d8"}},
+       {ref,"696761f024a135c1efe9b61b90c5f08a860ba144"}},
   0},
  {<<"fast_tls">>,{pkg,<<"fast_tls">>,<<"1.1.13">>},1},
  {<<"fast_yaml">>,
   {git,"https://github.com/processone/fast_yaml.git",
-       {ref,"997b7364b5c7d9da1cb7b35c42787b1faedd556c"}},
+       {ref,"f4e92de652cb0bdd65de852e13cc628a403b11f8"}},
   1},
  {<<"influx_udp">>,
   {git,"https://github.com/palkan/influx_udp.git",
@@ -25,7 +25,7 @@
  {<<"ulitos">>,{pkg,<<"ulitos">>,<<"0.4.0">>},1},
  {<<"yval">>,
   {git,"https://github.com/processone/yval.git",
-       {ref,"2495215511b33a57acdccc4bf33cf8e298f918bf"}},
+       {ref,"bc0ece71f5649c22c8afe6c475fd98e7a3d5b990"}},
   1}]}.
 [
 {pkg_hash,[
