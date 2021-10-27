@@ -4,7 +4,7 @@
 
 - [Erlang/OTP][1] (21.0 or newer).
 - [LibYAML][2] (0.1.4 or newer).
-- [OpenSSL][3] (1.4.6 or newer).
+- [OpenSSL][3] (1.0.0 or newer).
 - [GCC][4] (other C compilers might work as well).
 
 Note that you need the development headers of the libraries as well. Linux
