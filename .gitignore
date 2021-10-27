@@ -11,6 +11,12 @@
 /index.html
 /.make-binary.*/
 #
+# ExDoc:
+#
+/doc/assets/
+/doc/dist/
+/exdoc/
+#
 # Auto-added by rebar3:
 #
 .rebar3
