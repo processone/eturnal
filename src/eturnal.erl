@@ -497,7 +497,7 @@ import_cert(CrtFile, OutFile) ->
             KeyFile when is_binary(KeyFile) ->
                 {ok, _} = file:copy({KeyFile, Read}, {OutFile, Write}),
                 ?LOG_DEBUG("Copied ~ts into ~ts", [KeyFile, OutFile]);
-            undefined ->
+            none ->
                 ?LOG_INFO("No 'tls_key_file' specified, assuming key in ~ts",
                           [CrtFile])
         end,
