@@ -14,15 +14,23 @@ Windows/x64, an installer is [available][5]. On other platforms, eturnal is
 
 ## Installation on Linux/x64 Systems
 
-On **DEB-based** Linux/x64 distributions, run:
+On **APT-based** Linux/x64 distributions, run:
 
-    $ curl -O https://eturnal.net/download/package/eturnal_1.4.6-1_amd64.deb
-    $ sudo dpkg -i eturnal_1.4.6-1_amd64.deb
+    $ sudo apt install extrepo
+    $ sudo extrepo enable eturnal
+    $ sudo apt install eturnal
 
-On **RPM-based** Linux/x64 distributions, run:
+On **DNF-based** Linux/x64 distributions, run:
 
-    $ curl -O https://eturnal.net/download/package/eturnal-1.4.6-1.x86_64.rpm
-    $ sudo rpm -i eturnal-1.4.6-1.x86_64.rpm
+    $ sudo dnf config-manager --add-repo https://eturnal.net/eturnal.repo
+    $ sudo dnf install eturnal
+    $ sudo systemctl daemon-reload
+    $ sudo systemctl --now enable eturnal
+
+On **YUM-based** Linux/x64 distributions, run:
+
+    $ sudo yum-config-manager --add-repo https://eturnal.net/eturnal.repo
+    # sudo yum install eturnal
     $ sudo systemctl daemon-reload
     $ sudo systemctl --now enable eturnal
 
