@@ -89,7 +89,7 @@ free to (ab)use it for usage questions as well. If you happen to be using
  [2]: https://eturnal.net/
  [3]: https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00
  [4]: https://software.opensuse.org/download/?package=eturnal&project=devel:languages:erlang
- [5]: https://eturnal.net/download/windows/
+ [5]: https://eturnal.net/windows/
  [6]: https://github.com/processone/eturnal/blob/1.4.6/INSTALL.md
  [7]: https://eturnal.net/documentation/#Installation
  [8]: https://en.wikipedia.org/wiki/YAML
