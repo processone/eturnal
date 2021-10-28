@@ -16,23 +16,23 @@ Windows/x64, an installer is [available][5]. On other platforms, eturnal is
 
 On **APT-based** Linux/x64 distributions, run:
 
-    $ sudo apt install extrepo
-    $ sudo extrepo enable eturnal
-    $ sudo apt install eturnal
+    sudo apt install extrepo
+    sudo extrepo enable eturnal
+    sudo apt install eturnal
 
 On **DNF-based** Linux/x64 distributions, run:
 
-    $ sudo dnf config-manager --add-repo https://eturnal.net/eturnal.repo
-    $ sudo dnf install eturnal
-    $ sudo systemctl daemon-reload
-    $ sudo systemctl --now enable eturnal
+    sudo dnf config-manager --add-repo https://eturnal.net/eturnal.repo
+    sudo dnf install eturnal
+    sudo systemctl daemon-reload
+    sudo systemctl --now enable eturnal
 
 On **YUM-based** Linux/x64 distributions, run:
 
-    $ sudo yum-config-manager --add-repo https://eturnal.net/eturnal.repo
-    # sudo yum install eturnal
-    $ sudo systemctl daemon-reload
-    $ sudo systemctl --now enable eturnal
+    sudo yum-config-manager --add-repo https://eturnal.net/eturnal.repo
+    sudo yum install eturnal
+    sudo systemctl daemon-reload
+    sudo systemctl --now enable eturnal
 
 On other Linux/x64 systems, the binary release tarball can be installed as
 [described][7] in the reference documentation.
@@ -64,7 +64,7 @@ non-systemd platforms, an [example init script][11] is shipped in the
 
 For controlling eturnal, the `eturnalctl` command can be used; see:
 
-    $ eturnalctl help
+    eturnalctl help
 
 ## Logging
 
