@@ -6,9 +6,9 @@
   {applications,
    [kernel,
     stdlib,
-    public_key,
     conf,
-    stun
+    stun,
+    public_key
    ]},
   {env,[]},
   {modules, []},
