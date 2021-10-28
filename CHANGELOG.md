@@ -49,7 +49,7 @@ project adheres to [Semantic Versioning][SemVer].
 ## [1.4.2] - 2020-11-04
 ### Changed
 - Make sure the `eturnal.yml` file isn't installed world-readable, as it might
-  contain the shared TURN secret.
+  contain the shared TURN secret (#10).
 
 ## [1.4.1] - 2020-09-09
 ### Fixed
