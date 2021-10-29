@@ -7,6 +7,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Fixed
 - Handle the case where a `tls_crt_file` but no `tls_key_file` is specified (by
   assuming the `tls_crt_file` includes both the certificate and the key).
+- Don't forget to check for new PEM files on reload if the configuration wasn't
+  modified (#17).
 
 ## [1.4.6] - 2021-10-11
 ### Changed

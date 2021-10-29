@@ -125,17 +125,12 @@ init(_Opts) ->
         false ->
             ?LOG_DEBUG("TURN is disabled")
     end,
-    case tls_enabled() of
-        true ->
-            case update_pem_file() of
-                Result when Result =:= ok;
-                            Result =:= unmodified ->
-                    ok;
-                error -> % Has been logged.
-                    abort(certificate_failure)
-            end;
-        false ->
-            ?LOG_DEBUG("TLS not enabled, ignoring certificate configuration")
+    case check_pem_file() of
+        Result when Result =:= ok;
+                    Result =:= unmodified ->
+            ok;
+        error -> % Has been logged.
+            abort(certificate_failure)
     end,
     Ms = case start_modules() of
              {ok, Modules} ->
@@ -162,6 +157,15 @@ init(_Opts) ->
 handle_call(reload, _From, State) ->
     case conf:reload_file() of
         ok ->
+            case check_pem_file() of
+                ok ->
+                    ok = fast_tls:clear_cache(),
+                    ?LOG_INFO("Using new TLS certificate");
+                unmodified ->
+                    ?LOG_DEBUG("TLS certificate unchanged");
+                error -> % Has been logged.
+                    abort(certificate_failure)
+            end,
             ?LOG_DEBUG("Reloaded configuration"),
             {reply, ok, State};
         {error, Reason} = Err ->
@@ -417,20 +421,6 @@ apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
         false ->
             ?LOG_DEBUG("Logging configuration unchanged")
     end,
-    case tls_enabled() of
-        true ->
-            case update_pem_file() of
-                ok ->
-                    ok = fast_tls:clear_cache(),
-                    ?LOG_INFO("Using new TLS certificate");
-                unmodified ->
-                    ?LOG_DEBUG("TLS certificate unchanged");
-                error -> % Has been logged.
-                    abort(certificate_failure)
-            end;
-        false ->
-            ?LOG_DEBUG("TLS not enabled, ignoring certificate configuration")
-    end,
     State1 = case module_config_changed(ConfigChanges) of
                  true ->
                      case {stop_modules(State), start_modules()} of
@@ -464,30 +454,36 @@ apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
 get_pem_file_path() ->
     filename:join(get_opt(run_dir), <<?PEM_FILE_NAME>>).
 
--spec update_pem_file() -> ok | unmodified | error.
-update_pem_file() ->
-    OutFile = get_pem_file_path(),
-    case {get_opt(tls_crt_file), filelib:last_modified(OutFile)} of
-        {none, OutTime} when OutTime =/= 0 ->
-            ?LOG_DEBUG("Using existing PEM file (~ts)", [OutFile]),
-            unmodified;
-        {none, OutTime} when OutTime =:= 0 ->
-            ?LOG_WARNING("TLS enabled without 'tls_crt_file', creating "
-                         "self-signed certificate"),
-            create_self_signed(OutFile);
-        {CrtFile, OutTime} ->
-            case filelib:last_modified(CrtFile) of
-                CrtTime when CrtTime =< OutTime ->
-                    ?LOG_DEBUG("Using existing PEM file (~ts)", [OutFile]),
+-spec check_pem_file() -> ok | unmodified | error.
+check_pem_file() ->
+    case tls_enabled() of
+        true ->
+            OutFile = get_pem_file_path(),
+            case {get_opt(tls_crt_file), filelib:last_modified(OutFile)} of
+                {none, OutTime} when OutTime =/= 0 ->
+                    ?LOG_DEBUG("Keeping PEM file (~ts)", [OutFile]),
                     unmodified;
-                CrtTime when CrtTime =/= 0 -> % Assert to be true.
-                    ?LOG_DEBUG("Updating PEM file (~ts)", [OutFile]),
-                    import_cert(CrtFile, OutFile)
-            end
+                {none, OutTime} when OutTime =:= 0 ->
+                    ?LOG_WARNING("TLS enabled without 'tls_crt_file', creating "
+                                 "self-signed certificate"),
+                    create_self_signed(OutFile);
+                {CrtFile, OutTime} ->
+                    case filelib:last_modified(CrtFile) of
+                        CrtTime when CrtTime =< OutTime ->
+                            ?LOG_DEBUG("Keeping PEM file (~ts)", [OutFile]),
+                            unmodified;
+                        CrtTime when CrtTime =/= 0 -> % Assert to be true.
+                            ?LOG_DEBUG("Updating PEM file (~ts)", [OutFile]),
+                            import_pem_file(CrtFile, OutFile)
+                    end
+            end;
+        false ->
+            ?LOG_DEBUG("TLS not enabled, ignoring certificate configuration"),
+            unmodified
     end.
 
--spec import_cert(binary(), file:filename_all()) -> ok | error.
-import_cert(CrtFile, OutFile) ->
+-spec import_pem_file(binary(), file:filename_all()) -> ok | error.
+import_pem_file(CrtFile, OutFile) ->
     try
         Read = [read, binary, raw],
         Write = [write, binary, raw],
