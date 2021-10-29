@@ -19,14 +19,12 @@ On **DNF-based** Linux/x64 distributions, run:
 
     sudo dnf config-manager --add-repo https://eturnal.net/eturnal.repo
     sudo dnf install eturnal
-    sudo systemctl daemon-reload
     sudo systemctl --now enable eturnal
 
 On **YUM-based** Linux/x64 distributions, run:
 
     sudo yum-config-manager --add-repo https://eturnal.net/eturnal.repo
     sudo yum install eturnal
-    sudo systemctl daemon-reload
     sudo systemctl --now enable eturnal
 
 On SUSE Linux Enterprise and openSUSE systems, [distribution repositories][4]
