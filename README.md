@@ -6,13 +6,7 @@
 support. For TURN authentication, the mechanism described in the [REST API for
 Access to TURN Services specification][3] is implemented.
 
-On Linux/x64 systems, you can [install the binary
-release](#installation-on-linuxx64-systems). On SUSE Linux Enterprise and
-openSUSE systems, [distribution repositories][4] can be used instead. For
-Windows/x64, an installer is [available][5]. On other platforms, eturnal is
-[built from source][6].
-
-## Installation on Linux/x64 Systems
+## Installation
 
 On **APT-based** Linux/x64 distributions, run:
 
@@ -34,8 +28,11 @@ On **YUM-based** Linux/x64 distributions, run:
     sudo systemctl daemon-reload
     sudo systemctl --now enable eturnal
 
-On other Linux/x64 systems, the binary release tarball can be installed as
-[described][7] in the reference documentation.
+On SUSE Linux Enterprise and openSUSE systems, [distribution repositories][4]
+can be used instead. On other Linux/x64 systems, the binary release can be
+installed as [described][5] in the reference documentation. For Windows/x64, an
+installer is [available][6]. On other platforms, eturnal is [built from
+source][7].
 
 ## Configuration
 
@@ -89,9 +86,9 @@ free to (ab)use it for usage questions as well. If you happen to be using
  [2]: https://eturnal.net/
  [3]: https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00
  [4]: https://software.opensuse.org/download/?package=eturnal&project=devel:languages:erlang
- [5]: https://eturnal.net/windows/
- [6]: https://github.com/processone/eturnal/blob/1.4.6/INSTALL.md
- [7]: https://eturnal.net/documentation/#Installation
+ [5]: https://eturnal.net/documentation/#Installation
+ [6]: https://eturnal.net/windows/
+ [7]: https://github.com/processone/eturnal/blob/1.4.6/INSTALL.md
  [8]: https://en.wikipedia.org/wiki/YAML
  [9]: https://github.com/processone/eturnal/blob/1.4.6/config/eturnal.yml
 [10]: https://www.freedesktop.org/software/systemd/man/systemctl.html
