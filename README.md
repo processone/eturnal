@@ -12,6 +12,7 @@ On **APT-based** Linux/x64 distributions, run:
 
     sudo apt install extrepo
     sudo extrepo enable eturnal
+    sudo apt update
     sudo apt install eturnal
 
 On **DNF-based** Linux/x64 distributions, run:
