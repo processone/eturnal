@@ -1103,6 +1103,8 @@ mkdir "$dst_dir"
 tar -C "$dst_dir" -xzf "$rel_dir/$rel_tar"
 sed -i "2iexport TERM='internal'" \
     "$dst_dir/bin/$rel_name" "$dst_dir/bin/$rel_name-$rel_vsn"
+sed -i '/inet_dist_use_interface/a\ \ \ {inet_backend, socket},' \
+    "$dst_dir/releases/$rel_vsn/sys.config"
 find "$dst_dir/lib" -type f -name '*.so' -exec strip -s '{}' '+'
 find "$dst_dir/erts-*/bin" -type f -perm '-u+x' \
                            -exec strip -s '{}' '+' 2>'/dev/null' || :
