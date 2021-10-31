@@ -1024,7 +1024,7 @@ export CC="$target-gcc"
 export CXX="$target-g++"
 export CFLAGS="-g0 -O2 -pipe -fomit-frame-pointer -static-libgcc -I$prefix/include"
 export CXXFLAGS="$CFLAGS -static-libstdc++"
-export LDFLAGS="-L$prefix/lib"
+export LDFLAGS="-L$prefix/lib -static-libgcc -static-libstdc++"
 
 info "Building Termcap $termcap_vsn ..."
 cd "$src_dir/$termcap_dir"
