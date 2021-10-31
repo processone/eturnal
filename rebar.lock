@@ -10,7 +10,7 @@
   1},
  {<<"influx_udp">>,
   {git,"https://github.com/palkan/influx_udp.git",
-       {ref,"23e0ef865405743fd0fbf8711183ce9ea236a7d5"}},
+       {ref,"c744ccf0595ace09891afd02389503ef14359ab1"}},
   0},
  {<<"p1_utils">>,{pkg,<<"p1_utils">>,<<"1.0.23">>},1},
  {<<"poolboy">>,{pkg,<<"poolboy">>,<<"1.5.2">>},1},
