@@ -1084,8 +1084,7 @@ cd "$src_dir/$otp_dir"
     --prefix="$prefix"        \
     --with-ssl="$prefix"      \
     --without-javac           \
-    --disable-dynamic-ssl-lib \
-    --disable-hipe
+    --disable-dynamic-ssl-lib
 make
 make install
 cd "$OLDPWD"
