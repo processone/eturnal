@@ -10,6 +10,9 @@ project adheres to [Semantic Versioning][SemVer].
 - Don't forget to check for new PEM files on reload if the configuration wasn't
   modified (#17).
 
+### Changed
+- Binary release: Update Erlang/OTP from 24.1.2 to 24.1.3.
+
 ## [1.4.6] - 2021-10-11
 ### Changed
 - Don't abort (but log an appropriate warning) if TURN is enabled without a
