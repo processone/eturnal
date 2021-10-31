@@ -12,7 +12,6 @@ project adheres to [Semantic Versioning][SemVer].
 
 ### Changed
 - Binary release: Update Erlang/OTP from 24.1.2 to 24.1.3.
-- Binary release: Use the new socket backend (introduced in Erlang/OTP 22.0).
 
 ## [1.4.6] - 2021-10-11
 ### Changed
