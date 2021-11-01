@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Added
+- Improve UDP receive performance.
+- Reduce risk of UDP packet loss.
+
 ### Fixed
 - Handle the case where a `tls_crt_file` but no `tls_key_file` is specified (by
   assuming the `tls_crt_file` includes both the certificate and the key).
