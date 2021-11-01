@@ -43,8 +43,6 @@ eturnal:
   blacklist:                # This is the default blacklist.
     - "127.0.0.0/8"         # IPv4 loopback.
     - "::1"                 # IPv6 loopback.
-    - "2001::/32"           # Teredo.
-    - "2002::/16"           # 6to4.
 
   ## Logging configuration:
   log_level: info           # critical | error | warning | notice | info | debug
