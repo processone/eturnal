@@ -336,8 +336,8 @@ This option defines the shared authentication secret used to derive the
 passwords for ephemeral TURN user names as described in the <a
 href="https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00">REST API for
 Access to TURN Services</a> specification. Specifying this option (or the
-environment variable {@section ETURNAL_SECRET}) is mandatory unless TURN
-relaying is disabled for all {@section listen} entries.
+environment variable {@section ETURNAL_SECRET}) is required for TURN relaying to
+work.
 
 === software_name ===
 
