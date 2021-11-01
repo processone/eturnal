@@ -70,7 +70,7 @@ get_opt(Opt) ->
     {ok, Val} = application:get_env(eturnal, Opt),
     Val.
 
--spec get_password(binary(), binary()) -> binary().
+-spec get_password(binary(), binary()) -> binary() | [binary()].
 get_password(Username, _Realm) ->
     [Expiration | _Suffix] = binary:split(Username, <<$:>>),
     try binary_to_integer(Expiration) of
@@ -347,6 +347,10 @@ turn_enabled() ->
 -spec got_secret() -> boolean().
 got_secret() ->
     case get_opt(secret) of
+        Secrets when is_list(Secrets) ->
+            lists:all(fun(Secret) ->
+                              is_binary(Secret) and (byte_size(Secret) > 0)
+                      end, Secrets);
         Secret when is_binary(Secret), byte_size(Secret) > 0 ->
             true;
         undefined ->
@@ -573,11 +577,15 @@ describe_listener(_EnableTURN = true) ->
 describe_listener(_EnableTURN = false) ->
     <<"STUN only">>.
 
--spec derive_password(binary(), binary()) -> binary().
+-spec derive_password(binary(), X) -> X when X :: binary() | [binary()].
 -ifdef(old_crypto).
+derive_password(Username, Secrets) when is_list(Secrets) ->
+    [derive_password(Username, Secret) || Secret <- Secrets];
 derive_password(Username, Secret) ->
     base64:encode(crypto:hmac(sha, Secret, Username)).
 -else.
+derive_password(Username, Secrets) when is_list(Secrets) ->
+    [derive_password(Username, Secret) || Secret <- Secrets];
 derive_password(Username, Secret) ->
     base64:encode(crypto:mac(hmac, sha, Secret, Username)).
 -endif.

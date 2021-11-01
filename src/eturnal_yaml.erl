@@ -37,7 +37,7 @@
 -spec validator() -> yval:validator().
 validator() ->
     options(
-      #{secret => non_empty(binary()),
+      #{secret => list_or_single(non_empty(binary())),
         listen => listen_validator(),
         relay_ipv4_addr => ipv4(),
         relay_ipv6_addr => ipv6(),

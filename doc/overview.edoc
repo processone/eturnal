@@ -329,7 +329,7 @@ well, a `run' directory is created within the installation prefix.
 
 === secret ===
 
-<div class="spec">Type: `string'<br/>
+<div class="spec">Type: `string' | `list of strings'<br/>
 Default: `undefined'</div>
 
 This option defines the shared authentication secret used to derive the
@@ -337,7 +337,9 @@ passwords for ephemeral TURN user names as described in the <a
 href="https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00">REST API for
 Access to TURN Services</a> specification. Specifying this option (or the
 environment variable {@section ETURNAL_SECRET}) is required for TURN relaying to
-work.
+work. If a list of secrets is specified, credentials derived from any of those
+will be accepted. This allows for rotating the secret without invalidating
+existing credentials.
 
 === software_name ===
 

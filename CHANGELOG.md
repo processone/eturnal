@@ -5,6 +5,7 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 ### Added
+- Allow for specifying a list of secrets in order to facilitate key rollover.
 - Improve UDP receive performance.
 - Reduce risk of UDP packet loss.
 
