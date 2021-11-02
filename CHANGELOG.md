@@ -16,7 +16,7 @@ project adheres to [Semantic Versioning][SemVer].
   modified (#17).
 
 ### Changed
-- Binary release: Update Erlang/OTP from 24.1.2 to 24.1.3.
+- Binary release: Update Erlang/OTP from 24.1.2 to 24.1.4.
 
 ## [1.4.6] - 2021-10-11
 ### Changed
