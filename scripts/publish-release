@@ -1,0 +1,64 @@
+#!/bin/sh
+
+set -e
+set -u
+
+export PATH='/usr/local/bin:/usr/local/sbin:/bin:/sbin:/usr/bin:/usr/sbin'
+
+rel_name='eturnal'
+rel_vsn="$(scripts/get-version | sed 's/+.*//')"
+prefix="/home/$rel_name"
+web_root_dir="$prefix/web"
+deb_repo_dir="/repositories/$rel_name/apt"
+rpm_repo_dir="/repositories/$rel_name/rpm"
+dl_dir="$web_root_dir/download"
+dl_pkg_dir="$dl_dir/package"
+user_doc_dir="$web_root_dir/documentation"
+api_doc_dir="$web_root_dir/documentation/code"
+deb="$dl_pkg_dir/${rel_name}_$rel_vsn-1_amd64.deb"
+rpm="$dl_pkg_dir/${rel_name}-$rel_vsn-1.x86_64.rpm"
+upstream_name='processone'
+main_branch='master'
+domain="$rel_name.net"
+ip_addr=$(host "$domain" | awk '/has address/ {print $NF}')
+myself=${0##*/}
+
+if [ $# != 0 ]
+then
+	echo >&2 "Usage: $0"
+	exit 2
+fi
+
+if [ "$(id -un)" != "$rel_name" ] || ! ip addr show | grep -Fq "$ip_addr"
+then
+	echo >&2 "The $0 tool expects the environment of $rel_name@$domain."
+	echo >&2 'Aborting.'
+	exit 1
+fi
+
+echo "$myself: Going to publish $rel_name $rel_vsn in a few seconds."
+echo "$myself: Press <Ctrl>+<C> to abort."
+sleep 5
+
+# Push release into Git repository.
+git push "$upstream_name" "$main_branch" "$rel_vsn"
+
+# Copy tarballs and packages to web site.
+mv "$rel_name-$rel_vsn"*'.tar.gz'* "$dl_dir"
+mv "$rel_name"*'.'{deb,rpm} "$dl_pkg_dir"
+
+# Copy documentation to web site.
+mv 'index.html' "$user_doc_dir"
+rebar3 as exdoc edoc
+rm -rf "$api_doc_dir"
+mv 'exdoc' "$api_doc_dir"
+
+# Update DEB repository.
+reprepro -b "$deb_repo_dir" includedeb stable "$deb"
+
+# Update RPM repository.
+rm -f "$rpm_repo_dir/"*'.rpm'
+cp -p "$rpm" "$rpm_repo_dir"
+rpm --addsign "$rpm_repo_dir/"*'.rpm'
+createrepo "$rpm_repo_dir"
+gpg --detach-sign --armor "$rpm_repo_dir/repodata/repomd.xml"
