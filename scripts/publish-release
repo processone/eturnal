@@ -3,7 +3,11 @@
 set -e
 set -u
 
-export PATH='/usr/local/bin:/usr/local/sbin:/bin:/sbin:/usr/bin:/usr/sbin'
+PATH='/usr/local/bin:/usr/local/sbin:/bin:/sbin:/usr/bin:/usr/sbin'
+PATH="$HOME/bin:$HOME/opt/erlang/bin:$PATH"
+PATH="$HOME/.cache/rebar3/bin:$HOME/.mix/escripts:$PATH"
+
+export PATH
 
 rel_name='eturnal'
 rel_vsn="$(scripts/get-version | sed 's/+.*//')"
