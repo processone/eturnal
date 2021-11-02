@@ -4,8 +4,11 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [1.5.0] - 2021-11-02
 ### Added
-- Allow for specifying a list of secrets in order to facilitate key rollover.
+- Allow for specifying a list of shared secrets in order to facilitate key
+  rollover (#16).
 - Improve UDP receive performance.
 - Reduce risk of UDP packet loss.
 
@@ -213,7 +216,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/1.4.6...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.5.0...HEAD
+[1.5.0]: https://github.com/processone/eturnal/releases/tag/1.5.0
 [1.4.6]: https://github.com/processone/eturnal/releases/tag/1.4.6
 [1.4.5]: https://github.com/processone/eturnal/releases/tag/1.4.5
 [1.4.4]: https://github.com/processone/eturnal/releases/tag/1.4.4
