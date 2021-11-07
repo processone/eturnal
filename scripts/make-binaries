@@ -1006,11 +1006,10 @@ build_rel()
 	cd "$OLDPWD"
 
 	info "Building Erlang/OTP $otp_vsn for $arch ..."
-	if [ "$mode" = 'cross' ] && [ "${native_otp_bin-unset}" != 'unset' ]
+	if [ "$mode" = 'cross' ]
 	then
 		export PATH="$native_otp_bin:$PATH"
 		export erl_xcomp_sysroot="$prefix"
-		unset native_otp_bin
 	fi
 	cd "$target_src_dir/$otp_dir"
 	$configure \
