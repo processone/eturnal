@@ -29,7 +29,7 @@ then
 fi
 
 rel_name='eturnal'
-rel_vsn="$(scripts/get-version | sed 's/+.*//')"
+rel_vsn="$(scripts/get-version)"
 tmp_dir=$(mktemp -d "/tmp/.$myself.XXXXXX")
 
 trap 'rm -rf "$tmp_dir"' INT TERM EXIT
