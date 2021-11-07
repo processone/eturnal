@@ -1,11 +1,12 @@
 #!/bin/sh
 
-# Build DEB and RPM packages for Linux (x64).
+# Build DEB and RPM packages for Linux (x64 and arm64).
 
 set -e
 set -u
 
 myself=${0##*/}
+architectures='x64 arm64'
 
 usage()
 {
@@ -29,14 +30,15 @@ fi
 
 rel_name='eturnal'
 rel_vsn="$(scripts/get-version | sed 's/+.*//')"
-tar_name="$rel_name-$rel_vsn-linux-x64.tar.gz"
 tmp_dir=$(mktemp -d "/tmp/.$myself.XXXXXX")
 
 trap 'rm -rf "$tmp_dir"' INT TERM EXIT
 
 create_scripts()
 {
-	cat >"$tmp_dir/before-install" <<-EOF
+	local dir="$1"
+
+	cat >"$dir/before-install" <<-EOF
 	if ! getent group '$rel_name' >'/dev/null'
 	then groupadd -r '$rel_name'
 	fi
@@ -45,13 +47,13 @@ create_scripts()
 	fi
 	EOF
 
-	cat >"$tmp_dir/after-install" <<-EOF
+	cat >"$dir/after-install" <<-EOF
 	chown '$rel_name:$rel_name' '/opt/$rel_name'
 	chgrp '$rel_name' '/etc/$rel_name.yml'
 	chmod 'o-rw' '/etc/$rel_name.yml'
 	EOF
 
-	cat >"$tmp_dir/after-remove" <<-EOF
+	cat >"$dir/after-remove" <<-EOF
 	rm -rf '/opt/$rel_name/run' '/opt/$rel_name/.erlang.cookie'
 	if getent passwd '$rel_name' >'/dev/null'
 	then userdel '$rel_name'
@@ -62,11 +64,32 @@ create_scripts()
 	EOF
 }
 
+package_architecture()
+{
+	local target="$1"
+	local host_target="$(uname -m)-$target"
+
+	case $host_target in
+	x86_64-x64)
+		printf 'native'
+		;;
+	x86_64-arm64)
+		printf 'arm64'
+		;;
+	*)
+		echo >&2 "Unsupported host/target combination: $host_target"
+		exit 1
+		;;
+	esac
+}
+
 make_package()
 {
 	local output_type="$1"
+	local architecture="$(package_architecture "$2")"
+	local dir="$3"
 
-	cd "$tmp_dir" # FPM's "--chdir" option doesn't work (as I'd expect).
+	cd "$dir" # FPM's "--chdir" option doesn't work (as I'd expect).
 	fpm --output-type "$output_type" \
 	    --input-type 'dir' \
 	    --name "$rel_name" \
@@ -84,7 +107,7 @@ make_package()
 	    --rpm-init "./$rel_name" \
 	    --config-files './etc' \
 	    --directories "/opt/$rel_name" \
-	    --architecture 'native' \
+	    --architecture "$architecture" \
 	    --maintainer 'Holger Weiss <holger@zedat.fu-berlin.de>' \
 	    --vendor 'ProcessOne, SARL' \
 	    --description 'Modern, straightforward STUN and TURN server.' \
@@ -98,27 +121,32 @@ make_package()
 	cd "$OLDPWD"
 }
 
-opt_dir="$tmp_dir/opt"
-etc_dir="$tmp_dir/etc"
-bin_dir="$tmp_dir/usr/sbin"
-dst_dir="$opt_dir/$rel_name"
+for arch in $architectures
+do
+	tar_name="$rel_name-$rel_vsn-linux-$arch.tar.gz"
+	arch_dir="$tmp_dir/$arch"
+	opt_dir="$arch_dir/opt"
+	etc_dir="$arch_dir/etc"
+	bin_dir="$arch_dir/usr/sbin"
+	dst_dir="$opt_dir/$rel_name"
 
-echo "$myself: Putting together DEB and RPM packages ..."
-mkdir -p "$opt_dir" "$bin_dir"
-tar -C "$opt_dir" -xzf "$tar_name"
+	echo "$myself: Putting together DEB and RPM packages for $arch ..."
+	mkdir -p "$opt_dir" "$bin_dir"
+	tar -C "$opt_dir" -xzf "$tar_name"
 
-mv "$dst_dir/bin/eturnalctl" "$bin_dir"
-mv "$dst_dir/etc" "$etc_dir"
-mv "$etc_dir/init.d/$rel_name" "$tmp_dir"
-rmdir "$etc_dir/init.d"
-sed -i "s|opt/$rel_name/bin/eturnalctl|usr/sbin/eturnalctl|" \
-    "$etc_dir/systemd/system/$rel_name.service" "$tmp_dir/$rel_name"
-create_scripts
-make_package 'rpm'
+	mv "$dst_dir/bin/eturnalctl" "$bin_dir"
+	mv "$dst_dir/etc" "$etc_dir"
+	mv "$etc_dir/init.d/$rel_name" "$arch_dir"
+	rmdir "$etc_dir/init.d"
+	sed -i "s|opt/$rel_name/bin/eturnalctl|usr/sbin/eturnalctl|" \
+	    "$etc_dir/systemd/system/$rel_name.service" "$arch_dir/$rel_name"
+	create_scripts "$arch_dir"
+	make_package 'rpm' "$arch" "$arch_dir"
 
-mv "$etc_dir/systemd/system/$rel_name.service" "$tmp_dir"
-rm -r "$etc_dir/systemd"
-make_package 'deb'
+	mv "$etc_dir/systemd/system/$rel_name.service" "$arch_dir"
+	rm -r "$etc_dir/systemd"
+	make_package 'deb' "$arch" "$arch_dir"
 
-mv "$tmp_dir/$rel_name"?$rel_vsn*.??? .
+	mv "$arch_dir/$rel_name"?$rel_vsn*.??? .
+done
 echo "$myself: Created DEB and RPM packages successfully."

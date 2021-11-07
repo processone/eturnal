@@ -37,7 +37,6 @@ export REBAR_COLOR='none'
 rel_name='eturnal'
 rel_url='https://github.com/processone/eturnal/releases/tag'
 src_tar="$rel_name-$new_vsn.tar.gz"
-bin_tar="$rel_name-$new_vsn-linux-x64.tar.gz"
 old_vsn="$(git tag -l --sort=version:refname '[0-9]*.[0-9]*.[0-9]*' | tail -1)"
 rebar_vsn="$(rebar3 --version | tail -1 |
              sed 's/rebar \([0-9a-z.-]\{1,\}\).*/\1/')"
@@ -101,8 +100,11 @@ sed -e 's|stylesheet.css|/stylesheet.css|' \
 
 scripts/make-source
 shasum -a 1 -b "$src_tar" >"$src_tar.sha1"
-scripts/make-binary
-shasum -a 1 -b "$bin_tar" >"$bin_tar.sha1"
+scripts/make-binaries
+for bin_tar in $rel_name-$new_vsn-linux-*.tar.gz
+do
+	shasum -a 1 -b "$bin_tar" >"$bin_tar.sha1"
+done
 scripts/make-packages 2>&1 | tail -n 1
 
 echo "$myself: If everything looks fine, run scripts/publish-release."

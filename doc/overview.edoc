@@ -41,12 +41,11 @@ reference documentation below.
 
 == Installation ==
 
-Linux/x64 packages for DEB- and RPM-based distributions can be retrieved <a
-href="https://eturnal.net/repositories/">from eturnal.net</a>. On other
-Linux/x64 systems, the <a
-href="https://eturnal.net/download/eturnal-1.5.0-linux-x64.tar.gz">binary
-release</a> can be installed as described in this section. For building eturnal
-from source, see the <a
+Linux/x64 and Linux/arm64 packages for DEB- and RPM-based distributions can be
+retrieved <a href="https://eturnal.net/repositories/">from eturnal.net</a>. On
+other Linux/x64 and Linux/arm64 systems, the <a
+href="https://eturnal.net/download/linux/">binary release</a> can be installed
+as described in this section. For building eturnal from source, see the <a
 href="https://github.com/processone/eturnal/blob/1.5.0/INSTALL.md">INSTALL.md</a>
 file shipped with eturnal's <a
 href="https://eturnal.net/download/eturnal-1.5.0.tar.gz">source code
@@ -56,11 +55,12 @@ The binary release archive holds a stand-alone directory that includes
 everything required to run eturnal. It's recommended to create a dedicated
 system user for running eturnal (if not already done), and to extract the
 release archive into this user's home directory by running the following
-commands with superuser privileges:
+commands with superuser privileges (on AArch64 systems, `x64' must be replaced
+with `arm64'):
 
 ```
 # useradd -r -d /opt/eturnal eturnal
-# curl https://eturnal.net/download/eturnal-1.5.0-linux-x64.tar.gz | tar -C /opt -xzf -
+# curl https://eturnal.net/download/linux/eturnal-1.5.0-linux-x64.tar.gz | tar -C /opt -xzf -
 '''
 
 The example <a

@@ -8,30 +8,29 @@ Access to TURN Services specification][3] is implemented.
 
 ## Installation
 
-On **APT-based** Linux/x64 distributions, run:
+On **APT-based** Linux distributions, run:
 
     sudo apt install extrepo
     sudo extrepo enable eturnal
     sudo apt update
     sudo apt install eturnal
 
-On **DNF-based** Linux/x64 distributions, run:
+On **DNF-based** Linux distributions, run:
 
     sudo dnf config-manager --add-repo https://eturnal.net/eturnal.repo
     sudo dnf install eturnal
     sudo systemctl --now enable eturnal
 
-On **YUM-based** Linux/x64 distributions, run:
+On **YUM-based** Linux distributions, run:
 
     sudo yum-config-manager --add-repo https://eturnal.net/eturnal.repo
     sudo yum install eturnal
     sudo systemctl --now enable eturnal
 
 On SUSE Linux Enterprise and openSUSE systems, [distribution repositories][4]
-can be used instead. On other Linux/x64 systems, the binary release can be
-installed as [described][5] in the reference documentation. For Windows/x64, an
-installer is [available][6]. On other platforms, eturnal is [built from
-source][7].
+can be used instead. On other Linux systems, the binary release can be installed
+as [described][5] in the reference documentation. For Windows, an installer is
+[available][6]. On other platforms, eturnal is [built from source][7].
 
 ## Configuration
 
