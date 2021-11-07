@@ -36,28 +36,23 @@ jobs:
           sudo apt-get -qq install libyaml-dev
       - name: Check out repository code
         uses: actions/checkout@v2
-      - name: Download Erlang/OTP ${{ matrix.otp }}
-        uses: ErlGang/setup-erlang@master
+      - name: Download Erlang/OTP ${{ matrix.otp }} and Rebar ${{ matrix.rebar }}
+        uses: erlef/setup-beam@v1
         with:
           otp-version: ${{ matrix.otp }}
-      - name: Download Rebar ${{ matrix.rebar }}
-        run: >
-          curl --no-progress-meter -LO
-          https://github.com/erlang/rebar3/releases/download/${{ matrix.rebar }}/rebar3
-      - name: Make Rebar executable
-        run: chmod +x rebar3
+          rebar3-version: ${{ matrix.rebar }}
       - name: Cache Rebar data
         uses: actions/cache@v2
         with:
           path: ~/.cache/rebar3
           key: ${{ runner.os }}-${{ matrix.otp }}-${{ hashFiles('rebar.config') }}
       - name: Download dependencies
-        run: ./rebar3 get-deps
+        run: rebar3 get-deps
       - name: Compile code
-        run: ./rebar3 compile
+        run: rebar3 compile
       - name: Analyze cross references
-        run: ./rebar3 xref
+        run: rebar3 xref
       - name: Perform static code analysis
-        run: ./rebar3 dialyzer
+        run: rebar3 dialyzer
       - name: Run test suite
-        run: ./rebar3 ct
+        run: rebar3 ct
