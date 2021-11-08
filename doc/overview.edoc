@@ -60,7 +60,7 @@ with `arm64'):
 
 ```
 # useradd -r -d /opt/eturnal eturnal
-# curl https://eturnal.net/download/linux/eturnal-1.5.0-linux-x64.tar.gz | tar -C /opt -xzf -
+# curl https://eturnal.net/eturnal-1.5.0-linux-x64.tar.gz | tar -C /opt -xzf -
 '''
 
 The example <a
