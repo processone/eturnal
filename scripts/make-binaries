@@ -1060,9 +1060,11 @@ build_rel()
 	    -exec "$STRIP" -s '{}' '+'
 	find "$target_dst_dir/erts-*/bin" -type f -perm '-u+x' \
 	    -exec "$STRIP" -s '{}' '+' 2>'/dev/null' || :
+	test "$mode" = 'cross' &&
+	    erl -noinput -eval \
+	        "{ok, _} = beam_lib:strip_release('$target_dst_dir'), halt()"
 	tar -C "$prefix" --owner="$rel_name" --group="$rel_name" -cf - \
 	    "$rel_name" | gzip -9 >"$target_dst_tar"
-
 	unset CC CXX CPP LD AS AR NM RANLIB OBJCOPY STRIP
 	unset CFLAGS CXXFLAGS LDFLAGS ERL_COMPILER_OPTIONS
 	export PATH="$saved_path"
