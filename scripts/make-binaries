@@ -943,7 +943,7 @@ build_rel()
 
 	mkdir "$prefix"
 
-	info "Extracting dependencies ..."
+	info 'Extracting dependencies ...'
 	mkdir "$target_src_dir"
 	cd "$target_src_dir"
 	tar -xzf "$src_dir/$termcap_tar"
@@ -1008,7 +1008,7 @@ build_rel()
 	info "Building Erlang/OTP $otp_vsn for $arch ..."
 	if [ "$mode" = 'cross' ]
 	then
-		export PATH="$native_otp_bin:$PATH"
+		export PATH="$native_otp_bin:$PATH" # For bootstrapping/rebar3.
 		export erl_xcomp_sysroot="$prefix"
 	fi
 	cd "$target_src_dir/$otp_dir"
@@ -1025,7 +1025,7 @@ build_rel()
 	if [ "$mode" = 'native' ]
 	then
 		native_otp_bin="$prefix/bin"
-		export PATH="$native_otp_bin:$PATH"
+		export PATH="$native_otp_bin:$PATH" # For rebar3.
 	else
 		unset erl_xcomp_sysroot
 	fi
@@ -1065,11 +1065,12 @@ build_rel()
 	        "{ok, _} = beam_lib:strip_release('$target_dst_dir'), halt()"
 	tar -C "$prefix" --owner="$rel_name" --group="$rel_name" -cf - \
 	    "$rel_name" | gzip -9 >"$target_dst_tar"
+
+	info "Created $target_dst_tar successfully."
+
 	unset CC CXX CPP LD AS AR NM RANLIB OBJCOPY STRIP
 	unset CFLAGS CXXFLAGS LDFLAGS ERL_COMPILER_OPTIONS
 	export PATH="$saved_path"
-
-	info "Created $target_dst_tar successfully."
 }
 #.
 
@@ -1079,8 +1080,8 @@ then
 	then
 		check_deps
 	else
-		error "Cannot check dependency versions."
-		error "Install a browser or set CHECK_DEPS=false"
+		error 'Cannot check dependency versions.'
+		error 'Install a browser or set CHECK_DEPS=false'
 		exit 1
 	fi
 else
@@ -1097,11 +1098,11 @@ info 'Removing old builds ...'
 rm -rf "$build_dir"
 mkdir "$build_dir"
 
-info "Removing old source ..."
+info 'Removing old source ...'
 rm -rf "$src_dir"
 mkdir "$src_dir"
 
-info "Downloading dependencies ..."
+info 'Downloading dependencies ...'
 cd "$src_dir"
 curl -LO "http://crosstool-ng.org/download/crosstool-ng/$crosstool_tar"
 curl -LO "https://ftp.gnu.org/gnu/termcap/$termcap_tar"
