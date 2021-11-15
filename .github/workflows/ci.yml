@@ -10,7 +10,7 @@ on:
 
 jobs:
   test:
-    name: Erlang/OTP ${{ matrix.otp }}
+    name: Erlang/OTP ${{matrix.otp}}
     strategy:
       fail-fast: false
       matrix:
@@ -36,16 +36,16 @@ jobs:
           sudo apt-get -qq install libyaml-dev
       - name: Check out repository code
         uses: actions/checkout@v2
-      - name: Download Erlang/OTP ${{ matrix.otp }} and Rebar ${{ matrix.rebar }}
+      - name: Download Erlang/OTP ${{matrix.otp}} and Rebar ${{matrix.rebar}}
         uses: erlef/setup-beam@v1
         with:
-          otp-version: ${{ matrix.otp }}
-          rebar3-version: ${{ matrix.rebar }}
+          otp-version: ${{matrix.otp}}
+          rebar3-version: ${{matrix.rebar}}
       - name: Cache Rebar data
         uses: actions/cache@v2
         with:
           path: ~/.cache/rebar3
-          key: ${{ runner.os }}-${{ matrix.otp }}-${{ hashFiles('rebar.config') }}
+          key: ${{runner.os}}-${{matrix.otp}}-${{hashFiles('rebar.config')}}
       - name: Download dependencies
         run: rebar3 get-deps
       - name: Compile code
