@@ -172,10 +172,14 @@ format_sessions(Sessions) ->
                 "            Sent: ~B KiB (~B packets)~s"
                 "        Received: ~B KiB (~B packets)~s"
                 "     Running for: ~B seconds",
-                [User, nl(), Client, Transport, nl(),
-                 Relay, nl(), Perms, nl(), Peers, nl(),
+                [User, nl(),
+                 Client, Transport, nl(),
+                 Relay, nl(),
+                 Perms, nl(),
+                 Peers, nl(),
                  round(SentBytes / 1024), SentPkts, nl(),
-                 round(RcvdBytes / 1024), RcvdPkts, nl(), Duration])
+                 round(RcvdBytes / 1024), RcvdPkts, nl(),
+                 Duration])
       end, Sessions).
 
 -spec format_info(eturnal_misc:node_info()) -> io_lib:chars().
