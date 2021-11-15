@@ -45,7 +45,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cache/rebar3
-          key: ${{runner.os}}-${{matrix.otp}}-${{hashFiles('rebar.config')}}
+          key: ${{runner.os}}-${{matrix.otp}}-${{matrix.rebar}}-${{hashFiles('rebar.config')}}
       - name: Download dependencies
         run: rebar3 get-deps
       - name: Compile code
