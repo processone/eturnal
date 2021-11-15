@@ -25,7 +25,7 @@
                list/1, list_or_single/1, map/3, non_empty/1, non_neg_int/0,
                options/1, options/2, port/0, pos_int/1]).
 
--type transport() :: udp | tcp | tls.
+-type transport() :: udp | tcp | tls | mixed.
 -type listener() :: {inet:ip_address(), inet:port_number(), transport(),
                      boolean()}.
 
@@ -112,7 +112,7 @@ listen_validator() ->
           options(
             #{ip => ip(),
               port => int(0, 65535),
-              transport => enum([tcp, udp, tls]),
+              transport => enum([tcp, udp, tls, mixed]),
               enable_turn => bool()},
             [unique,
              {required, [ip]}]),
