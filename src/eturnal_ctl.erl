@@ -26,6 +26,7 @@
          reload/0]).
 
 -include_lib("kernel/include/logger.hrl").
+-include("eturnal.hrl").
 
 -type sock_mod() :: gen_udp | gen_tcp | fast_tls.
 -type addr() :: inet:ip_address().
@@ -182,9 +183,16 @@ format_sessions(Sessions) ->
                  Duration])
       end, Sessions).
 
--spec format_info(eturnal_misc:node_info()) -> io_lib:chars().
-format_info({EturnalVsn, {OtpVsn, ErtsVsn}, Uptime, Sessions, Procs, QueueLen,
-             Reductions, Memory}) ->
+-spec format_info(eturnal_node_info()) -> io_lib:chars().
+format_info(#eturnal_node_info{
+               eturnal_vsn = EturnalVsn,
+               otp_vsn = {OtpVsn, ErtsVsn},
+               uptime = Uptime,
+               num_sessions = Sessions,
+               num_processes = Procs,
+               num_reductions = Reductions,
+               total_queue_len = QueueLen,
+               total_memory = Memory}) ->
     MiB = round(Memory / 1024 / 1024),
     Seconds = erlang:convert_time_unit(Uptime, millisecond,  second),
     {Ds, {Hs, Ms, Ss}} = calendar:seconds_to_daystime(Seconds),
