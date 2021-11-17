@@ -31,9 +31,21 @@
 -type sock_mod() :: gen_udp | gen_tcp | fast_tls.
 -type addr() :: inet:ip_address().
 -type addr_port() :: {inet:ip_address(), inet:port_number()}.
--type session() :: {binary(), sock_mod(), addr_port(), addr_port(), [addr()],
-                    [addr_port()], non_neg_integer(), non_neg_integer(),
-                    non_neg_integer(), non_neg_integer(), integer()}.
+
+-record(session,
+        {user :: binary(),
+         sock_mod :: sock_mod(),
+         client_addr :: addr_port(),
+         relay_addr :: addr_port(),
+         perm_addrs :: [addr()],
+         peer_addrs :: [addr_port()],
+         sent_bytes :: non_neg_integer(),
+         sent_pkts :: non_neg_integer(),
+         rcvd_bytes :: non_neg_integer(),
+         rcvd_pkts :: non_neg_integer(),
+         start_time :: integer()}).
+
+-type session() :: #session{}.
 
 %% API.
 
@@ -127,20 +139,19 @@ query_sessions() ->
       fun({_, PID, worker, _}) ->
               try query_state(PID) of
                   State ->
-                      User = element(6, State),
-                      SockMod = element(2, State),
-                      ClientAddr = element(4, State),
-                      RelayAddr = element(18, State),
-                      PermMap = element(12, State),
-                      PeerMap = element(10, State),
-                      SentBytes = element(29, State),
-                      SentPkts = element(30, State),
-                      RcvdBytes = element(27, State),
-                      RcvdPkts = element(28, State),
-                      Start = element(31, State),
-                      {true, {User, SockMod, ClientAddr, RelayAddr,
-                              maps:keys(PermMap), maps:keys(PeerMap),
-                              SentBytes, SentPkts, RcvdBytes, RcvdPkts, Start}}
+                      Session = #session{
+                                   user = element(6, State),
+                                   sock_mod = element(2, State),
+                                   client_addr = element(4, State),
+                                   relay_addr = element(18, State),
+                                   perm_addrs = maps:keys(element(12, State)),
+                                   peer_addrs = maps:keys(element(10, State)),
+                                   sent_bytes = element(29, State),
+                                   sent_pkts = element(30, State),
+                                   rcvd_bytes = element(27, State),
+                                   rcvd_pkts = element(28, State),
+                                   start_time = element(31, State)},
+                      {true, Session}
               catch exit:{Reason, _} when Reason =:= noproc;
                                           Reason =:= normal;
                                           Reason =:= shutdown;
@@ -155,9 +166,18 @@ query_sessions() ->
 -spec format_sessions([session()]) -> iolist().
 format_sessions(Sessions) ->
     lists:map(
-      fun({User, SockMod, ClientAddr, RelayAddr, PermAddrs, PeerAddrs,
-           SentBytes, SentPkts, RcvdBytes, RcvdPkts, Start}) ->
-              Duration0 = erlang:monotonic_time() - Start,
+      fun(#session{user = User,
+                   sock_mod = SockMod,
+                   client_addr = ClientAddr,
+                   relay_addr = RelayAddr,
+                   perm_addrs = PermAddrs,
+                   peer_addrs = PeerAddrs,
+                   sent_bytes = SentBytes,
+                   sent_pkts = SentPkts,
+                   rcvd_bytes = RcvdBytes,
+                   rcvd_pkts = RcvdPkts,
+                   start_time = StartTime}) ->
+              Duration0 = erlang:monotonic_time() - StartTime,
               Duration = erlang:convert_time_unit(Duration0, native, second),
               Transport = format_transport(SockMod),
               Client = eturnal_misc:addr_to_str(ClientAddr),
@@ -204,8 +224,13 @@ format_info(#eturnal_node_info{
       "Total length of run queues: ~B~s"
       "Total CPU usage (reductions): ~B~s"
       "Allocated memory (MiB): ~B",
-      [EturnalVsn, OtpVsn, ErtsVsn, nl(), Ds, Hs, Ms, Ss, nl(), Sessions, nl(),
-       Procs, nl(), QueueLen, nl(), Reductions, nl(), MiB]).
+      [EturnalVsn, OtpVsn, ErtsVsn, nl(),
+       Ds, Hs, Ms, Ss, nl(),
+       Sessions, nl(),
+       Procs, nl(),
+       QueueLen, nl(),
+       Reductions, nl(),
+       MiB]).
 
 -spec format_transport(sock_mod()) -> binary().
 format_transport(gen_udp) ->
