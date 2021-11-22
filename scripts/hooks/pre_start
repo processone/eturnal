@@ -2,3 +2,19 @@ if ! [ -e "$ETURNAL_ETC_PREFIX/etc/eturnal.yml" ]
 then
     export ETURNAL_ETC_PREFIX="$RELEASE_ROOT_DIR"
 fi
+
+#
+# The boot file expects the eturnal application and (at least) its (non-system)
+# dependencies to be installed below "$RELEASE_ROOT_DIR/lib". Distributions
+# might want to install those into the system's Erlang/OTP tree instead. Make
+# sure they're found in either location:
+#
+if [ "$RELEASE_ROOT_DIR/lib" != "$SYSTEM_LIB_DIR" ]
+then
+    export CODE_LOADING_MODE='interactive'
+
+    if [ -z "$ERL_LIBS" ]
+    then
+        export ERL_LIBS="$SYSTEM_LIB_DIR"
+    fi
+fi
