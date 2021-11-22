@@ -91,7 +91,7 @@ check_info(_Config) ->
 
 -spec check_sessions(config()) -> any().
 check_sessions(_Config) ->
-    {ok, Sessions} = eturnal_ctl:get_version(),
+    {ok, Sessions} = eturnal_ctl:get_sessions(),
     true = is_list(Sessions).
 
 -spec check_loglevel(config()) -> any().
