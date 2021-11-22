@@ -12,9 +12,5 @@ fi
 if [ "$RELEASE_ROOT_DIR/lib" != "$SYSTEM_LIB_DIR" ]
 then
     export CODE_LOADING_MODE='interactive'
-
-    if [ -z "$ERL_LIBS" ]
-    then
-        export ERL_LIBS="$SYSTEM_LIB_DIR"
-    fi
+    export ERL_LIBS="${ERL_LIBS:+ERL_LIBS:}$SYSTEM_LIB_DIR"
 fi
