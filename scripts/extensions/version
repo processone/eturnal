@@ -1,18 +1,18 @@
 get_version()
 {
-    local response="$(erl_rpc 'eturnal_ctl' 'get_version' || :)"
+    _response="$(erl_rpc 'eturnal_ctl' 'get_version' || :)"
 
-    case $response in
+    case $_response in
         '{ok,'*)
-            echo "$response" | sed 's/{ok, *"\(.*\)"}/\1/'
+            echo "$_response" | sed 's/{ok, *"\(.*\)"}/\1/'
             exit 0
             ;;
         '{error,'*)
-            echo "$response" | sed 's/{error, *"\(.*\)"}/\1/' >&2
+            echo "$_response" | sed 's/{error, *"\(.*\)"}/\1/' >&2
             exit 1
             ;;
         *)
-            echo "Unknown error: '$response'" >&2
+            echo "Unknown error: '$_response'" >&2
             exit 1
             ;;
     esac

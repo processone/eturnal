@@ -1,18 +1,18 @@
 get_loglevel()
 {
-    local response="$(erl_rpc 'eturnal_ctl' 'get_loglevel' || :)"
+    _response="$(erl_rpc 'eturnal_ctl' 'get_loglevel' || :)"
 
-    case $response in
+    case $_response in
         '{ok,'*)
-            echo "$response" | sed 's/{ok, *"\(.*\)"}/\1/'
+            echo "$_response" | sed 's/{ok, *"\(.*\)"}/\1/'
             exit 0
             ;;
         '{error,'*)
-            echo "$response" | sed 's/{error, *"\(.*\)"}/\1/' >&2
+            echo "$_response" | sed 's/{error, *"\(.*\)"}/\1/' >&2
             exit 1
             ;;
         *)
-            echo "Unknown error: '$response'" >&2
+            echo "Unknown error: '$_response'" >&2
             exit 1
             ;;
     esac
@@ -20,19 +20,19 @@ get_loglevel()
 
 set_loglevel()
 {
-    local level="$1"
-    local response="$(erl_rpc 'eturnal_ctl' 'set_loglevel' "[$level]" || :)"
+    _level="$1"
+    _response="$(erl_rpc 'eturnal_ctl' 'set_loglevel' "[$_level]" || :)"
 
-    case $response in
+    case $_response in
         'ok')
             exit 0
             ;;
         '{error,'*)
-            echo "$response" | sed 's/{error, *"\(.*\)"}/\1/' >&2
+            echo "$_response" | sed 's/{error, *"\(.*\)"}/\1/' >&2
             exit 1
             ;;
         *)
-            echo "Unknown error: '$response'" >&2
+            echo "Unknown error: '$_response'" >&2
             exit 1
             ;;
     esac
