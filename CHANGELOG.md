@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Added
+- Add `eturnalctl credentials` and `eturnalctl password` commands for generating
+  ephemeral TURN credentials.
 
 ## [1.5.0] - 2021-11-02
 ### Added

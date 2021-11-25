@@ -73,6 +73,7 @@ all() ->
     [start_eturnal,
      check_info,
      check_sessions,
+     check_password,
      check_loglevel,
      check_version,
      reload,
@@ -93,6 +94,11 @@ check_info(_Config) ->
 check_sessions(_Config) ->
     {ok, Sessions} = eturnal_ctl:get_sessions(),
     true = is_list(Sessions).
+
+-spec check_password(config()) -> any().
+check_password(_Config) ->
+    Password = "yi9wsj8g2YdEj3L05UwT0OvQa/s=",
+    {ok, Password} = eturnal_ctl:get_password("210044280").
 
 -spec check_loglevel(config()) -> any().
 check_loglevel(_Config) ->

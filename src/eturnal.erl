@@ -151,7 +151,8 @@ init(_Opts) ->
     {ok, #eturnal_state{listeners = Ls, modules = Ms}}.
 
 -spec handle_call(reload | get_info | get_version | get_loglevel |
-                  {set_loglevel, eturnal_logger:level()} | term(),
+                  {set_loglevel, eturnal_logger:level()} |
+                  {get_password, binary()} | term(),
                   {pid(), term()}, state())
       -> {reply, ok | {ok, term()} | {error, term()}, state()}.
 handle_call(reload, _From, State) ->
@@ -188,6 +189,17 @@ handle_call({set_loglevel, Level}, _From, State) ->
         {reply, ok, State}
     catch error:{badmatch, {error, _Reason} = Err} ->
         {reply, Err, State}
+    end;
+handle_call({get_password, Username}, _From, State) ->
+    case get_opt(secret) of
+        Secret when is_binary(Secret) ->
+            Password = derive_password(Username, Secret),
+            {reply, {ok, Password}, State};
+        [Secret | _Secrets] ->
+            Password = derive_password(Username, Secret),
+            {reply, {ok, Password}, State};
+        undefined ->
+            {reply, {error, no_secret}, State}
     end;
 handle_call(Request, From, State) ->
     ?LOG_ERROR("Got unexpected request from ~p: ~p", [From, Request]),

@@ -18,7 +18,11 @@
 
 -module(eturnal_ctl).
 -author('holger@zedat.fu-berlin.de').
--export([get_sessions/0,
+-export([get_credentials/0,
+         get_credentials/1,
+         get_credentials/2,
+         get_password/1,
+         get_sessions/0,
          get_info/0,
          get_version/0,
          get_loglevel/0,
@@ -27,6 +31,7 @@
 
 -include_lib("kernel/include/logger.hrl").
 -include("eturnal.hrl").
+-define(DEFAULT_DURATION, "1d"). % For get_credentials/0.
 
 -type sock_mod() :: gen_udp | gen_tcp | fast_tls.
 -type addr() :: inet:ip_address().
@@ -48,6 +53,91 @@
 -type session() :: #session{}.
 
 %% API.
+
+-spec get_credentials() -> {ok, string()} | {error, string()}.
+get_credentials() ->
+    ?LOG_DEBUG("Handling API call: get_credentials()"),
+    {ok, Username} = make_username(?DEFAULT_DURATION),
+    case call({get_password, Username}) of
+        {ok, Password} ->
+            Credentials = format_credentials(Username, Password),
+            {ok, unicode:characters_to_list(Credentials)};
+        {error, no_secret} ->
+            {error, "No shared secret"};
+        {error, timeout} ->
+            {error, "Querying eturnal timed out"}
+    end.
+
+-spec get_credentials(term()) -> {ok, string()} | {error, string()}.
+get_credentials(Expiry) when is_list(Expiry) ->
+    ?LOG_DEBUG("Handling API call: get_credentials(~p)", [Expiry]),
+    case make_username(Expiry) of
+        {ok, Username} ->
+            case call({get_password, Username}) of
+                {ok, Password} ->
+                    Credentials = format_credentials(Username, Password),
+                    {ok, unicode:characters_to_list(Credentials)};
+                {error, no_secret} ->
+                    {error, "No shared secret"};
+                {error, timeout} ->
+                    {error, "Querying eturnal timed out"}
+            end;
+        {error, badarg} ->
+            ?LOG_DEBUG("Invalid expiry: ~p", [Expiry]),
+            {error, "Invalid expiry"}
+    end;
+get_credentials(Expiry) ->
+    ?LOG_DEBUG("Invalid API call: get_credentials(~p)", [Expiry]),
+    {error, "Expiry must be specified as a string"}.
+
+-spec get_credentials(term(), term()) -> {ok, string()} | {error, string()}.
+get_credentials(Expiry, Suffix) when is_list(Expiry), is_list(Suffix) ->
+    ?LOG_DEBUG("Handling API call: get_credentials(~p, ~p)", [Expiry, Suffix]),
+    case make_username(Expiry, Suffix) of
+        {ok, Username} ->
+            case call({get_password, Username}) of
+                {ok, Password} ->
+                    Credentials = format_credentials(Username, Password),
+                    {ok, unicode:characters_to_list(Credentials)};
+                {error, no_secret} ->
+                    {error, "No shared secret"};
+                {error, timeout} ->
+                    {error, "Querying eturnal timed out"}
+            end;
+        {error, badarg} ->
+            ?LOG_DEBUG("Invalid argument(s): ~p:~p", [Expiry, Suffix]),
+            {error, "Invalid expiry or suffix"}
+    end;
+get_credentials(Expiry, Suffix) ->
+    ?LOG_DEBUG("Invalid API call: get_credentials(~p, ~p)", [Expiry, Suffix]),
+    {error, "Expiry and suffix must be specified as strings"}.
+
+-spec get_password(term()) -> {ok, string()} | {error, string()}.
+get_password(Username0) when is_list(Username0) ->
+    ?LOG_DEBUG("Handling API call: get_password(~p)", [Username0]),
+    case unicode:characters_to_binary(Username0) of
+        Username when is_binary(Username) ->
+            case is_valid_username(Username) of
+                true ->
+                    case call({get_password, Username}) of
+                        {ok, Password} ->
+                            {ok, unicode:characters_to_list(Password)};
+                        {error, no_secret} ->
+                            {error, "No shared secret"};
+                        {error, timeout} ->
+                            {error, "Querying eturnal timed out"}
+                    end;
+                false ->
+                    ?LOG_DEBUG("Invalid user name: ~s", [Username]),
+                    {error, "Invalid user name: " ++ Username0}
+            end;
+        {_, _, _} ->
+            ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
+            {error, "User name must be specified as a string"}
+    end;
+get_password(Username) ->
+    ?LOG_DEBUG("Invalid API call: get_password(~p)", [Username]),
+    {error, "User name must be specified as a string"}.
 
 -spec get_sessions() -> {ok, string()} | {error, string()}.
 get_sessions() ->
@@ -105,11 +195,12 @@ set_loglevel(Level) when is_atom(Level) ->
                     {error, "Querying eturnal timed out"}
             end;
         false ->
+            ?LOG_DEBUG("Invalid log level: ~s", [Level]),
             {error, "Not a valid log level: " ++ atom_to_list(Level)}
     end;
 set_loglevel(Level) ->
     ?LOG_DEBUG("Invalid API call: set_loglevel(~p)", [Level]),
-    {error, "Log level must be specified as an 'atom'"}.
+    {error, "Log level must be specified as an atom"}.
 
 -spec reload() -> ok | {error, string()}.
 reload() ->
@@ -124,6 +215,74 @@ reload() ->
     end.
 
 %% Internal functions.
+
+-spec is_valid_username(binary()) -> boolean().
+is_valid_username(Username) ->
+    case string:to_integer(Username) of
+        {N, <<":", _Rest/binary>>} when is_integer(N), N > 0 ->
+            true;
+        {N, <<>>} when is_integer(N), N > 0 ->
+            true;
+        {_, _} ->
+            false
+    end.
+
+-spec make_username(string()) -> {ok, binary()} | {error, badarg}.
+make_username(Expiry) ->
+    make_username(Expiry, []).
+
+-spec make_username(string(), string())
+      -> {ok, binary()} | {error, badarg}.
+make_username(Expiry, Suffix) ->
+    try calendar:rfc3339_to_system_time(Expiry) of
+        Time ->
+            username_from_timestamp(Time, Suffix)
+    catch _:{badmatch, _} ->
+            username_from_expiry(Expiry, Suffix)
+    end.
+
+-spec username_from_timestamp(integer(), string())
+      -> {ok, binary()} | {error, badarg}.
+username_from_timestamp(Time, [])  ->
+    Username = integer_to_binary(Time),
+    {ok, Username};
+username_from_timestamp(Time, Suffix) ->
+    Username = io_lib:format("~B:~s", [Time, Suffix]),
+    {ok, unicode:characters_to_binary(Username)}.
+
+-spec username_from_expiry(string(), string())
+      -> {ok, binary()} | {error, badarg}.
+username_from_expiry(Expiry0, Suffix) ->
+    case {unicode:characters_to_binary(Expiry0),
+          io_lib:printable_unicode_list(Suffix)} of
+        {Expiry, true} when is_binary(Expiry) ->
+            case parse_expiry(Expiry) of
+                {ok, ExpirySecs} ->
+                    Time = erlang:system_time(second) + ExpirySecs,
+                    username_from_timestamp(Time, Suffix);
+                {error, badarg} = Err ->
+                    Err
+            end;
+        {_, _} ->
+            {error, badarg}
+    end.
+
+-spec parse_expiry(binary()) -> {ok, pos_integer()} | {error, badarg}.
+parse_expiry(Expiry) ->
+    case string:to_integer(string:trim(Expiry)) of
+        {N, <<>>} when is_integer(N), N > 0 ->
+            {ok, N};
+        {N, <<"s">>} when is_integer(N), N > 0 ->
+            {ok, N};
+        {N, <<"m">>} when is_integer(N), N > 0 ->
+            {ok, N * 60};
+        {N, <<"h">>} when is_integer(N), N > 0 ->
+            {ok, N * 3600};
+        {N, <<"d">>} when is_integer(N), N > 0 ->
+            {ok, N * 86400};
+        {_, _} ->
+            {error, badarg}
+    end.
 
 -spec query_state(pid()) -> tuple().
 query_state(PID) -> % Until we add a proper API to 'stun'.
@@ -246,6 +405,13 @@ format_addrs([]) ->
 format_addrs(PeerAddrs) ->
     [lists:join(", ", lists:map(fun eturnal_misc:addr_to_str/1, PeerAddrs)),
      <<" (UDP)">>].
+
+-spec format_credentials(binary(), binary()) -> iodata().
+format_credentials(Username, Password) ->
+    io_lib:format("Username: ~s~s"
+                  "Password: ~s",
+                  [Username, nl(),
+                   Password]).
 
 -spec nl() -> string().
 nl() ->

@@ -508,6 +508,26 @@ See the following list for a subset of the available `eturnalctl' commands:
   <li><a name="sessions"
          class="cue">`eturnalctl sessions'</a><br/>
       Print the list of currently active TURN sessions.</li>
+  <li><a name="credentials"
+         class="cue">`eturnalctl credentials'</a><br/>
+      Print credentials valid for 24 hours, derived from the (first) configured
+      {@section secret}.</li>
+  <li><a name="credentials"
+         class="cue">`eturnalctl credentials' <em>expiry</em>[s|m|h|d]
+      [<em>suffix</em>]</a><br/>
+      Print credentials valid for the given <em>expiry</em> period, derived from
+      the (first) configured {@section secret}. An `m', `h', or `d' unit can be
+      appended in order to specify the <em>expiry</em> period in minutes, hours,
+      or days, respectively. The default unit is seconds. Alternatively, the
+      <em>expiry</em> time can be specified as an <a
+      href="https://datatracker.ietf.org/doc/html/rfc3339#section-5.6">RFC 3339
+      timestamp</a>. If a <em>suffix</em> is specified, it is appended to the
+      generated user name, separated from the expiration timestamp with a
+      colon.</li>
+  <li><a name="password"
+         class="cue">`eturnalctl password' <em>username</em></a><br/>
+      Print the password for the given <em>username</em>, derived from the
+      (first) configured {@section secret}.</li>
   <li><a name="get_loglevel"
          class="cue">`eturnalctl loglevel'</a><br/>
       Print the {@section log_level} of the running eturnal instance.</li>
