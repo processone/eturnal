@@ -49,8 +49,7 @@ Directory Structure
 -------------------
 
 The following three directories must be installed to a common location (for
-example, `/usr/lib/eturnal`), except that the contents of the `lib` folder
-_may_ be installed into the global Erlang/OTP library tree instead:
+example, `/usr/lib/eturnal`):
 
 - `_build/distro/rel/eturnal/bin`
 - `_build/distro/rel/eturnal/lib`
