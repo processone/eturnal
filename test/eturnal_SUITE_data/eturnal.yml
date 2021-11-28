@@ -3,6 +3,10 @@ eturnal:
     -
       ip: "127.0.0.1"
       port: 34780
+      transport: udp
+    -
+      ip: "127.0.0.1"
+      port: 34780
       transport: tcp
       enable_turn: false
     -
@@ -12,11 +16,10 @@ eturnal:
       enable_turn: false
   secret: "crypt1c"
   log_level: debug
-
-  #
-  # Unused by tests, just to trigger configuration parsing and module loading:
-  #
   max_bps: 100000
+  blacklist:
+    - "203.0.113.4"
+    - "2001:db8::4"
   modules:
     mod_log_stun: {}
     mod_stats_influx: {}

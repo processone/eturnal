@@ -54,9 +54,7 @@ jobs:
         run: rebar3 xref
       - name: Perform static code analysis
         run: rebar3 dialyzer
-      - name: Run test suite (EUnit)
-        run: rebar3 eunit
-      - name: Run test suite (Common Test)
+      - name: Run test suite
         run: rebar3 ct
       - name: Calculate test coverage
         run: rebar3 cover

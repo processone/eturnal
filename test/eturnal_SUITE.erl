@@ -79,6 +79,9 @@ all() ->
      reload,
      connect_tcp,
      connect_tls,
+     stun_udp,
+     stun_tcp,
+     turn_udp,
      stop_eturnal].
 
 -spec start_eturnal(config()) -> any().
@@ -109,13 +112,10 @@ check_credentials(_Config) ->
       fun(Lifetime) ->
               ct:pal("Checking credentials valid for ~s", [Lifetime]),
               {ok, Creds} = eturnal_ctl:get_credentials(Lifetime, "alice"),
-              {ok, [Time, PasswordStr], []} =
+              {ok, [Time, Password], []} =
                   io_lib:fread("Username: ~u:alice~~nPassword: ~s", Creds),
-              UsernameStr = integer_to_list(Time) ++ ":alice",
-              UsernameBin = list_to_binary(UsernameStr),
-              PasswordBin = list_to_binary(PasswordStr),
-              PasswordBin = eturnal:get_password(UsernameBin, <<>>),
-              {ok, PasswordStr} = eturnal_ctl:get_password(UsernameStr),
+              {ok, Password} =
+                  eturnal_ctl:get_password(integer_to_list(Time) ++ ":alice"),
               true = erlang:system_time(second) + 86400 - Time < 5
       end, ["86400", "86400s", "1440m", "24h", "1d"]).
 
@@ -155,6 +155,34 @@ connect_tls(_Config) ->
     {ok, TCPSock} = gen_tcp:connect(Addr, Port, []),
     {ok, TLSSock} = fast_tls:tcp_to_tls(TCPSock, [connect]),
     ok = fast_tls:close(TLSSock).
+
+-spec stun_udp(config()) -> any().
+stun_udp(_Config) ->
+    Port = 34780,
+    ct:pal("Performing STUN query against 127.0.0.1:~B (UDP)", [Port]),
+    {ok, Addr} = inet:parse_address("127.0.0.1"),
+    Result = stun_test:bind_udp(Addr, Port),
+    true = is_tuple(Result),
+    true = element(1, Result) =:= stun.
+
+-spec stun_tcp(config()) -> any().
+stun_tcp(_Config) ->
+    Port = 34780,
+    ct:pal("Performing STUN query against 127.0.0.1:~B (TCP)", [Port]),
+    {ok, Addr} = inet:parse_address("127.0.0.1"),
+    Result = stun_test:bind_tcp(Addr, Port),
+    true = is_tuple(Result),
+    true = element(1, Result) =:= stun.
+
+-spec turn_udp(config()) -> any().
+turn_udp(_Config) ->
+    Port = 34780,
+    Username = <<"2145913200">>,
+    Password = <<"cLwpKS2/9bWHf+agUImD47PIXNE=">>,
+    Realm = <<"eturnal.net">>,
+    ct:pal("Allocating TURN relay on 127.0.0.1:~B (UDP)", [Port]),
+    {ok, Addr} = inet:parse_address("127.0.0.1"),
+    ok = stun_test:allocate_udp(Addr, Port, Username, Realm, Password).
 
 -spec stop_eturnal(config()) -> any().
 stop_eturnal(_Config) ->
