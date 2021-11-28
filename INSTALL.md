@@ -16,8 +16,9 @@ and `openssl-devel`.
 ## Compilation
 
 > _Note:_ If you build directly from the Git repository rather than using the
-> official source tarball, you must [download rebar3][5] and make it executable
-> (`chmod +x rebar3`), first.
+> official source tarball, you must [download Rebar3][5] and make it executable
+> (`chmod +x rebar3`), first. On Erlang/OTP 21.x, you need an [older Rebar3][6]
+> version.
 
     $ curl https://eturnal.net/download/eturnal-1.5.0.tar.gz | tar -C /tmp -xzf -
     $ cd /tmp/eturnal-1.5.0
@@ -26,7 +27,7 @@ and `openssl-devel`.
 This generates the archive file `_build/prod/rel/eturnal/eturnal-1.5.0.tar.gz`.
 The default installation prefix is set to `/opt/eturnal`, and it's assumed the
 server will be executed by a user named `eturnal`. To change these defaults,
-edit the [build.config][6] file, re-run `./rebar3 as prod tar`, and adapt the
+edit the [build.config][7] file, re-run `./rebar3 as prod tar`, and adapt the
 following installation instructions accordingly.
 
 ## Installation
@@ -60,7 +61,7 @@ or `sudo -i`, first.
 
 ## Configuration and Usage
 
-See the [README.md][7] file and the [reference documentation][8] for
+See the [README.md][8] file and the [reference documentation][9] for
 configuration and usage instructions.
 
 [1]: https://www.erlang.org
@@ -68,6 +69,7 @@ configuration and usage instructions.
 [3]: https://www.openssl.org
 [4]: https://gcc.gnu.org
 [5]: https://s3.amazonaws.com/rebar3/rebar3
-[6]: https://github.com/processone/eturnal/blob/1.5.0/build.config
-[7]: https://github.com/processone/eturnal/blob/1.5.0/README.md
-[8]: https://eturnal.net/documentation/
+[6]: https://github.com/erlang/rebar3/releases/download/3.15.2/rebar3
+[7]: https://github.com/processone/eturnal/blob/1.5.0/build.config
+[8]: https://github.com/processone/eturnal/blob/1.5.0/README.md
+[9]: https://eturnal.net/documentation/
