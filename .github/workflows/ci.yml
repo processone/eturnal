@@ -64,6 +64,12 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: eturnal-tests-otp-${{matrix.otp}}
+          #
+          # Appending the wildcard character ("*") is a trick to make "test" the
+          # root directory of the uploaded ZIP file:
+          #
+          # https://github.com/actions/upload-artifact#upload-using-multiple-paths-and-exclusions
+          #
           path: |
-            _build/test/logs
-            _build/test/cover
+            _build/test*/logs
+            _build/test*/cover
