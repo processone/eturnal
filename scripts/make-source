@@ -29,7 +29,7 @@ then
 fi
 
 rel_name='eturnal'
-rel_vsn="$(scripts/get-version | sed 's/+.*//')"
+rel_vsn="$(scripts/get-version)"
 rebar_vsn='3.17.0'
 rel_dir="$rel_name-$rel_vsn"
 rel_tar="$rel_dir.tar"
