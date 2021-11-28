@@ -192,11 +192,8 @@ handle_call({set_loglevel, Level}, _From, State) ->
     end;
 handle_call({get_password, Username}, _From, State) ->
     case get_opt(secret) of
-        Secret when is_binary(Secret) ->
-            Password = derive_password(Username, Secret),
-            {reply, {ok, Password}, State};
         [Secret | _Secrets] ->
-            Password = derive_password(Username, Secret),
+            Password = derive_password(Username, [Secret]),
             {reply, {ok, Password}, State};
         undefined ->
             {reply, {error, no_secret}, State}
@@ -589,17 +586,17 @@ describe_listener(_EnableTURN = true) ->
 describe_listener(_EnableTURN = false) ->
     <<"STUN only">>.
 
--spec derive_password(binary(), X) -> X when X :: binary() | [binary()].
+-spec derive_password(binary(), [binary()]) -> binary() | [binary()].
 -ifdef(old_crypto).
+derive_password(Username, [Secret]) ->
+    base64:encode(crypto:hmac(sha, Secret, Username));
 derive_password(Username, Secrets) when is_list(Secrets) ->
-    [derive_password(Username, Secret) || Secret <- Secrets];
-derive_password(Username, Secret) ->
-    base64:encode(crypto:hmac(sha, Secret, Username)).
+    [derive_password(Username, [Secret]) || Secret <- Secrets].
 -else.
+derive_password(Username, [Secret]) ->
+    base64:encode(crypto:mac(hmac, sha, Secret, Username));
 derive_password(Username, Secrets) when is_list(Secrets) ->
-    [derive_password(Username, Secret) || Secret <- Secrets];
-derive_password(Username, Secret) ->
-    base64:encode(crypto:mac(hmac, sha, Secret, Username)).
+    [derive_password(Username, Secret) || Secret <- Secrets].
 -endif.
 
 -spec opt_map() -> [{atom(), atom()}].
