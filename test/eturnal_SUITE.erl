@@ -104,17 +104,19 @@ check_sessions(_Config) ->
 -spec check_credentials(config()) -> any().
 check_credentials(_Config) ->
     Timestamp = "2009-10-30 11:00:00Z",
+    Username = 1256900400,
+    Password = "uEKlpcME7MNMMVRV8rUFPCTIFEs=",
     ct:pal("Checking credentials valid until ~s", [Timestamp]),
-    {ok, Credentials} = eturnal_ctl:get_credentials("2009-10-30 11:00:00Z", []),
-    {ok, [1256900400, "uEKlpcME7MNMMVRV8rUFPCTIFEs="], []} =
+    {ok, Credentials} = eturnal_ctl:get_credentials(Timestamp, []),
+    {ok, [Username, Password], []} =
         io_lib:fread("Username: ~u~~nPassword: ~s", Credentials),
     lists:foreach(
       fun(Lifetime) ->
               ct:pal("Checking credentials valid for ~s", [Lifetime]),
               {ok, Creds} = eturnal_ctl:get_credentials(Lifetime, "alice"),
-              {ok, [Time, Password], []} =
+              {ok, [Time, Pass], []} =
                   io_lib:fread("Username: ~u:alice~~nPassword: ~s", Creds),
-              {ok, Password} =
+              {ok, Pass} =
                   eturnal_ctl:get_password(integer_to_list(Time) ++ ":alice"),
               true = erlang:system_time(second) + 86400 - Time < 5
       end, ["86400", "86400s", "1440m", "24h", "1d"]).
