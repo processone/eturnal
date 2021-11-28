@@ -191,7 +191,8 @@ is_valid_username(Username) ->
 
 -spec make_username(string(), string())
       -> {ok, binary()} | {error, badarg}.
-make_username(Expiry, Suffix) ->
+make_username(Expiry0, Suffix) ->
+    Expiry = string:trim(Expiry0),
     try calendar:rfc3339_to_system_time(Expiry) of
         Time ->
             username_from_timestamp(Time, Suffix)
@@ -227,7 +228,7 @@ username_from_expiry(Expiry0, Suffix) ->
 
 -spec parse_expiry(binary()) -> {ok, pos_integer()} | {error, badarg}.
 parse_expiry(Expiry) ->
-    case string:to_integer(string:trim(Expiry)) of
+    case string:to_integer(Expiry) of
         {N, <<>>} when is_integer(N), N > 0 ->
             {ok, N};
         {N, <<"s">>} when is_integer(N), N > 0 ->
