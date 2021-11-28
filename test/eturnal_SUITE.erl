@@ -73,7 +73,7 @@ all() ->
     [start_eturnal,
      check_info,
      check_sessions,
-     check_password,
+     check_credentials,
      check_loglevel,
      check_version,
      reload,
@@ -98,10 +98,26 @@ check_sessions(_Config) ->
     {ok, Sessions} = eturnal_ctl:get_sessions(),
     true = is_list(Sessions).
 
--spec check_password(config()) -> any().
-check_password(_Config) ->
-    Password = "yi9wsj8g2YdEj3L05UwT0OvQa/s=",
-    {ok, Password} = eturnal_ctl:get_password("210044280").
+-spec check_credentials(config()) -> any().
+check_credentials(_Config) ->
+    Timestamp = "2009-10-30 11:00:00Z",
+    ct:pal("Checking credentials valid until ~s", [Timestamp]),
+    {ok, Credentials} = eturnal_ctl:get_credentials("2009-10-30 11:00:00Z", []),
+    {ok, [1256900400, "uEKlpcME7MNMMVRV8rUFPCTIFEs="], []} =
+        io_lib:fread("Username: ~u~~nPassword: ~s", Credentials),
+    lists:foreach(
+      fun(Lifetime) ->
+              ct:pal("Checking credentials valid for ~s", [Lifetime]),
+              {ok, Creds} = eturnal_ctl:get_credentials(Lifetime, "alice"),
+              {ok, [Time, PasswordStr], []} =
+                  io_lib:fread("Username: ~u:alice~~nPassword: ~s", Creds),
+              UsernameStr = integer_to_list(Time) ++ ":alice",
+              UsernameBin = list_to_binary(UsernameStr),
+              PasswordBin = list_to_binary(PasswordStr),
+              PasswordBin = eturnal:get_password(UsernameBin, <<>>),
+              {ok, PasswordStr} = eturnal_ctl:get_password(UsernameStr),
+              true = erlang:system_time(second) + 86400 - Time < 5
+      end, ["86400", "86400s", "1440m", "24h", "1d"]).
 
 -spec check_loglevel(config()) -> any().
 check_loglevel(_Config) ->
