@@ -18,9 +18,7 @@
 
 -module(eturnal_ctl).
 -author('holger@zedat.fu-berlin.de').
--export([get_credentials/0,
-         get_credentials/1,
-         get_credentials/2,
+-export([get_credentials/2,
          get_password/1,
          get_sessions/0,
          get_info/0,
@@ -31,7 +29,6 @@
 
 -include_lib("kernel/include/logger.hrl").
 -include("eturnal.hrl").
--define(DEFAULT_DURATION, "1d"). % For get_credentials/0.
 
 -type sock_mod() :: gen_udp | gen_tcp | fast_tls.
 -type addr() :: inet:ip_address().
@@ -53,42 +50,6 @@
 -type session() :: #session{}.
 
 %% API.
-
--spec get_credentials() -> {ok, string()} | {error, string()}.
-get_credentials() ->
-    ?LOG_DEBUG("Handling API call: get_credentials()"),
-    {ok, Username} = make_username(?DEFAULT_DURATION),
-    case call({get_password, Username}) of
-        {ok, Password} ->
-            Credentials = format_credentials(Username, Password),
-            {ok, unicode:characters_to_list(Credentials)};
-        {error, no_secret} ->
-            {error, "No shared secret"};
-        {error, timeout} ->
-            {error, "Querying eturnal timed out"}
-    end.
-
--spec get_credentials(term()) -> {ok, string()} | {error, string()}.
-get_credentials(Expiry) when is_list(Expiry) ->
-    ?LOG_DEBUG("Handling API call: get_credentials(~p)", [Expiry]),
-    case make_username(Expiry) of
-        {ok, Username} ->
-            case call({get_password, Username}) of
-                {ok, Password} ->
-                    Credentials = format_credentials(Username, Password),
-                    {ok, unicode:characters_to_list(Credentials)};
-                {error, no_secret} ->
-                    {error, "No shared secret"};
-                {error, timeout} ->
-                    {error, "Querying eturnal timed out"}
-            end;
-        {error, badarg} ->
-            ?LOG_DEBUG("Invalid expiry: ~p", [Expiry]),
-            {error, "Invalid expiry"}
-    end;
-get_credentials(Expiry) ->
-    ?LOG_DEBUG("Invalid API call: get_credentials(~p)", [Expiry]),
-    {error, "Expiry must be specified as a string"}.
 
 -spec get_credentials(term(), term()) -> {ok, string()} | {error, string()}.
 get_credentials(Expiry, Suffix) when is_list(Expiry), is_list(Suffix) ->
@@ -227,9 +188,6 @@ is_valid_username(Username) ->
             false
     end.
 
--spec make_username(string()) -> {ok, binary()} | {error, badarg}.
-make_username(Expiry) ->
-    make_username(Expiry, []).
 
 -spec make_username(string(), string())
       -> {ok, binary()} | {error, badarg}.
