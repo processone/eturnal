@@ -58,3 +58,5 @@ jobs:
         run: rebar3 eunit
       - name: Run test suite (Common Test)
         run: rebar3 ct
+      - name: Calculate test coverage
+        run: rebar3 cover
