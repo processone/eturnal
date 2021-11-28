@@ -12,3 +12,11 @@ eturnal:
       enable_turn: false
   secret: "crypt1c"
   log_level: debug
+
+  #
+  # Unused by tests, just to trigger configuration parsing and module loading:
+  #
+  max_bps: 100000
+  modules:
+    mod_log_stun: {}
+    mod_stats_influx: {}
