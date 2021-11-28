@@ -83,15 +83,18 @@ all() ->
 
 -spec start_eturnal(config()) -> any().
 start_eturnal(_Config) ->
+    ct:pal("Starting up eturnal"),
     {ok, _} = application:ensure_all_started(eturnal).
 
 -spec check_info(config()) -> any().
 check_info(_Config) ->
+    ct:pal("Checking eturnal statistics"),
     {ok, Info} = eturnal_ctl:get_info(),
     true = is_list(Info).
 
 -spec check_sessions(config()) -> any().
 check_sessions(_Config) ->
+    ct:pal("Checking active TURN sessions"),
     {ok, Sessions} = eturnal_ctl:get_sessions(),
     true = is_list(Sessions).
 
@@ -102,32 +105,40 @@ check_password(_Config) ->
 
 -spec check_loglevel(config()) -> any().
 check_loglevel(_Config) ->
-    {ok, Level} = eturnal_ctl:get_loglevel(),
-    true = Level =:= "debug".
+    Level = "debug",
+    ct:pal("Checking whether log level is set to ~s", [Level]),
+    {ok, Level} = eturnal_ctl:get_loglevel().
 
 -spec check_version(config()) -> any().
 check_version(_Config) ->
+    ct:pal("Checking eturnal version"),
     {ok, Version} = eturnal_ctl:get_version(),
     match = re:run(Version, "^[0-9]+\\.[0-9]+\\.[0-9](\\+[0-9]+)?",
                    [{capture, none}]).
 
 -spec reload(config()) -> any().
 reload(_Config) ->
+    ct:pal("Reloading eturnal"),
     ok = eturnal_ctl:reload().
 
 -spec connect_tcp(config()) -> any().
 connect_tcp(_Config) ->
+    Port = 34780,
+    ct:pal("Connecting to 127.0.0.1:~B (TCP)", [Port]),
     {ok, Addr} = inet:parse_address("127.0.0.1"),
-    {ok, Sock} = gen_tcp:connect(Addr, 34780, []),
+    {ok, Sock} = gen_tcp:connect(Addr, Port, []),
     ok = gen_tcp:close(Sock).
 
 -spec connect_tls(config()) -> any().
 connect_tls(_Config) ->
+    Port = 53490,
+    ct:pal("Connecting to 127.0.0.1:~B (TLS)", [Port]),
     {ok, Addr} = inet:parse_address("127.0.0.1"),
-    {ok, TCPSock} = gen_tcp:connect(Addr, 53490, []),
+    {ok, TCPSock} = gen_tcp:connect(Addr, Port, []),
     {ok, TLSSock} = fast_tls:tcp_to_tls(TCPSock, [connect]),
     ok = fast_tls:close(TLSSock).
 
 -spec stop_eturnal(config()) -> any().
 stop_eturnal(_Config) ->
+    ct:pal("Stopping eturnal"),
     ok = application:stop(eturnal).
