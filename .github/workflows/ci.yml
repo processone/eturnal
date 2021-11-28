@@ -60,3 +60,10 @@ jobs:
         run: rebar3 ct
       - name: Calculate test coverage
         run: rebar3 cover
+      - name: Upload test and coverage results
+        uses: actions/upload-artifact@v2
+        with:
+          name: eturnal-tests-otp-${{matrix.otp}}
+          path: |
+            _build/test/logs
+            _build/test/cover
