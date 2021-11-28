@@ -196,7 +196,8 @@ make_username(Expiry0, Suffix) ->
     try calendar:rfc3339_to_system_time(Expiry) of
         Time ->
             username_from_timestamp(Time, Suffix)
-    catch _:{badmatch, _} ->
+    catch _:Err when Err =:= badarg;
+                     element(1, Err) =:= badmatch ->
             username_from_expiry(Expiry, Suffix)
     end.
 
