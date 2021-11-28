@@ -106,6 +106,8 @@ check_password(_Config) ->
 -spec check_loglevel(config()) -> any().
 check_loglevel(_Config) ->
     Level = "debug",
+    ct:pal("Setting log level to ~s", [Level]),
+    ok = eturnal_ctl:set_loglevel(list_to_atom(Level)),
     ct:pal("Checking whether log level is set to ~s", [Level]),
     {ok, Level} = eturnal_ctl:get_loglevel().
 
