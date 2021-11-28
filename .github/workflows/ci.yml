@@ -56,7 +56,7 @@ jobs:
         run: rebar3 dialyzer
       - name: Run test suite
         run: rebar3 ct
-      - name: Calculate test coverage
+      - name: Check test coverage
         run: rebar3 cover
       - name: Upload test and coverage results
         uses: actions/upload-artifact@v2
