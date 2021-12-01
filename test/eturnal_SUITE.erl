@@ -81,6 +81,7 @@ all() ->
      connect_tls,
      stun_udp,
      stun_tcp,
+     stun_tls,
      turn_udp,
      stop_eturnal].
 
@@ -173,6 +174,15 @@ stun_tcp(_Config) ->
     ct:pal("Performing STUN query against 127.0.0.1:~B (TCP)", [Port]),
     {ok, Addr} = inet:parse_address("127.0.0.1"),
     Result = stun_test:bind_tcp(Addr, Port),
+    true = is_tuple(Result),
+    true = element(1, Result) =:= stun.
+
+-spec stun_tls(config()) -> any().
+stun_tls(_Config) ->
+    Port = 53490,
+    ct:pal("Performing STUN query against 127.0.0.1:~B (TLS)", [Port]),
+    {ok, Addr} = inet:parse_address("127.0.0.1"),
+    Result = stun_test:bind_tls(Addr, Port),
     true = is_tuple(Result),
     true = element(1, Result) =:= stun.
 
