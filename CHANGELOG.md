@@ -11,6 +11,9 @@ project adheres to [Semantic Versioning][SemVer].
   and TLS connections on the same port (thanks to Annika Hannig). Requires
   Erlang/OTP 23 or later.
 
+### Changed
+- Binary release: Update Erlang/OTP from 24.1.4 to 24.1.7.
+
 ## [1.5.0] - 2021-11-02
 ### Added
 - Allow for specifying a list of shared secrets in order to facilitate key
