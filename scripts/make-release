@@ -62,7 +62,7 @@ sed -i -e "s|^rel_vsn=.*|rel_vsn='$new_vsn'|" 'scripts/get-version'
 sed -i -e "s|$old_vsn|$new_vsn|g" 'README.md' 'INSTALL.md' 'doc/overview.edoc' \
     'windows/eturnal.iss'
 sed -i -e "s|^rebar_vsn=.*|rebar_vsn='$rebar_vsn'|" \
-    'scripts/make-source' 'scripts/make-binary'
+    'scripts/make-source' 'scripts/make-binaries'
 sed -i -e "s|compare/$old_vsn|compare/$new_vsn|" \
        -e "s|^## \[Unreleased\]$|&\\
 \\
@@ -73,7 +73,7 @@ sed -i -e "s|compare/$old_vsn|compare/$new_vsn|" \
 echo "$myself: Committing result ..."
 git add 'rebar.config' 'CHANGELOG.md' 'README.md' 'INSTALL.md' \
     'doc/overview.edoc' 'scripts/get-version' 'scripts/make-source' \
-    'scripts/make-binary' 'windows/eturnal.iss'
+    'scripts/make-binaries' 'windows/eturnal.iss'
 git commit -m "Release $new_vsn"
 git -P show
 read -p "$myself: Does the commit look fine? (y/n) [n] " response
