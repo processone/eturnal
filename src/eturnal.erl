@@ -32,6 +32,7 @@
          handle_info/2,
          terminate/2,
          code_change/3]).
+-export_type([transport/0]).
 
 -include_lib("kernel/include/logger.hrl").
 -define(PEM_FILE_NAME, "cert.pem").
@@ -40,7 +41,7 @@
         {listeners :: listeners(),
          modules :: modules()}).
 
--type transport() :: udp | tcp | tls.
+-type transport() :: udp | tcp | tls | auto.
 -type listeners() :: [{inet:port_number(), transport()}].
 -type modules() :: [module()].
 -type option() :: atom().
@@ -324,11 +325,25 @@ stop_listeners(#eturnal_state{listeners = Listeners}) ->
     end.
 
 -spec tls_opts(transport()) -> proplists:proplist().
+-ifdef(old_inet_backend).
 tls_opts(tls) ->
     [{tls, true},
      {certfile, get_pem_file_path()}];
+tls_opts(auto) ->
+    ?LOG_CRITICAL("Setting 'transport: auto' requires Erlang/OTP 23 or later"),
+    abort(listener_failure);
 tls_opts(_) ->
     [].
+-else.
+tls_opts(tls) ->
+    [{tls, true},
+     {certfile, get_pem_file_path()}];
+tls_opts(auto) ->
+    [{tls, optional},
+     {certfile, get_pem_file_path()}];
+tls_opts(_) ->
+    [].
+-endif.
 
 -spec turn_opts(boolean()) -> proplists:proplist().
 turn_opts(EnableTURN) ->
@@ -344,7 +359,7 @@ turn_opts(EnableTURN) ->
 -spec tls_enabled() -> boolean().
 tls_enabled() ->
     lists:any(fun({_IP, _Port, Transport, _EnableTURN}) ->
-                      Transport =:= tls
+                      (Transport =:= tls) or (Transport =:= auto)
               end, get_opt(listen)).
 
 -spec turn_enabled() -> boolean().

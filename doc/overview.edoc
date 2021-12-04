@@ -147,7 +147,8 @@ pairs:
       if the {@section transport} is set to `tls', otherwise `3478'.</li>
   <li><a name="transport" class="cue">`transport:' <em>protocol</em></a><br/>
       The (optional) `transport' <em>protocol</em> must be one of `udp', `tcp',
-      or `tls'. The default value is `udp'.</li>
+      `tls', or, in order to accept unencrypted TCP and TLS connections on the
+      same port, `auto'. The default value is `udp'.</li>
   <li><a name="enable_turn" class="cue">`enable_turn:' <em>flag</em></a><br/>
       The (optional) `enable_turn' <em>flag</em> must be `true' to enable TURN
       in addition to STUN, or `false' to offer just STUN on this socket. The
@@ -165,8 +166,8 @@ listen:
     enable_turn: true  # This is the default.
   -
     ip: "::"
-    port: 3478         # This is the default for "transport: tcp".
-    transport: tcp     # Default: "udp".
+    port: 3478         # This is the default for "transport: auto".
+    transport: auto    # Default: "udp".
     enable_turn: true  # This is the default.
   -
     ip: "::"

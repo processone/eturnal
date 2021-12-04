@@ -25,8 +25,7 @@
                list/1, list_or_single/1, map/3, non_empty/1, non_neg_int/0,
                options/1, options/2, port/0, pos_int/1]).
 
--type transport() :: udp | tcp | tls | mixed.
--type listener() :: {inet:ip_address(), inet:port_number(), transport(),
+-type listener() :: {inet:ip_address(), inet:port_number(), eturnal:transport(),
                      boolean()}.
 
 -define(BLACKLIST, [{{127, 0, 0, 0}, 8},               % IPv4 loopback.
@@ -112,14 +111,15 @@ listen_validator() ->
           options(
             #{ip => ip(),
               port => int(0, 65535),
-              transport => enum([tcp, udp, tls, mixed]),
+              transport => enum([tcp, udp, tls, auto]),
               enable_turn => bool()},
             [unique,
              {required, [ip]}]),
           fun(Opts) ->
                   DefP = fun(udp) -> 3478;
                             (tcp) -> 3478;
-                            (tls) -> 5349
+                            (tls) -> 5349;
+                            (auto) -> 3478
                          end,
                   I = proplists:get_value(ip, Opts),
                   T = proplists:get_value(transport, Opts, udp),

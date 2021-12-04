@@ -7,6 +7,9 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Add `eturnalctl credentials` and `eturnalctl password` commands for generating
   ephemeral TURN credentials.
+- Support the `listen` option `transport: auto` for accepting unencrypted TCP
+  and TLS connections on the same port (thanks to Annika Hannig). Requires
+  Erlang/OTP 23 or later.
 
 ## [1.5.0] - 2021-11-02
 ### Added
@@ -105,7 +108,7 @@ project adheres to [Semantic Versioning][SemVer].
 - Add experimental support for modules and include a `mod_example` with the
   source code. The APIs aren't documented yet and may change in the future.
 - Include `mod_stats_influx`, a module for logging STUN/TURN events/statistics
-  to InfluxDB, contributed by Marc Schink.
+  to InfluxDB (contributed by Marc Schink).
 
 ## [1.1.0] - 2020-07-22
 ### Added
