@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [1.6.0] - 2021-12-04
 ### Added
 - Add `eturnalctl credentials` and `eturnalctl password` commands for generating
   ephemeral TURN credentials.
@@ -225,7 +227,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/1.5.0...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.6.0...HEAD
+[1.6.0]: https://github.com/processone/eturnal/releases/tag/1.6.0
 [1.5.0]: https://github.com/processone/eturnal/releases/tag/1.5.0
 [1.4.6]: https://github.com/processone/eturnal/releases/tag/1.4.6
 [1.4.5]: https://github.com/processone/eturnal/releases/tag/1.4.5
