@@ -50,6 +50,8 @@ jobs:
         run: rebar3 get-deps
       - name: Compile code
         run: rebar3 compile
+      - name: Build release
+        run: rebar3 release
       - name: Analyze cross references
         run: rebar3 xref
       - name: Perform static code analysis
