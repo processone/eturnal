@@ -1056,6 +1056,8 @@ build_rel()
 	sed -i "2iexport TERM='internal'" \
 	    "$target_dst_dir/bin/$rel_name" \
 	    "$target_dst_dir/bin/$rel_name-$rel_vsn"
+	find "$target_dst_dir/lib" -type f -name 'otp_test_engine.so' \
+	    -delete # Remove shared object file used only in test suite.
 	find "$target_dst_dir/lib" -type f -name '*.so' \
 	    -exec "$STRIP" -s '{}' '+'
 	find "$target_dst_dir/erts-*/bin" -type f -perm '-u+x' \
