@@ -49,15 +49,6 @@ init_per_group(_GroupName, Config) ->
 end_per_group(_GroupName, _Config) ->
     ok.
 
--spec set_eturnal_env(file:filename_all(), config()) -> config().
-set_eturnal_env(ConfName, Config) ->
-    DataDir = ?config(data_dir, Config),
-    ConfFile = filename:join(DataDir, ConfName),
-    ok = application:set_env(conf, file, ConfFile),
-    ok = application:set_env(conf, on_fail, stop),
-    ok = application:set_env(eturnal, on_fail, exit),
-    Config.
-
 -ifdef(old_inet_backend).
 -spec init_per_testcase(test_name(), config()) -> config().
 init_per_testcase(start_eturnal, Config) ->
@@ -236,3 +227,14 @@ stun_tls_auto(_Config) ->
 stop_eturnal(_Config) ->
     ct:pal("Stopping eturnal"),
     ok = application:stop(eturnal).
+
+%% Internal functions.
+
+-spec set_eturnal_env(file:filename_all(), config()) -> config().
+set_eturnal_env(ConfName, Config) ->
+    DataDir = ?config(data_dir, Config),
+    ConfFile = filename:join(DataDir, ConfName),
+    ok = application:set_env(conf, file, ConfFile),
+    ok = application:set_env(conf, on_fail, stop),
+    ok = application:set_env(eturnal, on_fail, exit),
+    Config.
