@@ -43,7 +43,7 @@ zlib_vsn='1.2.11'
 yaml_vsn='0.2.5'
 ssl_vsn='1.1.1l'
 otp_vsn='24.1.7'
-root_dir='/build'
+root_dir="${BUILD_DIR:-/build}"
 bootstrap_dir="$root_dir/bootstrap"
 ct_prefix_dir="$root_dir/x-tools"
 build_dir="$root_dir/$rel_name"
@@ -1095,6 +1095,12 @@ then
 	fi
 else
 	info "Won't check dependency versions."
+fi
+
+if ! mkdir -p "$root_dir"
+then
+	error 'Set BUILD_DIR to a usable build directory path.'
+	exit 1
 fi
 
 # Keep existing toolchains but rebuild everything else.
