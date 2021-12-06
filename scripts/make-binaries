@@ -1012,15 +1012,16 @@ build_rel()
 		export erl_xcomp_sysroot="$prefix"
 	fi
 	cd "$target_src_dir/$otp_dir"
+	# The additional CFLAGS/LIBS below are required by --enable-static-nifs.
 	$configure \
 	    --prefix="$prefix" \
 	    --with-ssl="$prefix" \
 	    --without-javac \
-	    --disable-dynamic-ssl-lib
-	if [ "$mode" = 'native' ]
-	then make
-	else make SSL_EXTRA_LIBS='-lpthread'
-	fi
+	    --disable-dynamic-ssl-lib \
+	    --enable-static-nifs \
+	    CFLAGS="$CFLAGS -Wl,-L$prefix/lib" \
+	    LIBS='-lcrypto'
+	make
 	make install
 	if [ "$mode" = 'native' ]
 	then
@@ -1058,6 +1059,12 @@ build_rel()
 	    "$target_dst_dir/bin/$rel_name-$rel_vsn"
 	find "$target_dst_dir/lib" -type f -name 'otp_test_engine.so' \
 	    -delete # Remove shared object file used only in test suite.
+	find "$target_dst_dir/lib/crypto-"* "$target_dst_dir/lib/asn1-"* \
+	    '(' -name 'asn1rt_nif.so' -o \
+	        -name 'crypto.so' -o \
+	        -name 'lib' -o \
+	        -name 'priv' ')' \
+	    -delete # Remove shared object files of statically linked NIFs.
 	find "$target_dst_dir/lib" -type f -name '*.so' \
 	    -exec "$STRIP" -s '{}' '+'
 	find "$target_dst_dir/erts-*/bin" -type f -perm '-u+x' \
