@@ -1067,7 +1067,7 @@ build_rel()
 	    -delete # Remove shared object files of statically linked NIFs.
 	find "$target_dst_dir/lib" -type f -name '*.so' \
 	    -exec "$STRIP" -s '{}' '+'
-	find "$target_dst_dir/erts-*/bin" -type f -perm '-u+x' \
+	find "$target_dst_dir/erts-"*'/bin' -type f -perm '-u+x' \
 	    -exec "$STRIP" -s '{}' '+' 2>'/dev/null' || :
 	test "$mode" = 'cross' &&
 	    erl -noinput -eval \
