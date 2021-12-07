@@ -10,7 +10,7 @@ on:
 
 jobs:
   test:
-    name: Erlang/OTP ${{matrix.otp}}
+    name: Test on Erlang/OTP ${{matrix.otp}}
     strategy:
       fail-fast: false
       matrix:
@@ -73,3 +73,21 @@ jobs:
           path: |
             _build/test*/logs
             _build/test*/cover
+  publish:
+    name: Publish test results
+    needs: test
+    runs-on: ubuntu-latest
+    if: ${{github.ref == 'refs/heads/master' && github.repository_owner == 'weiss'}}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: Retrieve test and coverage results
+        uses: actions/download-artifact@v2
+        with:
+          name: eturnal-tests-otp-24.1
+      - name: Deploy test and coverage results to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          cname: ci.eturnal.net
+          publish_dir: test
+          github_token: ${{secrets.GITHUB_TOKEN}}
