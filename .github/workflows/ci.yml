@@ -85,9 +85,10 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: eturnal-tests-otp-24.1
+          path: public
       - name: Deploy test and coverage results to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           cname: ci.eturnal.net
-          publish_dir: test
+          publish_dir: public/test
           github_token: ${{secrets.GITHUB_TOKEN}}
