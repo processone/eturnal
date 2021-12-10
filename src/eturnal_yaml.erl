@@ -141,7 +141,12 @@ check_overlapping_listeners(Listeners) ->
 check_overlapping_listeners(Listeners, PrepareFun) ->
     _ = lists:foldl(
           fun({IP, Port, Transport, _EnableTURN} = Listener, Acc) ->
-                  Key = {IP, Port, Transport},
+                  Key = case Transport of
+                            udp ->
+                                {IP, Port, udp};
+                            _ ->
+                                {IP, Port, tcp}
+                        end,
                   case lists:member(Key, Acc) of
                       true ->
                           fail({duplicated_value,
