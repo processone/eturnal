@@ -42,7 +42,7 @@
          modules :: modules()}).
 
 -type transport() :: udp | tcp | tls | auto.
--type listeners() :: [{inet:port_number(), transport()}].
+-type listeners() :: [{inet:ip_address(), inet:port_number(), transport()}].
 -type modules() :: [module()].
 -type option() :: atom().
 -type value() :: term().
