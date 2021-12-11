@@ -188,7 +188,6 @@ is_valid_username(Username) ->
             false
     end.
 
-
 -spec make_username(string(), string())
       -> {ok, binary()} | {error, badarg}.
 make_username(Expiry0, Suffix) ->
@@ -196,8 +195,10 @@ make_username(Expiry0, Suffix) ->
     try calendar:rfc3339_to_system_time(Expiry) of
         Time ->
             username_from_timestamp(Time, Suffix)
-    catch _:Err when Err =:= badarg;
-                     element(1, Err) =:= badmatch ->
+    catch
+        _:{badmatch, _} ->
+            username_from_expiry(Expiry, Suffix);
+        _:badarg -> % Erlang/OTP < 21.3.
             username_from_expiry(Expiry, Suffix)
     end.
 
