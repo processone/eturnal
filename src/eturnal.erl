@@ -1,4 +1,4 @@
-%%% eturnal STUN/TURN server.
+%%% eturnal stun/turn server.
 %%%
 %%% Copyright (c) 2020, 2021 Holger Weiss <holger@zedat.fu-berlin.de>.
 %%% Copyright (c) 2020, 2021 ProcessOne, SARL.
@@ -114,17 +114,23 @@ abort(Reason) ->
 -spec init(any()) -> {ok, state()} | no_return().
 init(_Opts) ->
     process_flag(trap_exit, true),
+    case turn_enabled() of
+        true ->
+            check_turn_config(got_secret(), got_relay_addr());
+        false ->
+            ?LOG_DEBUG("TURN is disabled")
+    end,
     case ensure_run_dir() of
         ok ->
             ok;
         error -> % Has been logged.
             abort(run_dir_failure)
     end,
-    case turn_enabled() of
-        true ->
-            check_turn_config(got_secret(), got_relay_addr());
-        false ->
-            ?LOG_DEBUG("TURN is disabled")
+    case check_proxy_config() of
+        ok ->
+            ok;
+        error -> % Has been logged.
+            abort(proxy_config_failure)
     end,
     case check_pem_file() of
         Result when Result =:= ok;
@@ -279,13 +285,14 @@ start_listeners() ->
              end, opt_map()) ++ [{auth_fun, fun ?MODULE:get_password/2},
                                  {hook_fun, fun ?MODULE:run_hook/2}],
     try lists:map(
-          fun({IP, Port, Transport, EnableTURN}) ->
+          fun({IP, Port, Transport, ProxyProtocol, EnableTURN}) ->
                   Opts1 = tls_opts(Transport) ++ Opts,
                   Opts2 = turn_opts(EnableTURN) ++ Opts1,
+                  Opts3 = proxy_opts(ProxyProtocol) ++ Opts2,
                   ?LOG_DEBUG("Starting listener ~s (~s) with options:~n~p",
                              [eturnal_misc:addr_to_str(IP, Port),
-                              Transport, Opts2]),
-                  case stun_listener:add_listener(IP, Port, Transport, Opts2) of
+                              Transport, Opts3]),
+                  case stun_listener:add_listener(IP, Port, Transport, Opts3) of
                       ok ->
                           ?LOG_INFO("Listening on ~s (~s) (~s)",
                                     [eturnal_misc:addr_to_str(IP, Port),
@@ -356,15 +363,19 @@ turn_opts(EnableTURN) ->
              {auth_type, anonymous}]
     end.
 
+-spec proxy_opts(boolean()) -> proplists:proplist().
+proxy_opts(true = _ProxyProtocol) -> [proxy_protocol];
+proxy_opts(false = _ProxyProtocol) -> [].
+
 -spec tls_enabled() -> boolean().
 tls_enabled() ->
-    lists:any(fun({_IP, _Port, Transport, _EnableTURN}) ->
+    lists:any(fun({_IP, _Port, Transport, _ProxyProtocol, _EnableTURN}) ->
                       (Transport =:= tls) or (Transport =:= auto)
               end, get_opt(listen)).
 
 -spec turn_enabled() -> boolean().
 turn_enabled() ->
-    lists:any(fun({_IP, _Port, _Transport, EnableTURN}) ->
+    lists:any(fun({_IP, _Port, _Transport, _ProxyProtocol, EnableTURN}) ->
                       EnableTURN =:= true
               end, get_opt(listen)).
 
@@ -594,6 +605,19 @@ check_turn_config(_GotSecret = true, _GotAddr = false) ->
     ?LOG_WARNING("Specify a 'relay_ipv4_addr' to enable TURN");
 check_turn_config(_GotSecret = false, _GotAddr = false) ->
     ?LOG_WARNING("Specify a 'secret' and 'relay_ipv4_addr' to enable TURN").
+
+-spec check_proxy_config() -> ok | error.
+check_proxy_config() ->
+    case lists:any(
+           fun({_IP, _Port, Transport, ProxyProtocol, _EnableTURN}) ->
+                   (Transport =:= udp) and (ProxyProtocol =:= true)
+           end, get_opt(listen)) of
+        true ->
+            ?LOG_CRITICAL("The 'proxy_protocol' ist not supported 'udp'"),
+            error;
+        false ->
+            ok
+    end.
 
 -spec describe_listener(boolean()) -> binary().
 describe_listener(_EnableTURN = true) ->

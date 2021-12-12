@@ -26,7 +26,7 @@
                options/1, options/2, port/0, pos_int/1]).
 
 -type listener() :: {inet:ip_address(), inet:port_number(), eturnal:transport(),
-                     boolean()}.
+                     boolean(), boolean()}.
 
 -define(BLACKLIST, [{{127, 0, 0, 0}, 8},               % IPv4 loopback.
                     {{0, 0, 0, 0, 0, 0, 0, 1}, 128}]). % IPv6 loopback.
@@ -112,6 +112,7 @@ listen_validator() ->
             #{ip => ip(),
               port => int(0, 65535),
               transport => enum([tcp, udp, tls, auto]),
+              proxy_protocol => bool(),
               enable_turn => bool()},
             [unique,
              {required, [ip]}]),
@@ -124,8 +125,9 @@ listen_validator() ->
                   I = proplists:get_value(ip, Opts),
                   T = proplists:get_value(transport, Opts, udp),
                   P = proplists:get_value(port, Opts, DefP(T)),
+                  X = proplists:get_value(proxy_protocol, Opts, false),
                   E = proplists:get_value(enable_turn, Opts, true),
-                  {I, P, T, E}
+                  {I, P, T, X, E}
           end)),
       fun check_overlapping_listeners/1).
 
@@ -140,7 +142,8 @@ check_overlapping_listeners(Listeners) ->
       -> ok | no_return().
 check_overlapping_listeners(Listeners, PrepareFun) ->
     _ = lists:foldl(
-          fun({IP, Port, Transport, _EnableTURN} = Listener, Acc) ->
+          fun({IP, Port, Transport, _ProxyProtocol, _EnableTURN} = Listener,
+              Acc) ->
                   Key = case Transport of
                             udp ->
                                 {IP, Port, udp};
@@ -171,7 +174,7 @@ check_overlapping_listeners(Listeners, PrepareFun) ->
     ok.
 
 -spec format_listener(listener()) -> binary().
-format_listener({IP, Port, Transport, _EnableTURN}) ->
+format_listener({IP, Port, Transport, _ProxyProtocol, _EnableTURN}) ->
     Addr = eturnal_misc:addr_to_str(IP, Port),
     list_to_binary(io_lib:format("~s (~s)", [Addr, Transport])).
 

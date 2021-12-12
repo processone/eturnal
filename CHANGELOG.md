@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Added
+- Introduce the `listen` option `proxy_protocol` for enabling HAproxy protocol
+  (version 1 and 2) support (#18).
 
 ## [1.6.0] - 2021-12-04
 ### Added

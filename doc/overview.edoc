@@ -133,7 +133,8 @@ listens on. Each `listen' entry holds one or more of the following key-value
 pairs:
 
 <ul>
-  <li><a name="ip" class="cue">`ip:' <em>address</em></a><br/>
+  <li><a name="ip"
+         class="cue">`ip:' <em>address</em></a><br/>
       The `ip' <em>address</em> must be a string denoting the IPv4 or IPv6
       address (note that IPv6 addresses with leading `"::"' must be enclosed
       with quotation marks). This is the only mandatory key-value pair for each
@@ -141,15 +142,24 @@ pairs:
       IPv4 interfaces. Specifying `"::"' tells eturnal to listen on all IPv6
       interfaces, and possibly also all IPv4 interfaces, depending on the
       operating system (configuration).</li>
-  <li><a name="port" class="cue">`port:' <em>number</em></a><br/>
+  <li><a name="port"
+         class="cue">`port:' <em>number</em></a><br/>
       The (optional) `port' <em>number</em> must be between `0' and `65535',
       and is usually between `1024' and `49151'. The default value is `5349'
       if the {@section transport} is set to `tls', otherwise `3478'.</li>
-  <li><a name="transport" class="cue">`transport:' <em>protocol</em></a><br/>
+  <li><a name="transport"
+         class="cue">`transport:' <em>protocol</em></a><br/>
       The (optional) `transport' <em>protocol</em> must be one of `udp', `tcp',
       `tls', or, in order to accept unencrypted TCP and TLS connections on the
       same port, `auto'. The default value is `udp'.</li>
-  <li><a name="enable_turn" class="cue">`enable_turn:' <em>flag</em></a><br/>
+  <li><a name="proxy_protocol"
+         class="cue">`proxy_protocol:' <em>flag</em></a><br/>
+      If the (optional) `proxy_protocol' <em>flag</em> is set to `true', the
+      client IP address/port is retrieved from the HAproxy protocol header. This
+      is not supported if the `transport' is `udp'. The default value is
+      `false'.</li>
+  <li><a name="enable_turn"
+         class="cue">`enable_turn:' <em>flag</em></a><br/>
       The (optional) `enable_turn' <em>flag</em> must be `true' to enable TURN
       in addition to STUN, or `false' to offer just STUN on this socket. The
       default value is `true'.</li>
