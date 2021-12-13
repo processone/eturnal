@@ -8,6 +8,9 @@ project adheres to [Semantic Versioning][SemVer].
 - Introduce the `listen` option `proxy_protocol` for enabling HAproxy protocol
   (version 1 and 2) support (#18).
 
+### Fixed
+- Don't crash when multiple `secret`s are configured on Erlang/OTP 23 or later.
+
 ## [1.6.0] - 2021-12-04
 ### Added
 - Add `eturnalctl credentials` and `eturnalctl password` commands for generating

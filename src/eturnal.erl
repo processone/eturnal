@@ -635,7 +635,7 @@ derive_password(Username, Secrets) when is_list(Secrets) ->
 derive_password(Username, [Secret]) ->
     base64:encode(crypto:mac(hmac, sha, Secret, Username));
 derive_password(Username, Secrets) when is_list(Secrets) ->
-    [derive_password(Username, Secret) || Secret <- Secrets].
+    [derive_password(Username, [Secret]) || Secret <- Secrets].
 -endif.
 
 -spec opt_map() -> [{atom(), atom()}].
