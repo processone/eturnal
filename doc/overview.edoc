@@ -23,8 +23,10 @@ limitations under the License.
 @copyright 2020, 2021 ProcessOne, SARL
 @author Holger Weiss
 
-@doc eturnal is a STUN/TURN server that implements the authentication mechanism
-described in the <a
+@doc eturnal is a <a
+href="https://eturnal.net/documentation/protocol.html#stun">STUN</a>/<a
+href="https://eturnal.net/documentation/protocol.html#turn">TURN</a> server that
+implements the authentication mechanism described in the <a
 href="https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00">REST API for
 Access to TURN Services</a> specification. The idea is that WebRTC (or other)
 clients receive temporary TURN credentials where the user name is comprised of
