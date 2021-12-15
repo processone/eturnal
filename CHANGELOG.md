@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [1.7.0] - 2021-12-15
 ### Added
 - Introduce the `listen` option `proxy_protocol` for enabling HAproxy protocol
   (version 1 and 2) support (#18).
@@ -240,7 +242,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/1.6.0...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.7.0...HEAD
+[1.7.0]: https://github.com/processone/eturnal/releases/tag/1.7.0
 [1.6.0]: https://github.com/processone/eturnal/releases/tag/1.6.0
 [1.5.0]: https://github.com/processone/eturnal/releases/tag/1.5.0
 [1.4.6]: https://github.com/processone/eturnal/releases/tag/1.4.6
