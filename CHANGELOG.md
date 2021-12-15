@@ -9,6 +9,7 @@ project adheres to [Semantic Versioning][SemVer].
   (version 1 and 2) support (#18).
 
 ### Changed
+- Binary release: Update Erlang/OTP from 24.1.7 to 24.2.
 - Binary release: Update OpenSSL from 1.1.1l to 1.1.1m.
 - Binary release: Link `asn1` and `crypto` NIFs statically into BEAM.
 - Binary release: Reduce size by a few MiB by omitting a test suite file.
