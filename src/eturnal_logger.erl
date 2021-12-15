@@ -38,6 +38,13 @@
 -type metakey() :: atom() | [atom()].
 -type template() :: [metakey() | {metakey(), template(), template()} |
                      string()].
+-type logger_config() :: #{file => file:filename(),
+                           file_check => non_neg_integer(),
+                           max_no_bytes => pos_integer() | infinity,
+                           max_no_files => non_neg_integer(),
+                           flush_qlen => pos_integer(),
+                           sync_mode_qlen => non_neg_integer(),
+                           drop_mode_qlen => pos_integer()}.
 
 %% API.
 
@@ -115,7 +122,7 @@ flush() ->
 
 %% Internal functions.
 
--spec init(map()) -> ok.
+-spec init(logger_config()) -> ok.
 init(Config) ->
     FmtConfig = #{time_designator => $\s,
                   max_size => 100 * 1024,
@@ -139,7 +146,7 @@ init(Config) ->
     end,
     set_level().
 
--spec get_config() -> {ok, map()} | none.
+-spec get_config() -> {ok, logger_config()} | none.
 -ifdef(old_logger). % Erlang/OTP < 21.3.
 get_config() ->
     Config = #{sync_mode_qlen => 1000,
@@ -169,8 +176,8 @@ get_config() ->
         {ok, stdout} ->
             {ok, Config};
         {ok, LogFile} ->
-            {ok, Config#{file_check => 1000,
-                         file => LogFile,
+            {ok, Config#{file => LogFile,
+                         file_check => 1000,
                          max_no_bytes => eturnal:get_opt(log_rotate_size),
                          max_no_files => eturnal:get_opt(log_rotate_count)}};
         none ->
