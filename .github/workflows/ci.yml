@@ -18,7 +18,7 @@ jobs:
           - '21.0'
           - '21.3'
           - '22.0'
-          - '24.1'
+          - '24.2'
         include:
           - otp: '21.0'
             rebar: '3.15.2'
@@ -26,7 +26,7 @@ jobs:
             rebar: '3.15.2'
           - otp: '22.0'
             rebar: '3.17.0'
-          - otp: '24.1'
+          - otp: '24.2'
             rebar: '3.17.0'
       fail-fast: false
     steps:
@@ -90,7 +90,7 @@ jobs:
       - name: Retrieve test and coverage results
         uses: actions/download-artifact@v2
         with:
-          name: eturnal-tests-otp-24.1
+          name: eturnal-tests-otp-24.2
           path: public
       - name: Deploy test and coverage results to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
