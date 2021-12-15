@@ -46,6 +46,7 @@ jobs:
         with:
           otp-version: ${{matrix.otp}}
           rebar3-version: ${{matrix.rebar}}
+          version-type: strict
       - name: Download previous test results
         run: |
           mkdir -p _build/test
