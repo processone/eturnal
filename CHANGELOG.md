@@ -8,6 +8,9 @@ project adheres to [Semantic Versioning][SemVer].
 - Introduce the `listen` option `proxy_protocol` for enabling HAproxy protocol
   (version 1 and 2) support (#18).
 
+### Changed
+- Binary release: Update OpenSSL from 1.1.1l to 1.1.1m.
+
 ### Fixed
 - Don't crash when multiple `secret`s are configured on Erlang/OTP 23 or later.
 
