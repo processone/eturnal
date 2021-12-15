@@ -50,12 +50,7 @@
 
 -spec start() -> ok.
 start() ->
-    case get_config() of
-        {ok, Config} ->
-            init(Config);
-        none -> % Logging disabled.
-            ok
-    end,
+    ok = init(get_config()),
     ok = configure_default_handler().
 
 -spec progress_filter(logger:log_event(), any()) -> logger:filter_return().
@@ -73,28 +68,18 @@ progress_filter(_Event, _Extra) ->
 
 -spec reconfigure() -> ok.
 reconfigure() ->
-    case get_config() of
-        {ok, Config} ->
-            case logger:get_handler_config(eturnal_log) of
-                {ok, _OldConfig} ->
-                    case logger:set_handler_config(eturnal_log, config,
-                                                   Config) of
-                        ok ->
-                            ok;
-                        {error, {illegal_config_change, _, _, _}} ->
-                            ?LOG_ERROR("New logging settings require restart")
-                    end,
-                    ok = set_level();
-                {error, {not_found, _}} ->
-                    ok = init(Config)
-            end;
-        none ->
-            case logger:remove_handler(eturnal_log) of
+    Config = get_config(),
+    case logger:get_handler_config(eturnal_log) of
+        {ok, _OldConfig} ->
+            case logger:set_handler_config(eturnal_log, config, Config) of
                 ok ->
                     ok;
-                {error, {not_found, _}} ->
-                    ok
-            end
+                {error, {illegal_config_change, _, _, _}} ->
+                    ?LOG_ERROR("New logging settings require restart")
+            end,
+            ok = set_level();
+        {error, {not_found, _}} ->
+            ok = init(Config)
     end,
     ok = configure_default_handler().
 
@@ -146,16 +131,14 @@ init(Config) ->
     end,
     set_level().
 
--spec get_config() -> {ok, logger_config()} | none.
+-spec get_config() -> logger_config().
 -ifdef(old_logger). % Erlang/OTP < 21.3.
 get_config() ->
     Config = #{sync_mode_qlen => 1000,
                drop_mode_qlen => 1000, % Never switch to synchronous mode.
                flush_qlen => 5000},
     case get_log_file() of
-        {ok, stdout} ->
-            {ok, Config};
-        {ok, LogFile} ->
+        LogFile when is_list(LogFile) ->
             case eturnal:get_opt(log_rotate_size) of
                 Size when is_integer(Size) ->
                     ?LOG_WARNING("Log rotation requires newer Erlang/OTP "
@@ -163,9 +146,9 @@ get_config() ->
                 infinity ->
                     ok
             end,
-            {ok, Config#{type => {file, LogFile}}};
-        none ->
-            none
+            Config#{type => {file, LogFile}};
+        stdout ->
+            Config
     end.
 -else.
 get_config() ->
@@ -173,28 +156,24 @@ get_config() ->
                drop_mode_qlen => 1000, % Never switch to synchronous mode.
                flush_qlen => 5000},
     case get_log_file() of
-        {ok, stdout} ->
-            {ok, Config};
-        {ok, LogFile} ->
-            {ok, Config#{file => LogFile,
-                         file_check => 1000,
-                         max_no_bytes => eturnal:get_opt(log_rotate_size),
-                         max_no_files => eturnal:get_opt(log_rotate_count)}};
-        none ->
-            none
+        LogFile when is_list(LogFile) ->
+            Config#{file => LogFile,
+                    file_check => 1000,
+                    max_no_bytes => eturnal:get_opt(log_rotate_size),
+                    max_no_files => eturnal:get_opt(log_rotate_count)};
+        stdout ->
+            Config
     end.
 -endif.
 
--spec get_log_file() -> {ok, file:filename() | stdout} | none.
+-spec get_log_file() -> file:filename() | stdout.
 get_log_file() ->
     case eturnal:get_opt(log_dir) of
         LogDir when is_binary(LogDir) ->
             LogFile = filename:join(LogDir, <<?LOG_FILE_NAME>>),
-            {ok, unicode:characters_to_list(LogFile)};
+            unicode:characters_to_list(LogFile);
         stdout ->
-            {ok, stdout};
-        none ->
-            none
+            stdout
     end.
 
 -spec set_level() -> ok.
@@ -235,7 +214,5 @@ configure_default_handler() ->
         LogDir when is_binary(LogDir) ->
             ok = logger:set_handler_config(default, level, warning);
         stdout ->
-            ok = logger:set_handler_config(default, level, none);
-        none ->
-            ok = logger:set_handler_config(default, level, critical)
+            ok = logger:set_handler_config(default, level, none)
     end.
