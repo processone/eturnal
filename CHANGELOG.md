@@ -10,6 +10,9 @@ project adheres to [Semantic Versioning][SemVer].
 
 ### Changed
 - Binary release: Update OpenSSL from 1.1.1l to 1.1.1m.
+- Binary release: Link `asn1` and `crypto` NIFs statically into BEAM.
+- Binary release: Reduce size by a few MiB by omitting a test suite file.
+- Binary release: Don't forget to strip ERTS binaries.
 
 ### Fixed
 - Don't crash when multiple `secret`s are configured on Erlang/OTP 23 or later.
