@@ -31,13 +31,6 @@
 -define(LOG_FILE_NAME, "eturnal.log").
 -define(VALID_LEVELS, [critical, error, warning, notice, info, debug]).
 
-% Subset of logger:level():
--type level() :: critical | error | warning | notice | info | debug.
-
-% Currently not exported by logger_formatter:
--type metakey() :: atom() | [atom()].
--type template() :: [metakey() | {metakey(), template(), template()} |
-                     string()].
 -type logger_config() :: #{file => file:filename(),
                            file_check => non_neg_integer(),
                            max_no_bytes => pos_integer() | infinity,
@@ -45,6 +38,14 @@
                            flush_qlen => pos_integer(),
                            sync_mode_qlen => non_neg_integer(),
                            drop_mode_qlen => pos_integer()}.
+
+% Subset of logger:level():
+-type level() :: critical | error | warning | notice | info | debug.
+
+% Currently not exported by logger_formatter:
+-type metakey() :: atom() | [atom()].
+-type template() :: [metakey() | {metakey(), template(), template()} |
+                     string()].
 
 %% API.
 
