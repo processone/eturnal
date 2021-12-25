@@ -148,8 +148,13 @@ check_version(_Config) ->
 
 -spec reload(config()) -> any().
 reload(_Config) ->
+    CertFile = <<"run/cert.pem">>,
+    ct:pal("Deleting TLS certificate"),
+    ok = file:delete(CertFile),
     ct:pal("Reloading eturnal"),
-    ok = eturnal_ctl:reload().
+    ok = eturnal_ctl:reload(),
+    ct:pal("Checking whether new TLS certificate was created"),
+    {ok, _} = file:read_file_info(CertFile).
 
 -spec connect_tcp(config()) -> any().
 connect_tcp(_Config) ->
