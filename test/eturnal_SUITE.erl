@@ -154,7 +154,9 @@ reload(_Config) ->
     ct:pal("Reloading eturnal"),
     ok = eturnal_ctl:reload(),
     ct:pal("Checking whether new TLS certificate was created"),
-    {ok, _} = file:read_file_info(CertFile).
+    {ok, _} = file:read_file_info(CertFile),
+    ct:pal("Reloading eturnal without changes"),
+    ok = eturnal_ctl:reload().
 
 -spec connect_tcp(config()) -> any().
 connect_tcp(_Config) ->
