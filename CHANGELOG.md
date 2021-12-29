@@ -5,6 +5,11 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 
+### Fixed
+- Binary release: Don't let Erlang/OTP link against libnsl.so.1, which is no
+  longer shipped by default on RedHat-based distributions, and isn't actually
+  needed (#19).
+
 ## [1.7.0] - 2021-12-15
 ### Added
 - Introduce the `listen` option `proxy_protocol` for enabling HAproxy protocol

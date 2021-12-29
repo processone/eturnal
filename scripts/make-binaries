@@ -1012,6 +1012,9 @@ build_rel()
 		export erl_xcomp_sysroot="$prefix"
 	fi
 	cd "$target_src_dir/$otp_dir"
+	# Don't link erl_call against libnsl (no longer included with glibc).
+	sed -i -e '/LIBS="-lnsl/d' -e '/LIBS="-lsocket/d' \
+	    'lib/erl_interface/configure'
 	# The additional CFLAGS/LIBS below are required by --enable-static-nifs.
 	$configure \
 	    --prefix="$prefix" \
