@@ -266,9 +266,11 @@ derive_password(Username, Secrets) when is_list(Secrets) ->
 %% Internal functions: log distribution listener port.
 
 -spec log_control_listener() -> ok.
+-dialyzer({[no_fail_call, no_match], log_control_listener/0}). % OTP 21/22.
 log_control_listener() ->
     [Name, Host] = string:split(atom_to_list(node()), "@"),
-    case erl_epmd:port_please(Name, Host, 10000) of
+    % The 'catch' calms Dialyzer on OTP 21 (even though we don't match 'EXIT').
+    case catch erl_epmd:port_please(Name, Host, 10000) of
         {port, Port, Version} ->
             ?LOG_INFO("Listening on ~s:~B (tcp) (Erlang protocol version ~B)",
                       [Host, Port, Version]);
