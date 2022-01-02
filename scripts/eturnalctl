@@ -27,9 +27,14 @@ bin_prefix="${ETURNAL_BIN_PREFIX:-{{eturnal_bin_prefix}}}"
 etc_prefix="${ETURNAL_ETC_PREFIX:-{{eturnal_etc_prefix}}}"
 epmd_address="${ERL_EPMD_ADDRESS:-{{erl_epmd_address}}}"
 dist_port="${ERL_DIST_PORT:-{{erl_dist_port}}}"
+config_file="$etc_prefix/etc/eturnalctl.cfg"
 
 # END OF CONFIGURATION SECTION.
 
+if [ -e "$config_file" ]
+then
+    . "$config_file"
+fi
 if [ -z "${ERL_EPMD_ADDRESS:-}" ] && [ -n "$epmd_address" ]
 then
     ERL_EPMD_ADDRESS="$epmd_address"
