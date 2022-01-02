@@ -19,10 +19,10 @@
 -module(eturnal_systemd).
 -author('holger@zedat.fu-berlin.de').
 -behaviour(gen_server).
--export([start_link/0,
-         ready/0,
+-export([ready/0,
          reloading/0,
          stopping/0]).
+-export([start_link/0]).
 -export([init/1,
          handle_call/3,
          handle_cast/2,
@@ -41,11 +41,7 @@
 -type watchdog_timeout() :: pos_integer() | hibernate.
 -type state() :: #systemd_state{}.
 
-%% API.
-
--spec start_link() -> {ok, pid()} | ignore | {error, term()}.
-start_link() ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+%% API: send systemd notifications.
 
 -spec ready() -> ok.
 ready() ->
@@ -59,7 +55,13 @@ reloading() ->
 stopping() ->
     cast_notification(<<"STOPPING=1">>).
 
-%% Behaviour callbacks.
+%% API: supervisor callback.
+
+-spec start_link() -> {ok, pid()} | ignore | {error, term()}.
+start_link() ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+%% API: gen_server callbacks.
 
 -spec init(any())
       -> {ok, state()} | {ok, state(), watchdog_timeout()} | {stop, term()}.
