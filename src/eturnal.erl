@@ -114,6 +114,7 @@ abort(Reason) ->
 -spec init(any()) -> {ok, state()} | no_return().
 init(_Opts) ->
     process_flag(trap_exit, true),
+    ok = log_control_listener(),
     case turn_enabled() of
         true ->
             check_turn_config(got_secret(), got_relay_addr());
@@ -240,6 +241,19 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 %% Internal functions.
+
+-spec log_control_listener() -> ok.
+log_control_listener() ->
+    [Name, Host] = string:split(atom_to_list(node()), "@"),
+    case erl_epmd:port_please(Name, Host, 10000) of
+        {port, Port, Version} ->
+            ?LOG_INFO("Listening on ~s:~B (tcp) (Erlang protocol version ~B)",
+                      [Host, Port, Version]);
+        {error, Reason} ->
+            ?LOG_INFO("Cannot determine control query port: ~p", [Reason]);
+        Reason when is_atom(Reason) ->
+            ?LOG_INFO("Cannot determine control query port: ~s", [Reason])
+    end.
 
 -spec start_modules() -> {ok, modules()} | {error, term()}.
 start_modules() ->
