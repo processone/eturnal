@@ -20,18 +20,18 @@
 -author('holger@zedat.fu-berlin.de').
 -behaviour(gen_server).
 -export([start/0,
-         start_link/0,
-         get_opt/1,
-         get_password/2,
-         run_hook/2,
-         stop/0,
-         abort/1]).
+         stop/0]).
+-export([start_link/0]).
 -export([init/1,
          handle_call/3,
          handle_cast/2,
          handle_info/2,
          terminate/2,
          code_change/3]).
+-export([run_hook/2,
+         get_password/2,
+         get_opt/1,
+         abort/1]).
 -export_type([transport/0]).
 
 -include_lib("kernel/include/logger.hrl").
@@ -51,7 +51,7 @@
                            [option()]}.
 -type state() :: #eturnal_state{}.
 
-%% API.
+%% API: non-release startup and shutdown (usually unused).
 
 -spec start() -> ok | {error, term()}.
 start() ->
@@ -62,54 +62,17 @@ start() ->
             Err
     end.
 
--spec start_link() -> {ok, pid()} | ignore | {error, term()}.
-start_link() ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
-
--spec get_opt(option()) -> value().
-get_opt(Opt) ->
-    {ok, Val} = application:get_env(eturnal, Opt),
-    Val.
-
--spec get_password(binary(), binary()) -> binary() | [binary()].
-get_password(Username, _Realm) ->
-    [Expiration | _Suffix] = binary:split(Username, <<$:>>),
-    try binary_to_integer(Expiration) of
-        ExpireTime ->
-            case erlang:system_time(second) of
-                Now when Now < ExpireTime ->
-                    ?LOG_DEBUG("Looking up password for: ~ts", [Username]),
-                    derive_password(Username, get_opt(secret));
-                Now when Now >= ExpireTime ->
-                    ?LOG_INFO("Credentials expired: ~ts", [Username]),
-                    <<>>
-            end
-    catch _:badarg ->
-            ?LOG_INFO("Non-numeric expiration field: ~ts", [Username]),
-            <<>>
-    end.
-
--spec run_hook(eturnal_module:event(), eturnal_module:info()) -> ok.
-run_hook(Event, Info) ->
-    eturnal_module:handle_event(Event, Info).
-
 -spec stop() -> ok | {error, term()}.
 stop() ->
     application:stop(eturnal).
 
--spec abort(term()) -> no_return().
-abort(Reason) ->
-    case application:get_env(eturnal, on_fail, halt) of
-        exit ->
-            ?LOG_ALERT("Stopping eturnal STUN/TURN server (~p)", [Reason]),
-            exit(Reason);
-        _Halt ->
-            ?LOG_ALERT("Aborting eturnal STUN/TURN server (~p)", [Reason]),
-            eturnal_logger:flush(),
-            halt(1)
-    end.
+%% API: supervisor callback.
 
-%% Behaviour callbacks.
+-spec start_link() -> {ok, pid()} | ignore | {error, term()}.
+start_link() ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+%% API: gen_server callbacks.
 
 -spec init(any()) -> {ok, state()} | no_return().
 init(_Opts) ->
@@ -117,7 +80,7 @@ init(_Opts) ->
     ok = log_control_listener(),
     case turn_enabled() of
         true ->
-            check_turn_config(got_secret(), got_relay_addr());
+            ok = check_turn_config(got_secret(), got_relay_addr());
         false ->
             ?LOG_DEBUG("TURN is disabled")
     end,
@@ -240,7 +203,67 @@ code_change(_OldVsn, State, _Extra) ->
     ?LOG_INFO("Got code change request"),
     {ok, State}.
 
-%% Internal functions.
+%% API: stun callbacks.
+
+-spec run_hook(eturnal_module:event(), eturnal_module:info()) -> ok.
+run_hook(Event, Info) ->
+    eturnal_module:handle_event(Event, Info).
+
+-spec get_password(binary(), binary()) -> binary() | [binary()].
+get_password(Username, _Realm) ->
+    [Expiration | _Suffix] = binary:split(Username, <<$:>>),
+    try binary_to_integer(Expiration) of
+        ExpireTime ->
+            case erlang:system_time(second) of
+                Now when Now < ExpireTime ->
+                    ?LOG_DEBUG("Looking up password for: ~ts", [Username]),
+                    derive_password(Username, get_opt(secret));
+                Now when Now >= ExpireTime ->
+                    ?LOG_INFO("Credentials expired: ~ts", [Username]),
+                    <<>>
+            end
+    catch _:badarg ->
+            ?LOG_INFO("Non-numeric expiration field: ~ts", [Username]),
+            <<>>
+    end.
+
+%% API: retrieve option value.
+
+-spec get_opt(option()) -> value().
+get_opt(Opt) ->
+    {ok, Val} = application:get_env(eturnal, Opt),
+    Val.
+
+%% API: abnormal termination.
+
+-spec abort(term()) -> no_return().
+abort(Reason) ->
+    case application:get_env(eturnal, on_fail, halt) of
+        exit ->
+            ?LOG_ALERT("Stopping eturnal STUN/TURN server (~p)", [Reason]),
+            exit(Reason);
+        _Halt ->
+            ?LOG_ALERT("Aborting eturnal STUN/TURN server (~p)", [Reason]),
+            eturnal_logger:flush(),
+            halt(1)
+    end.
+
+%% Internal functions: authentication.
+
+-spec derive_password(binary(), [binary()]) -> binary() | [binary()].
+-ifdef(old_crypto).
+derive_password(Username, [Secret]) ->
+    base64:encode(crypto:hmac(sha, Secret, Username));
+derive_password(Username, Secrets) when is_list(Secrets) ->
+    [derive_password(Username, [Secret]) || Secret <- Secrets].
+-else.
+derive_password(Username, [Secret]) ->
+    base64:encode(crypto:mac(hmac, sha, Secret, Username));
+derive_password(Username, Secrets) when is_list(Secrets) ->
+    [derive_password(Username, [Secret]) || Secret <- Secrets].
+-endif.
+
+%% Internal functions: log distribution listener port.
 
 -spec log_control_listener() -> ok.
 log_control_listener() ->
@@ -254,6 +277,8 @@ log_control_listener() ->
         Reason when is_atom(Reason) ->
             ?LOG_INFO("Cannot determine control query port: ~s", [Reason])
     end.
+
+%% Internal functions: module startup/shutdown.
 
 -spec start_modules() -> {ok, modules()} | {error, term()}.
 start_modules() ->
@@ -290,6 +315,8 @@ stop_modules(#eturnal_state{modules = Modules}) ->
     catch throw:{error, Reason} ->
             {error, Reason}
     end.
+
+%% Internal functions: listener startup/shutdown.
 
 -spec start_listeners() -> {ok, listeners()} | {error, term()}.
 start_listeners() ->
@@ -345,6 +372,31 @@ stop_listeners(#eturnal_state{listeners = Listeners}) ->
             {error, Reason}
     end.
 
+-spec describe_listener(boolean()) -> binary().
+describe_listener(_EnableTURN = true) ->
+    <<"STUN/TURN">>;
+describe_listener(_EnableTURN = false) ->
+    <<"STUN only">>.
+
+-spec opt_map() -> [{atom(), atom()}].
+opt_map() ->
+    [{relay_ipv4_addr, turn_ipv4_address},
+     {relay_ipv6_addr, turn_ipv6_address},
+     {relay_min_port, turn_min_port},
+     {relay_max_port, turn_max_port},
+     {max_allocations, turn_max_allocations},
+     {max_permissions, turn_max_permissions},
+     {max_bps, shaper},
+     {blacklist, turn_blacklist},
+     {realm, auth_realm},
+     {software_name, server_name}].
+
+-spec opt_filter(Opt) -> {true, Opt} | false when Opt :: {option(), value()}.
+opt_filter({relay_ipv6_addr, undefined}) ->
+    false; % The 'stun' application currently wouldn't accept 'undefined'.
+opt_filter(Opt) ->
+    {true, Opt}.
+
 -spec tls_opts(transport()) -> proplists:proplist().
 -ifdef(old_inet_backend).
 tls_opts(tls) ->
@@ -378,8 +430,12 @@ turn_opts(EnableTURN) ->
     end.
 
 -spec proxy_opts(boolean()) -> proplists:proplist().
-proxy_opts(true = _ProxyProtocol) -> [proxy_protocol];
-proxy_opts(false = _ProxyProtocol) -> [].
+proxy_opts(true = _ProxyProtocol) ->
+    [proxy_protocol];
+proxy_opts(false = _ProxyProtocol) ->
+    [].
+
+%% Internal functions: configuration parsing.
 
 -spec tls_enabled() -> boolean().
 tls_enabled() ->
@@ -418,6 +474,31 @@ got_relay_addr() ->
         {_, _, _, _} ->
             true
     end.
+
+-spec check_turn_config(boolean(), boolean()) -> ok.
+check_turn_config(_GotSecret = true, _GotAddr = true) ->
+    ?LOG_DEBUG("TURN configuration seems fine");
+check_turn_config(_GotSecret = false, _GotAddr = true) ->
+    ?LOG_WARNING("Specify a 'secret' to enable TURN");
+check_turn_config(_GotSecret = true, _GotAddr = false) ->
+    ?LOG_WARNING("Specify a 'relay_ipv4_addr' to enable TURN");
+check_turn_config(_GotSecret = false, _GotAddr = false) ->
+    ?LOG_WARNING("Specify a 'secret' and 'relay_ipv4_addr' to enable TURN").
+
+-spec check_proxy_config() -> ok | error.
+check_proxy_config() ->
+    case lists:any(
+           fun({_IP, _Port, Transport, ProxyProtocol, _EnableTURN}) ->
+                   (Transport =:= udp) and (ProxyProtocol =:= true)
+           end, get_opt(listen)) of
+        true ->
+            ?LOG_CRITICAL("The 'proxy_protocol' ist not supported for 'udp'"),
+            error;
+        false ->
+            ok
+    end.
+
+%% Internal functions: configuration reload.
 
 -spec logging_config_changed(config_changes()) -> boolean().
 logging_config_changed({Changed, New, Removed}) ->
@@ -503,6 +584,8 @@ apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
              end,
     State2.
 
+%% Internal functions: PEM file handling.
+
 -spec get_pem_file_path() -> file:filename_all().
 get_pem_file_path() ->
     filename:join(get_opt(run_dir), <<?PEM_FILE_NAME>>).
@@ -573,6 +656,14 @@ create_self_signed(File) ->
             error
     end.
 
+-spec touch(file:filename_all()) -> ok.
+touch(File) ->
+    {ok, Fd} = file:open(File, [append, binary, raw]),
+    ok = file:close(Fd),
+    ok = file:change_mode(File, 8#00600).
+
+%% Internal functions: run directory.
+
 -spec ensure_run_dir() -> ok | error.
 ensure_run_dir() ->
     RunDir = get_opt(run_dir),
@@ -603,70 +694,3 @@ clean_run_dir() ->
         false ->
             ?LOG_DEBUG("PEM file doesn't exist: ~ts", [PEMFile])
     end.
-
--spec touch(file:filename_all()) -> ok.
-touch(File) ->
-    {ok, Fd} = file:open(File, [append, binary, raw]),
-    ok = file:close(Fd),
-    ok = file:change_mode(File, 8#00600).
-
--spec check_turn_config(boolean(), boolean()) -> ok.
-check_turn_config(_GotSecret = true, _GotAddr = true) ->
-    ?LOG_DEBUG("TURN configuration seems fine");
-check_turn_config(_GotSecret = false, _GotAddr = true) ->
-    ?LOG_WARNING("Specify a 'secret' to enable TURN");
-check_turn_config(_GotSecret = true, _GotAddr = false) ->
-    ?LOG_WARNING("Specify a 'relay_ipv4_addr' to enable TURN");
-check_turn_config(_GotSecret = false, _GotAddr = false) ->
-    ?LOG_WARNING("Specify a 'secret' and 'relay_ipv4_addr' to enable TURN").
-
--spec check_proxy_config() -> ok | error.
-check_proxy_config() ->
-    case lists:any(
-           fun({_IP, _Port, Transport, ProxyProtocol, _EnableTURN}) ->
-                   (Transport =:= udp) and (ProxyProtocol =:= true)
-           end, get_opt(listen)) of
-        true ->
-            ?LOG_CRITICAL("The 'proxy_protocol' ist not supported 'udp'"),
-            error;
-        false ->
-            ok
-    end.
-
--spec describe_listener(boolean()) -> binary().
-describe_listener(_EnableTURN = true) ->
-    <<"STUN/TURN">>;
-describe_listener(_EnableTURN = false) ->
-    <<"STUN only">>.
-
--spec derive_password(binary(), [binary()]) -> binary() | [binary()].
--ifdef(old_crypto).
-derive_password(Username, [Secret]) ->
-    base64:encode(crypto:hmac(sha, Secret, Username));
-derive_password(Username, Secrets) when is_list(Secrets) ->
-    [derive_password(Username, [Secret]) || Secret <- Secrets].
--else.
-derive_password(Username, [Secret]) ->
-    base64:encode(crypto:mac(hmac, sha, Secret, Username));
-derive_password(Username, Secrets) when is_list(Secrets) ->
-    [derive_password(Username, [Secret]) || Secret <- Secrets].
--endif.
-
--spec opt_map() -> [{atom(), atom()}].
-opt_map() ->
-    [{relay_ipv4_addr, turn_ipv4_address},
-     {relay_ipv6_addr, turn_ipv6_address},
-     {relay_min_port, turn_min_port},
-     {relay_max_port, turn_max_port},
-     {max_allocations, turn_max_allocations},
-     {max_permissions, turn_max_permissions},
-     {max_bps, shaper},
-     {blacklist, turn_blacklist},
-     {realm, auth_realm},
-     {software_name, server_name}].
-
--spec opt_filter(Opt) -> {true, Opt} | false when Opt :: {option(), value()}.
-opt_filter({relay_ipv6_addr, undefined}) ->
-    false; % The 'stun' application currently wouldn't accept 'undefined'.
-opt_filter(Opt) ->
-    {true, Opt}.
