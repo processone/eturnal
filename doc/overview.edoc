@@ -435,21 +435,34 @@ This option specifies the port number InfluxDB's UDP service is listening on.
 
 The eturnal server recognizes the following environment variables.
 
+=== ERL_DIST_PORT ===
+
+The environment variable `ERL_DIST_PORT' specifies the TCP port number used by
+the `eturnalctl' command for communicating with eturnal. By default, a random
+port is chosen. If this variable is specified, the Erlang Port Mapper Daemon
+(EPMD) service is <em>not</em> spawned during eturnal startup, and the {@section
+ERL_EPMD_ADDRESS} variable is ignored. `ERL_DIST_PORT' must be set to the same
+port number during eturnal startup and when calling `eturnalctl'. Therefore,
+it's usually most convenient to specify the `dist_port` variable at the top of
+the `eturnalctl' script itself. <em>This feature requires at least Erlang/OTP
+23.1 and Rebar3 3.18.0.</em>
+
 === ERL_EPMD_ADDRESS ===
 
-On eturnal startup, an Erlang Port Mapper Daemon (epmd) service is spawned (if
-not running already). By default, this service listens on all available
-interfaces. Setting the `ERL_EPMD_ADDRESS' environment variable tells epmd to
-listen on the specified comma-seperated list of IP addresses instead. Note that
-the IPv4 and IPv6 loopback addresses are implicitly added to this list if not
-specified. It's usually recommended to set `ERL_EPMD_ADDRESS' to `127.0.0.1'
-(e.g., by calling `systemctl edit eturnal' and adding the following line to the
-`[Service]' section: `Environment="ERL_EPMD_ADDRESS=127.0.0.1"').
+On eturnal startup, an Erlang Port Mapper Daemon (EPMD) service is spawned (if
+it's not running already and {@section ERL_DIST_PORT} isn't specified). By
+default, this service listens on all available interfaces. Setting the
+`ERL_EPMD_ADDRESS' environment variable tells EPMD to listen on the specified
+comma-seperated list of IP addresses instead. Note that the IPv4 and IPv6
+loopback addresses are implicitly added to this list if not specified. It's
+usually recommended to set `ERL_EPMD_ADDRESS' to `127.0.0.1' (e.g., by calling
+`systemctl edit eturnal' and adding the following line to the `[Service]'
+section: `Environment="ERL_EPMD_ADDRESS=127.0.0.1"').
 
 === ERL_EPMD_PORT ===
 
-Setting this environment variable tells epmd to listen on the specified port. By
-default, epmd listens on port 4369.
+Setting this environment variable tells EPMD to listen on the specified port. By
+default, EPMD listens on port 4369.
 
 === ETURNAL_ETC_PREFIX ===
 

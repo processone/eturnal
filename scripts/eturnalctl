@@ -26,6 +26,7 @@ user="${ETURNAL_USER:-{{eturnal_user}}}"
 bin_prefix="${ETURNAL_BIN_PREFIX:-{{eturnal_bin_prefix}}}"
 etc_prefix="${ETURNAL_ETC_PREFIX:-{{eturnal_etc_prefix}}}"
 epmd_address="${ERL_EPMD_ADDRESS:-{{erl_epmd_address}}}"
+dist_port="${ERL_DIST_PORT:-{{erl_dist_port}}}"
 
 # END OF CONFIGURATION SECTION.
 
@@ -33,6 +34,11 @@ if [ -z "${ERL_EPMD_ADDRESS:-}" ] && [ -n "$epmd_address" ]
 then
     ERL_EPMD_ADDRESS="$epmd_address"
     export ERL_EPMD_ADDRESS
+fi
+if [ -z "${ERL_DIST_PORT:-}" ] && [ -n "$dist_port" ]
+then
+    ERL_DIST_PORT="$dist_port"
+    export ERL_DIST_PORT
 fi
 if [ -z "${ETURNAL_ETC_PREFIX:-}" ] && [ -n "$etc_prefix" ]
 then

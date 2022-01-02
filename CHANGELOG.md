@@ -4,11 +4,16 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Added
+- Support running eturnal [without](https://blog.erlware.org/epmdlessless/) the
+  Erlang Port Mapper Daemon (EPMD) by specifying the environment variable
+  `ERL_DIST_PORT` (requires at least Erlang/OTP 23.1 and Rebar3 3.18.0).
 
 ### Fixed
 - Binary release: Don't let Erlang/OTP link against libnsl.so.1, which is no
   longer shipped by default on RedHat-based distributions, and isn't actually
   needed (#19).
+- Binary release: Run eturnal without EPMD (as described above).
 
 ## [1.7.0] - 2021-12-15
 ### Added
@@ -166,8 +171,8 @@ project adheres to [Semantic Versioning][SemVer].
 - Allow for binding to privileged ports (if started via systemd).
 - Disable TURN support in the example configuration file.
 - If the distribution provides an `epmd.service`, make sure eturnal uses it
-  rather than starting its own epmd instance.
-- Don't bind epmd to 127.0.0.1 by default.
+  rather than starting its own EPMD instance.
+- Don't bind EPMD to 127.0.0.1 by default.
 
 ### Fixed
 - Only signal readiness to systemd if eturnal's startup actually was successful.
