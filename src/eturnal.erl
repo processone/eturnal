@@ -77,6 +77,7 @@ start_link() ->
 -spec init(any()) -> {ok, state()} | no_return().
 init(_Opts) ->
     process_flag(trap_exit, true),
+    ok = eturnal_module:init(),
     ok = log_control_listener(),
     case turn_enabled() of
         true ->
@@ -196,6 +197,7 @@ terminate(Reason, State) ->
     _ = stop_listeners(State),
     _ = stop_modules(State),
     _ = clean_run_dir(),
+    _ = eturnal_module:terminate(),
     ok.
 
 -spec code_change({down, term()} | term(), state(), term()) -> {ok, state()}.

@@ -10,6 +10,8 @@ project adheres to [Semantic Versioning][SemVer].
   `ERL_DIST_PORT` (requires at least Erlang/OTP 23.1 and Rebar3 3.18.0).
 
 ### Fixed
+- Don't log bogus error messages if no eturnal modules are enabled when using
+  Erlang/OTP version 21.0, 21.1, or 21.2.
 - Binary release: Don't let Erlang/OTP link against libnsl.so.1, which is no
   longer shipped by default on RedHat-based distributions, and isn't actually
   needed (#19).

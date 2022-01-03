@@ -73,7 +73,9 @@
 
 -module(eturnal_module).
 -author('holger@zedat.fu-berlin.de').
--export([start/1,
+-export([init/0,
+         terminate/0,
+         start/1,
          stop/1,
          handle_event/2,
          options/1,
@@ -108,6 +110,26 @@
 -endif.
 
 %% API.
+
+-spec init() -> ok.
+-ifdef(old_persistent_term).
+init() ->
+    events = ets:new(events, [named_table, {read_concurrency, true}]),
+    ok.
+-else.
+init() ->
+    ok.
+-endif.
+
+-spec terminate() -> ok.
+-ifdef(old_persistent_term).
+terminate() ->
+    true = ets:delete(events),
+    ok.
+-else.
+terminate() ->
+    ok.
+-endif.
 
 -spec start(module()) -> ok | {error, term()}.
 start(Mod) ->
@@ -180,12 +202,6 @@ ensure_deps(Mod, Deps) ->
 subscribe_events(Event, Mod) when is_atom(Event) ->
     ok = subscribe_events([Event], Mod);
 subscribe_events(Events, Mod) ->
-    case ets:whereis(events) of
-        undefined ->
-            events = ets:new(events, [named_table, {read_concurrency, true}]);
-        _TID ->
-            ok
-    end,
     Entries = lists:map(
                 fun(Event) ->
                         case ets:lookup(events, ?e(Event)) of
