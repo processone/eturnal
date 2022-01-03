@@ -444,7 +444,7 @@ port is chosen. If this variable is specified, the Erlang Port Mapper Daemon
 ERL_EPMD_ADDRESS} and {@section ERL_EPMD_PORT} variables are ignored.
 `ERL_DIST_PORT' must be set to the same port number during eturnal startup and
 when calling `eturnalctl'. Therefore, it's usually most convenient to specify
-the `dist_port` variable at the top of the `eturnalctl' script itself. <em>This
+the `dist_port' variable at the top of the `eturnalctl' script itself. <em>This
 feature requires at least Erlang/OTP 23.1 and Rebar3 3.18.0.</em>
 
 === ERL_EPMD_ADDRESS ===
