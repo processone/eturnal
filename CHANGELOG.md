@@ -9,13 +9,15 @@ project adheres to [Semantic Versioning][SemVer].
   Erlang Port Mapper Daemon (EPMD) by specifying the environment variable
   `ERL_DIST_PORT` (requires at least Erlang/OTP 23.1 and Rebar3 3.18.0).
 
+### Changed
+- Binary release: Run eturnal without EPMD (as described above).
+
 ### Fixed
 - Don't log bogus error messages if no eturnal modules are enabled when using
   Erlang/OTP version 21.0, 21.1, or 21.2.
 - Binary release: Don't let Erlang/OTP link against libnsl.so.1, which is no
   longer shipped by default on RedHat-based distributions, and isn't actually
   needed (#19).
-- Binary release: Run eturnal without EPMD (as described above).
 
 ## [1.7.0] - 2021-12-15
 ### Added
