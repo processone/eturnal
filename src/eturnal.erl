@@ -392,6 +392,7 @@ opt_map() ->
      {max_permissions, turn_max_permissions},
      {max_bps, shaper},
      {blacklist, turn_blacklist},
+     {whitelist, turn_whitelist},
      {realm, auth_realm},
      {software_name, server_name}].
 
@@ -525,6 +526,7 @@ listener_config_changed({Changed, New, Removed}) ->
                     max_permissions,
                     max_bps,
                     blacklist,
+                    whitelist,
                     realm,
                     software_name],
     lists:any(fun(Key) -> lists:member(Key, ModifiedKeys) end, ListenerKeys).

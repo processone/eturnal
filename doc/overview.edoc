@@ -117,12 +117,19 @@ Default: Loopback addresses</div>
 
 The `blacklist' option specifies a list of one or more IPv4 and/or IPv6
 addresses and/or CIDR blocks. TURN relaying from or to any of the listed
-addresses is refused. The following example shows the default `blacklist':
+addresses is refused, unless the address is also matched by a @{section
+whitelist} entry.
+
+Example:
 
 ```
 blacklist:
-  - "127.0.0.0/8"
   - "::1"
+  - "127.0.0.0/8"
+  - "192.0.2.0/24"
+  - "98.51.100.0/24"
+  - "203.0.113.0/24"
+  - "2001:db8::/32"
 '''
 
 === listen ===
@@ -390,6 +397,22 @@ while negotiating TLS connections. The PEM file must be readable by the user
 running the eturnal server. If a `tls_crt_file' but no `tls_key_file' is
 specified, it is assumed that the `tls_crt_file' contains both the certificate
 chain and the private key.
+
+=== whitelist ===
+
+<div class="spec">Type: `list of IP addresses/CIDRs'<br/>
+Default: `[]'</div>
+
+The `whitelist' option specifies a list of one or more IPv4 and/or IPv6
+addresses and/or CIDR blocks. TURN relaying from or to any of the listed
+addresses is permitted even if the address would otherwise be rejected due to
+being matched by a {@section blacklist} entry.
+
+```
+whitelist:
+  - "203.0.113.113"
+  - "2001:db8::/64"
+'''
 
 == Module Configuration ==
 

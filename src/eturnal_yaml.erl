@@ -51,6 +51,7 @@ validator() ->
                                (I) -> I
                             end),
         blacklist => list_or_single(ip_mask()),
+        whitelist => list_or_single(ip_mask()),
         realm => non_empty(binary()),
         software_name => non_empty(binary()),
         run_dir => directory(write),
@@ -74,6 +75,7 @@ validator() ->
           max_permissions => 10,
           max_bps => none,
           blacklist => ?BLACKLIST,
+          whitelist => [],
           realm => <<"eturnal.net">>,
           secret => get_default(secret, undefined),
           software_name => <<"eturnal">>,
