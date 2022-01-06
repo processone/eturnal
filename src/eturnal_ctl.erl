@@ -266,11 +266,11 @@ query_sessions() ->
                                    relay_addr = element(18, State),
                                    perm_addrs = maps:keys(element(12, State)),
                                    peer_addrs = maps:keys(element(10, State)),
-                                   sent_bytes = element(29, State),
-                                   sent_pkts = element(30, State),
-                                   rcvd_bytes = element(27, State),
-                                   rcvd_pkts = element(28, State),
-                                   start_time = element(31, State)},
+                                   sent_bytes = element(30, State),
+                                   sent_pkts = element(31, State),
+                                   rcvd_bytes = element(28, State),
+                                   rcvd_pkts = element(29, State),
+                                   start_time = element(32, State)},
                       {true, Session}
               catch exit:{Reason, _} when Reason =:= noproc;
                                           Reason =:= normal;
