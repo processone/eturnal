@@ -42,7 +42,7 @@ if [ $# -ge 1 ] && [ "x$1" = 'xhelp' ]
 then
     echo "Usage: $REL_NAME loglevel [Level]"
     echo "Get or set the current log Level of $REL_NAME."
-    echo "Valid log Levels: critical | error | warning | notice | info | debug"
+    echo 'Valid log Levels: critical | error | warning | notice | info | debug'
     exit 0
 elif [ $# -eq 0 ]
 then

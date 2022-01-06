@@ -26,7 +26,7 @@
 
 -include_lib("kernel/include/logger.hrl").
 
-%% API
+%% API.
 
 -spec start(application:start_type(), any()) -> {ok, pid()} | {error, term()}.
 start(_StartType, _StartArgs) ->
