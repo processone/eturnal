@@ -8,6 +8,9 @@ project adheres to [Semantic Versioning][SemVer].
 - Allow for specifying a `whitelist` of IP addresses/subnets which will be
   accepted even if they would otherwise be rejected due to being matched by a
   `blacklist` (#12).
+- Don't close active TURN sessions when ephemeral credentials expire, by
+  default. The new `strict_expiry` option allows for enabling the previous
+  behavior.
 - Support running eturnal [without](https://blog.erlware.org/epmdlessless/) the
   Erlang Port Mapper Daemon (EPMD) by specifying the environment variable
   `ERL_DIST_PORT` (requires at least Erlang/OTP 23.1 and Rebar3 3.18.0).

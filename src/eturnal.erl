@@ -221,8 +221,15 @@ get_password(Username, _Realm) ->
                     ?LOG_DEBUG("Looking up password for: ~ts", [Username]),
                     derive_password(Username, get_opt(secret));
                 Now when Now >= ExpireTime ->
-                    ?LOG_INFO("Credentials expired: ~ts", [Username]),
-                    <<>>
+                    case get_opt(strict_expiry) of
+                        true ->
+                            ?LOG_INFO("Credentials expired: ~ts", [Username]),
+                            <<>>;
+                        false ->
+                            ?LOG_DEBUG("Credentials expired: ~ts", [Username]),
+                            {expired,
+                             derive_password( Username, get_opt(secret))}
+                    end
             end
     catch _:badarg ->
             ?LOG_INFO("Non-numeric expiration field: ~ts", [Username]),
