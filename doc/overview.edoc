@@ -574,7 +574,7 @@ See the following list for a subset of the available `eturnalctl' commands:
          class="cue">`eturnalctl credentials'</a><br/>
       Print credentials valid for 24 hours, derived from the (first) configured
       {@section secret}.</li>
-  <li><a name="credentials"
+  <li><a name="credentials-expiry"
          class="cue">`eturnalctl credentials' <em>expiry</em>[s|m|h|d]
       [<em>suffix</em>]</a><br/>
       Print credentials valid for the given <em>expiry</em> period, derived from
