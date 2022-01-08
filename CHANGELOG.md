@@ -11,6 +11,8 @@ project adheres to [Semantic Versioning][SemVer].
 - Don't close active TURN sessions when ephemeral credentials expire, by
   default. The new `strict_expiry` option allows for enabling the previous
   behavior.
+- Add `eturnalctl disconnect $user` command for closing any TURN session(s) of
+  the specified `$user` name.
 - Support running eturnal [without](https://blog.erlware.org/epmdlessless/) the
   Erlang Port Mapper Daemon (EPMD) by specifying the environment variable
   `ERL_DIST_PORT` (requires at least Erlang/OTP 23.1 and Rebar3 3.18.0).

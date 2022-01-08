@@ -25,6 +25,7 @@
          get_version/0,
          get_loglevel/0,
          set_loglevel/1,
+         disconnect/1,
          reload/0]).
 
 -include_lib("kernel/include/logger.hrl").
@@ -35,7 +36,9 @@
 -type addr_port() :: {inet:ip_address(), inet:port_number()}.
 
 -record(session,
-        {user :: binary(),
+        {pid :: pid(),
+         sid :: binary(),
+         user :: binary(),
          sock_mod :: sock_mod(),
          client_addr :: addr_port(),
          relay_addr :: addr_port(),
@@ -103,7 +106,7 @@ get_password(Username) ->
 -spec get_sessions() -> {ok, string()} | {error, string()}.
 get_sessions() ->
     ?LOG_DEBUG("Handling API call: get_sessions()"),
-    case query_sessions() of
+    case query_all_sessions() of
         [_ | _] = Sessions ->
             Header = io_lib:format("~B active TURN sessions:",
                                    [length(Sessions)]),
@@ -162,6 +165,22 @@ set_loglevel(Level) when is_atom(Level) ->
 set_loglevel(Level) ->
     ?LOG_DEBUG("Invalid API call: set_loglevel(~p)", [Level]),
     {error, "Log level must be specified as an atom"}.
+
+-spec disconnect(term()) -> {ok, string()} | {error, string()}.
+disconnect(Username0) when is_list(Username0) ->
+    ?LOG_DEBUG("Handling API call: disconnect(~p)", [Username0]),
+    case unicode:characters_to_binary(Username0) of
+        Username when is_binary(Username) ->
+            N = disconnect_user(Username),
+            Msg = io_lib:format("Disconnected ~B TURN session(s)", [N]),
+            {ok, unicode:characters_to_list(Msg)};
+        {_, _, _} ->
+            ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
+            {error, "User name must be specified as a string"}
+    end;
+disconnect(Username) ->
+    ?LOG_DEBUG("Invalid API call: disconnect(~p)", [Username]),
+    {error, "User name must be specified as a string"}.
 
 -spec reload() -> ok | {error, string()}.
 reload() ->
@@ -245,21 +264,15 @@ parse_expiry(Expiry) ->
             {error, badarg}
     end.
 
--spec query_state(pid()) -> tuple().
-query_state(PID) -> % Until we add a proper API to 'stun'.
-    {value, State} = lists:search(
-                       fun(E) ->
-                               is_tuple(E) andalso element(1, E) =:= state
-                       end, sys:get_state(PID)),
-    State.
-
--spec query_sessions() -> [session()].
-query_sessions() ->
+-spec filter_sessions(fun((session()) -> boolean())) -> [session()].
+filter_sessions(Pred) ->
     lists:filtermap(
       fun({_, PID, worker, _}) ->
               try query_state(PID) of
                   State ->
                       Session = #session{
+                                   pid = PID,
+                                   sid = element(27, State),
                                    user = element(6, State),
                                    sock_mod = element(2, State),
                                    client_addr = element(4, State),
@@ -271,7 +284,12 @@ query_sessions() ->
                                    rcvd_bytes = element(28, State),
                                    rcvd_pkts = element(29, State),
                                    start_time = element(32, State)},
-                      {true, Session}
+                      case Pred(Session) of
+                          true ->
+                              {true, Session};
+                          false ->
+                              false
+                      end
               catch exit:{Reason, _} when Reason =:= noproc;
                                           Reason =:= normal;
                                           Reason =:= shutdown;
@@ -282,6 +300,40 @@ query_sessions() ->
                       false
               end
       end, supervisor:which_children(turn_tmp_sup)).
+
+-spec query_user_sessions(binary()) -> [session()].
+query_user_sessions(Username) ->
+    Pred = fun(#session{user = User}) when User =:= Username ->
+                   true;
+              (#session{user = User}) -> % Match 1256900400:Username.
+                   case binary:split(User, <<$:>>) of
+                       [_Expiration, Username | _] ->
+                           true;
+                       _ ->
+                           false
+                   end
+           end,
+    filter_sessions(Pred).
+
+-spec query_all_sessions() -> [session()].
+query_all_sessions() ->
+    filter_sessions(fun(_Session) -> true end).
+
+-spec query_state(pid()) -> tuple().
+query_state(PID) -> % Until we add a proper API to 'stun'.
+    {value, State} = lists:search(
+                       fun(E) ->
+                               is_tuple(E) andalso element(1, E) =:= state
+                       end, sys:get_state(PID)),
+    State.
+
+-spec disconnect_user(binary()) -> non_neg_integer().
+disconnect_user(User) ->
+    lists:foldl(fun(#session{user = U, pid = PID, sid = SID}, N) ->
+                        ?LOG_DEBUG("Disconnecting session ~s of ~s", [SID, U]),
+                        _ = supervisor:terminate_child(turn_tmp_sup, PID),
+                        N + 1
+                end, 0, query_user_sessions(User)).
 
 -spec format_sessions([session()]) -> iolist().
 format_sessions(Sessions) ->

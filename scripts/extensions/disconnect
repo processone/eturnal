@@ -1,0 +1,38 @@
+disconnect()
+{
+    _user="$1"
+    _response="$(erl_rpc 'eturnal_ctl' 'disconnect' "[$_user]" || :)"
+
+    case $_response in
+        '{ok,'*)
+            echo "$_response" | sed 's/{ok, *"\(.*\)"}/\1/'
+            exit 0
+            ;;
+        '{error,'*)
+            echo "$_response" | sed 's/{error, *"\(.*\)"}/\1/' >&2
+            exit 1
+            ;;
+        *)
+            echo "Unknown error: '$_response'" >&2
+            exit 1
+            ;;
+    esac
+}
+
+if [ $# -ge 1 ] && [ "x$1" = 'xhelp' ]
+then
+    echo "Usage: $REL_NAME disconnect Username"
+    echo 'Close any TURN session(s) belonging to the given Username. If TURN '
+    echo 'credentials of the form "$timestamp:$suffix" are used, just the '
+    echo '$suffix following the colon may be specified as Username, in which '
+    echo 'case all sessions with that $suffix are disconnected, regardless of '
+    echo 'their expiry $timestamp.'
+    exit 0
+elif [ $# -eq 1 ]
+then
+    ping_or_exit
+    disconnect "$1"
+else
+    echo "Usage: $REL_NAME disconnect Username" >&2
+    exit 2
+fi
