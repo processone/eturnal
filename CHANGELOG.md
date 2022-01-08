@@ -13,6 +13,8 @@ project adheres to [Semantic Versioning][SemVer].
   behavior.
 - Add `eturnalctl disconnect $user` command for closing any TURN session(s) of
   the specified `$user` name.
+- Let the `eturnalctl disconnect` accept an optional `$user` argument to list
+  only the TURN session(s) of the specified `$user` name.
 - Support running eturnal [without](https://blog.erlware.org/epmdlessless/) the
   Erlang Port Mapper Daemon (EPMD) by specifying the environment variable
   `ERL_DIST_PORT` (requires at least Erlang/OTP 23.1 and Rebar3 3.18.0).

@@ -570,6 +570,12 @@ See the following list for a subset of the available `eturnalctl' commands:
   <li><a name="sessions"
          class="cue">`eturnalctl sessions'</a><br/>
       Print the list of currently active TURN sessions.</li>
+  <li><a name="sessions-username"
+         class="cue">`eturnalctl sessions' <em>username</em></a><br/>
+      Print the list of currently active TURN sessions belonging to the given
+      <em>username</em>. If TURN credentials of the form `$timestamp:$suffix'
+      are used, just the `$suffix' may be specified as <em>username</em>, in
+      which case all sessions with that `$suffix' are listed.</li>
   <li><a name="disconnect"
          class="cue">`eturnalctl disconnect' <em>username</em></a><br/>
       Close any TURN session(s) belonging to the given <em>username</em>. If

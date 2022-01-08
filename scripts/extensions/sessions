@@ -1,6 +1,9 @@
 get_sessions()
 {
-    _response="$(erl_rpc 'eturnal_ctl' 'get_sessions' || :)"
+    case $# in
+    0) _response="$(erl_rpc 'eturnal_ctl' 'get_sessions' || :)" ;;
+    1) _response="$(erl_rpc 'eturnal_ctl' 'get_sessions' "[$1]" || :)" ;;
+    esac
 
     case $_response in
         '{ok,'*)
@@ -21,14 +24,19 @@ get_sessions()
 
 if [ $# -ge 1 ] && [ "x$1" = 'xhelp' ]
 then
-    echo "Usage: $REL_NAME sessions"
-    echo "Print the list of currently active TURN sessions."
+    echo "Usage: $REL_NAME sessions [Username]"
+    echo 'Print the list of currently active TURN sessions. If a Username is '
+    echo 'specified, print only the sessions belonging to the given Username. '
+    echo 'If TURN credentials of the form "$timestamp:$suffix" are used, just '
+    echo 'the $suffix following the colon may be specified as Username, in '
+    echo 'which case all sessions with that $suffix are listed, regardless of '
+    echo 'their expiry $timestamp.'
     exit 0
-elif [ $# -eq 0 ]
+elif [ $# -le 1 ]
 then
     ping_or_exit
-    get_sessions
+    get_sessions "$@"
 else
-    echo "Usage: $REL_NAME sessions" >&2
+    echo "Usage: $REL_NAME sessions [Username]" >&2
     exit 2
 fi

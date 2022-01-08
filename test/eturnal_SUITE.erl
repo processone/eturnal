@@ -79,7 +79,8 @@ groups() ->
 all() ->
     [start_eturnal,
      check_info,
-     check_sessions,
+     check_all_sessions,
+     check_user_sessions,
      check_disconnect,
      check_credentials,
      check_loglevel,
@@ -106,10 +107,16 @@ check_info(_Config) ->
     {ok, Info} = eturnal_ctl:get_info(),
     true = is_list(Info).
 
--spec check_sessions(config()) -> any().
-check_sessions(_Config) ->
+-spec check_all_sessions(config()) -> any().
+check_all_sessions(_Config) ->
     ct:pal("Checking active TURN sessions"),
     {ok, Sessions} = eturnal_ctl:get_sessions(),
+    true = is_list(Sessions).
+
+-spec check_user_sessions(config()) -> any().
+check_user_sessions(_Config) ->
+    ct:pal("Checking active TURN sessions of user"),
+    {ok, Sessions} = eturnal_ctl:get_sessions("alice"),
     true = is_list(Sessions).
 
 -spec check_disconnect(config()) -> any().

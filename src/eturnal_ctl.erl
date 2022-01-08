@@ -21,6 +21,7 @@
 -export([get_credentials/2,
          get_password/1,
          get_sessions/0,
+         get_sessions/1,
          get_info/0,
          get_version/0,
          get_loglevel/0,
@@ -116,6 +117,29 @@ get_sessions() ->
         [] ->
             {ok, "No active TURN sessions"}
     end.
+
+-spec get_sessions(term()) -> {ok, string()} | {error, string()}.
+get_sessions(Username0) when is_list(Username0) ->
+    ?LOG_DEBUG("Handling API call: get_sessions(~p)", [Username0]),
+    case unicode:characters_to_binary(Username0) of
+        Username when is_binary(Username) ->
+            case query_user_sessions(Username) of
+                [_ | _] = Sessions ->
+                    Header = io_lib:format("~B active TURN sessions:",
+                                           [length(Sessions)]),
+                    Output = lists:join([nl(), nl()],
+                                        [Header | format_sessions(Sessions)]),
+                    {ok, unicode:characters_to_list(Output)};
+                [] ->
+                    {ok, "No active TURN sessions"}
+            end;
+        {_, _, _} ->
+            ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
+            {error, "User name must be specified as a string"}
+    end;
+get_sessions(Username) ->
+    ?LOG_DEBUG("Invalid API call: get_sessions(~p)", [Username]),
+    {error, "User name must be specified as a string"}.
 
 -spec get_info() -> {ok, string()} | {error, string()}.
 get_info() ->
