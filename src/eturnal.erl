@@ -409,27 +409,6 @@ opt_filter({relay_ipv6_addr, undefined}) ->
 opt_filter(Opt) ->
     {true, Opt}.
 
--spec tls_opts(transport()) -> proplists:proplist().
--ifdef(old_inet_backend).
-tls_opts(tls) ->
-    [{tls, true},
-     {certfile, get_pem_file_path()}];
-tls_opts(auto) ->
-    ?LOG_CRITICAL("Setting 'transport: auto' requires Erlang/OTP 23 or later"),
-    abort(listener_failure);
-tls_opts(_) ->
-    [].
--else.
-tls_opts(tls) ->
-    [{tls, true},
-     {certfile, get_pem_file_path()}];
-tls_opts(auto) ->
-    [{tls, optional},
-     {certfile, get_pem_file_path()}];
-tls_opts(_) ->
-    [].
--endif.
-
 -spec turn_opts(boolean()) -> proplists:proplist().
 turn_opts(EnableTURN) ->
     case {EnableTURN, got_secret(), got_relay_addr()} of
@@ -446,6 +425,36 @@ proxy_opts(true = _ProxyProtocol) ->
     [proxy_protocol];
 proxy_opts(false = _ProxyProtocol) ->
     [].
+
+-spec tls_opts(transport()) -> proplists:proplist().
+-ifdef(old_inet_backend).
+tls_opts(tls) ->
+    [{tls, true} | extra_tls_opts()];
+tls_opts(auto) ->
+    ?LOG_CRITICAL("Setting 'transport: auto' requires Erlang/OTP 23 or later"),
+    abort(listener_failure);
+tls_opts(_) ->
+    [].
+-else.
+tls_opts(tls) ->
+    [{tls, true} | extra_tls_opts()];
+tls_opts(auto) ->
+    [{tls, optional} | extra_tls_opts()];
+tls_opts(_) ->
+    [].
+-endif.
+
+-spec extra_tls_opts() -> proplists:proplist().
+extra_tls_opts() ->
+    Opts = [{certfile, get_pem_file_path()},
+            {ciphers, get_opt(tls_ciphers)},
+            {protocol_options, get_opt(tls_options)}],
+    case get_opt(tls_dh_file) of
+        Path when is_binary(Path) ->
+            [{dhfile, Path} | Opts];
+        none ->
+            Opts
+    end.
 
 %% Internal functions: configuration parsing.
 
@@ -535,7 +544,10 @@ listener_config_changed({Changed, New, Removed}) ->
                     blacklist,
                     whitelist,
                     realm,
-                    software_name],
+                    software_name,
+                    tls_options,
+                    tls_ciphers,
+                    tls_dh_file],
     lists:any(fun(Key) -> lists:member(Key, ModifiedKeys) end, ListenerKeys).
 
 -spec module_config_changed(config_changes()) -> boolean().

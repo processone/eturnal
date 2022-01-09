@@ -22,8 +22,8 @@
 -export([validator/0]).
 -import(yval, [and_then/2, any/0, beam/1, binary/0, bool/0, directory/1,
                either/2, enum/1, file/1, int/2, ip/0, ipv4/0, ipv6/0, ip_mask/0,
-               list/1, list_or_single/1, map/3, non_empty/1, non_neg_int/0,
-               options/1, options/2, port/0, pos_int/1]).
+               list/1, list/2, list_or_single/1, map/3, non_empty/1,
+               non_neg_int/0, options/1, options/2, port/0, pos_int/1]).
 
 -type listener() :: {inet:ip_address(), inet:port_number(), eturnal:transport(),
                      boolean(), boolean()}.
@@ -44,6 +44,9 @@ validator() ->
         relay_max_port => port(),
         tls_crt_file => file(read),
         tls_key_file => file(read),
+        tls_dh_file => file(read),
+        tls_options => openssl_list($|),
+        tls_ciphers => openssl_list($:),
         max_allocations => pos_int(unlimited),
         max_permissions => pos_int(unlimited),
         max_bps => and_then(pos_int(unlimited),
@@ -72,6 +75,9 @@ validator() ->
           relay_max_port => 65535,
           tls_crt_file => none,
           tls_key_file => none,
+          tls_dh_file => none,
+          tls_options => <<"cipher_server_preference">>,
+          tls_ciphers => <<"HIGH:!aNULL:@STRENGTH">>,
           max_allocations => 10,
           max_permissions => 10,
           max_bps => none,
@@ -197,6 +203,18 @@ get_default(Var, Default) ->
             Default
     end.
 
+-spec openssl_list(char()) -> fun((binary() | [binary()]) -> binary()).
+openssl_list(Sep) ->
+    fun(L) when is_list(L) ->
+            (and_then(list(binary(), [unique]), join(Sep)))(L);
+       (B) ->
+            (binary())(B)
+    end.
+
+-spec join(char()) -> fun(([binary()]) -> binary()).
+join(Sep) ->
+    fun(Opts) -> unicode:characters_to_binary(lists:join(<<Sep>>, Opts)) end.
+
 -spec fail({atom(), term()}) -> no_return().
 fail(Reason) ->
-   yval:fail(yval, Reason).
+    yval:fail(yval, Reason).

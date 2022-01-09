@@ -5,6 +5,8 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 ### Added
+- Allow for configuring TLS connection properties using the new `tls_options`,
+  `tls_ciphers`, and `tls_dh_file` options (#6).
 - Allow for specifying a `whitelist` of IP addresses/subnets which will be
   accepted even if they would otherwise be rejected due to being matched by a
   `blacklist` (#12).

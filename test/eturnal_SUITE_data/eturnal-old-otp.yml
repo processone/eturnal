@@ -16,6 +16,14 @@ eturnal:
       enable_turn: false
   secret: "crypt1c"
   log_level: debug
+  tls_options:
+    - no_tlsv1
+    - no_tlsv1_1
+    - cipher_server_preference
+  tls_ciphers:
+    - "HIGH"
+    - "!aNULL"
+    - "@STRENGTH"
   max_bps: 100000
   blacklist:
     - "203.0.113.4"

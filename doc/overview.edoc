@@ -383,6 +383,18 @@ This option specifies the server <a
 href="https://tools.ietf.org/html/rfc5389#section-15.10">software name</a>
 announced to clients during the STUN/TURN communication.
 
+=== tls_ciphers ===
+
+<div class="spec">Type: `string' | `list of strings'<br/>
+Default: `HIGH:!aNULL:@STRENGTH'</div>
+
+This option can be used to specify a cipher list to be handed over to OpenSSL
+for TLS connections. See the <a
+href="https://www.openssl.org/docs/manmaster/man1/ciphers.html">openssl-ciphers</a>
+manual for a list of permitted cipher strings and their meanings. The ciphers
+are either specified as a list or joined into a string using a `:' character as
+separator.
+
 === tls_crt_file ===
 
 <div class="spec">Type: `path name'<br/>
@@ -400,6 +412,15 @@ than just for circumventing restrictive packet filters), clients may well refuse
 to accept such a certificate. Therefore, it's <em>strongly recommended</em> to
 specify this option if TLS is enabled.
 
+=== tls_dh_file ===
+
+<div class="spec">Type: `path name'<br/>
+Default: `none'</div>
+
+The `tls_dh_file' option specifies the path to a PEM file holding DH parameters
+to be used instead of the default DH parameters. The file could be created using
+a command such as `openssl dhparam -out dh-parameters.pem 4096'.
+
 === tls_key_file ===
 
 <div class="spec">Type: `path name'<br/>
@@ -410,6 +431,27 @@ while negotiating TLS connections. The PEM file must be readable by the user
 running the eturnal server. If a `tls_crt_file' but no `tls_key_file' is
 specified, it is assumed that the `tls_crt_file' contains both the certificate
 chain and the private key.
+
+=== tls_options ===
+
+<div class="spec">Type: `string' | `list of strings'<br/>
+Default: `cipher_server_preference'</div>
+
+This setting can be used to specify options to be handed over to OpenSSL for TLS
+connections. See the <a
+href="https://www.openssl.org/docs/manmaster/man3/SSL_CTX_set_options.html">SSL_CTX_set_options</a>
+manual for details on the available options. They are specified in lower case
+and without `SSL_OP_' prefix, either as a list or combined into a string using a
+`|' character as separator.
+
+Example:
+
+```
+tls_options:
+  - no_tlsv1
+  - no_tlsv1_1
+  - cipher_server_preference
+'''
 
 === whitelist ===
 
