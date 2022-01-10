@@ -1,7 +1,7 @@
 disconnect()
 {
-    _user="$1"
-    _response="$(erl_rpc 'eturnal_ctl' 'disconnect' "[$_user]" || :)"
+    _username="$1"
+    _response="$(erl_rpc 'eturnal_ctl' 'disconnect' "[\"$_username\"]" || :)"
 
     case $_response in
         '{ok,'*)

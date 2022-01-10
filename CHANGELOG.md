@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Fixed
+- Don't fail to handle the `$user` argument of the `eturnalctl sessions` and
+  `eturnalctl disconnect` calls.
 
 ## [1.8.0] - 2022-01-10
 ### Added

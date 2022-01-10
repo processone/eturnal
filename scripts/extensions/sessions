@@ -2,7 +2,7 @@ get_sessions()
 {
     case $# in
     0) _response="$(erl_rpc 'eturnal_ctl' 'get_sessions' || :)" ;;
-    1) _response="$(erl_rpc 'eturnal_ctl' 'get_sessions' "[$1]" || :)" ;;
+    1) _response="$(erl_rpc 'eturnal_ctl' 'get_sessions' "[\"$1\"]" || :)" ;;
     esac
 
     case $_response in
