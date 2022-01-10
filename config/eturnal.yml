@@ -44,6 +44,9 @@ eturnal:
     - "127.0.0.0/8"         # IPv4 loopback.
     - "::1"                 # IPv6 loopback.
 
+  ## If 'true', close established calls on expiry of temporary TURN credentials:
+  strict_expiry: false      # This is the default.
+
   ## Logging configuration:
   log_level: info           # critical | error | warning | notice | info | debug
   log_rotate_size: 10485760 # 10 MiB (default: unlimited, i.e., no rotation).
