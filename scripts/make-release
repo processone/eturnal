@@ -59,8 +59,8 @@ fi
 
 echo "$myself: Editing repository files ..."
 sed -i -e "s|^rel_vsn=.*|rel_vsn='$new_vsn'|" 'scripts/get-version'
-sed -i -e "s|$old_vsn|$new_vsn|g" 'README.md' 'INSTALL.md' 'doc/overview.edoc' \
-    'windows/eturnal.iss'
+sed -i -e "s|$(echo "$old_vsn" | sed 's/\./\\./g')|$new_vsn|g" \
+    'README.md' 'INSTALL.md' 'doc/overview.edoc' 'windows/eturnal.iss'
 sed -i -e "s|^rebar_vsn=.*|rebar_vsn='$rebar_vsn'|" \
     'scripts/make-source' 'scripts/make-binaries'
 sed -i -e "s|compare/$old_vsn|compare/$new_vsn|" \
