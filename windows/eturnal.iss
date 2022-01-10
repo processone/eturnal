@@ -1,5 +1,10 @@
 ; Inno Setup configuration for the eturnal TURN server.
 
+; https://github.com/DomGries/InnoDependencyInstaller
+
+#define public Dependency_NoExampleSetup
+#include "..\..\InnoDependencyInstaller\CodeDependencies.iss"
+
 [Setup]
 AppName=eturnal
 AppPublisher=ProcessOne, SARL
@@ -38,3 +43,31 @@ Filename: {app}\bin\eturnal.cmd; Parameters: uninstall; WorkingDir: {app}; Flags
 
 [UninstallDelete]
 Type: files; Name: {app}\doc\eturnal.url
+
+[Code]
+procedure InitializeWizard;
+begin
+  Dependency_InitializeWizard;
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+begin
+  Result := Dependency_PrepareToInstall(NeedsRestart);
+end;
+
+function NeedRestart: Boolean;
+begin
+  Result := Dependency_NeedRestart;
+end;
+
+function UpdateReadyMemo(const Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo, MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo: String): String;
+begin
+  Result := Dependency_UpdateReadyMemo(Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo, MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo);
+end;
+
+function InitializeSetup: Boolean;
+begin
+  Dependency_AddVC2015To2019;
+
+  Result := True;
+end;
