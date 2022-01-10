@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [1.8.0] - 2022-01-10
 ### Added
 - Allow for configuring TLS connection properties using the new `tls_options`,
   `tls_ciphers`, and `tls_dh_file` options (#6).
@@ -268,7 +270,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/1.7.0...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.8.0...HEAD
+[1.8.0]: https://github.com/processone/eturnal/releases/tag/1.8.0
 [1.7.0]: https://github.com/processone/eturnal/releases/tag/1.7.0
 [1.6.0]: https://github.com/processone/eturnal/releases/tag/1.6.0
 [1.5.0]: https://github.com/processone/eturnal/releases/tag/1.5.0
