@@ -1,7 +1,7 @@
 %%% eturnal STUN/TURN server.
 %%%
-%%% Copyright (c) 2020 Holger Weiss <holger@zedat.fu-berlin.de>.
-%%% Copyright (c) 2020 ProcessOne, SARL.
+%%% Copyright (c) 2020-2022 Holger Weiss <holger@zedat.fu-berlin.de>.
+%%% Copyright (c) 2020-2022 ProcessOne, SARL.
 %%% All rights reserved.
 %%%
 %%% Licensed under the Apache License, Version 2.0 (the "License");
