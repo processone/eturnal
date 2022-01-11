@@ -24,17 +24,18 @@ limitations under the License.
 @author Holger Weiss
 
 @doc eturnal is a <a
-href="https://eturnal.net/documentation/protocol.html#stun">STUN</a>/<a
+href="https://eturnal.net/documentation/protocol.html#stun">STUN</a> and <a
 href="https://eturnal.net/documentation/protocol.html#turn">TURN</a> server that
-implements the authentication mechanism described in the <a
+supports the authentication mechanism described in the <a
 href="https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00">REST API for
 Access to TURN Services</a> specification. The idea is that WebRTC (or other)
 clients receive temporary TURN credentials where the user name is comprised of
 the (Unix) expiry timestamp and the password is derived from a {@section secret}
 shared between the service generating those credentials and eturnal. The service
-offering the credentails performs a `Base64(HMAC-SHA1($secret, $timestamp))'
-operation to generate the ephemeral password, and eturnal does the same to
-verify it.
+offering the credentials <a
+href="https://github.com/processone/eturnal/blob/1.8.1/scripts/examples/make-credentials">performs</a>
+a `Base64(HMAC-SHA1($secret, $timestamp))' operation to generate the ephemeral
+password, and eturnal does the same to verify it.
 
 The <a
 href="https://github.com/processone/eturnal/blob/1.8.1/README.md">README.md</a>
