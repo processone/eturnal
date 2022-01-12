@@ -81,7 +81,7 @@ init(_Opts) ->
     ok = log_control_listener(),
     case turn_enabled() of
         true ->
-            ok = check_turn_config(got_secret(), got_relay_addr());
+            ok = check_turn_config(got_relay_addr());
         false ->
             ?LOG_DEBUG("TURN is disabled")
     end,
@@ -496,15 +496,11 @@ got_relay_addr() ->
             true
     end.
 
--spec check_turn_config(boolean(), boolean()) -> ok.
-check_turn_config(_GotSecret = true, _GotAddr = true) ->
+-spec check_turn_config(boolean()) -> ok.
+check_turn_config(_GotAddr = true) ->
     ?LOG_DEBUG("TURN configuration seems fine");
-check_turn_config(_GotSecret = false, _GotAddr = true) ->
-    ?LOG_WARNING("Specify a 'secret' to enable TURN");
-check_turn_config(_GotSecret = true, _GotAddr = false) ->
-    ?LOG_WARNING("Specify a 'relay_ipv4_addr' to enable TURN");
-check_turn_config(_GotSecret = false, _GotAddr = false) ->
-    ?LOG_WARNING("Specify a 'secret' and 'relay_ipv4_addr' to enable TURN").
+check_turn_config(_GotAddr = false) ->
+    ?LOG_WARNING("Specify a 'relay_ipv4_addr' to enable TURN").
 
 -spec check_proxy_config() -> ok | error.
 check_proxy_config() ->

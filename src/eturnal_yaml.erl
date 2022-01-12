@@ -85,7 +85,7 @@ validator() ->
           whitelist => [],
           strict_expiry => false,
           realm => <<"eturnal.net">>,
-          secret => get_default(secret, undefined),
+          secret => get_default(secret, make_random_secret()),
           software_name => <<"eturnal">>,
           run_dir => get_default("RUNTIME_DIRECTORY", <<"run">>),
           log_dir => get_default("LOGS_DIRECTORY", <<"log">>),
@@ -202,6 +202,10 @@ get_default(Var, Default) ->
         _ ->
             Default
     end.
+
+-spec make_random_secret() -> binary().
+make_random_secret() ->
+    <<(rand:uniform(16#80000000000000000000000000000000)):128>>.
 
 -spec openssl_list(char()) -> fun((binary() | [binary()]) -> binary()).
 openssl_list(Sep) ->

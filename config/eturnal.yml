@@ -7,11 +7,7 @@
 
 eturnal:
 
-  ## ---------------------------------------------------------------------- ##
-  ## To enable TURN support, specify a 'secret' and your 'relay_ipv4_addr'. ##
-  ## ---------------------------------------------------------------------- ##
-
-  ## Shared secret for deriving temporary TURN credentials (MUST be specified):
+  ## Shared secret for deriving temporary TURN credentials (default: $RANDOM):
   #secret: "long-and-cryptic"
 
   ## The server's public IPv4 address (default: address of $(hostname --fqdn)):

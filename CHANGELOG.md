@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Changed
+- Use a (pseudo)random `secret` by default.
 
 ## [1.8.1] - 2022-01-10
 ### Fixed
