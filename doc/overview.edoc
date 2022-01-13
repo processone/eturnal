@@ -133,19 +133,6 @@ blacklist:
   - "2001:db8::/32"
 '''
 
-=== strict_expiry ===
-
-<div class="spec">Type: `boolean'<br/>
-Default: `false'</div>
-
-If the `strict_expiry' option is set to `false', the expiry timestamp of
-ephemeral credentials is only checked during TURN session creation. Once
-credentials are accepted, clients may continue to use them for refreshing the
-existing session beyond the credential expiry time (as long as the configured
-shared {@section secret} remains unchanged). If the `strict_expiry' option is
-set to `true', expired credentials won't be accepted for refreshing TURN
-sessions. The default value is `false'.
-
 === listen ===
 
 <div class="spec">Type: `list of key-value pairs'<br/>
@@ -384,6 +371,19 @@ Default: `eturnal'</div>
 This option specifies the server <a
 href="https://tools.ietf.org/html/rfc5389#section-15.10">software name</a>
 announced to clients during the STUN/TURN communication.
+
+=== strict_expiry ===
+
+<div class="spec">Type: `boolean'<br/>
+Default: `false'</div>
+
+If the `strict_expiry' option is set to `false', the expiry timestamp of
+ephemeral credentials is only checked during TURN session creation. Once
+credentials are accepted, clients may continue to use them for refreshing the
+existing session beyond the credential expiry time (as long as the configured
+shared {@section secret} remains unchanged). If the `strict_expiry' option is
+set to `true', expired credentials won't be accepted for refreshing TURN
+sessions. The default value is `false'.
 
 === tls_ciphers ===
 
