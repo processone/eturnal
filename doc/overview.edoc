@@ -288,7 +288,7 @@ modules:
 Default: `eturnal.net'</div>
 
 This option defines the realm. A realm is <a
-href="https://tools.ietf.org/html/rfc5389#section-15.10">required</a> for
+href="https://tools.ietf.org/html/rfc5389#section-15.7">required</a> for
 authentication as per the STUN/TURN protocols, but with shared {@section secret}
 authentication, the actual value of the realm is meaningless. Therefore, this
 option can usually be left unspecified.
