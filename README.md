@@ -4,7 +4,7 @@
 
 [eturnal][2] is a modern, straightforward STUN and TURN server with full IPv6
 support. For TURN authentication, the mechanism described in the [REST API for
-Access to TURN Services specification][3] is implemented.
+Access to TURN Services][3] specification is implemented.
 
 ## Installation
 
