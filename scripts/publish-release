@@ -56,7 +56,7 @@ mv "$rel_name"*'.rpm' "$dl_linux_pkg_dir"
 
 # Copy documentation to web site.
 mv 'index.html' "$user_doc_dir"
-rebar3 as exdoc edoc
+rebar3 ex_doc
 rm -rf "$api_doc_dir"
 mv 'exdoc' "$api_doc_dir"
 
