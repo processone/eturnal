@@ -117,13 +117,17 @@ check_all_sessions(_Config) ->
 check_user_sessions(_Config) ->
     ct:pal("Checking active TURN sessions of user"),
     {ok, Sessions} = eturnal_ctl:get_sessions("alice"),
-    true = is_list(Sessions).
+    true = is_list(Sessions),
+    ct:pal("Checking active TURN sessions of invalid user"),
+    {error, _Reason} = eturnal_ctl:disconnect(alice).
 
 -spec check_disconnect(config()) -> any().
 check_disconnect(_Config) ->
     ct:pal("Checking disconnection of TURN user"),
     {ok, Msg} = eturnal_ctl:disconnect("alice"),
-    true = is_list(Msg).
+    true = is_list(Msg),
+    ct:pal("Checking disconnection of invalid TURN user"),
+    {error, _Reason} = eturnal_ctl:disconnect(alice).
 
 -spec check_credentials(config()) -> any().
 check_credentials(_Config) ->
@@ -143,7 +147,15 @@ check_credentials(_Config) ->
               {ok, Pass} =
                   eturnal_ctl:get_password(integer_to_list(Time) ++ ":alice"),
               true = erlang:system_time(second) + 86400 - Time < 5
-      end, ["86400", "86400s", "1440m", "24h", "1d"]).
+      end, ["86400", "86400s", "1440m", "24h", "1d"]),
+    ct:pal("Checking invalid expiry"),
+    lists:foreach(
+      fun(Invalid) ->
+              {error, _Reason1} = eturnal_ctl:get_password(Invalid),
+              {error, _Reason2} = eturnal_ctl:get_credentials(Invalid, [])
+      end, ["Invalid", invalid, [invalid]]),
+    ct:pal("Checking invalid suffix"),
+    {error, _Reason} = eturnal_ctl:get_credentials(Username, invalid).
 
 -spec check_loglevel(config()) -> any().
 check_loglevel(_Config) ->
@@ -151,6 +163,10 @@ check_loglevel(_Config) ->
     ct:pal("Setting log level to ~s", [Level]),
     ok = eturnal_ctl:set_loglevel(list_to_atom(Level)),
     ct:pal("Checking whether log level is set to ~s", [Level]),
+    {ok, Level} = eturnal_ctl:get_loglevel(),
+    ct:pal("Setting invalid log level"),
+    {error, _Reason} = eturnal_ctl:set_loglevel(invalid),
+    ct:pal("Checking whether log level is still set to ~s", [Level]),
     {ok, Level} = eturnal_ctl:get_loglevel().
 
 -spec check_version(config()) -> any().
