@@ -154,7 +154,7 @@ start(Mod) ->
 -spec stop(module()) -> ok | {error, term()}.
 stop(Mod) ->
     ok = unsubscribe_events(Mod),
-    case erlang:function_exported(Mod, stop, 1) of
+    case erlang:function_exported(Mod, stop, 0) of
         true ->
             ?LOG_DEBUG("Calling ~s:stop/1", [Mod]),
             try ok = Mod:stop()
