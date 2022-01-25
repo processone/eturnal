@@ -56,10 +56,10 @@
 %% API.
 
 -spec get_credentials(term(), term()) -> {ok, string()} | {error, string()}.
-get_credentials(Expiry, Suffix) when is_list(Expiry), is_list(Suffix) ->
+get_credentials(Expiry, Suffix) ->
     ?LOG_DEBUG("Handling API call: get_credentials(~p, ~p)", [Expiry, Suffix]),
-    case make_username(Expiry, Suffix) of
-        {ok, Username} ->
+    try make_username(Expiry, Suffix) of
+        Username ->
             case call({get_password, Username}) of
                 {ok, Password} ->
                     Credentials = format_credentials(Username, Password),
@@ -68,19 +68,16 @@ get_credentials(Expiry, Suffix) when is_list(Expiry), is_list(Suffix) ->
                     {error, "No shared secret"};
                 {error, timeout} ->
                     {error, "Querying eturnal timed out"}
-            end;
-        {error, badarg} ->
+            end
+    catch _:badarg ->
             ?LOG_DEBUG("Invalid argument(s): ~p:~p", [Expiry, Suffix]),
             {error, "Invalid expiry or suffix"}
-    end;
-get_credentials(Expiry, Suffix) ->
-    ?LOG_DEBUG("Invalid API call: get_credentials(~p, ~p)", [Expiry, Suffix]),
-    {error, "Expiry and suffix must be specified as strings"}.
+    end.
 
 -spec get_password(term()) -> {ok, string()} | {error, string()}.
-get_password(Username0) when is_list(Username0) ->
+get_password(Username0) ->
     ?LOG_DEBUG("Handling API call: get_password(~p)", [Username0]),
-    case unicode:characters_to_binary(Username0) of
+    try unicode:characters_to_binary(Username0) of
         Username when is_binary(Username) ->
             case is_valid_username(Username) of
                 true ->
@@ -99,10 +96,10 @@ get_password(Username0) when is_list(Username0) ->
         {_, _, _} ->
             ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
             {error, "User name must be specified as a string"}
-    end;
-get_password(Username) ->
-    ?LOG_DEBUG("Invalid API call: get_password(~p)", [Username]),
-    {error, "User name must be specified as a string"}.
+    catch _:badarg ->
+            ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
+            {error, "User name must be specified as a string"}
+    end.
 
 -spec get_sessions() -> {ok, string()} | {error, string()}.
 get_sessions() ->
@@ -119,9 +116,9 @@ get_sessions() ->
     end.
 
 -spec get_sessions(term()) -> {ok, string()} | {error, string()}.
-get_sessions(Username0) when is_list(Username0) ->
+get_sessions(Username0) ->
     ?LOG_DEBUG("Handling API call: get_sessions(~p)", [Username0]),
-    case unicode:characters_to_binary(Username0) of
+    try unicode:characters_to_binary(Username0) of
         Username when is_binary(Username) ->
             case query_user_sessions(Username) of
                 [_ | _] = Sessions ->
@@ -136,10 +133,10 @@ get_sessions(Username0) when is_list(Username0) ->
         {_, _, _} ->
             ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
             {error, "User name must be specified as a string"}
-    end;
-get_sessions(Username) ->
-    ?LOG_DEBUG("Invalid API call: get_sessions(~p)", [Username]),
-    {error, "User name must be specified as a string"}.
+    catch _:badarg ->
+            ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
+            {error, "User name must be specified as a string"}
+    end.
 
 -spec get_info() -> {ok, string()} | {error, string()}.
 get_info() ->
@@ -191,9 +188,9 @@ set_loglevel(Level) ->
     {error, "Log level must be specified as an atom"}.
 
 -spec disconnect(term()) -> {ok, string()} | {error, string()}.
-disconnect(Username0) when is_list(Username0) ->
+disconnect(Username0) ->
     ?LOG_DEBUG("Handling API call: disconnect(~p)", [Username0]),
-    case unicode:characters_to_binary(Username0) of
+    try unicode:characters_to_binary(Username0) of
         Username when is_binary(Username) ->
             N = disconnect_user(Username),
             Msg = io_lib:format("Disconnected ~B TURN session(s)", [N]),
@@ -201,10 +198,10 @@ disconnect(Username0) when is_list(Username0) ->
         {_, _, _} ->
             ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
             {error, "User name must be specified as a string"}
-    end;
-disconnect(Username) ->
-    ?LOG_DEBUG("Invalid API call: disconnect(~p)", [Username]),
-    {error, "User name must be specified as a string"}.
+    catch _:badarg ->
+            ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
+            {error, "User name must be specified as a string"}
+    end.
 
 -spec reload() -> ok | {error, string()}.
 reload() ->
@@ -231,61 +228,56 @@ is_valid_username(Username) ->
             false
     end.
 
--spec make_username(string(), string())
-      -> {ok, binary()} | {error, badarg}.
+-spec make_username(string(), string()) -> binary().
 make_username(Expiry0, Suffix) ->
-    Expiry = string:trim(Expiry0),
-    try calendar:rfc3339_to_system_time(Expiry) of
-        Time ->
-            username_from_timestamp(Time, Suffix)
-    catch
-        _:{badmatch, _} ->
-            username_from_expiry(Expiry, Suffix);
-        _:badarg -> % Erlang/OTP < 21.3.
-            username_from_expiry(Expiry, Suffix)
+    try string:trim(Expiry0) of
+        Expiry ->
+            try calendar:rfc3339_to_system_time(Expiry) of
+                Time ->
+                    username_from_timestamp(Time, Suffix)
+            catch
+                _:{badmatch, _} ->
+                    username_from_expiry(Expiry, Suffix);
+                _:badarg -> % Erlang/OTP < 21.3.
+                    username_from_expiry(Expiry, Suffix)
+            end
+    catch _:function_clause ->
+            erlang:error(badarg)
     end.
 
--spec username_from_timestamp(integer(), string())
-      -> {ok, binary()} | {error, badarg}.
+-spec username_from_timestamp(integer(), string()) -> binary().
 username_from_timestamp(Time, [])  ->
-    Username = integer_to_binary(Time),
-    {ok, Username};
+    integer_to_binary(Time);
 username_from_timestamp(Time, Suffix) ->
     Username = io_lib:format("~B:~s", [Time, Suffix]),
-    {ok, unicode:characters_to_binary(Username)}.
+    unicode:characters_to_binary(Username).
 
--spec username_from_expiry(string(), string())
-      -> {ok, binary()} | {error, badarg}.
+-spec username_from_expiry(string(), string()) -> binary().
 username_from_expiry(Expiry0, Suffix) ->
     case {unicode:characters_to_binary(Expiry0),
           io_lib:printable_unicode_list(Suffix)} of
         {Expiry, true} when is_binary(Expiry) ->
-            case parse_expiry(Expiry) of
-                {ok, ExpirySecs} ->
-                    Time = erlang:system_time(second) + ExpirySecs,
-                    username_from_timestamp(Time, Suffix);
-                {error, badarg} = Err ->
-                    Err
-            end;
+            Time = erlang:system_time(second) + parse_expiry(Expiry),
+            username_from_timestamp(Time, Suffix);
         {_, _} ->
-            {error, badarg}
+            erlang:error(badarg)
     end.
 
--spec parse_expiry(binary()) -> {ok, pos_integer()} | {error, badarg}.
+-spec parse_expiry(binary()) -> pos_integer().
 parse_expiry(Expiry) ->
     case string:to_integer(Expiry) of
         {N, <<>>} when is_integer(N), N > 0 ->
-            {ok, N};
+            N;
         {N, <<"s">>} when is_integer(N), N > 0 ->
-            {ok, N};
+            N;
         {N, <<"m">>} when is_integer(N), N > 0 ->
-            {ok, N * 60};
+            N * 60;
         {N, <<"h">>} when is_integer(N), N > 0 ->
-            {ok, N * 3600};
+            N * 3600;
         {N, <<"d">>} when is_integer(N), N > 0 ->
-            {ok, N * 86400};
+            N * 86400;
         {_, _} ->
-            {error, badarg}
+            erlang:error(badarg)
     end.
 
 -spec filter_sessions(fun((session()) -> boolean())) -> [session()].
