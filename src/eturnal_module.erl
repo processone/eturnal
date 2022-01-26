@@ -39,10 +39,11 @@
 %%% elements. The first is a map of configuration options, where the keys are
 %%% the {@type option} names specified as {@type atom()}s, and the values are
 %%% functions that validate the option values. Those functions are returned by
-%%% the <a
-%%% href="https://github.com/processone/yval/blob/master/src/yval.erl">yval</a>
-%%% library. The second tuple element is a list of optional tuples to specify
-%%% `{required, [Options]}' and/or `{defaults, #{Option => Value}}'. For
+%%% the <a href="https://hex.pm/packages/yval">yval</a> library, see the
+%%% documentation for the list of <a
+%%% href="https://hexdocs.pm/yval/yval.html#index">available validators</a>.
+%%% The second tuple element is a list of optional tuples to
+%%% specify `{required, [Options]}' and/or `{defaults, #{Option => Value}}'. For
 %%% example:
 %%%
 %%% ```
