@@ -21,28 +21,29 @@
 %%% may export `start/0', `stop/0', `handle_event/2', and `options/0' functions.
 %%%
 %%% If a `start/0' callback is exported, it must return `ok' or `{ok, Events}',
-%%% where `Events' is either a single {@type event()} or a list of {@type
-%%% events()} the module is interested in. Currently, the following events may
-%%% be triggered: `stun_query', `turn_session_start', and `turn_session_stop'.
-%%%
-%%% If the `start/0' function subscribes to any {@type events()}, a
+%%% where `Events' is either a single {@link event()} or a list of {@link
+%%% events()} the module is interested in. Currently, the following {@link
+%%% events()} may be triggered: `stun_query', `turn_session_start', and
+%%% `turn_session_stop'.
+%
+%%% If the `start/0' function subscribes to one or more {@link events()}, a
 %%% `handle_event/2' callback <em>must</em> be exported as well. It is called
-%%% with the event name as the first argument and a map with related data as the
-%%% second. The contents of that map depend on the event. Note that the
-%%% `handle_event/2' function is executed in the context of the process handling
-%%% the STUN/TURN session, so it should never block. If it might, and/or if it
-%%% needs some state, one or more handler processes must be created.
+%%% with the {@link event()} name as the first argument and an {@link info()}
+%%% map with related data as the second. The contents of that map depend on the
+%%% {@link event()}. Note that the `handle_event/2' function is executed in the
+%%% context of the process handling the STUN/TURN session, so it should never
+%%% block. If it might, and/or if it needs some state, one or more handler
+%%% processes must be created.
 %%%
-%%% The `options/0' callback returns an {@type options()} tuple with two
+%%% The `options/0' callback returns an {@link options()} tuple with two
 %%% elements. The first is a map of module configuration options, where the keys
-%%% are the {@type option()} names specified as {@type atom()}s, and the values
-%%% are functions that validate the option values. Those functions are returned
-%%% by the <a href="https://hex.pm/packages/yval">yval</a> library, see the
-%%% documentation for the list of <a
-%%% href="https://hexdocs.pm/yval/yval.html#index">available validators</a>. The
-%%% second {@type options()} tuple element is a list of optional tuples to
-%%% specify any `{required, [Options]}' and/or `{defaults, #{Option => Value}}'.
-%%% For example:
+%%% are the {@link option()} names and the values are functions that validate
+%%% the option values. Those functions are returned by the <a
+%%% href="https://hex.pm/packages/yval">yval</a> library, see the documentation
+%%% for the list of <a href="https://hexdocs.pm/yval/yval.html#index">available
+%%% validators</a>. The second element is a list of optional tuples to specify
+%%% any `{required, [Options]}' and/or `{defaults, #{Option => Value}}'. For
+%%% example:
 %%%
 %%% ```
 %%% options() ->
@@ -52,7 +53,7 @@
 %%% '''
 %%%
 %%% The option values are queried by calling {@link eturnal_module:get_opt/2}
-%%% with the `?MODULE' name as the first and the {@type option()} name as the
+%%% with the module name as the first and the {@link option()} name as the
 %%% second argument. Note that the lookup is very efficient, so there's no point
 %%% in saving option values into some state. If the module has no configuration
 %%% options, the `options/0' function may be omitted.
@@ -64,7 +65,7 @@
 %%% If the module depends on other applications, those must be added to the
 %%% `rebar.config' file, but not to the app file. They are to be started by
 %%% calling {@link eturnal_module:ensure_deps/2}, where the first argument is
-%%% the `?MODULE' name and the second is a list of dependency names. Note that
+%%% the module name and the second is a list of dependency names. Note that
 %%% there's no need to list transitive dependencies.
 %%%
 %%% The module is enabled by adding its configuration to the `modules' section
@@ -84,6 +85,7 @@
 -export_type([event/0,
               events/0,
               info/0,
+              option/0,
               options/0]).
 
 -type event() :: atom().
