@@ -18,32 +18,31 @@
 
 %%% @doc An eturnal module adds functionality to the eturnal server. It is to be
 %%% named `mod_foo', where `foo' describes the added functionality. The module
-%%% must export `handle_event/2' and `options/0' callbacks, and may optionally
-%%% export `start/0' and `stop/0' functions.
+%%% may export `start/0', `stop/0', `handle_event/2', and `options/0' functions.
 %%%
-%%% The optional `start/0' function must return `ok' or `{ok, Events}', where
-%%% `Events' is the (list of) event(s) the module is interested in. Currently, the
-%%% following events may be triggered: `stun_query', `turn_session_start', and
-%%% `turn_session_stop'. If the `start/0' function doesn't return a (list of)
-%%% event(s), the `handle_event/2' callback won't be invoked for any event.
+%%% If a `start/0' callback is exported, it must return `ok' or `{ok, Events}',
+%%% where `Events' is either a single {@type event()} or a list of {@type
+%%% events()} the module is interested in. Currently, the following events may
+%%% be triggered: `stun_query', `turn_session_start', and `turn_session_stop'.
 %%%
-%%% The `handle_event/2' function is called with the event name as the first
-%%% argument and a map with metadata related to the event as the second. The
-%%% contents of that map depend on the event. Note that the `handle_event/2'
-%%% callback is executed by the process handling the STUN/TURN session, so it
-%%% should never block. If it might, and/or if it needs some `#state{}', one or
-%%% more handler processes must be created.
+%%% If the `start/0' function subscribes to any {@type events()}, a
+%%% `handle_event/2' callback <em>must</em> be exported as well. It is called
+%%% with the event name as the first argument and a map with related data as the
+%%% second. The contents of that map depend on the event. Note that the
+%%% `handle_event/2' function is executed in the context of the process handling
+%%% the STUN/TURN session, so it should never block. If it might, and/or if it
+%%% needs some state, one or more handler processes must be created.
 %%%
 %%% The `options/0' callback returns an {@type options()} tuple with two
-%%% elements. The first is a map of configuration options, where the keys are
-%%% the {@type option} names specified as {@type atom()}s, and the values are
-%%% functions that validate the option values. Those functions are returned by
-%%% the <a href="https://hex.pm/packages/yval">yval</a> library, see the
+%%% elements. The first is a map of module configuration options, where the keys
+%%% are the {@type option()} names specified as {@type atom()}s, and the values
+%%% are functions that validate the option values. Those functions are returned
+%%% by the <a href="https://hex.pm/packages/yval">yval</a> library, see the
 %%% documentation for the list of <a
-%%% href="https://hexdocs.pm/yval/yval.html#index">available validators</a>.
-%%% The second tuple element is a list of optional tuples to
-%%% specify `{required, [Options]}' and/or `{defaults, #{Option => Value}}'. For
-%%% example:
+%%% href="https://hexdocs.pm/yval/yval.html#index">available validators</a>. The
+%%% second {@type options()} tuple element is a list of optional tuples to
+%%% specify any `{required, [Options]}' and/or `{defaults, #{Option => Value}}'.
+%%% For example:
 %%%
 %%% ```
 %%% options() ->
@@ -53,11 +52,12 @@
 %%% '''
 %%%
 %%% The option values are queried by calling {@link eturnal_module:get_opt/2}
-%%% with the `?MODULE' name as the first and the option name as the second
-%%% argument. Note that the lookup is very efficient, so there's no point in
-%%% saving option values into some `#state{}'.
+%%% with the `?MODULE' name as the first and the {@type option()} name as the
+%%% second argument. Note that the lookup is very efficient, so there's no point
+%%% in saving option values into some state. If the module has no configuration
+%%% options, the `options/0' function may be omitted.
 %%%
-%%% The optional `stop/0' function must return `ok'. Note that the `start/0' and
+%%% The optional `stop/0' callback must return `ok'. Note that the `start/0' and
 %%% `stop/0' functions might not just be called on eturnal startup and shutdown,
 %%% but also on configuration reloads.
 %%%
@@ -87,7 +87,7 @@
               options/0]).
 
 -type event() :: atom().
--type events() :: [atom()].
+-type events() :: [event()].
 -type info() :: #{atom() => term()}.
 -type option() :: atom().
 -type options() :: {yval:validators(), [yval:validator_option()]}.
@@ -98,7 +98,7 @@
 -callback handle_event(event(), info()) -> ok.
 -callback options() -> options().
 
--optional_callbacks([start/0, stop/0]).
+-optional_callbacks([start/0, stop/0, handle_event/2, options/0]).
 
 -include_lib("kernel/include/logger.hrl").
 -ifdef(old_persistent_term).
@@ -182,7 +182,14 @@ handle_event(Event, Info) ->
 
 -spec options(module()) -> options().
 options(Mod) ->
-    Mod:options().
+    case erlang:function_exported(Mod, options, 0) of
+        true ->
+            ?LOG_DEBUG("Calling ~s:options/0", [Mod]),
+            Mod:options();
+        false ->
+            ?LOG_DEBUG("Module ~s doesn't export options/1", [Mod]),
+            {#{}, []}
+    end.
 
 -spec get_opt(module(), option()) -> term().
 get_opt(Mod, Opt) ->
