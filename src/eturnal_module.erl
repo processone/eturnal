@@ -22,11 +22,10 @@
 %%% export `start/0' and `stop/0' functions.
 %%%
 %%% The optional `start/0' function must return `ok' or `{ok, Events}', where
-%%% `Events' is the list of events the module is interested in. Currently, the
+%%% `Events' is the (list of) event(s) the module is interested in. Currently, the
 %%% following events may be triggered: `stun_query', `turn_session_start', and
-%%% `turn_session_stop'. If the `start/0' function doesn't return a list of
-%%% events (or returns `{ok, all}'), the `handle_event/2' callback will be
-%%% called for all events.
+%%% `turn_session_stop'. If the `start/0' function doesn't return a (list of)
+%%% event(s), the `handle_event/2' callback won't be invoked for any event.
 %%%
 %%% The `handle_event/2' function is called with the event name as the first
 %%% argument and a map with metadata related to the event as the second. The
@@ -139,7 +138,7 @@ start(Mod) ->
             ?LOG_DEBUG("Calling ~s:start/0", [Mod]),
             try Mod:start() of
                 ok ->
-                    ok = subscribe_events(all, Mod);
+                    ok;
                 {ok, Events} ->
                     ok = subscribe_events(Events, Mod)
             catch _:Err:Stack ->
@@ -148,8 +147,7 @@ start(Mod) ->
                     {error, Err}
             end;
         false ->
-            ?LOG_DEBUG("Module ~s doesn't export start/0", [Mod]),
-            ok = subscribe_events(all, Mod)
+            ?LOG_DEBUG("Module ~s doesn't export start/0", [Mod])
     end.
 
 -spec stop(module()) -> ok | {error, term()}.
@@ -233,16 +231,12 @@ unsubscribe_events(Mod) ->
 
 -spec get_subscribers(event()) -> [module()].
 get_subscribers(Event) ->
-    Mods = lists:map(
-             fun(E) ->
-                     case ets:lookup(events, ?e(E)) of
-                         [] ->
-                             ordsets:new();
-                         [{_, Ms}] ->
-                             Ms
-                     end
-             end, [Event, all]),
-    ordsets:union(Mods).
+    case ets:lookup(events, ?e(Event)) of
+        [] ->
+            [];
+        [{_, Ms}] ->
+            Ms
+    end.
 -else.
 -spec subscribe_events(event() | [event()], module()) -> ok.
 subscribe_events(Event, Mod) when is_atom(Event) ->
@@ -269,9 +263,7 @@ unsubscribe_events(Mod) ->
 
 -spec get_subscribers(event()) -> [module()].
 get_subscribers(Event) ->
-    Mods1 = persistent_term:get(?e(Event), ordsets:new()),
-    Mods2 = persistent_term:get(?e(all), ordsets:new()),
-    ordsets:union(Mods1, Mods2).
+    persistent_term:get(?e(Event), []).
 -endif.
 
 -spec ensure_dep(module(), dep()) -> ok | no_return().
