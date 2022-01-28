@@ -195,8 +195,7 @@ options(Mod) ->
 
 -spec get_opt(module(), option()) -> term().
 get_opt(Mod, Opt) ->
-    #{Mod := Opts} = eturnal:get_opt(modules),
-    {Opt, Val} = proplists:lookup(Opt, Opts),
+    #{Mod := #{Opt := Val}} = eturnal:get_opt(modules),
     Val.
 
 -spec ensure_deps(module(), [dep()]) -> ok | no_return().

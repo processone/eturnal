@@ -108,7 +108,8 @@ module_validator() ->
                 fun({Mod, Opts}, Acc) ->
                         {Validators,
                          ValidatorOpts0} = eturnal_module:options(Mod),
-                        ValidatorOpts = [unique | ValidatorOpts0],
+                        ValidatorOpts = [unique,
+                                         {return, map} | ValidatorOpts0],
                         Acc#{Mod => (options(Validators, ValidatorOpts))(Opts)}
                 end, #{}, L)
       end).
