@@ -249,10 +249,10 @@ get_opt(Opt) ->
 abort(Reason) ->
     case application:get_env(eturnal, on_fail, halt) of
         exit ->
-            ?LOG_ALERT("Stopping eturnal STUN/TURN server (~p)", [Reason]),
+            ?LOG_ALERT("Stopping eturnal: ~s", [format_error(Reason)]),
             exit(Reason);
         _Halt ->
-            ?LOG_ALERT("Aborting eturnal STUN/TURN server (~p)", [Reason]),
+            ?LOG_ALERT("Aborting eturnal: ~s", [format_error(Reason)]),
             eturnal_logger:flush(),
             halt(1)
     end.
@@ -715,3 +715,21 @@ clean_run_dir() ->
         false ->
             ?LOG_DEBUG("PEM file doesn't exist: ~ts", [PEMFile])
     end.
+
+%% Internal functions: error message formatting.
+
+-spec format_error(atom()) -> binary().
+format_error(certificate_failure) ->
+    <<"PEM file failure">>;
+format_error(dependency_failure) ->
+    <<"Dependency failure">>;
+format_error(listener_failure) ->
+    <<"Listener startup failure">>;
+format_error(module_failure) ->
+    <<"Module startup failure">>;
+format_error(proxy_config_failure) ->
+    <<"Proxy protocol configuration failure">>;
+format_error(run_dir_failure) ->
+    <<"Run directory failure">>;
+format_error(_Unknown) ->
+    <<"Unknown error">>.
