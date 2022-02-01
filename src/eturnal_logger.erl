@@ -100,8 +100,8 @@ set_level(Level) ->
 -spec flush() -> ok.
 flush() ->
     lists:foreach(
-      fun(#{id := HandlerId, module := logger_std_h}) ->
-              logger_std_h:filesync(HandlerId);
+      fun(#{id := HandlerID, module := logger_std_h}) ->
+              logger_std_h:filesync(HandlerID);
          (_) ->
               ok
       end, logger:get_handler_config()).

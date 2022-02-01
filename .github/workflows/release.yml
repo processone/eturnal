@@ -12,19 +12,9 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
-      - name: Get version from tag
-        id: tag
-        run: echo ::set-output name=current::${GITHUB_REF#refs/tags/}
       - name: Get changelog entry
         id: changelog
         uses: mindsers/changelog-reader-action@v2
-        with:
-          #
-          # The default behavior is using the latest version found in the
-          # changelog file. We use the tag name instead, just to check for
-          # consistency.
-          #
-          version: ${{steps.tag.outputs.current}}
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
