@@ -71,7 +71,7 @@ file</a> shipped with eturnal can either be edited in place or copied into the
 system's `/etc' directory, first:
 
 ```
-# cp -i /opt/eturnal/etc/eturnal.yml /etc/
+# cp -p -i /opt/eturnal/etc/eturnal.yml /etc/
 '''
 
 The release archive also includes a systemd unit file, which can be enabled by
