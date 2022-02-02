@@ -22,18 +22,17 @@
 %%%
 %%% If a `start/0' callback is exported, it must return `ok' or `{ok, Events}',
 %%% where `Events' is either a single {@link event()} or a list of {@link
-%%% events()} the module is interested in. Currently, the following {@link
-%%% events()} may be triggered: `stun_query', `turn_session_start', and
-%%% `turn_session_stop'.
-%
-%%% If the `start/0' function subscribes to one or more {@link events()}, a
+%%% events()} the module is interested in. Currently, the following events may
+%%% be triggered: `stun_query', `turn_session_start', and `turn_session_stop'.
+%%%
+%%% If a `start/0' function is exported and subscribes to one or more events, a
 %%% `handle_event/2' callback <em>must</em> be exported as well. It is called
 %%% with the {@link event()} name as the first argument and an {@link info()}
 %%% map with related data as the second. The contents of that map depend on the
-%%% {@link event()}. Note that the `handle_event/2' function is executed in the
-%%% context of the process handling the STUN/TURN session, so it should never
-%%% block. If it might, and/or if it needs some state, one or more handler
-%%% processes must be created.
+%%% event. Note that the `handle_event/2' function is executed in the context of
+%%% the process handling the STUN/TURN session, so it should never block. If it
+%%% might, and/or if it needs some state, one or more handler processes must be
+%%% created.
 %%%
 %%% The `options/0' callback returns an {@link options()} tuple with two
 %%% elements. The first is a map of module configuration options, where the keys
