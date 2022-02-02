@@ -8,11 +8,6 @@
     stdlib,
     conf,
     stun,
-    public_key
-   ]},
-  {env,[]},
-  {modules, []},
-
-  {licenses, ["Apache 2.0"]},
-  {links, []}
- ]}.
+    public_key]},
+  {env, []},
+  {modules, []}]}.
