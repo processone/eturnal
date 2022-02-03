@@ -20,9 +20,9 @@ and `openssl-devel`.
 > (`chmod +x rebar3`), first. On Erlang/OTP 21.x, you need an [older Rebar3][6]
 > version.
 
-    $ curl https://eturnal.net/download/eturnal-1.8.1.tar.gz | tar -C /tmp -xzf -
-    $ cd /tmp/eturnal-1.8.1
-    $ ./rebar3 as prod tar
+    curl https://eturnal.net/download/eturnal-1.8.1.tar.gz | tar -C /tmp -xzf -
+    cd /tmp/eturnal-1.8.1
+    ./rebar3 as prod tar
 
 This generates the archive file `_build/prod/rel/eturnal/eturnal-1.8.1.tar.gz`.
 The default installation prefix is set to `/opt/eturnal`, and it's assumed the
@@ -38,26 +38,26 @@ or `sudo -i`, first.
 1.  Create a user for running eturnal. This step is of course only required if
     you're installing eturnal for the first time:
 
-        # useradd -r -m -d /opt/eturnal eturnal
+        useradd -r -m -d /opt/eturnal eturnal
 
     Otherwise, **create a backup** of the old installation, first:
 
-        # tar -czf /opt/eturnal-$(date '+%F').tar.gz /opt/eturnal
+        tar -czf /opt/eturnal-$(date '+%F').tar.gz /opt/eturnal
 
 2.  Extract the archive generated [above](#compilation):
 
-        # cd /opt/eturnal
-        # tar -xzf /tmp/eturnal-1.8.1/_build/prod/rel/eturnal/eturnal-1.8.1.tar.gz
+        cd /opt/eturnal
+        tar -xzf /tmp/eturnal-1.8.1/_build/prod/rel/eturnal/eturnal-1.8.1.tar.gz
 
 3.  Copy the `eturnal.yml` file to `/etc` (optional):
 
-        # cp -i /opt/eturnal/etc/eturnal.yml /etc/
+        cp -i /opt/eturnal/etc/eturnal.yml /etc/
 
 4.  Start the systemd service:
 
-        # cp /opt/eturnal/etc/systemd/system/eturnal.service /etc/systemd/system/
-        # systemctl daemon-reload
-        # systemctl --now enable eturnal
+        cp /opt/eturnal/etc/systemd/system/eturnal.service /etc/systemd/system/
+        systemctl daemon-reload
+        systemctl --now enable eturnal
 
 ## Configuration and Usage
 

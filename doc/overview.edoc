@@ -61,8 +61,8 @@ commands with superuser privileges (on AArch64 systems, `x64' must be replaced
 with `arm64'):
 
 ```
-# useradd -r -d /opt/eturnal eturnal
-# curl https://eturnal.net/eturnal-1.8.1-linux-x64.tar.gz | tar -C /opt -xzf -
+useradd -r -d /opt/eturnal eturnal
+curl https://eturnal.net/eturnal-1.8.1-linux-x64.tar.gz | tar -C /opt -xzf -
 '''
 
 The example <a
@@ -71,16 +71,16 @@ file</a> shipped with eturnal can either be edited in place or copied into the
 system's `/etc' directory, first:
 
 ```
-# cp -p -i /opt/eturnal/etc/eturnal.yml /etc/
+cp -p -i /opt/eturnal/etc/eturnal.yml /etc/
 '''
 
 The release archive also includes a systemd unit file, which can be enabled by
 running the following commands with superuser privileges:
 
 ```
-# cp /opt/eturnal/etc/systemd/system/eturnal.service /etc/systemd/system/
-# systemctl daemon-reload
-# systemctl --now enable eturnal
+cp /opt/eturnal/etc/systemd/system/eturnal.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl --now enable eturnal
 '''
 
 By default, the binary release assumes the user running eturnal is called
