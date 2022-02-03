@@ -48,10 +48,11 @@ or `sudo -i`, first.
 
         cd /opt/eturnal
         tar -xzf /tmp/eturnal-1.8.1/_build/prod/rel/eturnal/eturnal-1.8.1.tar.gz
+        chown eturnal /opt/eturnal/etc/eturnal.yml
 
 3.  Copy the `eturnal.yml` file to `/etc` (optional):
 
-        cp -i /opt/eturnal/etc/eturnal.yml /etc/
+        cp -p -i /opt/eturnal/etc/eturnal.yml /etc/
 
 4.  Start the systemd service:
 
