@@ -17,6 +17,10 @@
 /doc/dist/
 /exdoc/
 #
+# For Reltool tests:
+#
+/rel/
+#
 # Auto-added by rebar3:
 #
 .rebar3
