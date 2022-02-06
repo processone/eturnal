@@ -99,7 +99,7 @@ all() ->
 -spec start_eturnal(config()) -> any().
 start_eturnal(_Config) ->
     ct:pal("Starting up eturnal"),
-    {ok, _} = application:ensure_all_started(eturnal).
+    ok = eturnal:start().
 
 -spec check_info(config()) -> any().
 check_info(_Config) ->
@@ -263,7 +263,7 @@ stun_tls_auto(_Config) ->
 -spec stop_eturnal(config()) -> any().
 stop_eturnal(_Config) ->
     ct:pal("Stopping eturnal"),
-    ok = application:stop(eturnal).
+    ok = eturnal:stop().
 
 %% Internal functions.
 

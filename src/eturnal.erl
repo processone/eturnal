@@ -51,11 +51,11 @@
                            [option()]}.
 -type state() :: #eturnal_state{}.
 
-%% API: non-release startup and shutdown (usually unused).
+%% API: non-release startup and shutdown (used by test suite).
 
 -spec start() -> ok | {error, term()}.
 start() ->
-    case application:ensure_all_started(eturnal, permanent) of
+    case application:ensure_all_started(eturnal) of
         {ok, _Started} ->
             ok;
         {error, _Reason} = Err ->
