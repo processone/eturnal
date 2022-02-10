@@ -30,6 +30,7 @@
 
 -spec start(application:start_type(), any()) -> {ok, pid()} | {error, term()}.
 start(_StartType, _StartArgs) ->
+    ok = conf_init(),
     ok = eturnal_logger:start(),
     ?LOG_NOTICE("Starting eturnal ~s on Erlang/OTP ~s (ERTS ~s)",
                 [eturnal_misc:version(),
@@ -61,3 +62,16 @@ config_change(Changed, New, Removed) ->
     ok = gen_server:cast(eturnal, {config_change, {Changed, New, Removed},
                                    fun eturnal_systemd:reloading/0,
                                    fun eturnal_systemd:ready/0}).
+
+%% Internal functions.
+
+-spec conf_init() -> ok.
+conf_init() -> % Just to cope with an empty configuration file.
+    try eturnal:get_opt(realm) of
+        Realm when is_binary(Realm) ->
+            ?LOG_DEBUG("Configuration has been loaded successfully"),
+            ok
+    catch error:{badmatch, undefined} ->
+            ?LOG_DEBUG("Empty configuration, using defaults"),
+            ok = conf:load([{eturnal, []}])
+    end.
