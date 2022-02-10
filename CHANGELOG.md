@@ -7,6 +7,10 @@ project adheres to [Semantic Versioning][SemVer].
 ### Changed
 - Use a (pseudo)random `secret` by default.
 
+### Fixed
+- Don't crash without explicit `listen` configuration. This bug was introduced
+  with version 1.7.0.
+
 ## [1.8.1] - 2022-01-10
 ### Fixed
 - Don't fail to handle the `$user` argument of the `eturnalctl sessions` and
