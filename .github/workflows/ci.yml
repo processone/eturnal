@@ -47,6 +47,9 @@ jobs:
           otp-version: ${{matrix.otp}}
           rebar3-version: ${{matrix.rebar}}
           version-type: strict
+      # Until https://github.com/erlware/relx/issues/905 is fixed:
+      - name: Create Erlang cookie
+        run: erl -noinput -sname cookie -eval 'halt()'
       - name: Download previous test results
         run: |
           mkdir -p _build/test
@@ -58,6 +61,12 @@ jobs:
         run: rebar3 compile
       - name: Build release
         run: rebar3 release
+      - name: Start release
+        run: _build/default/rel/eturnal/bin/eturnal daemon
+      - name: Ping release
+        run: _build/default/rel/eturnal/bin/eturnal ping
+      - name: Stop release
+        run: _build/default/rel/eturnal/bin/eturnal stop
       - name: Analyze cross references
         run: rebar3 xref
       - name: Perform static code analysis
