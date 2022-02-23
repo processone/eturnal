@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Build portable binary release tarballs for Linux (amd64/arm64).
+# Build portable binary release tarballs for Linux/x64 and Linux/arm64.
 
 set -e
 set -u
@@ -66,6 +66,8 @@ platform='x86_64-pc-linux-gnu'
 targets='x86_64-linux-gnu aarch64-linux-gnu'
 build_start=$(date '+%F %T')
 
+umask 022
+
 #' Try to find a browser for checking dependency versions
 have_browser()
 {
@@ -111,13 +113,13 @@ check_deps()
 	          'yaml-\([0-9][0-9.]*\)\.tar\.gz'
 	check_vsn 'zlib' "$zlib_vsn" \
 	          'https://zlib.net/' \
-	          'zlib-\([0-9][0-9.]*\)\.tar\.gz'
+	          'zlib-\([1-9][0-9.]*\)\.tar\.gz'
 	check_vsn 'Termcap' "$termcap_vsn" \
 	          'https://ftp.gnu.org/gnu/termcap/' \
-	          'termcap-\([0-9][0-9.]*\)\.tar\.gz'
+	          'termcap-\([1-9][0-9.]*\)\.tar\.gz'
 	check_vsn 'Crosstool-NG' "$crosstool_vsn" \
 	          'https://crosstool-ng.github.io/' \
-	          'crosstool-ng-\([0-9][0-9.]*\)\.tar\.bz2'
+	          'crosstool-ng-\([1-9][0-9.]*\)\.tar\.bz2'
 	check_vsn 'Rebar3' "$rebar_vsn" \
 	          'https://github.com/erlang/rebar3/tags' \
 	          '\(3\.[0-9][0-9.]*\)\.tar\.gz'
@@ -846,7 +848,7 @@ arch_name()
 }
 #.
 
-#' Return rebar3 profile depending on compilation mode.
+#' Return Rebar3 profile depending on compilation mode.
 rebar3_profile()
 {
 	local mode="$1"
@@ -928,7 +930,8 @@ build_rel()
 	export RANLIB="$target-ranlib"
 	export OBJCOPY="$target-objcopy"
 	export STRIP="$target-strip"
-	export CFLAGS="-g0 -O2 -pipe -fomit-frame-pointer -static-libgcc -I$prefix/include"
+	export CPPFLAGS="-I$prefix/include"
+	export CFLAGS="-g0 -O2 -pipe -fomit-frame-pointer -static-libgcc $CPPFLAGS"
 	export CXXFLAGS="$CFLAGS -static-libstdc++"
 	export LDFLAGS="-L$prefix/lib -static-libgcc -static-libstdc++"
 	export ERL_COMPILER_OPTIONS='[deterministic, no_debug_info]'
@@ -974,7 +977,7 @@ build_rel()
 			"\t:up=\\E[A:us=\\E[4m:"
 		#endif
 	EOF
-	make CPPFLAGS='-DHAVE_CONFIG_H=1'
+	make CPPFLAGS="$CPPFLAGS -DHAVE_CONFIG_H=1"
 	make install
 	cd "$OLDPWD"
 
@@ -1005,7 +1008,7 @@ build_rel()
 	info "Building Erlang/OTP $otp_vsn for $arch ..."
 	if [ "$mode" = 'cross' ]
 	then
-		export PATH="$native_otp_bin:$PATH" # For bootstrapping/rebar3.
+		export PATH="$native_otp_bin:$PATH" # For bootstrapping/Rebar3.
 		export erl_xcomp_sysroot="$prefix"
 	fi
 	cd "$target_src_dir/$otp_dir"
@@ -1026,13 +1029,13 @@ build_rel()
 	if [ "$mode" = 'native' ]
 	then
 		native_otp_bin="$prefix/bin"
-		export PATH="$native_otp_bin:$PATH" # For rebar3.
+		export PATH="$native_otp_bin:$PATH" # For Rebar3.
 	else
 		unset erl_xcomp_sysroot
 	fi
 	cd "$OLDPWD"
 
-	info "Removing rebar3 cache and old $rel_name builds"
+	info "Removing Rebar3 cache and old $rel_name builds"
 	rm -rf "$HOME/.cache/rebar3" '_build'
 	rebar3 clean -a
 
@@ -1130,14 +1133,14 @@ curl -LO "https://www.openssl.org/source/$ssl_tar"
 curl -LO "https://github.com/erlang/otp/releases/download/OTP-$otp_vsn/$otp_tar"
 cd "$OLDPWD"
 
-info "Downloading rebar3 $rebar_vsn ..."
+info "Downloading Rebar3 $rebar_vsn ..."
 install -d "$bootstrap_dir/bin"
 cd "$bootstrap_dir/bin"
 curl -LO "https://github.com/erlang/rebar3/releases/download/$rebar_vsn/rebar3"
 chmod +x 'rebar3'
 cd "$OLDPWD"
 
-export PATH="$bootstrap_dir/bin:$PATH" # For rebar3 and possibly ct-ng.
+export PATH="$bootstrap_dir/bin:$PATH" # For Rebar3 and possibly ct-ng.
 
 for target in $targets
 do

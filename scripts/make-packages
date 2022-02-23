@@ -1,18 +1,32 @@
 #!/bin/sh
 
-# Build DEB and RPM packages for Linux (x64 and arm64).
+# Build DEB and RPM packages for Linux/x64 and Linux/arm64.
 
 set -e
 set -u
 
 myself=${0##*/}
 architectures='x64 arm64'
+iteration=1
 
 usage()
 {
-	echo >&2 "Usage: $myself"
+	echo >&2 "Usage: $myself [-i <iteration>]"
 	exit 2
 }
+
+while getopts i: opt
+do
+	case $opt in
+	i)
+		iteration="$OPTARG"
+		;;
+	\?)
+		usage
+		;;
+	esac
+done
+shift $((OPTIND - 1))
 
 if ! [ -e 'rebar.config' ] || ! [ -e "scripts/$myself" ]
 then
@@ -33,6 +47,7 @@ rel_vsn="$(scripts/get-version)"
 tmp_dir=$(mktemp -d "/tmp/.$myself.XXXXXX")
 
 trap 'rm -rf "$tmp_dir"' INT TERM EXIT
+umask 022
 
 create_scripts()
 {
@@ -94,7 +109,7 @@ make_package()
 	    --input-type 'dir' \
 	    --name "$rel_name" \
 	    --version "$rel_vsn" \
-	    --iteration '1' \
+	    --iteration "$iteration" \
 	    --license 'Apache-2.0' \
 	    --category 'net' \
 	    --provides 'stun-server' \
