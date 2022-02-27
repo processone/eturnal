@@ -55,7 +55,7 @@ stop(_State) ->
                 [eturnal_misc:version(),
                  erlang:system_info(otp_release),
                  erlang:system_info(version)]),
-    ok.
+    ok = eturnal_logger:stop().
 
 -spec config_change([{atom(), term()}], [{atom(), term()}], [atom()]) -> ok.
 config_change(Changed, New, Removed) ->

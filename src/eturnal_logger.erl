@@ -19,12 +19,12 @@
 -module(eturnal_logger).
 -author('holger@zedat.fu-berlin.de').
 -export([start/0,
+         stop/0,
          progress_filter/2,
          reconfigure/0,
          is_valid_level/1,
          get_level/0,
-         set_level/1,
-         flush/0]).
+         set_level/1]).
 -export_type([level/0]).
 
 -include_lib("kernel/include/logger.hrl").
@@ -53,6 +53,10 @@
 start() ->
     ok = init(get_config()),
     ok = configure_default_handler().
+
+-spec stop() -> ok.
+stop() ->
+    ok = terminate().
 
 -spec progress_filter(logger:log_event(), any()) -> logger:filter_return().
 progress_filter(#{level := info,
@@ -96,15 +100,6 @@ get_level() ->
 -spec set_level(level()) -> ok.
 set_level(Level) ->
     ok = logger:set_primary_config(level, Level).
-
--spec flush() -> ok.
-flush() ->
-    lists:foreach(
-      fun(#{id := HandlerID, module := logger_std_h}) ->
-              logger_std_h:filesync(HandlerID);
-         (_) ->
-              ok
-      end, logger:get_handler_config()).
 
 %% Internal functions.
 
@@ -217,3 +212,19 @@ configure_default_handler() ->
         stdout ->
             ok = logger:set_handler_config(default, level, none)
     end.
+
+-spec flush() -> ok.
+flush() ->
+    lists:foreach(
+      fun(#{id := HandlerID, module := logger_std_h}) ->
+              logger_std_h:filesync(HandlerID);
+         (_) ->
+              ok
+      end, logger:get_handler_config()).
+
+-spec terminate() -> ok.
+terminate() ->
+    ok = flush(),
+    ok = logger:set_handler_config(default, level, notice),
+    ok = logger:remove_primary_filter(progress_report),
+    ok = logger:remove_handler(eturnal_log).
