@@ -38,8 +38,8 @@ validator() ->
     options(
       #{secret => list_or_single(non_empty(binary())),
         listen => listen_validator(),
-        relay_ipv4_addr => ipv4(),
-        relay_ipv6_addr => ipv6(),
+        relay_ipv4_addr => and_then(ipv4(), fun check_relay_addr/1),
+        relay_ipv6_addr => and_then(ipv6(), fun check_relay_addr/1),
         relay_min_port => port(),
         relay_max_port => port(),
         tls_crt_file => file(read),
@@ -188,6 +188,16 @@ check_overlapping_listeners(Listeners, PrepareFun) ->
 format_listener({IP, Port, Transport, _ProxyProtocol, _EnableTURN}) ->
     Addr = eturnal_misc:addr_to_str(IP, Port),
     list_to_binary(io_lib:format("~s (~s)", [Addr, Transport])).
+
+-spec check_relay_addr(inet:ip_address()) -> inet:ip_address() | no_return().
+check_relay_addr({0, 0, 0, 0} = Addr) ->
+    fail({bad_ip, inet:ntoa(Addr)});
+check_relay_addr({_, _, _, _} = Addr) ->
+    Addr;
+check_relay_addr({0, 0, 0, 0, 0, 0, 0, 0} = Addr) ->
+    fail({bad_ip, inet:ntoa(Addr)});
+check_relay_addr({_, _, _, _, _, _, _, _} = Addr) ->
+    Addr.
 
 -spec get_env_name(atom()) -> string().
 get_env_name(Opt) ->

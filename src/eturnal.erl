@@ -78,6 +78,7 @@ start_link() ->
 init(_Opts) ->
     process_flag(trap_exit, true),
     ok = eturnal_module:init(),
+    ok = log_relay_addresses(),
     ok = log_control_listener(),
     case turn_enabled() of
         true ->
@@ -272,7 +273,26 @@ derive_password(Username, Secrets) when is_list(Secrets) ->
     [derive_password(Username, [Secret]) || Secret <- Secrets].
 -endif.
 
-%% Internal functions: log distribution listener port.
+%% Internal functions: log relay address(es) and distribution listener port.
+
+-spec log_relay_addresses() -> ok.
+log_relay_addresses() ->
+    Min = get_opt(relay_min_port),
+    Max = get_opt(relay_max_port),
+    case get_opt(relay_ipv4_addr) of
+        {_, _, _, _} = Addr4 ->
+            ?LOG_INFO("Relay IPv4 address: ~s (port range: ~B-~B)",
+                      [inet:ntoa(Addr4), Min, Max]);
+        undefined ->
+            ?LOG_INFO("Relay IPv4 address not configured")
+    end,
+    case get_opt(relay_ipv6_addr) of
+        {_, _, _, _, _, _, _, _} = Addr6 ->
+            ?LOG_INFO("Relay IPv6 address: ~s (port range: ~B-~B)",
+                      [inet:ntoa(Addr6), Min, Max]);
+        undefined ->
+            ?LOG_INFO("Relay IPv6 address not configured")
+    end.
 
 -spec log_control_listener() -> ok.
 -dialyzer({[no_fail_call, no_match], log_control_listener/0}). % OTP 21/22.
@@ -486,14 +506,10 @@ got_secret() ->
 -spec got_relay_addr() -> boolean().
 got_relay_addr() ->
     case get_opt(relay_ipv4_addr) of
-        undefined ->
-            false;
-        {127, _, _, _} ->
-            false;
-        {0, 0, 0, 0} ->
-            false;
         {_, _, _, _} ->
-            true
+            true;
+        undefined ->
+            false
     end.
 
 -spec check_turn_config(boolean()) -> ok.

@@ -71,8 +71,10 @@ jobs:
         run: rebar3 xref
       - name: Perform static code analysis
         run: rebar3 dialyzer
-      - name: Run test suite
+      - name: Run black-box tests (CT)
         run: rebar3 ct
+      - name: Run white-box tests (EUnit)
+        run: rebar3 eunit
       - name: Check test coverage
         run: rebar3 cover
       - name: Upload test and coverage results
