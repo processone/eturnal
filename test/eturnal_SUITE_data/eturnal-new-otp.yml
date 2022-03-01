@@ -19,6 +19,7 @@ eturnal:
       port: 34781
       transport: auto
       enable_turn: false
+  relay_ipv4_addr: "127.0.0.1"
   secret: "crypt1c"
   log_level: debug
   tls_options:
