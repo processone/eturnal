@@ -34,6 +34,9 @@
          abort/1]).
 -export_type([transport/0]).
 
+-ifdef(EUNIT).
+-include_lib("eunit/include/eunit.hrl").
+-endif.
 -include_lib("kernel/include/logger.hrl").
 -define(PEM_FILE_NAME, "cert.pem").
 
@@ -749,3 +752,15 @@ format_error(run_dir_failure) ->
     <<"Run directory failure">>;
 format_error(_Unknown) ->
     <<"Unknown error">>.
+
+%% EUnit tests.
+
+-ifdef(EUNIT).
+config_change_test_() ->
+    [?_assert(logging_config_changed({[{log_level, info}], [], []})),
+     ?_assert(listener_config_changed({[{max_bps, 42}], [], []})),
+     ?_assert(module_config_changed({[{modules, []}], [], []})),
+     ?_assertNot(logging_config_changed({[{strict_expiry, false}], [], []})),
+     ?_assertNot(listener_config_changed({[{strict_expiry, false}], [], []})),
+     ?_assertNot(module_config_changed({[{strict_expiry, false}], [], []}))].
+-endif.

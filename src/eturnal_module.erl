@@ -101,6 +101,9 @@
 
 -optional_callbacks([start/0, stop/0, handle_event/2, options/0]).
 
+-ifdef(EUNIT).
+-include_lib("eunit/include/eunit.hrl").
+-endif.
 -include_lib("kernel/include/logger.hrl").
 -ifdef(old_persistent_term).
 -define(m(Name), {m, Name}).
@@ -346,3 +349,11 @@ load_app(App) ->
     catch _:Err ->
               {error, Err}
     end.
+
+%% EUnit tests.
+
+-ifdef(EUNIT).
+load_test_() ->
+    [?_assertEqual(ok, start_app(eunit)),
+     ?_assertMatch({error, _}, start_app(nonexistent))].
+-endif.
