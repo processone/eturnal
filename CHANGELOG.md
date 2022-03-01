@@ -8,6 +8,7 @@ project adheres to [Semantic Versioning][SemVer].
 - Use a (pseudo)random `secret` by default.
 - Improve autodetection of relay IP addresses used by default if the
   `relay_ipv4_addr` and/or `relay_ipv6_addr` options aren't specified.
+- Binary release: Update Erlang/OTP from 24.2 to 24.2.2.
 
 ### Fixed
 - Don't crash without explicit `listen` configuration. This bug was introduced
