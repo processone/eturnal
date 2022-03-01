@@ -15,6 +15,8 @@ project adheres to [Semantic Versioning][SemVer].
   with version 1.7.0.
 - Don't crash if the configuration file is empty (i.e., has no `eturnal`
   section).
+- Don't crash if TURN is enabled without a public IPv6 relay address being
+  available.
 
 ## [1.8.1] - 2022-01-10
 ### Fixed

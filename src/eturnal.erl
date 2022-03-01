@@ -427,7 +427,7 @@ opt_map() ->
      {software_name, server_name}].
 
 -spec opt_filter(Opt) -> {true, Opt} | false when Opt :: {option(), value()}.
-opt_filter({relay_ipv6_addr, undefined}) ->
+opt_filter({turn_ipv6_address, undefined}) ->
     false; % The 'stun' application currently wouldn't accept 'undefined'.
 opt_filter(Opt) ->
     {true, Opt}.
