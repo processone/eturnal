@@ -86,13 +86,13 @@ free to (ab)use it for usage questions as well. If you happen to be using
  [4]: https://software.opensuse.org/download/?package=eturnal&project=devel:languages:erlang
  [5]: https://eturnal.net/documentation/#Installation
  [6]: https://eturnal.net/windows/
- [7]: https://github.com/processone/eturnal/blob/1.8.1/INSTALL.md
+ [7]: https://github.com/processone/eturnal/blob/1.8.2/INSTALL.md
  [8]: https://en.wikipedia.org/wiki/YAML
- [9]: https://github.com/processone/eturnal/blob/1.8.1/config/eturnal.yml
+ [9]: https://github.com/processone/eturnal/blob/1.8.2/config/eturnal.yml
 [10]: https://www.freedesktop.org/software/systemd/man/systemctl.html
-[11]: https://github.com/processone/eturnal/blob/1.8.1/scripts/eturnal.init
+[11]: https://github.com/processone/eturnal/blob/1.8.2/scripts/eturnal.init
 [12]: https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html
 [13]: https://eturnal.net/documentation/
-[14]: https://github.com/processone/eturnal/blob/1.8.1/CHANGELOG.md
+[14]: https://github.com/processone/eturnal/blob/1.8.2/CHANGELOG.md
 [15]: https://github.com/processone/eturnal/issues
 [16]: https://xmpp.org

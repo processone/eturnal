@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [1.8.2] - 2022-03-02
 ### Changed
 - Use a (pseudo)random `secret` by default.
 - Improve autodetection of relay IP addresses used by default if the
@@ -288,7 +290,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/1.8.1...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.8.2...HEAD
+[1.8.2]: https://github.com/processone/eturnal/releases/tag/1.8.2
 [1.8.1]: https://github.com/processone/eturnal/releases/tag/1.8.1
 [1.8.0]: https://github.com/processone/eturnal/releases/tag/1.8.0
 [1.7.0]: https://github.com/processone/eturnal/releases/tag/1.7.0
