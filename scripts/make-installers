@@ -1,0 +1,158 @@
+#!/bin/sh
+
+# Build installers for Linux/x64 and Linux/arm64.
+
+set -e
+set -u
+
+myself=${0##*/}
+architectures='x64 arm64'
+
+usage()
+{
+	echo >&2 "Usage: $myself"
+	exit 2
+}
+
+if ! [ -e 'rebar.config' ] || ! [ -e "scripts/$myself" ]
+then
+	echo >&2 "Please call this script from the repository's root directory."
+	exit 2
+elif [ $# -ne 0 ]
+then
+	usage
+fi
+if type 'makeself' >'/dev/null'
+then makeself='makeself'
+elif type 'makeself.sh' >'/dev/null'
+then makeself='makeself.sh'
+else
+	echo >&2 'This script requires makeself: https://makeself.io'
+	exit 1
+fi
+
+rel_name='eturnal'
+rel_vsn="$(scripts/get-version)"
+rel_dir="/opt/$rel_name"
+conf_file="/etc/$rel_name.yml"
+tmp_dir=$(mktemp -d "/tmp/.$rel_name.XXXXXX")
+
+trap 'rm -rf "$tmp_dir"' INT TERM EXIT
+umask 022
+
+create_setup_script()
+{
+	local dir="$1"
+	local tarball="$2"
+
+	cat >"$dir/setup" <<-EOF
+	#!/bin/sh
+
+	set -e
+	set -u
+
+	export PATH='/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin'
+
+	user_agrees()
+	{
+		local question="\$*"
+
+		if [ -t 0 ]
+		then
+			read -p "\$question (y/n) [n] " response
+			response="\$(printf '%s' "\$response" |
+			             tr '[:upper:]' '[:lower:]')"
+			if [ "\$response" = 'y' ] || [ "\$response" = 'yes' ]
+			then return 0
+			else return 1
+			fi
+		else # Assume 'yes' if not running interactively.
+			return 0
+		fi
+	}
+
+	if [ \$(id -u) != 0 ]
+	then
+		echo >&2 'The installer must be run with superuser privileges.'
+		exit 1
+	fi
+	if [ -e '/run/systemd/system' ]
+	then is_systemd=true
+	else is_systemd=false
+	fi
+	if [ -e '$rel_dir' ]
+	then is_upgrade=true
+	else is_upgrade=false
+	fi
+	if id -u '$rel_name' >'/dev/null' 2>&1
+	then user_exists=true
+	else user_exists=false
+	fi
+
+	echo 'The following installation paths will be used:'
+	echo '- $rel_dir'
+	if [ -e '$conf_file' ]
+	then echo "- $conf_file (existing file won't be modified)"
+	else echo '- $conf_file'
+	fi
+	if [ \$is_systemd = true ]
+	then echo '- /etc/systemd/system/$rel_name.service'
+	fi
+	if [ \$user_exists = false ]
+	then echo 'The $rel_name user is going to be created.'
+	fi
+	if [ \$is_systemd = true ] && [ \$is_upgrade = false ]
+	then echo 'The $rel_name service is going to be enabled and started.'
+	fi
+	if ! user_agrees 'Install $rel_name $rel_vsn now?'
+	then
+		echo 'Aborting installation.'
+		exit 1
+	fi
+
+	if [ \$user_exists = false ]
+	then useradd -r -d '$rel_dir' '$rel_name'
+	fi
+
+	tar -C "\$(dirname '$rel_dir')" -xf '$tarball'
+	chown -R -h 'root:root' '$rel_dir/'*
+	chgrp '$rel_name' '$rel_dir/etc/$rel_name.yml'
+	if ! [ -e '$conf_file' ]
+	then cp -p '$rel_dir/etc/$rel_name.yml' '$conf_file'
+	fi
+
+	if [ \$is_systemd = true ]
+	then
+		cp '$rel_dir/etc/systemd/system/$rel_name.service' \\
+		   '/etc/systemd/system/'
+		systemctl -q daemon-reload
+		if [ \$is_upgrade = false ]
+		then systemctl -q --now enable '$rel_name'
+		fi
+	elif [ \$is_upgrade = false ]
+	then
+		echo 'You might want to install an init script (see the'
+		echo '$rel_dir/etc/init.d directory for an example).'
+	fi
+	echo '$rel_name $rel_vsn has been installed successfully.'
+
+	if [ \$is_upgrade = true ]
+	then echo 'If everything looks fine, restart the $rel_name service.'
+	fi
+	EOF
+	chmod +x "$dir/setup"
+}
+
+for arch in $architectures
+do
+	tar_name="$rel_name-$rel_vsn-linux-$arch.tar"
+	tgz_name="$tar_name.gz"
+	installer_name="$rel_name-$rel_vsn-linux-$arch.run"
+
+	echo "$myself: Putting together installer for $arch ..."
+	gzip -c -d <"$tgz_name" >"$tmp_dir/$tar_name"
+	create_setup_script "$tmp_dir" "$tar_name"
+	"$makeself" "$tmp_dir" "$installer_name" "$rel_name $rel_vsn" './setup'
+	find "$tmp_dir" -mindepth 1 -delete
+done
+echo "$myself: Created installers successfully."

@@ -50,7 +50,8 @@ git push "$upstream_name" "$main_branch" "$rel_vsn"
 
 # Copy tarballs and packages to web site.
 mv "$rel_name-$rel_vsn.tar.gz" "$dl_dir"
-mv "$rel_name-$rel_vsn-linux-"*'.tar.gz' "$dl_linux_dir"
+mv "$rel_name-$rel_vsn"*'.tar.gz' "$dl_linux_dir"
+mv "$rel_name-$rel_vsn"*'.run' "$dl_linux_dir"
 mv "$rel_name"*'.deb' "$dl_linux_pkg_dir"
 mv "$rel_name"*'.rpm' "$dl_linux_pkg_dir"
 
