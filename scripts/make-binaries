@@ -68,7 +68,7 @@ build_start=$(date '+%F %T')
 
 umask 022
 
-#' Try to find a browser for checking dependency versions
+#' Try to find a browser for checking dependency versions.
 have_browser()
 {
 	for browser in 'lynx' 'links' 'elinks'
@@ -79,7 +79,7 @@ have_browser()
 }
 #.
 
-#' Check whether the given dependency version is up-to-date
+#' Check whether the given dependency version is up-to-date.
 check_vsn()
 {
 	local name="$1"
@@ -102,7 +102,7 @@ check_vsn()
 }
 #.
 
-#' Check whether our dependency versions are up-to-date
+#' Check whether our dependency versions are up-to-date.
 check_deps()
 {
 	check_vsn 'OpenSSL' "$ssl_vsn" \
@@ -126,7 +126,7 @@ check_deps()
 }
 #.
 
-#' Create common part of Crosstool-NG configuration file
+#' Create common part of Crosstool-NG configuration file.
 create_common_config()
 {
 	local file="$1"
