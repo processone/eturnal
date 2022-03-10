@@ -602,12 +602,12 @@ See the following list for a subset of the available `eturnalctl' commands:
          class="cue">`eturnalctl eval' <em>code</em></a><br/>
       Let the running eturnal VM evaluate the specified Erlang
       <em>code</em>.</li>
-  <li><a name="info"
-         class="cue">`eturnalctl info'</a><br/>
-      Print some details regarding the running eturnal instance.</li>
   <li><a name="reload"
          class="cue">`eturnalctl reload'</a><br/>
       Reload the configuration file.</li>
+  <li><a name="info"
+         class="cue">`eturnalctl info'</a><br/>
+      Print some details regarding the running eturnal instance.</li>
   <li><a name="sessions"
          class="cue">`eturnalctl sessions'</a><br/>
       Print the list of currently active TURN sessions.</li>

@@ -31,9 +31,45 @@ config_file="$etc_prefix/etc/eturnalctl.cfg"
 
 # END OF CONFIGURATION SECTION.
 
+unsupported='credentials
+  upgrade
+  downgrade
+  install
+  uninstall
+  unpack
+  versions'
+
+edit_my_name()
+{
+    sed "s/^Usage: eturnal/Usage: ${0##*/}/"
+}
+
+usage()
+{
+    _cmd="$1"
+
+    "$_cmd" 'help' | edit_my_name | grep -v -F "$unsupported"
+    cat <<-'EOF'
+	  reload                  Reload eturnal's configuration
+	  info                    Print some details regarding the running node
+	  sessions [Username]     Print TURN sessions(s) belonging to given [Username]
+	  disconnect [Username]   Close TURN session(s) belonging to given [Username]
+	  credentials [E[U] [S]]  Print credentials derived from the configured secret
+	  password [Username]     Print the password for the given [Username]
+	  loglevel [Level]        Get or set the current log [Level]
+	  version                 Print eturnal's version string
+	EOF
+}
+
 if [ -e "$config_file" ]
 then
     . "$config_file"
+fi
+if [ $# -eq 0 ] || [ "$1" = '-h' ] || [ "$1" = '--help' ] || [ "$1" = 'help' ]
+then
+    help=true
+else
+    help=false
 fi
 if [ -z "${ERL_EPMD_ADDRESS:-}" ] && [ -n "$epmd_address" ]
 then
@@ -64,13 +100,23 @@ else
     then
         cmd="$bin_prefix/bin/eturnal"
     else
-        cmd='eturnal' # Rely on $PATH.
+        cmd="eturnal" # Rely on $PATH.
     fi
 fi
-if [ "$(id -u)" = '0' ]
+if [ $help = true ]
 then
-    arg="$(printf '%s' "$*" | sed 's/[^[:alnum:][:space:]]/\\&/g')"
-    exec su "$user" -c "$cmd $arg"
+    if [ $# -gt 1 ]
+    then
+        "$cmd" "$@" | edit_my_name
+    else
+        usage "$cmd"
+    fi
 else
-    exec "$cmd" "$@"
+    if [ "$(id -u)" = '0' ]
+    then
+        arg="$(printf '%s' "$*" | sed 's/[^[:alnum:][:space:]]/\\&/g')"
+        exec su "$user" -c "$cmd $arg"
+    else
+        exec "$cmd" "$@"
+    fi
 fi
