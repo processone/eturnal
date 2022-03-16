@@ -25,11 +25,11 @@ get_sessions()
 if [ $# -ge 1 ] && [ "x$1" = 'xhelp' ]
 then
     echo "Usage: $REL_NAME sessions [Username]"
-    echo 'Print the list of currently active TURN sessions. If a Username is '
-    echo 'specified, print only the sessions belonging to the given Username. '
-    echo 'If TURN credentials of the form "$timestamp:$suffix" are used, just '
-    echo 'the $suffix following the colon may be specified as Username, in '
-    echo 'which case all sessions with that $suffix are listed, regardless of '
+    echo 'Print the list of currently active TURN sessions. If a Username is'
+    echo 'specified, print only the sessions belonging to the given Username.'
+    echo 'If TURN credentials of the form "$timestamp:$suffix" are used, just'
+    echo 'the $suffix following the colon may be specified as Username, in'
+    echo 'which case all sessions with that $suffix are listed, regardless of'
     echo 'their expiry $timestamp.'
     exit 0
 elif [ $# -le 1 ]

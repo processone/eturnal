@@ -22,10 +22,10 @@ disconnect()
 if [ $# -ge 1 ] && [ "x$1" = 'xhelp' ]
 then
     echo "Usage: $REL_NAME disconnect Username"
-    echo 'Close any TURN session(s) belonging to the given Username. If TURN '
-    echo 'credentials of the form "$timestamp:$suffix" are used, just the '
-    echo '$suffix following the colon may be specified as Username, in which '
-    echo 'case all sessions with that $suffix are disconnected, regardless of '
+    echo 'Close any TURN session(s) belonging to the given Username. If TURN'
+    echo 'credentials of the form "$timestamp:$suffix" are used, just the'
+    echo '$suffix following the colon may be specified as Username, in which'
+    echo 'case all sessions with that $suffix are disconnected, regardless of'
     echo 'their expiry $timestamp.'
     exit 0
 elif [ $# -eq 1 ]
