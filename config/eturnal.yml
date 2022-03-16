@@ -10,7 +10,7 @@ eturnal:
   ## Shared secret for deriving temporary TURN credentials (default: $RANDOM):
   #secret: "long-and-cryptic"
 
-  ## The server's public IPv4 address (default: address of $(hostname --fqdn)):
+  ## The server's public IPv4 address (default: autodetected):
   #relay_ipv4_addr: "203.0.113.4"
   ## The server's public IPv6 address (optional):
   #relay_ipv6_addr: "2001:db8::4"
