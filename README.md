@@ -36,10 +36,11 @@ as [described][5] in the reference documentation. For Windows, an installer is
 
 The eturnal server is configured by editing the `/etc/eturnal.yml` file. This
 file uses the (indentation-sensitive!) [YAML][8] format. For TURN relaying to
-work, you'll have to specify the [shared authentication][3] `secret` and usually
-also the `relay_ipv4_addr` option (which should be set to the server's external
-IPv4 address). As an example, a minimal configuration for offering STUN and TURN
-services on port 3478 (UDP and TCP) might look like this:
+work, you'll have to specify the [shared authentication][3] `secret` and (at
+least if the server is running behind NAT) also the `relay_ipv4_addr` option,
+which should be set to the server's _external_ IPv4 address. As an example, a
+minimal configuration for offering STUN and TURN services on port 3478 (UDP and
+TCP) might look like this:
 
 ```yaml
 eturnal:
