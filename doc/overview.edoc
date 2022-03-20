@@ -146,11 +146,10 @@ pairs:
          class="cue">`ip:' <em>address</em></a><br/>
       The `ip' <em>address</em> must be a string denoting the IPv4 or IPv6
       address (note that IPv6 addresses with leading `"::"' must be enclosed
-      with quotation marks). This is the only mandatory key-value pair for each
-      `listen' entry. Specifying `"0.0.0.0"' tells eturnal to listen on all
-      IPv4 interfaces. Specifying `"::"' tells eturnal to listen on all IPv6
+      with quotation marks). Specifying `"0.0.0.0"' tells eturnal to listen on
+      all IPv4 interfaces. Specifying `"::"' tells eturnal to listen on all IPv6
       interfaces, and possibly also all IPv4 interfaces, depending on the
-      operating system (configuration).</li>
+      operating system (configuration). The default value is `"::"'.</li>
   <li><a name="port"
          class="cue">`port:' <em>number</em></a><br/>
       The (optional) `port' <em>number</em> must be between `0' and `65535',

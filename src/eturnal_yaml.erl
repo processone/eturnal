@@ -124,16 +124,14 @@ listen_validator() ->
               port => int(0, 65535),
               transport => enum([tcp, udp, tls, auto]),
               proxy_protocol => bool(),
-              enable_turn => bool()},
-            [unique,
-             {required, [ip]}]),
+              enable_turn => bool()}),
           fun(Opts) ->
                   DefP = fun(udp) -> 3478;
                             (tcp) -> 3478;
                             (tls) -> 5349;
                             (auto) -> 3478
                          end,
-                  I = proplists:get_value(ip, Opts),
+                  I = proplists:get_value(ip, Opts, {0, 0, 0, 0, 0, 0, 0, 0}),
                   T = proplists:get_value(transport, Opts, udp),
                   P = proplists:get_value(port, Opts, DefP(T)),
                   X = proplists:get_value(proxy_protocol, Opts, false),

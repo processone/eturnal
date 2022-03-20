@@ -5,6 +5,8 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 ### Changed
+- Specifying an `ip` address for `listen` entries is no longer mandatory. The
+  default value is now `"::"`.
 - Binary release: Update Erlang/OTP from 24.2.2 to 24.3.1.
 - Binary release: Update OpenSSL from 1.1.1m to 1.1.1n.
 
