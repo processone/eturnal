@@ -49,8 +49,8 @@ init_per_group(_GroupName, Config) ->
 end_per_group(_GroupName, _Config) ->
     ok.
 
--ifdef(old_inet_backend).
 -spec init_per_testcase(test_name(), config()) -> config().
+-ifdef(old_inet_backend).
 init_per_testcase(start_eturnal, Config) ->
     set_eturnal_env("eturnal-old-otp.yml", Config);
 init_per_testcase(stun_tcp_auto, _Config) ->
@@ -60,7 +60,6 @@ init_per_testcase(stun_tls_auto, _Config) ->
 init_per_testcase(_TestCase, Config) ->
     Config.
 -else.
--spec init_per_testcase(test_name(), config()) -> config().
 init_per_testcase(start_eturnal, Config) ->
     set_eturnal_env("eturnal-new-otp.yml", Config);
 init_per_testcase(_TestCase, Config) ->
