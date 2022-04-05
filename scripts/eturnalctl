@@ -61,16 +61,51 @@ usage()
 	EOF
 }
 
+find_eturnal_yml()
+{
+    set -- \
+        "$(printf '%s' "$*" | sed -n 's/.*-conf file "\([^"][^"]*\)".*/\1/p')" \
+        "$etc_prefix/etc/eturnal.yml" \
+        "$release_dir/etc/eturnal.yml" \
+        '/dev/null'
+
+    for path in "$@"
+    do
+        if [ -e "$path" ]
+        then
+            printf '%s' "$path"
+            return
+        fi
+    done
+}
+
+get_option()
+{
+    _key="$1"
+    _val=$(sed -n \
+        's/^[[:blank:]]\{1,\}log_dir:[[:blank:]]*"\?\([[:alnum:][:blank:]\/._+-]*[[:alnum:]\/._+-]\)"\?.*/\1/p' \
+        "$eturnal_yml")
+
+    printf '%s' "$_val"
+}
+
+myself="$(readlink "$0" || printf '%s' "$0")"
+release_dir="$(cd "$(dirname "$myself")/.." && pwd -P)"
+eturnal_yml="$(find_eturnal_yml "$@")"
+log_dir="$(get_option 'log_dir')"
+
 if [ -e "$config_file" ]
 then
     . "$config_file"
 fi
+
 if [ $# -eq 0 ] || [ "$1" = '-h' ] || [ "$1" = '--help' ] || [ "$1" = 'help' ]
 then
     help=true
 else
     help=false
 fi
+
 if [ -z "${ERL_EPMD_ADDRESS:-}" ] && [ -n "$epmd_address" ]
 then
     ERL_EPMD_ADDRESS="$epmd_address"
@@ -86,19 +121,26 @@ then
     ETURNAL_ETC_PREFIX="$etc_prefix"
     export ETURNAL_ETC_PREFIX
 fi
+if [ -z "${RUNNER_LOG_DIR:-}" ]
+then
+    if [ -n "$log_dir" ] && [ "$log_dir" != 'stdout' ]
+    then
+        RUNNER_LOG_DIR="$log_dir"
+        export RUNNER_LOG_DIR
+    elif [ -n "${LOGS_DIRECTORY:-}" ]
+    then
+        RUNNER_LOG_DIR="$LOGS_DIRECTORY"
+        export RUNNER_LOG_DIR
+    fi
+fi
+
 if [ -x "$bin_prefix/bin/eturnal" ]
 then
     cmd="$bin_prefix/bin/eturnal"
 else
-    myself="$(readlink "$0" || :)" # Not all readlink(1)s support "-f".
-    if [ -z "$myself" ]
+    if [ -x "$release_dir/bin/eturnal" ]
     then
-        myself="$0"
-    fi
-    bin_prefix="$(cd "$(dirname "$myself")/.." && pwd -P)"
-    if [ -x "$bin_prefix/bin/eturnal" ]
-    then
-        cmd="$bin_prefix/bin/eturnal"
+        cmd="$release_dir/bin/eturnal"
     else
         cmd="eturnal" # Rely on $PATH.
     fi

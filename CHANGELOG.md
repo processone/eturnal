@@ -7,6 +7,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Changed
 - Specifying an `ip` address for `listen` entries is no longer mandatory. The
   default value is now `"::"`.
+- Make sure eturnal's `log_dir` is used for the addtional log files created by
+  `eturnalctl daemon`.
 - Binary release: Update Erlang/OTP from 24.2.2 to 24.3.3.
 - Binary release: Update OpenSSL from 1.1.1m to 1.1.1n.
 - Binary release: Update zlib from 1.2.11 to 1.2.12.
