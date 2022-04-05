@@ -99,13 +99,6 @@ then
     . "$config_file"
 fi
 
-if [ $# -eq 0 ] || [ "$1" = '-h' ] || [ "$1" = '--help' ] || [ "$1" = 'help' ]
-then
-    help=true
-else
-    help=false
-fi
-
 if [ -z "${ERL_EPMD_ADDRESS:-}" ] && [ -n "$epmd_address" ]
 then
     ERL_EPMD_ADDRESS="$epmd_address"
@@ -137,15 +130,14 @@ fi
 if [ -x "$bin_prefix/bin/eturnal" ]
 then
     cmd="$bin_prefix/bin/eturnal"
+elif [ -x "$release_dir/bin/eturnal" ]
+then
+    cmd="$release_dir/bin/eturnal"
 else
-    if [ -x "$release_dir/bin/eturnal" ]
-    then
-        cmd="$release_dir/bin/eturnal"
-    else
-        cmd="eturnal" # Rely on $PATH.
-    fi
+    cmd='eturnal' # Rely on $PATH.
 fi
-if [ $help = true ]
+
+if [ $# -eq 0 ] || [ "$1" = '-h' ] || [ "$1" = '--help' ] || [ "$1" = 'help' ]
 then
     if [ $# -gt 1 ]
     then
