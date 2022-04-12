@@ -1,12 +1,12 @@
 #!/bin/sh
 
-# Build DEB and RPM packages for Linux/x64 and Linux/arm64.
+# Build DEB and RPM packages for Linux (x64, ARM64, and ARM32).
 
 set -e
 set -u
 
 myself=${0##*/}
-architectures='x64 arm64'
+architectures='x64 arm64 arm32'
 iteration=1
 
 usage()
@@ -90,6 +90,9 @@ package_architecture()
 		;;
 	x86_64-arm64)
 		printf 'arm64'
+		;;
+	x86_64-arm32)
+		printf 'armhf'
 		;;
 	*)
 		echo >&2 "Unsupported host/target combination: $host_target"
