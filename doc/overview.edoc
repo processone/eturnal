@@ -53,40 +53,26 @@ file shipped with eturnal's <a
 href="https://eturnal.net/download/eturnal-1.8.2.tar.gz">source code
 archive</a>.
 
-The binary release archive holds a stand-alone directory that includes
-everything required to run eturnal. It's recommended to create a dedicated
-system user for running eturnal (if not already done), and to extract the
-release archive into this user's home directory by running the following
-commands with superuser privileges (on AArch64 systems, `x64' must be replaced
-with `arm64'):
+The binary release is installed using the following commands (on AArch64
+systems, `x64' must be replaced with `arm64'):
 
 ```
-useradd -r -d /opt/eturnal eturnal
-curl https://eturnal.net/eturnal-1.8.2-linux-x64.tar.gz | tar -C /opt -xzf -
+curl -O https://eturnal.net/eturnal-1.8.2-linux-x64.run
+chmod +x eturnal-1.8.2-linux-x64.run
+sudo ./eturnal-1.8.2-linux-x64.run
 '''
 
-The example <a
-href="https://github.com/processone/eturnal/blob/1.8.2/config/eturnal.yml">configuration
-file</a> shipped with eturnal can either be used in place or copied into the
-system's `/etc' directory:
+The installer extracts the release archive into `/opt/eturnal' and creates a
+system user called `eturnal'. An example configuration is installed as
+`/etc/eturnal.yml' if that file doesn't exist yet. On systemd-managed systems,
+a service unit is created and eturnal is started.
+
+If the above commands were used to upgrade eturnal from an earlier version, the
+service must be restarted afterwards. On systemd-managed systems:
 
 ```
-cp -p -i /opt/eturnal/etc/eturnal.yml /etc/
+sudo systemctl restart eturnal
 '''
-
-The release archive also includes a systemd unit file, which can be enabled by
-running the following commands with superuser privileges:
-
-```
-cp /opt/eturnal/etc/systemd/system/eturnal.service /etc/systemd/system/
-systemctl daemon-reload
-systemctl --now enable eturnal
-'''
-
-By default, the binary release assumes the user running eturnal is called
-`eturnal', and the home directory is `/opt/eturnal'. If a different user and/or
-installation prefix is to be used, the systemd unit file and the `eturnalctl'
-script must be adjusted accordingly.
 
 == Global Configuration ==
 
