@@ -12,6 +12,7 @@ project adheres to [Semantic Versioning][SemVer].
 - Binary release: Update Erlang/OTP from 24.2.2 to 24.3.3.
 - Binary release: Update OpenSSL from 1.1.1m to 1.1.1n.
 - Binary release: Update zlib from 1.2.11 to 1.2.12.
+- Binary release: Use new (GCC-11.2-based) version of build toolchain.
 
 ## [1.8.2] - 2022-03-02
 ### Changed
