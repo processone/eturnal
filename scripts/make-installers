@@ -1,12 +1,12 @@
 #!/bin/sh
 
-# Build installers for Linux (x64, ARM64, and ARM32).
+# Build installers for Linux/x64 and Linux/arm64.
 
 set -e
 set -u
 
 myself=${0##*/}
-architectures='x64 arm64 arm32'
+architectures='x64 arm64'
 
 usage()
 {

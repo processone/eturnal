@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Build portable binary release tarballs for Linux (x64, ARM64, and ARM32).
+# Build portable binary release tarballs for Linux/x64 and Linux/arm64.
 
 set -e
 set -u
@@ -63,7 +63,7 @@ rel_tar="$rel_name-$rel_vsn.tar.gz"
 ct_jobs=$(nproc)
 src_dir="$root_dir/src"
 platform='x86_64-pc-linux-gnu'
-targets='x86_64-linux-gnu aarch64-linux-gnu arm-linux-gnueabi'
+targets='x86_64-linux-gnu aarch64-linux-gnu'
 build_start=$(date '+%F %T')
 
 umask 022
@@ -133,6 +133,7 @@ create_common_config()
 		CT_DOWNLOAD_AGENT_CURL=y
 		CT_OMIT_TARGET_VENDOR=y
 		CT_CC_LANG_CXX=y
+		CT_ARCH_64=y
 		CT_KERNEL_LINUX=y
 		CT_LINUX_V_3_16=y
 		CT_GLIBC_V_2_17=y
@@ -150,27 +151,12 @@ create_x64_config()
 
 	cat >>"$file" <<-'EOF'
 		CT_ARCH_X86=y
-		CT_ARCH_64=y
 	EOF
 }
 #.
 
 #' Create Crosstool-NG configuration file for arm64.
 create_arm64_config()
-{
-	local file="$1"
-
-	create_common_config "$file"
-
-	cat >>"$file" <<-'EOF'
-		CT_ARCH_ARM=y
-		CT_ARCH_64=y
-	EOF
-}
-#.
-
-#' Create Crosstool-NG configuration file for arm32.
-create_arm32_config()
 {
 	local file="$1"
 
@@ -194,28 +180,9 @@ arch_name()
 	aarch64*)
 		printf 'arm64'
 		;;
-	arm*)
-		printf 'arm32'
-		;;
 	*)
 		error "Unsupported target platform: $target"
 		exit 1
-		;;
-	esac
-}
-#.
-
-#' Return OpenSSL's name for the given target.
-openssl_target()
-{
-	local target="$1"
-
-	case $target in
-	arm*)
-		printf 'linux-generic32'
-		;;
-	*)
-		printf "linux-${target%-linux-gnu}"
 		;;
 	esac
 }
@@ -374,7 +341,7 @@ build_rel()
 	CFLAGS="$CFLAGS -O3 -fPIC" ./Configure no-shared no-ui-console \
 	    --prefix="$prefix" \
 	    --openssldir="$prefix" \
-	    "$(openssl_target "$target")"
+	    "linux-${target%-linux-gnu}"
 	make build_libs
 	make install_dev
 	cd "$OLDPWD"
