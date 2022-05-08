@@ -74,6 +74,16 @@ service must be restarted afterwards. On systemd-managed systems:
 sudo systemctl restart eturnal
 '''
 
+For uninstalling eturnal and removing the configuration, run the following
+commands:
+
+```
+sudo systemctl --now disable eturnal
+sudo rm -rf /opt/eturnal
+sudo rm /etc/systemd/system/eturnal.service
+sudo rm /etc/eturnal.yml
+'''
+
 == Global Configuration ==
 
 The eturnal server is configured by editing the `eturnal.yml' file (and
