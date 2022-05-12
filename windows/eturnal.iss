@@ -36,6 +36,7 @@ Name: {group}\Web Site; Filename: {app}\doc\eturnal.url
 [Run]
 Filename: {app}\bin\eturnal.cmd; Parameters: install; WorkingDir: {app}; Flags: runhidden
 Filename: {app}\bin\eturnal.cmd; Parameters: start; WorkingDir: {app}; Flags: runhidden
+Filename: {app}\bin\delay-start.cmd; Flags: runhidden
 
 [UninstallRun]
 Filename: {app}\bin\eturnal.cmd; Parameters: stop; WorkingDir: {app}; Flags: runhidden; RunOnceId: StopService

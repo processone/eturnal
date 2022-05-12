@@ -16,6 +16,9 @@ project adheres to [Semantic Versioning][SemVer].
 - Binary release: Use new (GCC-11.2-based) version of build toolchain.
 - Binary release: Provide self-extracting installer for non-DEB/RPM systems.
 
+### Fixed
+- Windows: Don't fail to start up after reboot.
+
 ## [1.8.2] - 2022-03-02
 ### Changed
 - Use a (pseudo)random `secret` by default.
