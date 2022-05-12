@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [1.8.3] - 2022-05-12
 ### Changed
 - Specifying an `ip` address for `listen` entries is no longer mandatory. The
   default value is now `"::"`.
@@ -304,7 +306,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/1.8.2...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.8.3...HEAD
+[1.8.3]: https://github.com/processone/eturnal/releases/tag/1.8.3
 [1.8.2]: https://github.com/processone/eturnal/releases/tag/1.8.2
 [1.8.1]: https://github.com/processone/eturnal/releases/tag/1.8.1
 [1.8.0]: https://github.com/processone/eturnal/releases/tag/1.8.0

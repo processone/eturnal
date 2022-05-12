@@ -20,11 +20,11 @@ and `openssl-devel`.
 > (`chmod +x rebar3`), first. On Erlang/OTP 21.x, you need an [older Rebar3][6]
 > version.
 
-    curl https://eturnal.net/download/eturnal-1.8.2.tar.gz | tar -C /tmp -xzf -
-    cd /tmp/eturnal-1.8.2
+    curl https://eturnal.net/download/eturnal-1.8.3.tar.gz | tar -C /tmp -xzf -
+    cd /tmp/eturnal-1.8.3
     ./rebar3 as prod tar
 
-This generates the archive file `_build/prod/rel/eturnal/eturnal-1.8.2.tar.gz`.
+This generates the archive file `_build/prod/rel/eturnal/eturnal-1.8.3.tar.gz`.
 The default installation prefix is set to `/opt/eturnal`, and it's assumed the
 server will be executed by a user named `eturnal`. To change these defaults,
 edit the [build.config][7] file, re-run `./rebar3 as prod tar`, and adapt the
@@ -47,7 +47,7 @@ or `sudo -i`, first.
 2.  Extract the archive generated [above](#compilation):
 
         cd /opt/eturnal
-        tar -xzf /tmp/eturnal-1.8.2/_build/prod/rel/eturnal/eturnal-1.8.2.tar.gz
+        tar -xzf /tmp/eturnal-1.8.3/_build/prod/rel/eturnal/eturnal-1.8.3.tar.gz
         chown eturnal /opt/eturnal/etc/eturnal.yml
 
 3.  Copy the `eturnal.yml` file to `/etc` (optional):
@@ -71,6 +71,6 @@ configuration and usage instructions.
 [4]: https://gcc.gnu.org
 [5]: https://s3.amazonaws.com/rebar3/rebar3
 [6]: https://github.com/erlang/rebar3/releases/download/3.15.2/rebar3
-[7]: https://github.com/processone/eturnal/blob/1.8.2/build.config
-[8]: https://github.com/processone/eturnal/blob/1.8.2/README.md
+[7]: https://github.com/processone/eturnal/blob/1.8.3/build.config
+[8]: https://github.com/processone/eturnal/blob/1.8.3/README.md
 [9]: https://eturnal.net/documentation/
