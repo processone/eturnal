@@ -101,6 +101,7 @@ sed -e 's|stylesheet.css|/stylesheet.css|' \
 
 scripts/make-source
 scripts/make-binaries
+scripts/make-installers
 scripts/make-packages 2>&1 | tail -n 1
 
 echo "$myself: If everything looks fine, run scripts/publish-release."
