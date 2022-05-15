@@ -106,11 +106,7 @@ get_sessions() ->
     ?LOG_DEBUG("Handling API call: get_sessions()"),
     case query_all_sessions() of
         [_ | _] = Sessions ->
-            Header = io_lib:format("~B active TURN sessions:",
-                                   [length(Sessions)]),
-            Output = lists:join([nl(), nl()],
-                                [Header | format_sessions(Sessions)]),
-            {ok, unicode:characters_to_list(Output)};
+            {ok, unicode:characters_to_list(format_sessions(Sessions))};
         [] ->
             {ok, "No active TURN sessions"}
     end.
@@ -122,11 +118,7 @@ get_sessions(Username0) ->
         Username when is_binary(Username) ->
             case query_user_sessions(Username) of
                 [_ | _] = Sessions ->
-                    Header = io_lib:format("~B active TURN sessions:",
-                                           [length(Sessions)]),
-                    Output = lists:join([nl(), nl()],
-                                        [Header | format_sessions(Sessions)]),
-                    {ok, unicode:characters_to_list(Output)};
+                    {ok, unicode:characters_to_list(format_sessions(Sessions))};
                 [] ->
                     {ok, "No active TURN sessions"}
             end;
@@ -352,45 +344,48 @@ disconnect_user(User) ->
                         N + 1
                 end, 0, query_user_sessions(User)).
 
--spec format_sessions([session()]) -> iolist().
+-spec format_sessions([session()]) -> io_lib:chars().
 format_sessions(Sessions) ->
-    lists:map(
-      fun(#session{user = User,
-                   sock_mod = SockMod,
-                   client_addr = ClientAddr,
-                   relay_addr = RelayAddr,
-                   perm_addrs = PermAddrs,
-                   peer_addrs = PeerAddrs,
-                   sent_bytes = SentBytes,
-                   sent_pkts = SentPkts,
-                   rcvd_bytes = RcvdBytes,
-                   rcvd_pkts = RcvdPkts,
-                   start_time = StartTime}) ->
-              Duration0 = erlang:monotonic_time() - StartTime,
-              Duration = erlang:convert_time_unit(Duration0, native, second),
-              Transport = format_transport(SockMod),
-              Client = eturnal_misc:addr_to_str(ClientAddr),
-              Relay = eturnal_misc:addr_to_str(RelayAddr),
-              Peers = format_addrs(PeerAddrs),
-              Perms = format_addrs(PermAddrs),
-              io_lib:format(
-                "-- TURN session of ~ts --~s"
-                "          Client: ~s (~s)~s"
-                "           Relay: ~s (UDP)~s"
-                "   Permission(s): ~s~s"
-                "         Peer(s): ~s~s"
-                "            Sent: ~B KiB (~B packets)~s"
-                "        Received: ~B KiB (~B packets)~s"
-                "     Running for: ~B seconds",
-                [User, nl(),
-                 Client, Transport, nl(),
-                 Relay, nl(),
-                 Perms, nl(),
-                 Peers, nl(),
-                 round(SentBytes / 1024), SentPkts, nl(),
-                 round(RcvdBytes / 1024), RcvdPkts, nl(),
-                 Duration])
-      end, Sessions).
+    H = io_lib:format("~B active TURN sessions:", [length(Sessions)]),
+    T = lists:map(
+          fun(#session{user = User,
+                       sock_mod = SockMod,
+                       client_addr = ClientAddr,
+                       relay_addr = RelayAddr,
+                       perm_addrs = PermAddrs,
+                       peer_addrs = PeerAddrs,
+                       sent_bytes = SentBytes,
+                       sent_pkts = SentPkts,
+                       rcvd_bytes = RcvdBytes,
+                       rcvd_pkts = RcvdPkts,
+                       start_time = StartTime}) ->
+                  Duration0 = erlang:monotonic_time() - StartTime,
+                  Duration = erlang:convert_time_unit(
+                               Duration0, native, second),
+                  Transport = format_transport(SockMod),
+                  Client = eturnal_misc:addr_to_str(ClientAddr),
+                  Relay = eturnal_misc:addr_to_str(RelayAddr),
+                  Peers = format_addrs(PeerAddrs),
+                  Perms = format_addrs(PermAddrs),
+                  io_lib:format(
+                    "-- TURN session of ~ts --~s"
+                    "          Client: ~s (~s)~s"
+                    "           Relay: ~s (UDP)~s"
+                    "   Permission(s): ~s~s"
+                    "         Peer(s): ~s~s"
+                    "            Sent: ~B KiB (~B packets)~s"
+                    "        Received: ~B KiB (~B packets)~s"
+                    "     Running for: ~B seconds",
+                    [User, nl(),
+                     Client, Transport, nl(),
+                     Relay, nl(),
+                     Perms, nl(),
+                     Peers, nl(),
+                     round(SentBytes / 1024), SentPkts, nl(),
+                     round(RcvdBytes / 1024), RcvdPkts, nl(),
+                     Duration])
+          end, Sessions),
+    lists:join([nl(), nl()], [H | T]).
 
 -spec format_info(eturnal_node_info()) -> io_lib:chars().
 format_info(#eturnal_node_info{
