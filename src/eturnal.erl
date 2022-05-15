@@ -661,21 +661,15 @@ check_pem_file() ->
 -spec import_pem_file(binary(), file:filename_all()) -> ok | error.
 import_pem_file(CrtFile, OutFile) ->
     try
-        Read = [read, binary, raw],
-        Write = [write, binary, raw],
-        Append = [append, binary, raw],
         ok = touch(OutFile),
         case get_opt(tls_key_file) of
             KeyFile when is_binary(KeyFile) ->
-                {ok, _} = file:copy({KeyFile, Read}, {OutFile, Write}),
-                ?LOG_DEBUG("Copied ~ts into ~ts", [KeyFile, OutFile]);
+                ok = copy_file(KeyFile, OutFile, write);
             none ->
                 ?LOG_INFO("No 'tls_key_file' specified, assuming key in ~ts",
                           [CrtFile])
         end,
-        {ok, _} = file:copy({CrtFile, Read}, {OutFile, Append}),
-        ?LOG_DEBUG("Copied ~ts into ~ts", [CrtFile, OutFile]),
-        ok
+        ok = copy_file(CrtFile, OutFile, append)
     catch
         error:{badarg, {error, Reason}} ->
             ?LOG_CRITICAL("Cannot create ~ts: ~ts",
@@ -695,6 +689,13 @@ create_self_signed(File) ->
                           [File, file:format_error(Reason)]),
             error
     end.
+
+-spec copy_file(file:name_all(), file:name_all(), write | append) -> ok.
+copy_file(Src, Dst, Mode) ->
+    SrcMode = [read, binary, raw],
+    DstMode = [Mode, binary, raw],
+    {ok, _} = file:copy({Src, SrcMode}, {Dst, DstMode}),
+    ?LOG_DEBUG("Copied ~ts into ~ts", [Src, Dst]).
 
 -spec touch(file:filename_all()) -> ok.
 touch(File) ->
