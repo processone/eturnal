@@ -230,19 +230,20 @@ is_valid_username(Username) ->
 
 -spec make_username(string(), string()) -> binary().
 make_username(Expiry0, Suffix) ->
-    try string:trim(Expiry0) of
-        Expiry ->
-            try calendar:rfc3339_to_system_time(Expiry) of
-                Time ->
-                    username_from_timestamp(Time, Suffix)
-            catch
-                _:{badmatch, _} ->
-                    username_from_expiry(Expiry, Suffix);
-                _:badarg -> % Erlang/OTP < 21.3.
-                    username_from_expiry(Expiry, Suffix)
-            end
-    catch _:function_clause ->
-            erlang:error(badarg)
+    Expiry = try string:trim(Expiry0) of
+                 Trimmed ->
+                     Trimmed
+             catch _:function_clause ->
+                     erlang:error(badarg)
+             end,
+    try calendar:rfc3339_to_system_time(Expiry) of
+        Time ->
+            username_from_timestamp(Time, Suffix)
+    catch
+        _:{badmatch, _} ->
+            username_from_expiry(Expiry, Suffix);
+        _:badarg -> % Erlang/OTP < 21.3.
+            username_from_expiry(Expiry, Suffix)
     end.
 
 -spec username_from_timestamp(integer(), string()) -> binary().
