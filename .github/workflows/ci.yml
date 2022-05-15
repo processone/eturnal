@@ -77,6 +77,8 @@ jobs:
         run: rebar3 eunit
       - name: Check test coverage
         run: rebar3 cover
+      - name: Check code style
+        run: rebar3 lint
       - name: Upload test and coverage results
         uses: actions/upload-artifact@v3
         if: always()
