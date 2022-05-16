@@ -64,7 +64,11 @@ create_setup_script()
 			             tr '[:upper:]' '[:lower:]')"
 			if [ "\$response" = 'y' ] || [ "\$response" = 'yes' ]
 			then return 0
-			else return 1
+			elif [ "\$response" = 'n' ] || [ "\$response" = 'no' ]
+			then return 1
+			else
+				echo 'Please respond with "yes" or "no".'
+				user_agrees "\$question"
 			fi
 		else # Assume 'yes' if not running interactively.
 			return 0
