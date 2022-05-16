@@ -60,16 +60,18 @@ create_setup_script()
 		if [ -t 0 ]
 		then
 			read -p "\$question (y/n) [n] " response
-			response="\$(printf '%s' "\$response" |
-			             tr '[:upper:]' '[:lower:]')"
-			if [ "\$response" = 'y' ] || [ "\$response" = 'yes' ]
-			then return 0
-			elif [ "\$response" = 'n' ] || [ "\$response" = 'no' ]
-			then return 1
-			else
+			case "\$response" in
+			[Yy]|[Yy][Ee][Ss])
+				return 0
+				;;
+			[Nn]|[Nn][Oo]|'')
+				return 1
+				;;
+			*)
 				echo 'Please respond with "yes" or "no".'
 				user_agrees "\$question"
-			fi
+				;;
+			esac
 		else # Assume 'yes' if not running interactively.
 			return 0
 		fi
