@@ -1,0 +1,22 @@
+namespace: stunturn
+bases:
+  - ../../bases
+secretGenerator:
+- name: eturnal-secrets
+  env: configs/secrets.env
+configMapGenerator:
+- name: eturnal-config
+  files:
+  - configs/eturnal.yml
+- name: eturnal-env
+  env: configs/variables.env
+#patchesStrategicMerge:
+#  - eturnal-config.yaml
+#  - eturnal-certs.yaml
+#resources:
+#  - ingressroutetcp.yaml
+#  - ingressrouteudp.yaml
+#  - tls-certificate.yaml
+images:
+- name: ghcr.io/processone/eturnal # or DockerHub "sando38/docker-eturnal"
+  newTag: "latest"

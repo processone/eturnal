@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eturnal
+  labels:
+    app: eturnal
+spec:
+  selector:
+    matchLabels:
+      app: eturnal
+  template:
+    metadata:
+      labels:
+        app: eturnal
+    spec:
+      subdomain: eturnal
+      initContainers:
+        - name: eturnal-certs
+          image: alpine
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 9000
+            runAsGroup: 9000
+            runAsNonRoot: true
+            privileged: false
+            capabilities:
+              drop: [ALL]
+          command:
+            - sh
+            - -c
+            - |
+              cp /secret/* /certs
+              mv /certs/tls.crt /certs/crt.pem
+              mv /certs/tls.key /certs/key.pem
+              chmod -R 400 /certs/*
+              chown 9000:9000 /certs/*
+          volumeMounts:
+            - name: eturnal-certs-modified
+              mountPath: /certs
+            - name: eturnal-certs
+              mountPath: /secret
+      containers:
+        - name: eturnal
+          volumeMounts:
+          - name: eturnal-certs-modified
+            mountPath: /opt/eturnal/tls
+  #          readOnly: true
+      volumes:
+        - name: eturnal-certs-modified
+          emptyDir:
+            medium: Memory
+        - name: eturnal-certs
+          secret:
+            secretName: nameofsecret

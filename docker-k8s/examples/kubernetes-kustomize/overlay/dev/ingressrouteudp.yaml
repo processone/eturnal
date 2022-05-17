@@ -1,0 +1,13 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteUDP
+metadata:
+  name: eturnal
+  namespace: stunturn
+spec:
+  entryPoints:
+    - stunturn
+  routes:
+  - services:
+    - name: eturnal
+      port: 3478
+      weight: 10

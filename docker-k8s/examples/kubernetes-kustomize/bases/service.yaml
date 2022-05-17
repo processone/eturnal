@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: eturnal
+  namespace: eturnal
+  labels:
+    app: eturnal
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3478
+      targetPort: 3478
+      protocol: UDP
+      name: stunturn-udp
+    - port: 3478
+      targetPort: 3478
+      protocol: TCP
+      name: stunturn-tcp
+#    - port: 5349
+#      targetPort: 5349
+#      protocol: TCP
+#      name: stunturn-tls
+#    - port: 5350
+#      targetPort: 5350
+#      protocol: TCP
+#      name: stunturn-pp
+  selector:
+    app: eturnal
