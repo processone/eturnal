@@ -1,0 +1,25 @@
+version: "3.7"
+
+services:
+  eturnal:
+    restart: unless-stopped
+    hostname: eturnal
+    container_name: eturnal
+    image: sando38/docker-eturnal:latest
+    user: 9000:9000
+    # network_mode: "host"
+    ports:
+      # - 3478:3478 # STUN/TURN non-tls
+      - 3478:3478/udp # STUN/TURN non-tls
+      # - 5349:5349 # STUN/TURN TLS
+      # - 49152-49300:49152-49300/udp # TURN range
+    # env_file:
+    #   - eturnal.env
+    volumes: # directories must be own by ejabberd user 9000:9000
+      - /path/to/eturnal.yml:/opt/eturnal/etc/eturnal.yml      # for config file
+      - /path/to/erlang-cookie:/opt/eturnal/.erlang.cookie  # for erlang cookie file
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
