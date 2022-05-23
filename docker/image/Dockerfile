@@ -43,11 +43,12 @@ RUN apk upgrade --update musl \
     && mkdir -p $HOME/log $HOME/run $HOME/tls \
     && chown -R 9000:9000 $HOME \
 # eturnalctl link, scripts and configuration files
-    && ln -s $HOME/bin/eturnalctl /usr/local/bin/eturnalctl
+    && ln -s $HOME/bin/eturnalctl /usr/local/bin/eturnalctl \
+    && sed -i -e "s/#log_dir: stdout/log_dir: stdout/g" $HOME/etc/eturnal.yml
 
 WORKDIR $HOME
 USER eturnal
-VOLUME ["$HOME/tls", "$HOME/log"]
+VOLUME ["$HOME/log", "$HOME/run", "$HOME/tls"]
 EXPOSE 3478/udp 3478 5349
 
 CMD ["/usr/local/bin/eturnalctl", "foreground"]
