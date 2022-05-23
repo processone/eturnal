@@ -4,10 +4,8 @@ ARG VERSION=master
 RUN apk upgrade --update musl \
     && apk add \
     build-base \
-    erlang \
     erlang-dev \
     git \
-    openssl \
     openssl-dev \
     yaml-dev
 
