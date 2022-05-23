@@ -68,6 +68,7 @@ To use the `eturnalctl` [command](https://eturnal.net/documentation/#Operation),
 | TAGS  | Description  | Architectures  |
 | ------------ | ------------ | ------------ |
 | latest  | Built from master branch, may be unstable  | linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6  |
+| v1.8.3-3  | [Changelog](https://github.com/processone/eturnal/releases/tag/1.8.3), fix an issue with readonly fs and tls certificates | linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6  |
 | v1.8.3-2  | [Changelog](https://github.com/processone/eturnal/releases/tag/1.8.3), image adjusted, so that not erlang.cookie must be mounted with readonly file systems | linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6  |
 | v1.8.3  | [Changelog](https://github.com/processone/eturnal/releases/tag/1.8.3) | linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6  |
 
