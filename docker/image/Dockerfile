@@ -3,26 +3,19 @@ ARG VERSION=master
 
 RUN apk upgrade --update musl \
     && apk add \
-    autoconf \
-    automake \
-    bash \
     build-base \
-    curl \
-    elixir \
-    erlang-odbc \
-    erlang-reltool \
-    expat-dev \
-    file \
+    erlang \
+    erlang-dev \
     git \
     openssl \
     openssl-dev \
-    yaml-dev \
-    zlib-dev
+    yaml-dev
 
 WORKDIR eturnal
 
 RUN git clone https://github.com/processone/eturnal.git . \
     && git checkout $VERSION \
+    && echo "-setcookie eturnal" >> config/vm.args \
     && wget https://s3.amazonaws.com/rebar3/rebar3 && chmod +x rebar3 \
     && ./rebar3 as prod tar
 
@@ -55,6 +48,6 @@ RUN apk upgrade --update musl \
 WORKDIR $HOME
 USER eturnal
 VOLUME ["$HOME/tls", "$HOME/log"]
-EXPOSE 3478 5349
+EXPOSE 3478/udp 3478 5349
 
 CMD ["/usr/local/bin/eturnalctl", "foreground"]

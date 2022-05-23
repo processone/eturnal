@@ -28,10 +28,9 @@ The image can also run in a less "privileged" mode:
 docker run -d \
   --name eturnal \
   --user 9000:9000 \
-  -v /home/eturnal.yml:/opt/eturnal/etc/eturnal.yml \
-  -v /home/.erlang.cookie:/opt/eturnal/.erlang.cookie \
+  -v /path/to/eturnal.yml:/opt/eturnal/etc/eturnal.yml \
   -p 3478:3478/udp \
-  -p 49152-49300:49152-49300/udp \
+  -p 49152-65535:49152-65535/udp \
   --read-only \
   --security-opt no-new-privileges \
   --cap-drop=ALL \
@@ -44,8 +43,7 @@ As an alternative since [docker performs badly with large port ranges](https://g
 docker run -d \
   --name eturnal \
   --user 9000:9000 \
-  -v /home/eturnal.yml:/opt/eturnal/etc/eturnal.yml \
-  -v /home/.erlang.cookie:/opt/eturnal/.erlang.cookie \
+  -v /path/to/eturnal.yml:/opt/eturnal/etc/eturnal.yml \
   --network=host \
   --read-only \
   --security-opt no-new-privileges \
@@ -88,19 +86,7 @@ Volumes may be mounted for the configuration file and tls certificates/ dh-param
 ```
 volumes:
   - /path/to/eturnal.yml:/opt/eturnal/etc/eturnal.yml  # for (custom) configuration file
-  - /path/to/cert-files:/opt/eturnal/tls               # for custom tls certicates
+  - /path/to/cert-files:/opt/eturnal/tls               # for tls certicates
 ```
 
 TLS certificates must be readable by eturnal user/ group `9000:9000` and should not have world readable access rights (`chmod 400`).
-
-## Readonly file system & .erlang.cookie file
-
-If you want to use a readonly file system (`--read-only`, in compose `read_only: true` or in kubernetes' `securityContext, readOnlyRootFilesystem: true`), the `.erlang.cookie` file must be mounted with the correct permissions (owned (`chown 9000:9000`) and readonly (`chmod 400`) by eturnal user) into the container.
-
-Here is a quick checklist:
-
-* Create cookie with correct read-only permissions (`chmod 0400`) and owner `9000:9000`
-  * `echo "My1-ErlanG2-CookiE3" > /path/to/COOKIE`
-* Mount cookie to: ` -v /path/to/COOKIE:/opt/eturnal/.erlang.cookie`
-
-For kubernetes an `initContainers` may be used to achieve the correct file permissions.
