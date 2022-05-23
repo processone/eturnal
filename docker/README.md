@@ -63,7 +63,7 @@ To use the `eturnalctl` [command](https://eturnal.net/documentation/#Operation),
 
 ## Tags
 
-`vXX.YY.ZZ` represents the official eturnal release.
+`vXX.YY.ZZ` represents the official eturnal release. `-AA` suffix for image version of the particular release in case of any bug fix, etc. of the image.
 
 | TAGS  | Description  | Architectures  |
 | ------------ | ------------ | ------------ |
