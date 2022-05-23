@@ -15,7 +15,7 @@ services:
       # - 49152-65535:49152-65535/udp # TURN range
     # env_file:
     #   - eturnal.env
-    volumes: # directories must be own by eturnal user 9000:9000
+    volumes: # directories must be owned by eturnal user 9000:9000
       - /path/to/eturnal.yml:/opt/eturnal/etc/eturnal.yml   # for config file
     security_opt:
       - no-new-privileges:true
