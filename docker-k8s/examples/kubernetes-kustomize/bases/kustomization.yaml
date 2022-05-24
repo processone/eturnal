@@ -1,0 +1,4 @@
+namespace: stunturn
+resources:
+  - deployment.yaml
+  - service.yaml

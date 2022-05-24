@@ -1,0 +1,34 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: eturnal-tcp-pp
+  namespace: stunturn
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: HostSNI(`*`)
+    services:
+    - name: eturnal
+      port: 5350
+      proxyProtocol:
+        version: 2
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: eturnal-tls-pp
+  namespace: stunturn
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: HostSNI(`stun.example.com`, `turn.example.com`)
+    services:
+    - name: eturnal
+      port: 5350
+      proxyProtocol:
+        version: 2
+  tls:
+    options:
+    passthrough: true

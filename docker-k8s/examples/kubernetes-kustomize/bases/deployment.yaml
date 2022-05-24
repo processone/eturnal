@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eturnal
+  labels:
+    app: eturnal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eturnal
+  template:
+    metadata:
+      labels:
+        app: eturnal
+    spec:
+      subdomain: eturnal
+      hostNetwork: true
+      securityContext:
+        runAsUser: 9000
+        runAsGroup: 9000
+        fsGroup: 9000
+      containers:
+        - name: eturnal
+          image: sando38/docker-eturnal
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 9000
+            runAsGroup: 9000
+            runAsNonRoot: true
+            privileged: false
+            capabilities:
+              drop: [ALL]
+          ports:
+            - name: stunturn-udp
+              containerPort: 3478
+              hostPort: 3478
+              protocol: UDP
+            - name: stunturn-tcp
+              containerPort: 3478
+              hostPort: 3478
+              protocol: TCP
+#            - name: stunturn-tls
+#              containerPort: 5349
+#              hostPort: 5349
+#              protocol: TCP
+#            - name: stunturn-pp
+#              containerPort: 5350
+#              hostPort: 5350
+#              protocol: TCP
+          envFrom:
+          - configMapRef:
+              name: eturnal-env
+          - secretRef:
+              name: eturnal-secrets
+          readinessProbe:
+            tcpSocket:
+              port: stunturn-tcp
+            initialDelaySeconds: 10
+            periodSeconds: 30
+#          volumeMounts:
+#          - name: eturnal-config
+#            mountPath: /opt/eturnal/etc/eturnal.yml
+#            subPath: eturnal.yml
+#            readOnly: true
+#        volumes:
+#        - name: eturnal-config
+#          configMap:
+#            name: eturnal-config
+#            defaultMode: 0440

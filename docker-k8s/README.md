@@ -20,7 +20,7 @@ To pull the image, just refer to the Docker Hub repository:
 
 The image will run in eturnal foreground mode, if started this way:
 
-`docker run -d sando38/docker-eturnal:latest --name eturnal`
+`docker run -d sando38/docker-eturnal:latest`
 
 The image can also run in a less "privileged" mode:
 
