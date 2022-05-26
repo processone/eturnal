@@ -15,4 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build eturnal/docker-k8s/image/. --file Dockerfile --tag docker-eturnal:$(date +%s)
+      run: docker build docker-k8s/image/. --file Dockerfile --tag docker-eturnal:$(date +%s)
