@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Fixed
+- Avoid crashes in the case where no `secret` is configured in the `eturnal.yml`
+  file (#21).
 
 ## [1.8.3] - 2022-05-12
 ### Changed

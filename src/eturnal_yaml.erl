@@ -85,7 +85,7 @@ validator() ->
           whitelist => [],
           strict_expiry => false,
           realm => <<"eturnal.net">>,
-          secret => get_default(secret, make_random_secret()),
+          secret => [get_default(secret, make_random_secret())],
           software_name => <<"eturnal">>,
           run_dir => get_default("RUNTIME_DIRECTORY", <<"run">>),
           log_dir => get_default("LOGS_DIRECTORY", <<"log">>),
