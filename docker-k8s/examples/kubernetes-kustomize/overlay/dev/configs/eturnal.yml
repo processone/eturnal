@@ -1,6 +1,6 @@
 eturnal:
-  secret: "long-and-cryptic"     # Shared secret, CHANGE THIS.
-  relay_ipv4_addr: "10.20.30.40" # The server's public IPv4 address.
+  #secret: "long-and-cryptic"     # Shared secret, CHANGE THIS.
+  #relay_ipv4_addr: "10.20.30.40" # The server's public IPv4 address.
   #relay_ipv6_addr: "::"          # The server's public IPv6 address (optional).
   listen:
     -

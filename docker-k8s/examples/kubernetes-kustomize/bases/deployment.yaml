@@ -15,7 +15,7 @@ spec:
         app: eturnal
     spec:
       subdomain: eturnal
-      hostNetwork: true
+#      hostNetwork: true
       securityContext:
         runAsUser: 9000
         runAsGroup: 9000

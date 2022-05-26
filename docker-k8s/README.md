@@ -51,6 +51,8 @@ docker run -d \
   sando38/docker-eturnal:latest
 ```
 
+NOTE: When running `--network=host` or similarly with `network_mode: "host"` in compose or `hostNetwork: true` in kubernetes, consider to set `ERL_EPMD_ADDRESS=127.0.0.1` to not publish the EPMD daemon (default port `4369`) to the outside world.
+
 Inspect the running container with
 
 `docker logs < container name >`
