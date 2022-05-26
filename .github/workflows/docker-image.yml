@@ -1,0 +1,23 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+    - 'config/**'
+    - 'doc/**'
+    - 'docker-k8s/examples/**'
+    - 'windows/**'
+    - '**.md'
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      context: docker-k8s/image
+      run: docker build . --file Dockerfile --tag docker-eturnal:$(date +%s)
