@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Changed
+- Binary release: Update Erlang/OTP from 24.3.4 to 25.0.
+
 ### Fixed
 - Avoid crashes in the case where no `secret` is configured in the `eturnal.yml`
   file (#21).
