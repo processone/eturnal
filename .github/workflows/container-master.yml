@@ -1,5 +1,5 @@
 name: Container image on push master
-
+# builds a `latest` release from master branch on push and once a week.
 on:
   push:
     branches: [ master ]

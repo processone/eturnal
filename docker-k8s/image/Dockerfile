@@ -3,36 +3,36 @@ ARG VERSION=master
 
 RUN apk upgrade --update musl \
     && apk add \
-    build-base \
-    erlang-dev \
-    git \
-    openssl-dev \
-    yaml-dev
+      build-base \
+      erlang-dev \
+      git \
+      openssl-dev \
+      yaml-dev
 
 WORKDIR eturnal
 
 RUN git clone https://github.com/processone/eturnal.git . \
     && git checkout $VERSION \
     && echo "-setcookie eturnal" >> config/vm.args \
-    && wget https://s3.amazonaws.com/rebar3/rebar3 && chmod +x rebar3 \
+    && wget https://s3.amazonaws.com/rebar3/rebar3 \
+    && chmod +x rebar3 \
     && ./rebar3 as prod tar
 
 RUN mkdir -p /opt/eturnal \
     && cp -r _build/prod/rel/eturnal/eturnal-*.tar.gz /opt/eturnal
 
-FROM alpine:3.15.4
+FROM alpine:3.15.4 AS eturnal
 ENV HOME=/opt/eturnal
 
 COPY --from=build /opt /opt
 
 # add packages and remove cache
-RUN apk upgrade --update musl \
-    && apk add \
+RUN apk upgrade --update --no-cache musl \
+    && apk --no-cache add \
     libstdc++ \
     ncurses-libs \
     openssl \
     yaml \
-    && rm -rf /var/cache/apk/* \
 # user and directories
     && tar -xzf $HOME/eturnal-*.tar.gz -C $HOME \
     && rm -rf $HOME/eturnal-*.tar.gz \

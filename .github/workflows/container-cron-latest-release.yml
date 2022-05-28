@@ -1,8 +1,7 @@
 name: Container cronjob update latest release
-
+# re-builds the current latest release to keep packages up-to-date
 on:
   schedule:
-    # Build the image regularly (each Friday) to keep packages up-to-date
     - cron: '43 23 * * 5'
 
 env:

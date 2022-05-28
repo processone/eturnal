@@ -1,5 +1,5 @@
 name: Container image on release/ tag
-
+# create image on every new release/ tag
 on:
   push:
     tags:
