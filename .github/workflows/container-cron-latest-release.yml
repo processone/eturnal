@@ -1,13 +1,6 @@
 name: Container cronjob update latest release
 
 on:
-  push:
-    branches: [ master ]
-    paths-ignore:
-    - 'doc/**'
-    - 'docker-k8s/examples/**'
-    - 'windows/**'
-    - '**.md'
   schedule:
     # Build the image regularly (each Friday) to keep packages up-to-date
     - cron: '43 23 * * 5'
@@ -26,7 +19,7 @@ jobs:
         with:
           fetch-depth: 0
       -
-        name: Extract tags
+        name: Extract tag of latest release
         run: |
           echo "TAG_VERSION=$(git describe --tags `git rev-list --tags --max-count=1`)" >> $GITHUB_ENV
       -
@@ -35,7 +28,7 @@ jobs:
         with:
           ref: ${{ env.TAG_VERSION }}
       -
-        name: Extract Dockerfile path
+        name: Extract Dockerfile path and major/ minor release tags
         run: |
           echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
           echo "TAG_MINOR=$(echo "$TAG_VERSION" | sed 's/\./ /2' | awk '{ print $1 }')" >> $GITHUB_ENV
