@@ -4,11 +4,13 @@ on:
   push:
     branches: [ master ]
     paths-ignore:
-    - 'config/**'
     - 'doc/**'
     - 'docker-k8s/examples/**'
     - 'windows/**'
     - '**.md'
+  schedule:
+    # Build the image regularly (each Friday) to keep packages up-to-date
+    - cron: '13 23 * * 5'
 
 env:
   REGISTRY: ghcr.io
@@ -21,13 +23,12 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      -
-        name: Extract inofficial tag
-        run: |
-          echo "TAG_VERSION=$(echo "$(git describe --tags)" | sed -e 's/-g.*//')" >> $GITHUB_ENV
-          echo $TAG_VERSION
+#        with:
+#          fetch-depth: 0
+#      -
+#        name: Extract inofficial tag
+#        run: |
+#          echo "TAG_VERSION=$(echo "$(git describe --tags)" | sed -e 's/-g.*//')" >> $GITHUB_ENV
       -
         name: Docker meta
         id: meta
@@ -37,7 +38,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             latest
-            ${{ env.TAG_VERSION }}
+#            ${{ env.TAG_VERSION }}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
