@@ -3,7 +3,7 @@ name: update latest container release regularly
 on:
   schedule:
     # Build the image regularly (each Friday) to keep packages up-to-date
-    - cron: '13 22 * * 5'
+    - cron: '5 * * * *'
 
 env:
   REGISTRY: ghcr.io
