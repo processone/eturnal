@@ -1,9 +1,14 @@
-name: Build & Publish container image - Release/ Tag
+name: Container image on push master
 
 on:
   push:
-    tags:
-      - '*.*.*'
+    branches: [ master ]
+    paths-ignore:
+    - 'config/**'
+    - 'doc/**'
+    - 'docker-k8s/examples/**'
+    - 'windows/**'
+    - '**.md'
 
 env:
   REGISTRY: ghcr.io
@@ -19,9 +24,9 @@ jobs:
         with:
           fetch-depth: 0
       -
-        name: Extract tags for build arguments
+        name: Extract inofficial tag
         run: |
-          echo "TAG_VERSION=$(git describe --tags `git rev-list --tags --max-count=0`)" >> $GITHUB_ENV
+          echo "TAG_VERSION=$(echo "$(git describe --tags)" | sed -e 's/-g.*//' -e 's/-/./')" >> $GITHUB_ENV
       -
         name: Docker meta
         id: meta
@@ -30,6 +35,7 @@ jobs:
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
+            latest
             ${{ env.TAG_VERSION }}
       -
         name: Set up QEMU
@@ -50,7 +56,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           build-args: |
-            VERSION=${{ env.TAG_VERSION }}
+            VERSION=master
           context: docker-k8s/image/.
           platforms: linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6
           push: ${{ github.event_name != 'pull_request' }}
