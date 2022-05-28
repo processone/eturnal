@@ -1,9 +1,9 @@
-name: docker publish
+name: Build & Publish container image - Release/ Tag
 
 on:
   push:
     tags:
-      - '*'
+      - '*.*.*'
 
 env:
   REGISTRY: ghcr.io
@@ -21,17 +21,14 @@ jobs:
       -
         name: Extract tags for build arguments
         run: |
-          echo "TAG_VERSION=$(git describe --tags `git rev-list --tags --max-count=1`)" >> $GITHUB_ENV
-#          echo "TAG_VERSION=$(echo "$(git describe --tags)" | sed -e 's/-g.*//' -e 's/-/./')" >> $GITHUB_ENV
+          echo "TAG_VERSION=$(git describe --tags `git rev-list --tags --max-count=0`)" >> $GITHUB_ENV
       -
         name: Docker meta
         id: meta
         uses: docker/metadata-action@v4
         with:
-          # list of Docker images to use as base name for tags
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-#          # generate Docker tags based on the following events/attributes
           tags: |
             ${{ env.TAG_VERSION }}
       -
