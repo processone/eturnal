@@ -26,7 +26,8 @@ jobs:
       -
         name: Extract inofficial tag
         run: |
-          echo "TAG_VERSION=$(echo "$(git describe --tags)" | sed -e 's/-g.*//' -e 's/-/./')" >> $GITHUB_ENV
+          echo "TAG_VERSION=$(echo "$(git describe --tags)" | sed -e 's/-g.*//')" >> $GITHUB_ENV
+          echo $TAG_VERSION
       -
         name: Docker meta
         id: meta
