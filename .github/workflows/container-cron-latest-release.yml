@@ -29,8 +29,6 @@ jobs:
         name: Extract tags
         run: |
           echo "TAG_VERSION=$(git describe --tags `git rev-list --tags --max-count=1`)" >> $GITHUB_ENV
-          echo "TAG_MINOR=$(echo "$TAG_VERSION" | sed 's/\./ /2' | awk '{ print $1 }')" >> $GITHUB_ENV
-          echo "TAG_MAJOR=$(echo "$TAG_VERSION" | sed 's/\./ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
       -
         name: Checkout latest release
         uses: actions/checkout@v3
@@ -40,6 +38,8 @@ jobs:
         name: Extract Dockerfile path
         run: |
           echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
+          echo "TAG_MINOR=$(echo "$TAG_VERSION" | sed 's/\./ /2' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_MAJOR=$(echo "$TAG_VERSION" | sed 's/\./ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
       -
         name: Docker meta
         id: meta
