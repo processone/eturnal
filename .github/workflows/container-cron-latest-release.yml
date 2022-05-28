@@ -3,7 +3,7 @@ name: Container cronjob update latest release
 on:
   schedule:
     # Build the image regularly (each Friday) to keep packages up-to-date
-    - cron: '/5 * * * *'
+    - cron: '59 * * * *'
 
 env:
   REGISTRY: ghcr.io
