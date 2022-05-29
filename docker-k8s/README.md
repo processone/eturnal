@@ -16,13 +16,13 @@ and based on Alpine Linux.
 
 ## Usage
 
-To pull the image, just refer to the Docker Hub repository:
+To pull the image:
 
-`docker pull sando38/docker-eturnal`
+`docker pull ghcr.io/processone/eturnal`
 
-The image will run in eturnal foreground mode, if started this way:
+The image will run `eturnal` in `foreground mode`, if started this way:
 
-`docker run -d sando38/docker-eturnal`
+`docker run -d ghcr.io/processone/eturnal`
 
 The image can also run in a less "privileged" mode:
 
@@ -36,7 +36,7 @@ docker run -d \
   --read-only \
   --security-opt no-new-privileges \
   --cap-drop=ALL \
-  sando38/docker-eturnal
+  ghcr.io/processone/eturnal
 ```
 
 As an alternative since [docker performs badly with large port ranges](https://github.com/instrumentisto/coturn-docker-image/issues/3) with using the host network `--network=host`. Please note, that the docker container is not isolated from the host network anymore when using this option.
@@ -50,10 +50,10 @@ docker run -d \
   --read-only \
   --security-opt no-new-privileges \
   --cap-drop=ALL \
-  sando38/docker-eturnal
+  ghcr.io/processone/eturnal
 ```
 
-NOTE: When running `--network=host` or similarly with `network_mode: "host"` in compose or `hostNetwork: true` in kubernetes, consider to set `ERL_EPMD_ADDRESS=127.0.0.1` to not publish the EPMD daemon (default port `4369`) to the outside world.
+**NOTE**: When running `--network=host` or similarly with `network_mode: "host"` in compose or `hostNetwork: true` in kubernetes, consider to set `ERL_EPMD_ADDRESS=127.0.0.1` to not publish the EPMD daemon (default port `4369`) to the outside world.
 
 Inspect the running container with
 
@@ -67,14 +67,15 @@ To use the `eturnalctl` [command](https://eturnal.net/documentation/#Operation),
 
 ## Tags
 
-`vXX.YY.ZZ` represents the official eturnal release. `-AA` suffix for image version of the particular release in case of any bug fix, etc. of the image.
+`XX.YY.ZZ` represents the official eturnal release. `-AA` suffix for image version of the particular release in case of any bug fix, etc. of the image.
+
+Images are scanned daily by `trivy`. The newest release and images from master branch (tag `latest`) are continuously re-built every Sunday and pushed to the registries.
 
 | TAGS  | Description  | Architectures  |
 | ------------ | ------------ | ------------ |
 | latest  | Built from master branch, may be unstable  | linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6  |
-| v1.8.3-3  | [Changelog](https://github.com/processone/eturnal/releases/tag/1.8.3), fix an issue with readonly fs and tls certificates | linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6  |
-| v1.8.3-2  | [Changelog](https://github.com/processone/eturnal/releases/tag/1.8.3), image adjusted, so that not erlang.cookie must be mounted with readonly file systems | linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6  |
-| v1.8.3  | [Changelog](https://github.com/processone/eturnal/releases/tag/1.8.3) | linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6  |
+| 1.8.4  | [Changelog](https://github.com/processone/eturnal/releases/tag/1.8.4) | linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6  |
+
 
 ## Configuration
 
