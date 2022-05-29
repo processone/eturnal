@@ -2,7 +2,7 @@ name: Container cronjob update latest release
 # re-builds the current latest release to keep packages up-to-date
 on:
   schedule:
-    - cron: '43 23 * * 7'
+    - cron: '43 23 * * 0'
 
 env:
   REGISTRY: ghcr.io
