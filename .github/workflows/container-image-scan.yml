@@ -1,13 +1,6 @@
 name: Container - scan latest release image
 
 on:
-  push:
-    branches: [ master ]
-    paths-ignore:
-    - 'doc/**'
-    - 'docker-k8s/examples/**'
-    - 'windows/**'
-    - '**.md'
   schedule:
     # Scan the image regularly (once a day)
     - cron: '44 4 * * *'
