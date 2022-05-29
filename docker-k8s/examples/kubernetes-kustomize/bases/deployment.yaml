@@ -22,7 +22,7 @@ spec:
         fsGroup: 9000
       containers:
         - name: eturnal
-          image: sando38/docker-eturnal
+          image: sando38/docker-eturnal # TODO: change to new image "ghcr.io/processone/eturnal"
           imagePullPolicy: Always
           securityContext:
             allowPrivilegeEscalation: false

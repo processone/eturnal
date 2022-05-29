@@ -2,10 +2,12 @@
 
 This is a multi-arch [eturnal](https://eturnal.net/) docker image, currently built for
 
-* linux/amd64
-* linux/386
-* linux/arm64
-* linux/arm/v7
+* linux/amd64,
+* linux/386,
+* linux/s390x,
+* linux/ppc64le,
+* linux/arm64,
+* linux/arm/v7,
 * linux/arm/v6
 
 and based on Alpine Linux.
@@ -20,7 +22,7 @@ To pull the image, just refer to the Docker Hub repository:
 
 The image will run in eturnal foreground mode, if started this way:
 
-`docker run -d sando38/docker-eturnal:latest`
+`docker run -d sando38/docker-eturnal`
 
 The image can also run in a less "privileged" mode:
 
@@ -34,7 +36,7 @@ docker run -d \
   --read-only \
   --security-opt no-new-privileges \
   --cap-drop=ALL \
-  sando38/docker-eturnal:latest
+  sando38/docker-eturnal
 ```
 
 As an alternative since [docker performs badly with large port ranges](https://github.com/instrumentisto/coturn-docker-image/issues/3) with using the host network `--network=host`. Please note, that the docker container is not isolated from the host network anymore when using this option.
@@ -48,7 +50,7 @@ docker run -d \
   --read-only \
   --security-opt no-new-privileges \
   --cap-drop=ALL \
-  sando38/docker-eturnal:latest
+  sando38/docker-eturnal
 ```
 
 NOTE: When running `--network=host` or similarly with `network_mode: "host"` in compose or `hostNetwork: true` in kubernetes, consider to set `ERL_EPMD_ADDRESS=127.0.0.1` to not publish the EPMD daemon (default port `4369`) to the outside world.
@@ -69,8 +71,8 @@ To use the `eturnalctl` [command](https://eturnal.net/documentation/#Operation),
 
 | TAGS  | Description  | Architectures  |
 | ------------ | ------------ | ------------ |
-| latest  | Built from master branch, may be unstable  | linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6  |
-| v1.8.3-3  | [Changelog](https://github.com/processone/eturnal/releases/tag/1.8.3), fix an issue with readonly fs and tls certificates | linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6  |
+| latest  | Built from master branch, may be unstable  | linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6  |
+| v1.8.3-3  | [Changelog](https://github.com/processone/eturnal/releases/tag/1.8.3), fix an issue with readonly fs and tls certificates | linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6  |
 | v1.8.3-2  | [Changelog](https://github.com/processone/eturnal/releases/tag/1.8.3), image adjusted, so that not erlang.cookie must be mounted with readonly file systems | linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6  |
 | v1.8.3  | [Changelog](https://github.com/processone/eturnal/releases/tag/1.8.3) | linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6  |
 

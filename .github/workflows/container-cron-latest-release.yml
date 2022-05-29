@@ -2,7 +2,7 @@ name: Container cronjob update latest release
 # re-builds the current latest release to keep packages up-to-date
 on:
   schedule:
-    - cron: '43 23 * * 5'
+    - cron: '43 23 * * 7'
 
 env:
   REGISTRY: ghcr.io
@@ -29,9 +29,9 @@ jobs:
       -
         name: Extract Dockerfile path and major/ minor release tags
         run: |
-          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
           echo "TAG_MINOR=$(echo "$TAG_VERSION" | sed 's/\./ /2' | awk '{ print $1 }')" >> $GITHUB_ENV
           echo "TAG_MAJOR=$(echo "$TAG_VERSION" | sed 's/\./ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
       -
         name: Docker meta
         id: meta

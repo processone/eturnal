@@ -18,5 +18,5 @@ configMapGenerator:
 #  - ingressrouteudp.yaml
 #  - tls-certificate.yaml
 images:
-- name: sando38/docker-eturnal
+- name: sando38/docker-eturnal # TODO: change to new image "ghcr.io/processone/eturnal"
   newTag: "v1.8.3-3"

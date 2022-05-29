@@ -9,8 +9,8 @@ on:
     - 'windows/**'
     - '**.md'
   schedule:
-    # Build the image regularly (each Friday) to keep packages up-to-date
-    - cron: '13 23 * * 5'
+    # Build the image regularly (each Sunday) to keep packages up-to-date
+    - cron: '13 23 * * 7'
 
 env:
   REGISTRY: ghcr.io
