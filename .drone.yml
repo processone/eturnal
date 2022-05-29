@@ -3,8 +3,35 @@ kind: pipeline
 type: kubernetes
 name: default
 
+clone:
+  depth: 0
+
 steps:
+# abc
 - name: greetings
   image: alpine:3.15.4
   commands:
   - echo "hello"
+# def
+- name: test
+  image: docker:dind
+  volumes:
+  - name: dockersock
+    path: /var/run
+  commands:
+  - sleep 5 # give docker enough time to start
+  - docker ps -a
+
+# service to have a docker daemon available for this pipeline
+services:
+- name: docker
+  image: docker:dind
+  privileged: true
+  volumes:
+  - name: dockersock
+    path: /var/run
+
+# docker socket
+volumes:
+- name: dockersock
+  temp: {}
