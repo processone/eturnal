@@ -18,4 +18,4 @@ steps:
     repo: sando/docker-eturnal
     tags: latest-test
     dry_run: true
-    context: docker-k8s/image/.
+    dockerfile: docker-k8s/image/Dockerfile
