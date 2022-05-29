@@ -3,7 +3,7 @@ name: Container - scan latest release image
 on:
   schedule:
     # Scan the image regularly (once a day)
-    - cron: '15 22 * * *'
+    - cron: '17 20 * * *'
 
 jobs:
   build:
