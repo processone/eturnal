@@ -30,7 +30,7 @@ jobs:
         name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'docker.io/sando38/docker-eturnal:${{ env.TAG_VERSION }}'
+          image-ref: 'docker.io/sando38/docker-eturnal:v${{ env.TAG_VERSION }}'
           format: 'template'
           template: '@/contrib/sarif.tpl'
           output: 'trivy-results.sarif'
