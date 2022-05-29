@@ -99,3 +99,9 @@ volumes:
 ```
 
 TLS certificates must be readable by eturnal user/ group `9000:9000` and should not have world readable access rights (`chmod 400`).
+
+## Examples for docker compose and kubernetes
+
+This repository also contains configuration examples for:
+* [docker compose](/docker-compose)
+* [kubernetes (kustomize)](/kubernetes-kustomize)
