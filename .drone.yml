@@ -10,6 +10,7 @@ steps:
 # abc
 - name: docker
   image: plugins/docker
+  privileged: true
   settings:
     username:
       from_secret: dockerhub_user
