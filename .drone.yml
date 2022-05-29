@@ -1,7 +1,11 @@
 ---
 kind: pipeline
-type: kubernetes
+#type: kubernetes
 name: default
+
+platform:
+  os: linux
+  arch: arm64
 
 clone:
   depth: 0
