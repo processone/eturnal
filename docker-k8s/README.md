@@ -103,5 +103,5 @@ TLS certificates must be readable by eturnal user/ group `9000:9000` and should 
 ## Examples for docker compose and kubernetes
 
 This repository also contains configuration examples for:
-* [docker compose](/docker-compose)
-* [kubernetes (kustomize)](/kubernetes-kustomize)
+* [docker compose](/docker-k8s/examples/docker-compose)
+* [kubernetes (kustomize)](/docker-k8s/examples/kubernetes-kustomize)
