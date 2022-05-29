@@ -1,4 +1,4 @@
-name: Container - scan latest release image
+name: Container - cronjob scan newest release
 
 on:
   schedule:
@@ -26,9 +26,8 @@ jobs:
         name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'docker.io/sando38/docker-eturnal:v${{ env.TAG_VERSION }}'
+          image-ref: 'ghcr.io/processone/eturnal:${{ env.TAG_VERSION }}'
           format: 'sarif'
-#          template: '@/contrib/sarif.tpl'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
           vuln-type: "os"
