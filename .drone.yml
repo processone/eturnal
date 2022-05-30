@@ -1,0 +1,354 @@
+---
+kind: pipeline
+name: Scanning image tag "latest" daily
+
+steps:
+  - name: scan
+    image: quay.io/sighup/trivy-offline:latest
+    pull: always
+    environment:
+      DOCKERHUB_REPO: "sando38/docker-eturnal"
+    commands:
+      - trivy image --skip-update $DOCKERHUB_REPO:latest
+# perform daily
+trigger:
+  event:
+  - cron
+  cron:
+  - daily
+---
+kind: pipeline
+type: docker
+name: Docker buildx /w multi-nodes - master branch push event
+# builds a `latest` release from master branch on push event
+platform:
+  os: linux
+  arch: arm64
+node:
+  buildx: multinode
+clone:
+  disable: true
+environment:
+  BUILD_ARCH: "linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6"
+  DOCKERHUB_REPO: "sando38/docker-eturnal"
+  GITHUB_SOURCE: "https://github.com/processone/eturnal.git"
+  TAG_VERSION: "master"
+
+steps:
+# Setup build image and perform build and publish of image
+- name: Build and publish docker image
+  image: docker:dind
+  environment:
+    SSH_KEY:
+      from_secret: ssh_key
+    DOCKER_HOST_REMOTE_1:
+      from_secret: docker_host_remote_1
+    DOCKERHUB_USER:
+      from_secret: dockerhub_user
+    DOCKERHUB_PASSWORD:
+      from_secret: dockerhub_password
+  volumes:
+  - name: dockersock
+    path: /var/run
+  commands:
+  # install git to clone repository
+  - apk upgrade --no-cache --update musl && apk add --no-cache git
+  # copy ssh key for authentication for remote buildx machine
+  - mkdir -p /root/.ssh/
+  - touch /root/.ssh/known_hosts
+  - chmod 600 /root/.ssh/known_hosts
+  - ssh-keyscan -H $DOCKER_HOST_REMOTE_1 > /etc/ssh/ssh_known_hosts 2> /dev/null
+  - echo -n "$SSH_KEY" > /root/.ssh/id_ed25519
+  - chmod 400 /root/.ssh/id_ed25519
+  # give docker enough time to start
+  - sleep 15
+  - docker info
+  - docker version
+  # setup buildx remote builder
+  - docker buildx create --name remote --node local --platform linux/arm64,linux/arm/v7,linux/arm/v6 --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=10000000 --driver-opt env.BUILDKIT_STEP_LOG_MAX_SPEED=10000000
+  - docker buildx create --name remote --append --node remote-001 --platform linux/amd64,linux/386,linux/s390x,linux/ppc64le ssh://root@$DOCKER_HOST_REMOTE_1 --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=10000000 --driver-opt env.BUILDKIT_STEP_LOG_MAX_SPEED=10000000
+  - docker buildx use remote
+  - docker buildx inspect --bootstrap
+  - docker buildx ls
+  # list git repository
+  - git clone $GITHUB_SOURCE .
+  - echo "checkout latest release >> $TAG_VERSION"
+  - git checkout $TAG_VERSION
+  - DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))
+  # login to dockerhub
+  - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD
+  # build docker image
+  - docker buildx build --no-cache --platform $BUILD_ARCH -t "$DOCKERHUB_REPO:latest" --build-arg VERSION=$TAG_VERSION --push . --file $DOCKERFILE_PATH/Dockerfile
+
+# service to have a docker daemon available for this pipeline
+services:
+- name: Docker daemon service
+  image: docker:dind
+  privileged: true
+  volumes:
+  - name: dockersock
+    path: /var/run
+# docker socket
+volumes:
+- name: dockersock
+  temp: {}
+# perform build on push into master
+trigger:
+  ref:
+    include:
+    - refs/heads/master
+  event:
+  - push
+
+---
+kind: pipeline
+type: docker
+name: Docker buildx /w multi-nodes - release
+# create image on every new release/ tag
+platform:
+  os: linux
+  arch: arm64
+node:
+  buildx: multinode
+clone:
+  disable: true
+environment:
+  BUILD_ARCH: "linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6"
+  DOCKERHUB_REPO: "sando38/docker-eturnal"
+  GITHUB_SOURCE: "https://github.com/processone/eturnal.git"
+  TAG_VERSION: "master"
+
+steps:
+# Setup build image and perform build and publish of image
+- name: Build and publish docker image
+  image: docker:dind
+  environment:
+    SSH_KEY:
+      from_secret: ssh_key
+    DOCKER_HOST_REMOTE_1:
+      from_secret: docker_host_remote_1
+    DOCKERHUB_USER:
+      from_secret: dockerhub_user
+    DOCKERHUB_PASSWORD:
+      from_secret: dockerhub_password
+  volumes:
+  - name: dockersock
+    path: /var/run
+  commands:
+  # install git to clone repository
+  - apk upgrade --no-cache --update musl && apk add --no-cache git
+  # copy ssh key for authentication for remote buildx machine
+  - mkdir -p /root/.ssh/
+  - touch /root/.ssh/known_hosts
+  - chmod 600 /root/.ssh/known_hosts
+  - ssh-keyscan -H $DOCKER_HOST_REMOTE_1 > /etc/ssh/ssh_known_hosts 2> /dev/null
+  - echo -n "$SSH_KEY" > /root/.ssh/id_ed25519
+  - chmod 400 /root/.ssh/id_ed25519
+  # give docker enough time to start
+  - sleep 15
+  - docker info
+  - docker version
+  # setup buildx remote builder
+  - docker buildx create --name remote --node local --platform linux/arm64,linux/arm/v7,linux/arm/v6 --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=10000000 --driver-opt env.BUILDKIT_STEP_LOG_MAX_SPEED=10000000
+  - docker buildx create --name remote --append --node remote-001 --platform linux/amd64,linux/386,linux/s390x,linux/ppc64le ssh://root@$DOCKER_HOST_REMOTE_1 --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=10000000 --driver-opt env.BUILDKIT_STEP_LOG_MAX_SPEED=10000000
+  - docker buildx use remote
+  - docker buildx inspect --bootstrap
+  - docker buildx ls
+  # list git repository
+  - git clone $GITHUB_SOURCE .
+  - TAG_VERSION="$(git describe --tags `git rev-list --tags --max-count=1`)"
+  - TAG_MINOR="$(echo "$TAG_VERSION" | sed 's/\./ /2' | awk '{ print $1 }')"
+  - TAG_MAJOR="$(echo "$TAG_VERSION" | sed 's/\./ /1' | awk '{ print $1 }')"
+  - echo "checkout latest release >> $TAG_VERSION"
+  - git checkout $TAG_VERSION
+  - DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))
+  # login to dockerhub
+  - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD
+  # build docker image
+  - docker buildx build --no-cache --platform $BUILD_ARCH -t "$DOCKERHUB_REPO:latest" -t "$DOCKERHUB_REPO:$TAG_VERSION" -t "$DOCKERHUB_REPO:$TAG_MINOR" -t "$DOCKERHUB_REPO:$TAG_MAJOR" --build-arg VERSION=$TAG_VERSION --push . --file $DOCKERFILE_PATH/Dockerfile
+
+# service to have a docker daemon available for this pipeline
+services:
+- name: Docker daemon service
+  image: docker:dind
+  privileged: true
+  volumes:
+  - name: dockersock
+    path: /var/run
+# docker socket
+volumes:
+- name: dockersock
+  temp: {}
+# perform weekly build
+trigger:
+  ref:
+    include:
+    - refs/tags/**
+
+---
+kind: pipeline
+type: docker
+name: Docker buildx /w multi-nodes - master branch weekly cron
+# builds a `latest` release from master branch on weekly basis
+platform:
+  os: linux
+  arch: arm64
+node:
+  buildx: multinode
+clone:
+  disable: true
+environment:
+  BUILD_ARCH: "linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6"
+  DOCKERHUB_REPO: "sando38/docker-eturnal"
+  GITHUB_SOURCE: "https://github.com/processone/eturnal.git"
+  TAG_VERSION: "master"
+
+steps:
+# Setup build image and perform build and publish of image
+- name: Build and publish docker image
+  image: docker:dind
+  environment:
+    SSH_KEY:
+      from_secret: ssh_key
+    DOCKER_HOST_REMOTE_1:
+      from_secret: docker_host_remote_1
+    DOCKERHUB_USER:
+      from_secret: dockerhub_user
+    DOCKERHUB_PASSWORD:
+      from_secret: dockerhub_password
+  volumes:
+  - name: dockersock
+    path: /var/run
+  commands:
+  # install git to clone repository
+  - apk upgrade --no-cache --update musl && apk add --no-cache git
+  # copy ssh key for authentication for remote buildx machine
+  - mkdir -p /root/.ssh/
+  - touch /root/.ssh/known_hosts
+  - chmod 600 /root/.ssh/known_hosts
+  - ssh-keyscan -H $DOCKER_HOST_REMOTE_1 > /etc/ssh/ssh_known_hosts 2> /dev/null
+  - echo -n "$SSH_KEY" > /root/.ssh/id_ed25519
+  - chmod 400 /root/.ssh/id_ed25519
+  # give docker enough time to start
+  - sleep 15
+  - docker info
+  - docker version
+  # setup buildx remote builder
+  - docker buildx create --name remote --node local --platform linux/arm64,linux/arm/v7,linux/arm/v6 --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=10000000 --driver-opt env.BUILDKIT_STEP_LOG_MAX_SPEED=10000000
+  - docker buildx create --name remote --append --node remote-001 --platform linux/amd64,linux/386,linux/s390x,linux/ppc64le ssh://root@$DOCKER_HOST_REMOTE_1 --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=10000000 --driver-opt env.BUILDKIT_STEP_LOG_MAX_SPEED=10000000
+  - docker buildx use remote
+  - docker buildx inspect --bootstrap
+  - docker buildx ls
+  # list git repository
+  - git clone $GITHUB_SOURCE .
+  - echo "checkout latest release >> $TAG_VERSION"
+  - git checkout $TAG_VERSION
+  - DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))
+  # login to dockerhub
+  - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD
+  # build docker image
+  - docker buildx build --no-cache --platform $BUILD_ARCH -t "$DOCKERHUB_REPO:latest" --build-arg VERSION=$TAG_VERSION --push . --file $DOCKERFILE_PATH/Dockerfile
+
+# service to have a docker daemon available for this pipeline
+services:
+- name: Docker daemon service
+  image: docker:dind
+  privileged: true
+  volumes:
+  - name: dockersock
+    path: /var/run
+# docker socket
+volumes:
+- name: dockersock
+  temp: {}
+# perform weekly build on master
+trigger:
+  event:
+  - cron
+  cron:
+  - weekly
+
+---
+kind: pipeline
+type: docker
+name: Docker buildx /w multi-nodes - weekly cron
+# re-builds the current newest release to keep packages up-to-date
+platform:
+  os: linux
+  arch: arm64
+node:
+  buildx: multinode
+clone:
+  disable: true
+environment:
+  BUILD_ARCH: "linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6"
+  DOCKERHUB_REPO: "sando38/docker-eturnal"
+  GITHUB_SOURCE: "https://github.com/processone/eturnal.git"
+
+steps:
+# Setup build image and perform build and publish of image
+- name: Build and publish docker image
+  image: docker:dind
+  environment:
+    SSH_KEY:
+      from_secret: ssh_key
+    DOCKER_HOST_REMOTE_1:
+      from_secret: docker_host_remote_1
+    DOCKERHUB_USER:
+      from_secret: dockerhub_user
+    DOCKERHUB_PASSWORD:
+      from_secret: dockerhub_password
+  volumes:
+  - name: dockersock
+    path: /var/run
+  commands:
+  # install git to clone repository
+  - apk upgrade --no-cache --update musl && apk add --no-cache git
+  # copy ssh key for authentication for remote buildx machine
+  - mkdir -p /root/.ssh/
+  - touch /root/.ssh/known_hosts
+  - chmod 600 /root/.ssh/known_hosts
+  - ssh-keyscan -H $DOCKER_HOST_REMOTE_1 > /etc/ssh/ssh_known_hosts 2> /dev/null
+  - echo -n "$SSH_KEY" > /root/.ssh/id_ed25519
+  - chmod 400 /root/.ssh/id_ed25519
+  # give docker enough time to start
+  - sleep 15
+  - docker info
+  - docker version
+  # setup buildx remote builder
+  - docker buildx create --name remote --node local --platform linux/arm64,linux/arm/v7,linux/arm/v6 --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=10000000 --driver-opt env.BUILDKIT_STEP_LOG_MAX_SPEED=10000000
+  - docker buildx create --name remote --append --node remote-001 --platform linux/amd64,linux/386,linux/s390x,linux/ppc64le ssh://root@$DOCKER_HOST_REMOTE_1 --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=10000000 --driver-opt env.BUILDKIT_STEP_LOG_MAX_SPEED=10000000
+  - docker buildx use remote
+  - docker buildx inspect --bootstrap
+  - docker buildx ls
+  # list git repository
+  - git clone $GITHUB_SOURCE .
+  - TAG_VERSION="$(git describe --tags `git rev-list --tags --max-count=1`)"
+  - TAG_MINOR="$(echo "$TAG_VERSION" | sed 's/\./ /2' | awk '{ print $1 }')"
+  - TAG_MAJOR="$(echo "$TAG_VERSION" | sed 's/\./ /1' | awk '{ print $1 }')"
+  - echo "checkout latest release >> $TAG_VERSION"
+  - git checkout $TAG_VERSION
+  - DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))
+  # login to dockerhub
+  - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD
+  # build docker image
+  - docker buildx build --no-cache --platform $BUILD_ARCH -t "$DOCKERHUB_REPO:latest" -t "$DOCKERHUB_REPO:$TAG_VERSION" -t "$DOCKERHUB_REPO:$TAG_MINOR" -t "$DOCKERHUB_REPO:$TAG_MAJOR" --build-arg VERSION=$TAG_VERSION --push . --file $DOCKERFILE_PATH/Dockerfile
+
+# service to have a docker daemon available for this pipeline
+services:
+- name: Docker daemon service
+  image: docker:dind
+  privileged: true
+  volumes:
+  - name: dockersock
+    path: /var/run
+# docker socket
+volumes:
+- name: dockersock
+  temp: {}
+# perform weekly build
+trigger:
+  event:
+  - cron
+  cron:
+  - weekly
