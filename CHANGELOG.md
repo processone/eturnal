@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Added
+- Publish Docker images and provide configuration examples for Docker/Kubernetes
+  (many thanks to Saarko) (#20).
+
 ### Changed
 - Binary release: Update Erlang/OTP from 24.3.4 to 25.0.
 
