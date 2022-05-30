@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     hostname: eturnal
     container_name: eturnal
-    image: ghcr.io/processone/eturnal # or DockerHub "sando38/docker-eturnal"
+    image: ghcr.io/processone/eturnal
     user: 9000:9000
     # network_mode: "host"
     ports:

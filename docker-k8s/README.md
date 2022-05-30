@@ -12,9 +12,7 @@ This is a multi-arch [eturnal](https://eturnal.net/) docker image, currently bui
 
 and based on Alpine Linux.
 
-The Image is available as `ghcr.io/processone/eturnal` from [github packages](https://github.com/processone/eturnal/pkgs/container/eturnal) or, alternatively, from [DockerHub](https://hub.docker.com/r/sando38/docker-eturnal) with image name `sando38/docker-eturnal`.
-
-Both are the same images. In the examples `ghcr.io/processone/eturnal` and `sando38/docker-eturnal` are exchangable.
+The Image is available as `ghcr.io/processone/eturnal` from [github packages](https://github.com/processone/eturnal/pkgs/container/eturnal).
 
 ## Usage
 

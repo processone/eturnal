@@ -18,5 +18,5 @@ configMapGenerator:
 #  - ingressrouteudp.yaml
 #  - tls-certificate.yaml
 images:
-- name: ghcr.io/processone/eturnal # or DockerHub "sando38/docker-eturnal"
+- name: ghcr.io/processone/eturnal
   newTag: "latest"
