@@ -151,25 +151,24 @@ pairs:
       operating system (configuration). The default value is `"::"'.</li>
   <li><a name="port"
          class="cue">`port:' <em>number</em></a><br/>
-      The (optional) `port' <em>number</em> must be between `0' and `65535',
-      and is usually between `1024' and `49151'. The default value is `5349'
-      if the {@section transport} is set to `tls', otherwise `3478'.</li>
+      The `port' <em>number</em> must be between `0' and `65535', and is usually
+      between `1024' and `49151'. The default value is `5349' if the {@section
+      transport} is set to `tls', otherwise `3478'.</li>
   <li><a name="transport"
          class="cue">`transport:' <em>protocol</em></a><br/>
-      The (optional) `transport' <em>protocol</em> must be one of `udp', `tcp',
-      `tls', or, in order to accept unencrypted TCP and TLS connections on the
-      same port, `auto'. The default value is `udp'.</li>
+      The `transport' <em>protocol</em> must be one of `udp', `tcp', `tls', or,
+      in order to accept unencrypted TCP and TLS connections on the same port,
+      `auto'. The default value is `udp'.</li>
   <li><a name="proxy_protocol"
          class="cue">`proxy_protocol:' <em>flag</em></a><br/>
-      If the (optional) `proxy_protocol' <em>flag</em> is set to `true', the
-      client IP address/port is retrieved from the HAproxy protocol header. This
-      is not supported if the `transport' is `udp'. The default value is
-      `false'.</li>
+      If the `proxy_protocol' <em>flag</em> is set to `true', the client IP
+      address/port is retrieved from the HAproxy protocol header. This is not
+      supported if the `transport' is `udp'. The default value is `false'.</li>
   <li><a name="enable_turn"
          class="cue">`enable_turn:' <em>flag</em></a><br/>
-      The (optional) `enable_turn' <em>flag</em> must be `true' to enable TURN
-      in addition to STUN, or `false' to offer just STUN on this socket. The
-      default value is `true'.</li>
+      The `enable_turn' <em>flag</em> must be `true' to enable TURN in addition
+      to STUN, or `false' to offer just STUN on this socket. The default value
+      is `true'.</li>
 </ul>
 
 Example:
@@ -177,17 +176,17 @@ Example:
 ```
 listen:
   -
-    ip: "::"
+    ip: "::"           # This is the default.
     port: 3478         # This is the default for "transport: udp".
     transport: udp     # This is the default.
     enable_turn: true  # This is the default.
   -
-    ip: "::"
+    ip: "::"           # This is the default.
     port: 3478         # This is the default for "transport: auto".
     transport: auto    # Default: "udp".
     enable_turn: true  # This is the default.
   -
-    ip: "::"
+    ip: "::"           # This is the default.
     port: 5349         # This is the default for "transport: tls".
     transport: tls     # Default: "udp".
     enable_turn: true  # This is the default.
