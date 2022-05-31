@@ -22,7 +22,8 @@ RUN mkdir -p /opt/eturnal \
     && cp -r _build/prod/rel/eturnal/eturnal-*.tar.gz /opt/eturnal
 
 FROM alpine:3.16.0 AS eturnal
-ENV HOME=/opt/eturnal
+ENV HOME=/opt/eturnal \
+    ERL_DIST_PORT=3470
 
 COPY --from=build /opt /opt
 
