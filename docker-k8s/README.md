@@ -1,16 +1,14 @@
 # Docker Image for eturnal STUN/TURN Server
 
-This is a multi-arch [eturnal](https://eturnal.net/) Docker image, currently built for
+This is a multi-arch [eturnal](https://eturnal.net/) Docker image based on Alpine Linux and currently built for:
 
-* linux/amd64,
-* linux/386,
-* linux/s390x,
-* linux/ppc64le,
-* linux/arm64,
-* linux/arm/v7,
-* linux/arm/v6,
-
-and based on Alpine Linux.
+* linux/amd64
+* linux/386
+* linux/s390x
+* linux/ppc64le
+* linux/arm64
+* linux/arm/v7
+* linux/arm/v6
 
 The image is available as `ghcr.io/processone/eturnal` from [GitHub Packages](https://github.com/processone/eturnal/pkgs/container/eturnal).
 
@@ -39,7 +37,7 @@ docker run -d \
   ghcr.io/processone/eturnal
 ```
 
-As an alternative since Docker [performs badly with large port ranges](https://github.com/instrumentisto/coturn-docker-image/issues/3) with using the host network `--network=host`. Please note that the Docker container is not isolated from the host network anymore when using this option.
+As an alternative, since Docker [performs badly with large port ranges](https://github.com/instrumentisto/coturn-docker-image/issues/3), use the host network by adding `--network=host` to the command line:
 
 ```
 docker run -d \
@@ -53,11 +51,11 @@ docker run -d \
   ghcr.io/processone/eturnal
 ```
 
-Inspect the running container with
+**Note:** The Docker container is no longer isolated from the host network when using this option.
+
+Inspect the running container with:
 
     docker logs <container_name>
-
-**Note:** for logs to be printed with `docker logs` command, `log_dir:` in `eturnal.yml` should be set to `stdout`.
 
 To use the `eturnalctl` [command](https://eturnal.net/documentation/#Operation), e.g. just run:
 
@@ -77,18 +75,20 @@ Images are scanned daily by Trivy. The newest release and images from `master` b
 
 ## Configuration
 
-Configuration is mainly done by the mounted `eturnal.yml` file (recommended). Here is an example [eturnal.yml](https://github.com/processone/eturnal/blob/master/config/eturnal.yml) file. However, eturnal may also be configured with some environment variables (see [eturnal documentation](https://eturnal.net/documentation/#Environment_Variables)).
+Configuration is mainly done by the mounted `eturnal.yml` file (recommended), see the [example configuration file](https://github.com/processone/eturnal/blob/master/config/eturnal.yml). However, eturnal may also be configured by specifying certain environment variables, see the [documentation](https://eturnal.net/documentation/#Environment_Variables).
 
 The configuration file is best mounted directly into the container:
 
 **Mountpath:**
 ` -v /path/to/eturnal.yml:/opt/eturnal/etc/eturnal.yml`
 
+**Note:** For logs to be printed with the `docker logs` command, `log_dir:` should be set to `stdout` in `eturnal.yml`.
+
 Here are some more hints [how to configure eturnal](https://eturnal.net/documentation/#Global_Configuration).
 
 ## Volume Mounts
 
-Volumes may be mounted for the configuration file and TLS certificates/dh-parameter file. TLS certificates and dh-parameter file shall be `.pem` files.
+Volumes may be mounted for the configuration file and TLS certificates/dh-parameter files. TLS certificates and the dh-parameter file shall be `.pem` files.
 
 ```yaml
 volumes:
@@ -96,10 +96,11 @@ volumes:
   - /path/to/cert-files:/opt/eturnal/tls               # For TLS certificates.
 ```
 
-TLS certificates must be readable by eturnal user/group `9000:9000` and should not have world readable access rights (`chmod 400`).
+TLS certificates must be readable by the eturnal user/group `9000:9000` and should not have world-readable access rights (`chmod 400`).
 
 ## Examples for Docker Compose and Kubernetes
 
 This repository also contains configuration examples for:
+
 * [Docker Compose](/docker-k8s/examples/docker-compose)
 * [Kubernetes (Kustomize)](/docker-k8s/examples/kubernetes-kustomize)

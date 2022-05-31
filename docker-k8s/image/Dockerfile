@@ -19,7 +19,7 @@ RUN git clone https://github.com/processone/eturnal.git . \
     && ./rebar3 as prod tar
 
 RUN mkdir -p /opt/eturnal \
-    && cp -r _build/prod/rel/eturnal/eturnal-*.tar.gz /opt/eturnal
+    && cp _build/prod/rel/eturnal/eturnal-*.tar.gz /opt/eturnal
 
 FROM alpine:3.16.0 AS eturnal
 ENV HOME=/opt/eturnal \
