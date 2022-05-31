@@ -35,12 +35,12 @@ RUN apk upgrade --update --no-cache musl \
     yaml \
 # user and directories
     && tar -xzf $HOME/eturnal-*.tar.gz -C $HOME \
-    && rm -rf $HOME/eturnal-*.tar.gz \
+    && rm -f $HOME/eturnal-*.tar.gz \
     && addgroup eturnal -g 9000 \
     && adduser -s /bin/sh -D -u 9000 -h $HOME -G eturnal eturnal \
     && mkdir -p $HOME/log $HOME/run $HOME/tls \
     && chown -R 9000:9000 $HOME \
-# eturnalctl link, scripts and configuration files
+# eturnalctl link, scripts, and configuration files
     && ln -s $HOME/bin/eturnalctl /usr/local/bin/eturnalctl \
     && sed -i -e "s/#log_dir: stdout/log_dir: stdout/g" $HOME/etc/eturnal.yml
 

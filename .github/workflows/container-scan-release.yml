@@ -1,20 +1,20 @@
-name: Container - cronjob scan newest release
+name: Scan latest release image
 
 on:
   schedule:
-    # Scan the image regularly (once a day)
+    # Scan the image regularly (once a day).
     - cron: '44 4 * * *'
 
 jobs:
   build:
     permissions:
-      contents: read # for actions/checkout to fetch code
-      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results  
+      contents: read # For actions/checkout to fetch code.
+      security-events: write # For github/codeql-action/upload-sarif to upload SARIF results.
     name: Scan current image & report results
     runs-on: "ubuntu-latest"
     steps:
       -
-        name: Checkout
+        name: Check out repository code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0

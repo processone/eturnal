@@ -15,7 +15,7 @@ eturnal:
 #      ip: "::"
 #      port: 5349
 #      transport: auto
-### listener for tls via port 443 via traefik IngressRouteTCP with proxyProtocol (see example)
+### Listener for TLS via port 443 via traefik IngressRouteTCP with proxyProtocol (see example):
 #    -
 #      ip: "::"
 #      port: 5350
@@ -34,6 +34,6 @@ eturnal:
   log_level: info           # critical | error | warning | notice | info | debug
   log_rotate_size: 10485760 # 10 MiB (default: unlimited, i.e., no rotation).
   log_rotate_count: 10      # Keep 10 rotated log files.
-  log_dir: stdout           # Enable for logging to the terminal/journal.
+  log_dir: stdout           # Log to the standard output.
   modules:
     mod_log_stun: {}        # Log STUN queries (in addition to TURN sessions).

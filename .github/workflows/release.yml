@@ -18,8 +18,8 @@ jobs:
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
-          name: eturnal ${{steps.changelog.outputs.version}}
-          body: ${{steps.changelog.outputs.changes}}
-          tag: ${{steps.changelog.outputs.version}}
-          prerelease: ${{steps.changelog.outputs.status == 'prereleased'}}
-          draft: ${{steps.changelog.outputs.status == 'unreleased'}}
+          name: eturnal ${{ steps.changelog.outputs.version }}
+          body: ${{ steps.changelog.outputs.changes }}
+          tag: ${{ steps.changelog.outputs.version }}
+          prerelease: ${{ steps.changelog.outputs.status == 'prereleased' }}
+          draft: ${{ steps.changelog.outputs.status == 'unreleased' }}

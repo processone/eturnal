@@ -10,7 +10,7 @@ on:
 
 jobs:
   test:
-    name: Test on Erlang/OTP ${{matrix.otp}}
+    name: Test on Erlang/OTP ${{ matrix.otp }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -40,12 +40,12 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.cache/rebar3
-          key: ${{runner.os}}-${{matrix.otp}}-${{matrix.rebar}}-${{hashFiles('rebar.config')}}
-      - name: Download Erlang/OTP ${{matrix.otp}} and Rebar ${{matrix.rebar}}
+          key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.rebar }}-${{ hashFiles('rebar.config') }}
+      - name: Download Erlang/OTP ${{ matrix.otp }} and Rebar ${{ matrix.rebar }}
         uses: erlef/setup-beam@v1
         with:
-          otp-version: ${{matrix.otp}}
-          rebar3-version: ${{matrix.rebar}}
+          otp-version: ${{ matrix.otp }}
+          rebar3-version: ${{ matrix.rebar }}
           version-type: strict
       # Until https://github.com/erlware/relx/issues/905 is fixed:
       - name: Create Erlang cookie
@@ -83,7 +83,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: eturnal-tests-otp-${{matrix.otp}}
+          name: eturnal-tests-otp-${{ matrix.otp }}
           #
           # Appending the wildcard character ("*") is a trick to make "test" the
           # root directory of the uploaded ZIP file:
@@ -111,4 +111,4 @@ jobs:
         with:
           cname: ci.eturnal.net
           publish_dir: public/test
-          github_token: ${{secrets.GITHUB_TOKEN}}
+          github_token: ${{ secrets.GITHUB_TOKEN }}

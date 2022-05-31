@@ -1,16 +1,8 @@
-name: Container image on push master
-# builds a `latest` release from master branch on push and once a week.
+name: Update latest release image
+# Rebuild latest release image to keep packages/dependencies up-to-date.
 on:
-  push:
-    branches: [ master ]
-    paths-ignore:
-    - 'doc/**'
-    - 'docker-k8s/examples/**'
-    - 'windows/**'
-    - '**.md'
   schedule:
-    # Build the image regularly (each Sunday) to keep packages up-to-date
-    - cron: '22 22 * * 0'
+    - cron: '2 22 * * 0'
 
 env:
   REGISTRY: ghcr.io
@@ -27,14 +19,25 @@ jobs:
       id-token: write
     steps:
       -
-        name: Checkout
+        name: Check out master
         uses: actions/checkout@v3
-#        with:
-#          fetch-depth: 0
-#      -
-#        name: Extract inofficial tag
-#        run: |
-#          echo "TAG_VERSION=$(echo "$(git describe --tags)" | sed -e 's/-g.*//')" >> $GITHUB_ENV
+        with:
+          fetch-depth: 0
+      -
+        name: Extract tag of latest release
+        run: |
+          echo "TAG_VERSION=$(git describe --tags `git rev-list --tags --max-count=1`)" >> $GITHUB_ENV
+      -
+        name: Check out latest release
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.TAG_VERSION }}
+      -
+        name: Extract Dockerfile path and major/ minor release tags
+        run: |
+          echo "TAG_MINOR=$(echo "$TAG_VERSION" | sed 's/\./ /2' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_MAJOR=$(echo "$TAG_VERSION" | sed 's/\./ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
       -
         name: Docker meta
         id: meta
@@ -43,8 +46,9 @@ jobs:
           images: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            latest
-#            ${{ env.TAG_VERSION }}
+            ${{ env.TAG_VERSION }}
+            ${{ env.TAG_MINOR }}
+            ${{ env.TAG_MAJOR }}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -64,8 +68,8 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           build-args: |
-            VERSION=master
-          context: docker-k8s/image/.
+            VERSION=${{ env.TAG_VERSION }}
+          context: ${{ env.DOCKERFILE_PATH }}/.
           platforms: linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
