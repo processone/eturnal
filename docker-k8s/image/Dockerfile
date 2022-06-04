@@ -27,16 +27,17 @@ ENV HOME=/opt/eturnal \
 
 COPY --from=build /opt /opt
 
-# add packages and remove cache
 RUN apk upgrade --update --no-cache musl \
+# add runtime packages
     && apk --no-cache add \
     libstdc++ \
     ncurses-libs \
     openssl \
     yaml \
-# user and directories
+# extract eturnal
     && tar -xzf $HOME/eturnal-*.tar.gz -C $HOME \
     && rm -f $HOME/eturnal-*.tar.gz \
+# user and directories
     && addgroup eturnal -g 9000 \
     && adduser -s /bin/sh -D -u 9000 -h $HOME -G eturnal eturnal \
     && mkdir -p $HOME/log $HOME/run $HOME/tls \
@@ -50,4 +51,5 @@ USER eturnal
 VOLUME ["$HOME/log", "$HOME/run", "$HOME/tls"]
 EXPOSE 3478/udp 3478 5349
 
-CMD ["/usr/local/bin/eturnalctl", "foreground"]
+ENTRYPOINT ["/usr/local/bin/eturnalctl"]
+CMD ["foreground"]
