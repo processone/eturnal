@@ -46,7 +46,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 #            ${{ env.DOCKERHUB_REPO }}
           tags: |
-            latest
+            edge
 #            ${{ env.TAG_VERSION }}
       -
         name: Set up QEMU

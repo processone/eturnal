@@ -65,12 +65,12 @@ To use the `eturnalctl` [command](https://eturnal.net/documentation/#Operation),
 
 `XX.YY.ZZ` represents the official eturnal release. `-AA` suffix for image version of the particular release in case of any bug fix etc. of the image.
 
-Images are scanned daily by Trivy. The newest release and images from `master` branch (tag `latest`) are continuously re-built every Sunday and pushed to the registries.
+Images are scanned daily by Trivy. The newest release (tag `latest` and respective release version) and images from `master` branch (tag `edge`) are continuously re-built every Sunday and pushed to the registries.
 
 | TAGS  | Description  | Architectures  |
 | ------------ | ------------ | ------------ |
-| latest  | Built from `master` branch, may be unstable  | linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6  |
-| 1.8.4  | [Changelog](https://github.com/processone/eturnal/releases/tag/1.8.4)  | linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6  |
+| `edge`  | Built from `master` branch, may be unstable  | linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6  |
+| `1.8.4`, `latest`  | [Changelog](https://github.com/processone/eturnal/releases/tag/1.8.4)  | linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6  |
 
 
 ## Configuration

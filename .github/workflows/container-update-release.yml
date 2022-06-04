@@ -48,6 +48,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 #            ${{ env.DOCKERHUB_REPO }}
           tags: |
+            latest
             ${{ env.TAG_VERSION }}
             ${{ env.TAG_MINOR }}
             ${{ env.TAG_MAJOR }}
