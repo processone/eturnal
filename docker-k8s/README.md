@@ -67,10 +67,10 @@ To use the `eturnalctl` [command](https://eturnal.net/documentation/#Operation),
 
 Images are scanned daily by Trivy. The newest release (tag `latest` and respective release version) and images from `master` branch (tag `edge`) are continuously re-built every Sunday and pushed to the registries.
 
-| TAGS  | Description  | Architectures  |
+| Tags  | Description  | Additional notes  |
 | ------------ | ------------ | ------------ |
-| `edge`  | Built from `master` branch, may be unstable  | linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6  |
-| `1.8.4`, `latest`  | [Changelog](https://github.com/processone/eturnal/releases/tag/1.8.4)  | linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6  |
+| `edge`  | Built from `master` branch, see [Changelog](https://github.com/processone/eturnal/blob/master/CHANGELOG.md)  | May be unstable  |
+| `1.8.4`, `latest`  | [Release changelog](https://github.com/processone/eturnal/releases/tag/1.8.4)  |   |
 
 
 ## Configuration
