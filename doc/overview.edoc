@@ -44,7 +44,7 @@ reference documentation below.
 == Installation ==
 
 Docker images are available <a
-href="https://github.com/processone/eturnal/pkgs/container/eturnal">on
+href="https://github.com/processone/eturnal/blob/master/docker-k8s/README.md">on
 GitHub</a>. Linux/x64 and Linux/arm64 packages for DEB- and RPM-based
 distributions can be retrieved <a href="https://eturnal.net/repositories/">from
 eturnal.net</a>. On other Linux/x64 and Linux/arm64 systems, the <a
