@@ -2,9 +2,9 @@
 
 [![CI](https://github.com/processone/eturnal/actions/workflows/ci.yml/badge.svg)][1]
 
-[eturnal][2] is a modern, straightforward STUN and TURN server with full IPv6
-support. For TURN authentication, the mechanism described in the [REST API for
-Access to TURN Services][3] specification is implemented.
+[eturnal][2] is a modern, straightforward STUN and TURN server. For
+authentication, the mechanism described in the [REST API for Access to TURN
+Services][3] specification is implemented.
 
 ## Installation
 
