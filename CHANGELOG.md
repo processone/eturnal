@@ -9,7 +9,7 @@ project adheres to [Semantic Versioning][SemVer].
   (many thanks to Saarko) (#20).
 
 ### Changed
-- Binary release: Update Erlang/OTP from 24.3.4 to 25.0.
+- Binary release: Update Erlang/OTP from 24.3.4 to 25.0.1.
 
 ### Fixed
 - Avoid crashes in the case where no `secret` is configured in the `eturnal.yml`
