@@ -22,7 +22,7 @@ The image will run `eturnal` in `foreground mode`, if started this way:
 
     docker run -d ghcr.io/processone/eturnal
 
-The image can also run in a less "privileged" mode:
+The image can also run in a less privileged mode (recommended):
 
 ```
 docker run -d \
