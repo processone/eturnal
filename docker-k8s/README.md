@@ -65,11 +65,11 @@ To use the `eturnalctl` [command](https://eturnal.net/documentation/#Operation),
 
 `XX.YY.ZZ` represents the official eturnal release. `-AA` suffix for image version of the particular release in case of any bug fix etc. of the image.
 
-Images are scanned daily by Trivy. The newest release (tag `latest` and respective release version) and images from `master` branch (tag `edge`) are continuously re-built every Sunday and pushed to the registries.
+Images are scanned daily by Trivy and, if necessary, the `latest` release will be rebuild and updated.
 
 | Tags  | Description  | Additional notes  |
 | ------------ | ------------ | ------------ |
-| `edge`  | Built from `master` branch, see [Changelog](https://github.com/processone/eturnal/blob/master/CHANGELOG.md)  | May be unstable  |
+| `edge`  | Built from `master` branch, see [Changelog](https://github.com/processone/eturnal/blob/master/CHANGELOG.md)  | For testing purposes.  |
 | `1.8.4`, `latest`  | [Release changelog](https://github.com/processone/eturnal/releases/tag/1.8.4)  |   |
 
 
