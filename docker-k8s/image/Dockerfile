@@ -13,7 +13,8 @@ RUN apk update \
 
 WORKDIR eturnal
 
-RUN git clone $REPOSITORY --branch $VERSION --single-branch --depth=1 . \
+RUN git clone $REPOSITORY . \
+    && git checkout $VERSION \
     && echo "-setcookie eturnal" >> config/vm.args \
     && wget https://s3.amazonaws.com/rebar3/rebar3 \
     && chmod +x rebar3 \
