@@ -1,7 +1,9 @@
 FROM alpine:3.16.0 AS build
 ARG VERSION=master
+ARG REPOSITORY=https://github.com/processone/eturnal.git
 
-RUN apk upgrade --update musl \
+RUN apk update \
+    && apk upgrade --available \
     && apk add \
       build-base \
       erlang-dev \
@@ -11,8 +13,7 @@ RUN apk upgrade --update musl \
 
 WORKDIR eturnal
 
-RUN git clone https://github.com/processone/eturnal.git . \
-    && git checkout $VERSION \
+RUN git clone $REPOSITORY --branch $VERSION --single-branch --depth=1 . \
     && echo "-setcookie eturnal" >> config/vm.args \
     && wget https://s3.amazonaws.com/rebar3/rebar3 \
     && chmod +x rebar3 \
@@ -27,13 +28,14 @@ ENV HOME=/opt/eturnal \
 
 COPY --from=build /opt /opt
 
-RUN apk upgrade --update --no-cache musl \
+RUN apk update --no-cache \
+    && apk upgrade --available --no-cache \
 # add runtime packages
-    && apk --no-cache add \
-    libstdc++ \
-    ncurses-libs \
-    openssl \
-    yaml \
+    && apk add --no-cache \
+      libstdc++ \
+      ncurses-libs \
+      openssl \
+      yaml \
 # extract eturnal
     && tar -xzf $HOME/eturnal-*.tar.gz -C $HOME \
     && rm -f $HOME/eturnal-*.tar.gz \
