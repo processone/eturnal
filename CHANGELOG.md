@@ -11,6 +11,7 @@ project adheres to [Semantic Versioning][SemVer].
 ### Changed
 - Binary release: Update Erlang/OTP from 24.3.4 to 25.0.1.
 - Binary release: Update minimum glibc version from 2.17 to 2.19.
+- Binary release: Reduce code size by omitting an unused transitive dependency.
 
 ### Fixed
 - Avoid crashes in the case where no `secret` is configured in the `eturnal.yml`
