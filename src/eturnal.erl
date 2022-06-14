@@ -232,7 +232,7 @@ get_password(Username, _Realm) ->
                         false ->
                             ?LOG_DEBUG("Credentials expired: ~ts", [Username]),
                             {expired,
-                             derive_password( Username, get_opt(secret))}
+                             derive_password(Username, get_opt(secret))}
                     end
             end
     catch _:badarg ->
@@ -325,12 +325,12 @@ start_modules() ->
                       {error, Reason} = Err ->
                           ?LOG_CRITICAL("Failed to start ~s: ~p",
                                         [Mod, Reason]),
-                          throw(Err)
+                          exit(Err)
                   end
           end, maps:to_list(get_opt(modules))) of
         Modules ->
             {ok, Modules}
-    catch throw:{error, Reason} ->
+    catch exit:{error, Reason} ->
             {error, Reason}
     end.
 
@@ -343,10 +343,10 @@ stop_modules(#eturnal_state{modules = Modules}) ->
                           ?LOG_INFO("Stopped ~s", [Mod]);
                       {error, Reason} = Err ->
                           ?LOG_CRITICAL("Failed to stop ~s: ~p", [Mod, Reason]),
-                      throw(Err)
+                      exit(Err)
                   end
           end, Modules)
-    catch throw:{error, Reason} ->
+    catch exit:{error, Reason} ->
             {error, Reason}
     end.
 
@@ -376,13 +376,13 @@ start_listeners() ->
                           ?LOG_CRITICAL("Cannot listen on ~s (~s): ~p",
                                         [eturnal_misc:addr_to_str(IP, Port),
                                          Transport, Reason]),
-                          throw(Err)
+                          exit(Err)
                   end,
                   {IP, Port, Transport}
           end, get_opt(listen)) of
         Listeners ->
             {ok, Listeners}
-    catch throw:{error, Reason} ->
+    catch exit:{error, Reason} ->
             {error, Reason}
     end.
 
@@ -399,10 +399,10 @@ stop_listeners(#eturnal_state{listeners = Listeners}) ->
                           ?LOG_CRITICAL("Cannot stop listening on ~s (~s): ~p",
                                         [eturnal_misc:addr_to_str(IP, Port),
                                          Transport, Reason]),
-                      throw(Err)
+                      exit(Err)
                   end
           end, Listeners)
-    catch throw:{error, Reason} ->
+    catch exit:{error, Reason} ->
             {error, Reason}
     end.
 
