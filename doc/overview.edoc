@@ -43,11 +43,11 @@ reference documentation below.
 
 == Installation ==
 
-Docker images are available <a
-href="https://github.com/processone/eturnal/blob/master/docker-k8s/README.md">on
-GitHub</a>. Linux/x64 and Linux/arm64 packages for DEB- and RPM-based
-distributions can be retrieved <a href="https://eturnal.net/repositories/">from
-eturnal.net</a>. On other Linux/x64 and Linux/arm64 systems, the <a
+Docker <a href="https://eturnal.net/documentation/code/docker.html">images</a>
+are available on GitHub. Linux/x64 and Linux/arm64 packages for DEB- and
+RPM-based distributions can be retrieved <a
+href="https://eturnal.net/repositories/">from eturnal.net</a>. On other
+Linux/x64 and Linux/arm64 systems, the <a
 href="https://eturnal.net/download/linux/installer/">binary release</a> can be
 installed as described in this section. For building eturnal from source, see
 the <a

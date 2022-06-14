@@ -87,7 +87,7 @@ free to (ab)use it for usage questions as well. If you happen to be using
  [1]: https://github.com/processone/eturnal/actions/workflows/ci.yml
  [2]: https://eturnal.net/
  [3]: https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00
- [4]: https://github.com/processone/eturnal/tree/master/docker-k8s
+ [4]: https://eturnal.net/documentation/code/docker.html
  [5]: https://software.opensuse.org/download/?package=eturnal&project=devel:languages:erlang
  [6]: https://eturnal.net/documentation/#Installation
  [7]: https://eturnal.net/windows/
