@@ -56,7 +56,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 #      -
-#        name: Login to DockerHub
+#        name: Log in to DockerHub
 #        if: github.event_name != 'pull_request'
 #        uses: docker/login-action@v2
 #        with:
