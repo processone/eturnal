@@ -316,7 +316,7 @@ query_user_sessions(Username) ->
                    true;
               (#session{user = User}) -> % Match 1256900400:Username.
                    case binary:split(User, <<$:>>) of
-                       [_Expiration, Username | _] ->
+                       [_Expiration, Username] ->
                            true;
                        _ ->
                            false
