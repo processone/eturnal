@@ -77,10 +77,9 @@ Images are scanned daily by Trivy and, if necessary, the `latest` release will b
 
 Configuration is mainly done by the mounted `eturnal.yml` file (recommended), see the [example configuration file](https://github.com/processone/eturnal/blob/master/config/eturnal.yml). However, eturnal may also be configured by specifying certain environment variables, see the [documentation](https://eturnal.net/documentation/#Environment_Variables).
 
-The configuration file is best mounted directly into the container:
+The configuration file is best mounted directly into the container - the file must be readable by the eturnal user (`chown 9000:9000` and `chmod 640`). **Mountpath:**
 
-**Mountpath:**
-` -v /path/to/eturnal.yml:/opt/eturnal/etc/eturnal.yml`
+    -v /path/to/eturnal.yml:/opt/eturnal/etc/eturnal.yml
 
 **Note:** For logs to be printed with the `docker logs` command, `log_dir:` should be set to `stdout` in `eturnal.yml`.
 
