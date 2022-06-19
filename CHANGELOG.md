@@ -10,6 +10,7 @@ project adheres to [Semantic Versioning][SemVer].
 
 ### Changed
 - Binary release: Update Erlang/OTP from 24.3.4 to 25.0.1.
+- Binary release: Update Rebar3 from 3.18.0 to 3.19.0.
 - Binary release: Update minimum glibc version from 2.17 to 2.19.
 - Binary release: Reduce code size by omitting an unused transitive dependency.
 
