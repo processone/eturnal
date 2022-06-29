@@ -1,6 +1,6 @@
-# Docker Image for eturnal STUN/TURN Server
+# Container image for eturnal STUN/TURN Server
 
-This is a multi-arch [eturnal](https://eturnal.net/) Docker image based on Alpine Linux and currently built for:
+This is a multi-arch [eturnal](https://eturnal.net/) image based on [Alpine Linux](https://alpinelinux.org) and currently built for:
 
 * linux/amd64
 * linux/386
@@ -12,42 +12,40 @@ This is a multi-arch [eturnal](https://eturnal.net/) Docker image based on Alpin
 
 The image is available as `ghcr.io/processone/eturnal` from [GitHub Packages](https://github.com/processone/eturnal/pkgs/container/eturnal).
 
-## Usage
+## Usage with [Docker](https://www.docker.com)
 
 To pull the image:
 
     docker pull ghcr.io/processone/eturnal
 
-The image will run `eturnal` in `foreground mode`, if started this way:
+The container will run `eturnal` in `foreground` mode, if started this way:
 
-    docker run -d ghcr.io/processone/eturnal
+    docker run -d --name eturnal ghcr.io/processone/eturnal
 
-The image can also run in a less privileged mode (recommended):
+**Recommended:** The container can also run in a less privileged mode:
 
-```
-docker run -d \
-  --name eturnal \
+```shell
+docker run -d --name eturnal \
   --user 9000:9000 \
-  -v /path/to/eturnal.yml:/opt/eturnal/etc/eturnal.yml \
-  -p 3478:3478/udp \
-  -p 49152-65535:49152-65535/udp \
   --read-only \
   --security-opt no-new-privileges \
   --cap-drop=ALL \
+  -p 3478:3478/udp \
+  -p 49152-65535:49152-65535/udp \
+  -v /path/to/eturnal.yml:/opt/eturnal/etc/eturnal.yml \
   ghcr.io/processone/eturnal
 ```
 
 As an alternative, since Docker [performs badly with large port ranges](https://github.com/instrumentisto/coturn-docker-image/issues/3), use the host network by adding `--network=host` to the command line:
 
-```
-docker run -d \
-  --name eturnal \
+```shell
+docker run -d --name eturnal \
   --user 9000:9000 \
-  -v /path/to/eturnal.yml:/opt/eturnal/etc/eturnal.yml \
-  --network=host \
   --read-only \
   --security-opt no-new-privileges \
   --cap-drop=ALL \
+  --network=host \
+  -v /path/to/eturnal.yml:/opt/eturnal/etc/eturnal.yml \
   ghcr.io/processone/eturnal
 ```
 
@@ -63,7 +61,7 @@ To use the `eturnalctl` [command](https://eturnal.net/documentation/#Operation),
 
 ## Tags
 
-`XX.YY.ZZ` represents the official eturnal release. `-AA` suffix for image version of the particular release in case of any bug fix etc. of the image.
+`XX.YY.ZZ` represents the official eturnal release, `-AA` suffix the image version of the particular release in case of any bug fix etc. of the image.
 
 Images are scanned daily by Trivy and, if necessary, the `latest` release will be rebuild and updated.
 
@@ -75,9 +73,7 @@ Images are scanned daily by Trivy and, if necessary, the `latest` release will b
 
 ## Configuration
 
-Configuration is mainly done by the mounted `eturnal.yml` file (recommended), see the [example configuration file](https://github.com/processone/eturnal/blob/master/config/eturnal.yml). However, eturnal may also be configured by specifying certain environment variables, see the [documentation](https://eturnal.net/documentation/#Environment_Variables).
-
-The configuration file is best mounted directly into the container - the file must be readable by the eturnal user (`chown 9000:9000` and `chmod 640`). **Mountpath:**
+Configuration is mainly done by a mounted `eturnal.yml` file (recommended), see the [example configuration file](https://github.com/processone/eturnal/blob/master/config/eturnal.yml). The file must be readable by the eturnal user (`chown 9000:9000` and `chmod 640`). However, eturnal may also be configured by specifying certain environment variables, see the [documentation](https://eturnal.net/documentation/#Environment_Variables). **Mountpath:**
 
     -v /path/to/eturnal.yml:/opt/eturnal/etc/eturnal.yml
 
