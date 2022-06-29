@@ -27,9 +27,9 @@ The container will run `eturnal` in `foreground` mode, if started this way:
 ```shell
 docker run -d --name eturnal \
   --user 9000:9000 \
-  --read-only \
   --security-opt no-new-privileges \
   --cap-drop=ALL \
+  --read-only \
   -p 3478:3478/udp \
   -p 49152-65535:49152-65535/udp \
   -v /path/to/eturnal.yml:/opt/eturnal/etc/eturnal.yml \
@@ -41,9 +41,9 @@ As an alternative, since Docker [performs badly with large port ranges](https://
 ```shell
 docker run -d --name eturnal \
   --user 9000:9000 \
-  --read-only \
   --security-opt no-new-privileges \
   --cap-drop=ALL \
+  --read-only \
   --network=host \
   -v /path/to/eturnal.yml:/opt/eturnal/etc/eturnal.yml \
   ghcr.io/processone/eturnal
@@ -63,7 +63,7 @@ To use the `eturnalctl` [command](https://eturnal.net/documentation/#Operation),
 
 `XX.YY.ZZ` represents the official eturnal release, `-AA` suffix the image version of the particular release in case of any bug fix etc. of the image.
 
-Images are scanned daily by Trivy and, if necessary, the `latest` release will be rebuild and updated.
+Images are scanned daily by Trivy and, if necessary, the `latest` release will be rebuilt and updated.
 
 | Tags  | Description  | Additional notes  |
 | ------------ | ------------ | ------------ |
@@ -73,13 +73,13 @@ Images are scanned daily by Trivy and, if necessary, the `latest` release will b
 
 ## Configuration
 
-Configuration is mainly done by a mounted `eturnal.yml` file (recommended), see the [example configuration file](https://github.com/processone/eturnal/blob/master/config/eturnal.yml). The file must be readable by the eturnal user (`chown 9000:9000` and `chmod 640`). However, eturnal may also be configured by specifying certain environment variables, see the [documentation](https://eturnal.net/documentation/#Environment_Variables). **Mountpath:**
+Configuration is mainly done by a mounted `eturnal.yml` file (recommended), see the [example configuration file](https://github.com/processone/eturnal/blob/master/config/eturnal.yml). The file must be readable by the eturnal user (`chown 9000:9000` and `chmod 640`). **Mountpath:**
 
     -v /path/to/eturnal.yml:/opt/eturnal/etc/eturnal.yml
 
 **Note:** For logs to be printed with the `docker logs` command, `log_dir:` should be set to `stdout` in `eturnal.yml`.
 
-Here are some more hints [how to configure eturnal](https://eturnal.net/documentation/#Global_Configuration).
+eturnal may also be configured by specifying certain environment variables, see the [documentation](https://eturnal.net/documentation/#Environment_Variables). Here are some more hints [how to configure eturnal](https://eturnal.net/documentation/#Global_Configuration).
 
 ## Volume Mounts
 
