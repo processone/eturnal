@@ -26,10 +26,10 @@ jobs:
         name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'ghcr.io/processone/eturnal:latest'
+          image-ref: 'ghcr.io/${{ github.repository }}:latest'
           format: 'sarif'
           output: 'trivy-results.sarif'
-          severity: 'MEDIUM,CRITICAL,HIGH'
+          severity: 'CRITICAL,HIGH,MEDIUM'
           vuln-type: "os"
       -
         name: Upload Trivy scan results to GitHub Security tab
