@@ -10,7 +10,8 @@ env:
 #  DOCKERHUB_REPO: processone/eturnal
 
 jobs:
-  docker:
+  docker:    
+    name: Build & update release image
     runs-on: ubuntu-latest
     permissions:
       contents: read

@@ -12,4 +12,4 @@ To remove eturnal use:
 
     kubectl delete -k ./overlay/dev
 
-Adjust the parameters to your needs in `./overlay/dev`. Especially also consider blacklisting Kubernetes' networks to prevent attacks into your cluster.
+Adjust the parameters to your needs in `./bases` and `./overlay/dev`. Especially also consider blacklisting Kubernetes' networks to prevent attacks into your cluster.

@@ -22,7 +22,7 @@ spec:
         fsGroup: 9000
       containers:
         - name: eturnal
-          image: ghcr.io/processone/eturnal
+          image: ghcr.io/processone/eturnal:latest
           imagePullPolicy: Always
           securityContext:
             allowPrivilegeEscalation: false

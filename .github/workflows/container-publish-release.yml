@@ -12,6 +12,7 @@ env:
 
 jobs:
   docker:
+    name: Build and publish release image
     runs-on: ubuntu-latest
     permissions:
       contents: read

@@ -2,11 +2,16 @@ version: "3.7"
 
 services:
   eturnal:
-    restart: unless-stopped
+    image: ghcr.io/processone/eturnal:latest
     hostname: eturnal
     container_name: eturnal
-    image: ghcr.io/processone/eturnal
+    restart: unless-stopped
     user: 9000:9000
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
     # network_mode: "host"
     ports:
       - 3478:3478 # STUN/TURN non-tls
@@ -17,8 +22,4 @@ services:
     #   - eturnal.env
     # volumes: # directories must be owned by eturnal user 9000:9000
     #   - /path/to/eturnal.yml:/opt/eturnal/etc/eturnal.yml   # for config file
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
-    read_only: true
+    #   - /path/to/tls-files:/opt/eturnal/tls                 # for custom tls files
