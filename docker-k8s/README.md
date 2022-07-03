@@ -29,7 +29,7 @@ To pull the image:
 
     docker pull ghcr.io/processone/eturnal:latest
 
-The container will run a container named `eturnal` in `foreground` mode with default ports published, if started this way:
+Docker will run a container named `eturnal` in `foreground` mode with default ports published, if started this way:
 
 ```shell
 docker run -d --rm \
