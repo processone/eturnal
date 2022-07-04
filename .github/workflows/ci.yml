@@ -81,8 +81,10 @@ jobs:
       - name: Check test coverage
         run: rebar3 cover
       - name: Check code style
-        run: rebar3 lint # Currently only works with Erlang/OTP 23 and 24:
-        if: matrix.otp == 24.3
+        run: rebar3 lint # Requires Erlang/OTP 24 or newer:
+        if: matrix.otp != 21.0 && matrix.otp != 21.3 && matrix.otp != 22.0
+        env:
+          ERL_FLAGS: -enable-feature all
       - name: Upload test and coverage results
         uses: actions/upload-artifact@v3
         if: always()
