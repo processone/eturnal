@@ -17,6 +17,10 @@ project adheres to [Semantic Versioning][SemVer].
 ### Fixed
 - Avoid crashes in the case where no `secret` is configured in the `eturnal.yml`
   file (#21).
+- Don't log misleading complaints about `proxy_protocol` option.
+- Gracefully handle errors while receiving UDP data (#23).
+- Restart listeners on failure.
+- Reduce log level for network issues that may occur during normal operation.
 
 ## [1.8.3] - 2022-05-12
 ### Changed
