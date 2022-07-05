@@ -7,6 +7,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Publish Docker images and provide configuration examples for Docker/Kubernetes
   (many thanks to Saarko) (#20).
+- Fall back to reading the relay IP addresses from environment variables when
+  `relay_ipv4_address` and/or `relay_ipv6_address` aren't specified (#24).
 
 ### Changed
 - Binary release: Update Erlang/OTP from 24.3.4 to 25.0.2.

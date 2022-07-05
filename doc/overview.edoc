@@ -297,9 +297,10 @@ Default: Autodetected IPv4 address (or `none')</div>
 This option specifies the IPv4 address used for relaying data from/to TURN
 peers. Note that this <em>must</em> be the server's public IPv4 address; i.e.,
 it cannot be set to, for example, `"0.0.0.0"'. If this option isn't specified,
-eturnal will try to autodetect the system's IPv4 address. If `relay_ipv4_addr'
-is unspecified and the host name doesn't resolve to a public IPv4 address,
-eturnal won't offer TURN relaying from/to IPv4 peers.
+the value of the envionment variable {@section ETURNAL_RELAY_IPV4_ADDR} is used
+instead. If this environment variable is unset as well, eturnal will try to
+autodetect the system's IPv4 address. If this fails, eturnal won't offer TURN
+relaying from/to IPv4 peers.
 
 === relay_ipv6_addr ===
 
@@ -309,9 +310,10 @@ Default: Autodetected IPv6 address (or `none')</div>
 This option specifies the IPv6 address used for relaying data from/to TURN
 peers. Note that this <em>must</em> be the server's public IPv6 address; i.e.,
 it cannot be set to, for example, `"::"'. If this option isn't specified,
-eturnal will try to autodetect the system's IPv6 address. If `relay_ipv6_addr'
-is unspecified and the host name doesn't resolve to a public IPv6 address,
-eturnal won't offer TURN relaying from/to IPv6 peers.
+the value of the envionment variable {@section ETURNAL_RELAY_IPV6_ADDR} is used
+instead. If this environment variable is unset as well, eturnal will try to
+autodetect the system's IPv6 address. If this fails, eturnal won't offer TURN
+relaying from/to IPv6 peers.
 
 === relay_max_port ===
 
