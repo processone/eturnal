@@ -72,7 +72,7 @@ validator() ->
           relay_ipv4_addr => get_default(relay_ipv4_addr,
                                          eturnal_misc:my_ipv4_addr()),
           relay_ipv6_addr => get_default(relay_ipv6_addr,
-                                         eturnal_misc:my_ipv6_addr(),
+                                         eturnal_misc:my_ipv6_addr()),
           relay_min_port => 49152,
           relay_max_port => 65535,
           tls_crt_file => none,
