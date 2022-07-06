@@ -25,11 +25,14 @@
                list/1, list/2, list_or_single/1, map/3, non_empty/1,
                non_neg_int/0, options/1, options/2, port/0, pos_int/1]).
 
--type listener() :: {inet:ip_address(), inet:port_number(), eturnal:transport(),
-                     boolean(), boolean()}.
+-include_lib("kernel/include/logger.hrl").
 
 -define(BLACKLIST, [{{127, 0, 0, 0}, 8},               % IPv4 loopback.
                     {{0, 0, 0, 0, 0, 0, 0, 1}, 128}]). % IPv6 loopback.
+
+-type listener() :: {inet:ip_address(), inet:port_number(), eturnal:transport(),
+                     boolean(), boolean()}.
+-type family() :: ipv4 | ipv6.
 
 %% API.
 
@@ -69,10 +72,8 @@ validator() ->
        {defaults,
         #{listen => [{{0, 0, 0, 0, 0, 0, 0, 0}, 3478, udp, false, true},
                      {{0, 0, 0, 0, 0, 0, 0, 0}, 3478, tcp, false, true}],
-          relay_ipv4_addr => get_default(relay_ipv4_addr,
-                                         eturnal_misc:my_ipv4_addr()),
-          relay_ipv6_addr => get_default(relay_ipv6_addr,
-                                         eturnal_misc:my_ipv6_addr()),
+          relay_ipv4_addr => get_default_addr(ipv4),
+          relay_ipv6_addr => get_default_addr(ipv6),
           relay_min_port => 49152,
           relay_max_port => 65535,
           tls_crt_file => none,
@@ -199,9 +200,24 @@ check_relay_addr({0, 0, 0, 0, 0, 0, 0, 0} = Addr) ->
 check_relay_addr({_, _, _, _, _, _, _, _} = Addr) ->
     Addr.
 
--spec get_env_name(atom()) -> string().
-get_env_name(Opt) ->
-    "ETURNAL_" ++ string:uppercase(atom_to_list(Opt)).
+-spec get_default_addr(family()) -> inet:ip_address() | undefined | no_return().
+get_default_addr(Family) ->
+    {Vsn, Opt, MyAddr} =
+        case Family of
+            ipv4 -> {<<"4">>, relay_ipv4_addr, fun eturnal_misc:my_ipv4_addr/0};
+            ipv6 -> {<<"6">>, relay_ipv6_addr, fun eturnal_misc:my_ipv6_addr/0}
+        end,
+    case get_default(Opt, undefined) of
+        RelayAddr when is_binary(RelayAddr) ->
+            try
+                {ok, Addr} = inet:parse_address(binary_to_list(RelayAddr)),
+                check_relay_addr(Addr)
+            catch error:_ ->
+                    abort("Bad ETURNAL_RELAY_IPV~s_ADDR: ~s", [Vsn, RelayAddr])
+            end;
+        undefined ->
+            MyAddr()
+    end.
 
 -spec get_default(atom() | string(), Term) -> binary() | Term.
 get_default(Opt, Default) when is_atom(Opt) ->
@@ -213,6 +229,10 @@ get_default(Var, Default) ->
         _ ->
             Default
     end.
+
+-spec get_env_name(atom()) -> string().
+get_env_name(Opt) ->
+    "ETURNAL_" ++ string:uppercase(atom_to_list(Opt)).
 
 -spec make_random_secret() -> binary().
 -ifdef(old_rand).
@@ -238,3 +258,8 @@ join(Sep) ->
 -spec fail({atom(), term()}) -> no_return().
 fail(Reason) ->
     yval:fail(yval, Reason).
+
+-spec abort(io:format(), [term()]) -> no_return().
+abort(Format, Data) ->
+    ?LOG_CRITICAL(Format, Data),
+    init:stop(2).
