@@ -29,7 +29,7 @@ To pull the image:
 
     docker pull ghcr.io/processone/eturnal:latest
 
-Docker will run a container named `eturnal` in `foreground` mode with default ports published and an IPv4 turn relay address defined (note: this must be the docker host public ip), if started this way:
+Docker will run a container named `eturnal` in `foreground` mode with default ports published and an IPv4 TURN relay address defined (note: this must be the docker host public IP address), if started this way:
 
 ```shell
 docker run -d --rm \
@@ -96,7 +96,7 @@ eturnal may also be configured by specifying certain environment variables, see 
 
 * For logs to be printed with the `docker logs` command, `log_dir:` should be set to `stdout` in `eturnal.yml`.
 * When `--network=host` setting is not used, the IPv4 autodetection is most likely unsuccesful. Therefore, the [relay_ipv4_addr](https://eturnal.net/documentation/#relay_ipv4_addr) parameter must be set in such cases either with a mounted `eturnal.yml` file or with the `ETURNAL_RELAY_IPV4_ADDR` environment variable. This applies for the IPv6 address as well.
-* The default turn range `49152-65535/udp` may be decreased with the [relay_min_port and relay_max_port](https://eturnal.net/documentation/#relay_min_port) options, if one experiences [performance issues](https://github.com/instrumentisto/coturn-docker-image/issues/3) and does not want to use `--network=host` option with the `docker run` command. A different, new range must be reflected also in the `docker run` command `--publish`-option, 
+* The default TURN range `49152-65535/udp` may be decreased with the [relay_min_port and relay_max_port](https://eturnal.net/documentation/#relay_min_port) options, if one experiences [performance issues](https://github.com/instrumentisto/coturn-docker-image/issues/3) and does not want to use `--network=host` option with the `docker run` command. A different, new range must be reflected also in the `docker run` command `--publish`-option, 
     * e.g. `-p 50000-50500:50000-50500/udp` for specified `relay_min_port: 50000` and `relay_max_port: 50500` in `eturnal.yml`
 
 ## Custom TLS certificates and dh-parameter file
