@@ -24,6 +24,7 @@ project adheres to [Semantic Versioning][SemVer].
 - Gracefully handle errors while receiving UDP data (#23).
 - Restart listeners on failure.
 - Reduce log level for network issues that may occur during normal operation.
+- Windows: Support custom installation path (#22).
 
 ## [1.8.3] - 2022-05-12
 ### Changed
