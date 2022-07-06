@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
+        with: # For scripts/get-version:
+          fetch-depth: 0
       - name: Download Erlang/OTP and Rebar
         uses: erlef/setup-beam@v1
         with:
