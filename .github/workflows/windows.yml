@@ -1,0 +1,27 @@
+name: Windows
+
+on:
+  push:
+    paths-ignore:
+      - '*.md'
+
+jobs:
+  installer:
+    name: Build Windows installer
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Download Erlang/OTP and Rebar
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: '25.x'
+          rebar3-version: '3.x'
+      - name: Compile installer
+        run: windows/make-installer
+        shell: bash
+      - name: Upload installer
+        uses: actions/upload-artifact@v3
+        with:
+          name: eturnal-installer
+          path: eturnal-*.exe
