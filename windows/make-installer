@@ -38,6 +38,7 @@ fi
 rel_name='eturnal'
 rel_vsn=$(scripts/get-version)
 inno_dep_installer_url='https://github.com/DomGries/InnoDependencyInstaller.git'
+windows_deps_url='https://github.com/processone/eturnal/tarball/windows/deps'
 
 echo "$myself: Creating Windows installer for $rel_name $rel_vsn."
 
@@ -46,7 +47,7 @@ then
 	echo "$myself: Using checked out $rel_name dependencies ..."
 else
 	echo "$myself: Downloading $rel_name dependencies ..."
-	curl -sSL https://github.com/weiss/eturnal/tarball/windows/deps |
+	curl -sSL "$windows_deps_url" |
 	    tar --strip-components=1 --wildcards -xzf - '*/_checkouts/'
 fi
 
