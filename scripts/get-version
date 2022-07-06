@@ -5,8 +5,6 @@
 set -e
 set -u
 
-export PATH='/usr/local/bin:/usr/bin:/bin'
-
 rel_vsn='1.8.3'
 
 ( git describe --tags --match '[0-9]*' 2>'/dev/null' || echo "$rel_vsn" ) \

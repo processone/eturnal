@@ -1,0 +1,82 @@
+#!/bin/sh
+
+# Build an installer for deploying the eturnal server on Windows.
+
+# The following tools must be in the PATH:
+#
+# - The curl tool.
+# - A few POSIX tools, such as sh, tr, grep, sed, and tar.
+# - Git for Windows (includes curl and the POSIX tools).
+# - Erlang/OTP.
+# - Rebar3.
+# - Inno Setup.
+
+set -e
+set -u
+
+myself=${0##*/}
+
+usage()
+{
+	echo >&2 "Usage: $myself"
+	exit 2
+}
+
+if ! git rev-parse >'/dev/null' 2>&1
+then
+	echo >&2 'This script can only be executed within the Git repository.'
+	exit 2
+elif ! [ -e 'rebar.config' ] || ! [ -e "windows/$myself" ]
+then
+	echo >&2 "Please call this script from the repository's root directory."
+	exit 2
+elif [ $# -ne 0 ]
+then
+	usage
+fi
+
+rel_name='eturnal'
+rel_vsn=$(scripts/get-version)
+inno_dep_installer_url='https://github.com/DomGries/InnoDependencyInstaller.git'
+
+echo "$myself: Creating Windows installer for $rel_name $rel_vsn."
+
+if [ -d '_checkouts' ]
+then
+	echo "$myself: Using checked out $rel_name dependencies ..."
+else
+	echo "$myself: Downloading $rel_name dependencies ..."
+	curl -sSL https://github.com/weiss/eturnal/tarball/windows/deps |
+	    tar --strip-components=1 --wildcards -xzf - '*/_checkouts/'
+fi
+
+echo "$myself: Editing $rel_name repository files ..."
+sed -i "s|{cmd, *\"scripts/get-version\"}|\"$rel_vsn\"|" \
+    'rebar.config' "src/$rel_name.app.src"
+grep -q 'mkdir, "log"' 'rebar.config' ||
+  sed -i '/copy.*README/a\
+    {mkdir, "log"},\
+    {mkdir, "run"},' 'rebar.config'
+sed -i -e '/TLS certificate/,+3d' \
+       -e 's|#log_dir.*|log_dir: "@INSTALL_DIR@/log"\
+  run_dir: "@INSTALL_DIR@/run"|' 'config/eturnal.yml'
+sed -i 's/$ETURNAL_ETC_PREFIX/@INSTALL_DIR@/' 'config/sys.config'
+
+echo "$myself: Cleaning $rel_name repository ..."
+rm -rf '_build'
+
+echo "$myself: Building $rel_name release ..."
+REBAR_COLOR='none' rebar3 as stripped release
+
+if [ -d "../InnoDependencyInstaller" ]
+then
+	echo "$myself: Using existing Inno Setup Dependency Installer ..."
+else
+	echo "$myself: Downloading Inno Setup Dependency Installer ..."
+	(cd .. && git clone -q --depth 1 "$inno_dep_installer_url")
+fi
+
+echo "$myself: Running Inno Setup compiler ..."
+iscc -Q -O"$PWD" -F"$rel_name-$rel_vsn-x64" "windows\\$rel_name.iss"
+
+echo "$myself: Built Windows installer for $rel_name $rel_vsn successfully."
