@@ -51,6 +51,8 @@ else
 fi
 
 echo "$myself: Editing $rel_name repository files ..."
+sed -i "s|@VERSION@|$rel_vsn|" \
+    "windows/$rel_name.iss" 'windows/delay-start.cmd'
 sed -i "s|{cmd, *\"scripts/get-version\"}|\"$rel_vsn\"|" \
     'rebar.config' "src/$rel_name.app.src"
 grep -q 'mkdir, "log"' 'rebar.config' ||

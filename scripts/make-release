@@ -60,8 +60,7 @@ fi
 echo "$myself: Editing repository files ..."
 sed -i -e "s|^rel_vsn=.*|rel_vsn='$new_vsn'|" 'scripts/get-version'
 sed -i -e "s|$(echo "$old_vsn" | sed 's/\./\\./g')|$new_vsn|g" \
-    'README.md' 'INSTALL.md' 'doc/overview.edoc' 'docker-k8s/README.md' \
-    'windows/eturnal.iss' 'windows/delay-start.cmd'
+    'README.md' 'INSTALL.md' 'doc/overview.edoc' 'docker-k8s/README.md'
 sed -i -e "s|^rebar_vsn=.*|rebar_vsn='$rebar_vsn'|" \
     'scripts/make-source' 'scripts/make-binaries'
 sed -i -e "s|compare/$old_vsn|compare/$new_vsn|" \
@@ -74,8 +73,7 @@ sed -i -e "s|compare/$old_vsn|compare/$new_vsn|" \
 echo "$myself: Committing result ..."
 git add 'rebar.config' 'CHANGELOG.md' 'README.md' 'INSTALL.md' \
     'doc/overview.edoc' 'docker-k8s/README.md' 'scripts/get-version' \
-    'scripts/make-source' 'scripts/make-binaries' 'windows/eturnal.iss' \
-    'windows/delay-start.cmd'
+    'scripts/make-source' 'scripts/make-binaries'
 git commit -m "Release $new_vsn"
 git -P show
 read -p "$myself: Does the commit look fine? (y/n) [n] " response
