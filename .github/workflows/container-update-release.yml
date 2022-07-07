@@ -1,4 +1,4 @@
-name: Update latest release image
+name: 'Docker: Update latest release image'
 # Rebuild latest release image to keep packages/dependencies up-to-date.
 on:
   schedule:

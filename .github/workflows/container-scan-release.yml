@@ -1,4 +1,4 @@
-name: Scan latest release image
+name: 'Docker: Scan latest release image'
 
 on:
   schedule:
