@@ -27,12 +27,28 @@ jobs:
       - name: Compile installer
         run: windows/make-installer
         shell: bash
+      - name: Install and start eturnal
+        run: ./eturnal-$(scripts/get-version)-x64 //SP- //VERYSILENT //SUPPRESSMSGBOXES
+        shell: bash
+        timeout-minutes: 10
+      - name: Restart eturnal
+        run: call "%ProgramFiles%\\eturnal\\bin\\eturnal" restart
+        shell: cmd
       - name: Analyze cross references
         run: rebar3 xref
       - name: Perform static code analysis
         run: rebar3 dialyzer
+      # The Common Test suite performs actual TURN tests, which can fail due to
+      # Hyper-V reserving random UDP port ranges. The proper fix would be the
+      # admin reserving a range for eturnal as described here:
+      #
+      # https://stackoverflow.com/a/62061654
+      #
+      # However, that's not possible within a GitHub Actions runner. As a
+      # workaround, retry running the Common Test once on failure:
       - name: Run black-box tests (CT)
-        run: rebar3 ct
+        run: rebar3 ct || rebar3 ct
+        shell: bash
       - name: Run white-box tests (EUnit)
         run: rebar3 eunit
       - name: Check test coverage
