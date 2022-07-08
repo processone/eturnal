@@ -552,12 +552,12 @@ set to `/usr/local/opt/eturnal', the file
 === ETURNAL_RELAY_IPV4_ADDR ===
 
 If the {@section relay_ipv4_addr} option isn't specified, this environment
-variable specifies the IPv4 address used for relaying data from/to TURN peers.
+variable defines the IPv4 address used for relaying data from/to TURN peers.
 
 === ETURNAL_RELAY_IPV6_ADDR ===
 
 If the {@section relay_ipv6_addr} option isn't specified, this environment
-variable specifies the IPv6 address used for relaying data from/to TURN peers.
+variable defines the IPv6 address used for relaying data from/to TURN peers.
 
 === ETURNAL_SECRET ===
 
@@ -570,7 +570,7 @@ Access to TURN Services</a> specification.
 === LOGS_DIRECTORY ===
 
 If the {@section log_dir} option isn't specified, this environment variable
-specifies the directory the `eturnal.log' file is written into. Note that <a
+defines the directory the `eturnal.log' file is written into. Note that <a
 href="https://www.freedesktop.org/wiki/Software/systemd/">systemd</a> 235 and
 higher set this environment variable if systemd's `[Service]' option
 `LogsDirectory' is specified.
@@ -578,7 +578,7 @@ higher set this environment variable if systemd's `[Service]' option
 === RUNTIME_DIRECTORY ===
 
 If the {@section run_dir} option isn't specified, this environment variable
-specifies the directory eturnal will use for storing runtime data. Note that <a
+defines the directory eturnal will use for storing runtime data. Note that <a
 href="https://www.freedesktop.org/wiki/Software/systemd/">systemd</a> 235 and
 higher set this environment variable if systemd's `[Service]' option
 `RuntimeDirectory' is specified.
