@@ -549,6 +549,18 @@ the `eturnal.yml' configuration file. If, for example, `ETURNAL_ETC_PREFIX' is
 set to `/usr/local/opt/eturnal', the file
 `/usr/local/opt/eturnal/etc/eturnal.yml' will be used.
 
+=== ETURNAL_RELAY_IPV4_ADDR ===
+
+If the {@section relay_ipv4_addr} option isn't specified, this environment
+variable option specifies the IPv4 address used for relaying data from/to TURN
+peers.
+
+=== ETURNAL_RELAY_IPV6_ADDR ===
+
+If the {@section relay_ipv6_addr} option isn't specified, this environment
+variable option specifies the IPv6 address used for relaying data from/to TURN
+peers.
+
 === ETURNAL_SECRET ===
 
 If the {@section secret} option isn't specified, this environment variable
