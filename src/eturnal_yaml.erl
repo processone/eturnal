@@ -205,11 +205,11 @@ get_default_addr(Family) ->
     {Vsn, Opt, ParseAddr, MyAddr} =
         case Family of
             ipv4 ->
-                {<<"4">>, relay_ipv4_addr,
+                {4, relay_ipv4_addr,
                  fun inet:parse_ipv4strict_address/1,
                  fun eturnal_misc:my_ipv4_addr/0};
             ipv6 ->
-                {<<"6">>, relay_ipv6_addr,
+                {6, relay_ipv6_addr,
                  fun inet:parse_ipv6strict_address/1,
                  fun eturnal_misc:my_ipv6_addr/0}
         end,
@@ -219,7 +219,7 @@ get_default_addr(Family) ->
                 {ok, Addr} = ParseAddr(binary_to_list(RelayAddr)),
                 check_relay_addr(Addr)
             catch error:_ ->
-                    abort("Bad ETURNAL_RELAY_IPV~s_ADDR: ~s", [Vsn, RelayAddr])
+                    abort("Bad ETURNAL_RELAY_IPV~B_ADDR: ~s", [Vsn, RelayAddr])
             end;
         undefined ->
             MyAddr()
