@@ -202,15 +202,21 @@ check_relay_addr({_, _, _, _, _, _, _, _} = Addr) ->
 
 -spec get_default_addr(family()) -> inet:ip_address() | undefined | no_return().
 get_default_addr(Family) ->
-    {Vsn, Opt, MyAddr} =
+    {Vsn, Opt, ParseAddr, MyAddr} =
         case Family of
-            ipv4 -> {<<"4">>, relay_ipv4_addr, fun eturnal_misc:my_ipv4_addr/0};
-            ipv6 -> {<<"6">>, relay_ipv6_addr, fun eturnal_misc:my_ipv6_addr/0}
+            ipv4 ->
+                {<<"4">>, relay_ipv4_addr,
+                 fun inet:parse_ipv4strict_address/1,
+                 fun eturnal_misc:my_ipv4_addr/0};
+            ipv6 ->
+                {<<"6">>, relay_ipv6_addr,
+                 fun inet:parse_ipv6strict_address/1,
+                 fun eturnal_misc:my_ipv6_addr/0}
         end,
     case get_default(Opt, undefined) of
         RelayAddr when is_binary(RelayAddr) ->
             try
-                {ok, Addr} = inet:parse_address(binary_to_list(RelayAddr)),
+                {ok, Addr} = ParseAddr(binary_to_list(RelayAddr)),
                 check_relay_addr(Addr)
             catch error:_ ->
                     abort("Bad ETURNAL_RELAY_IPV~s_ADDR: ~s", [Vsn, RelayAddr])
