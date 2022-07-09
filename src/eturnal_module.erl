@@ -289,11 +289,7 @@ ensure_dep(Mod, Dep) ->
                     ?LOG_INFO("Dependency ~s is available", [Dep]),
                     ok;
                 {error, _Reason2} ->
-                    ?LOG_CRITICAL(
-                      "Dependency ~s is missing; install it below ~s, or "
-                      "point ERL_LIBS to it, or disable ~s",
-                      [Dep, code:lib_dir(), Mod]),
-                    eturnal:abort(dependency_failure)
+                    eturnal:abort({dependency_failure, Mod, Dep})
             end
     end.
 

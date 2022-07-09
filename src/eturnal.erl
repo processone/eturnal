@@ -83,48 +83,22 @@ init(_Opts) ->
     ok = eturnal_module:init(),
     ok = log_relay_addresses(),
     ok = log_control_listener(),
-    case ensure_run_dir() of
-        ok ->
-            ok;
-        error -> % Has been logged.
-            abort(run_dir_failure)
+    try
+        ok = ensure_run_dir(),
+        ok = check_turn_config(),
+        ok = check_proxy_config(),
+        _R = check_pem_file()
+    catch exit:Reason1 ->
+            abort(Reason1)
     end,
-    case check_turn_config() of
-        ok ->
-            ok;
-        error -> % Has been logged.
-            abort(turn_config_failure)
-    end,
-    case check_proxy_config() of
-        ok ->
-            ok;
-        error -> % Has been logged.
-            abort(proxy_config_failure)
-    end,
-    case check_pem_file() of
-        Result when Result =:= ok;
-                    Result =:= unmodified ->
-            ok;
-        error -> % Has been logged.
-            abort(certificate_failure)
-    end,
-    Ms = case start_modules() of
-             {ok, Modules} ->
-                 ?LOG_DEBUG("Started ~B modules", [length(Modules)]),
-                 Modules;
-             {error, Reason1} ->
-                 ?LOG_DEBUG("Failed to start modules: ~p", [Reason1]),
-                 abort(module_failure)
-         end,
-    Ls = case start_listeners() of
-             {ok, Listeners} ->
-                 ?LOG_DEBUG("Started ~B listeners", [length(Listeners)]),
-                 Listeners;
-             {error, Reason2} ->
-                 ?LOG_DEBUG("Failed to start listeners: ~p", [Reason2]),
-                 abort(listener_failure)
-         end,
-    {ok, #eturnal_state{listeners = Ls, modules = Ms}}.
+    try {start_modules(), start_listeners()} of
+        {Modules, Listeners} ->
+            ?LOG_DEBUG("Started ~B modules", [length(Modules)]),
+            ?LOG_DEBUG("Started ~B listeners", [length(Listeners)]),
+            {ok, #eturnal_state{listeners = Listeners, modules = Modules}}
+    catch exit:Reason2 ->
+            abort(Reason2)
+    end.
 
 -spec handle_call(reload | get_info | get_version | get_loglevel |
                   {set_loglevel, eturnal_logger:level()} |
@@ -134,14 +108,14 @@ init(_Opts) ->
 handle_call(reload, _From, State) ->
     case conf:reload_file() of
         ok ->
-            case check_pem_file() of
+            try check_pem_file() of
                 ok ->
                     ok = fast_tls:clear_cache(),
                     ?LOG_INFO("Using new TLS certificate");
                 unmodified ->
-                    ?LOG_DEBUG("TLS certificate unchanged");
-                error -> % Has been logged.
-                    abort(certificate_failure)
+                    ?LOG_DEBUG("TLS certificate unchanged")
+            catch exit:Reason ->
+                    abort(Reason)
             end,
             ?LOG_DEBUG("Reloaded configuration"),
             {reply, ok, State};
@@ -253,10 +227,10 @@ get_opt(Opt) ->
 abort(Reason) ->
     case application:get_env(eturnal, on_fail, halt) of
         exit ->
-            ?LOG_ALERT("Stopping eturnal: ~s", [format_error(Reason)]),
+            ?LOG_CRITICAL("Stopping eturnal: ~s", [format_error(Reason)]),
             exit(Reason);
         _Halt ->
-            ?LOG_ALERT("Aborting eturnal: ~s", [format_error(Reason)]),
+            ?LOG_CRITICAL("Aborting eturnal: ~s", [format_error(Reason)]),
             eturnal_logger:flush(),
             halt(1)
     end.
@@ -314,97 +288,74 @@ log_control_listener() ->
 
 %% Internal functions: module startup/shutdown.
 
--spec start_modules() -> {ok, modules()} | {error, term()}.
+-spec start_modules() -> modules().
 start_modules() ->
-    try lists:map(
-          fun({Mod, _Opts}) ->
-                  case eturnal_module:start(Mod) of
-                      ok ->
-                          ?LOG_INFO("Started ~s", [Mod]),
-                          Mod;
-                      {error, Reason} = Err ->
-                          ?LOG_CRITICAL("Failed to start ~s: ~p",
-                                        [Mod, Reason]),
-                          exit(Err)
-                  end
-          end, maps:to_list(get_opt(modules))) of
-        Modules ->
-            {ok, Modules}
-    catch exit:{error, Reason} ->
-            {error, Reason}
-    end.
+    lists:map(
+      fun({Mod, _Opts}) ->
+              case eturnal_module:start(Mod) of
+                  ok ->
+                      ?LOG_INFO("Started ~s", [Mod]),
+                      Mod;
+                  {error, Reason} ->
+                      exit({module_failure, start, Mod, Reason})
+              end
+      end, maps:to_list(get_opt(modules))).
 
--spec stop_modules(state()) -> ok | {error, term()}.
+-spec stop_modules(state()) -> ok.
 stop_modules(#eturnal_state{modules = Modules}) ->
-    try lists:foreach(
-          fun(Mod) ->
-                  case eturnal_module:stop(Mod) of
-                      ok ->
-                          ?LOG_INFO("Stopped ~s", [Mod]);
-                      {error, Reason} = Err ->
-                          ?LOG_CRITICAL("Failed to stop ~s: ~p", [Mod, Reason]),
-                      exit(Err)
-                  end
-          end, Modules)
-    catch exit:{error, Reason} ->
-            {error, Reason}
-    end.
+    lists:foreach(
+      fun(Mod) ->
+              case eturnal_module:stop(Mod) of
+                  ok ->
+                      ?LOG_INFO("Stopped ~s", [Mod]);
+                  {error, Reason} ->
+                      exit({module_failure, stop, Mod, Reason})
+              end
+      end, Modules).
 
 %% Internal functions: listener startup/shutdown.
 
--spec start_listeners() -> {ok, listeners()} | {error, term()}.
+-spec start_listeners() -> listeners().
 start_listeners() ->
     Opts = lists:filtermap(
              fun({InKey, OutKey}) ->
                      opt_filter({OutKey, get_opt(InKey)})
              end, opt_map()) ++ [{auth_fun, fun ?MODULE:get_password/2},
                                  {hook_fun, fun ?MODULE:run_hook/2}],
-    try lists:map(
-          fun({IP, Port, Transport, ProxyProtocol, EnableTURN}) ->
-                  Opts1 = tls_opts(Transport) ++ Opts,
-                  Opts2 = turn_opts(EnableTURN) ++ Opts1,
-                  Opts3 = proxy_opts(ProxyProtocol) ++ Opts2,
-                  ?LOG_DEBUG("Starting listener ~s (~s) with options:~n~p",
-                             [eturnal_misc:addr_to_str(IP, Port),
-                              Transport, Opts3]),
-                  case stun_listener:add_listener(IP, Port, Transport, Opts3) of
-                      ok ->
-                          ?LOG_INFO("Listening on ~s (~s) (~s)",
-                                    [eturnal_misc:addr_to_str(IP, Port),
-                                     Transport, describe_listener(EnableTURN)]);
-                      {error, Reason} = Err ->
-                          ?LOG_CRITICAL("Cannot listen on ~s (~s): ~p",
-                                        [eturnal_misc:addr_to_str(IP, Port),
-                                         Transport, Reason]),
-                          exit(Err)
-                  end,
-                  {IP, Port, Transport}
-          end, get_opt(listen)) of
-        Listeners ->
-            {ok, Listeners}
-    catch exit:{error, Reason} ->
-            {error, Reason}
-    end.
+    lists:map(
+      fun({IP, Port, Transport, ProxyProtocol, EnableTURN}) ->
+              Opts1 = tls_opts(Transport) ++ Opts,
+              Opts2 = turn_opts(EnableTURN) ++ Opts1,
+              Opts3 = proxy_opts(ProxyProtocol) ++ Opts2,
+              ?LOG_DEBUG("Starting listener ~s (~s) with options:~n~p",
+                         [eturnal_misc:addr_to_str(IP, Port), Transport,
+                          Opts3]),
+              case stun_listener:add_listener(IP, Port, Transport, Opts3) of
+                  ok ->
+                      ?LOG_INFO("Listening on ~s (~s) (~s)",
+                                [eturnal_misc:addr_to_str(IP, Port), Transport,
+                                 describe_listener(EnableTURN)]);
+                  {error, Reason} ->
+                      exit({listener_failure, start, IP, Port, Transport,
+                             Reason})
+              end,
+              {IP, Port, Transport}
+      end, get_opt(listen)).
 
--spec stop_listeners(state()) -> ok | {error, term()}.
+-spec stop_listeners(state()) -> ok.
 stop_listeners(#eturnal_state{listeners = Listeners}) ->
-    try lists:foreach(
-          fun({IP, Port, Transport}) ->
-                  case stun_listener:del_listener(IP, Port, Transport) of
-                      ok ->
-                          ?LOG_INFO("Stopped listening on ~s (~s)",
-                                    [eturnal_misc:addr_to_str(IP, Port),
-                                     Transport]);
-                      {error, Reason} = Err ->
-                          ?LOG_CRITICAL("Cannot stop listening on ~s (~s): ~p",
-                                        [eturnal_misc:addr_to_str(IP, Port),
-                                         Transport, Reason]),
-                      exit(Err)
-                  end
-          end, Listeners)
-    catch exit:{error, Reason} ->
-            {error, Reason}
-    end.
+    lists:foreach(
+      fun({IP, Port, Transport}) ->
+              case stun_listener:del_listener(IP, Port, Transport) of
+                  ok ->
+                      ?LOG_INFO("Stopped listening on ~s (~s)",
+                                [eturnal_misc:addr_to_str(IP, Port),
+                                 Transport]);
+                  {error, Reason} ->
+                      exit({listener_failure, stop, IP, Port, Transport,
+                             Reason})
+              end
+      end, Listeners).
 
 -spec describe_listener(boolean()) -> binary().
 describe_listener(_EnableTURN = true) ->
@@ -454,8 +405,7 @@ proxy_opts(false = _ProxyProtocol) ->
 tls_opts(tls) ->
     [{tls, true} | extra_tls_opts()];
 tls_opts(auto) ->
-    ?LOG_CRITICAL("Setting 'transport: auto' requires Erlang/OTP 23 or later"),
-    abort(listener_failure);
+    exit({otp_too_old, transport, auto, 23});
 tls_opts(_) ->
     [].
 -else.
@@ -515,7 +465,7 @@ got_relay_addr() ->
             false
     end.
 
--spec check_turn_config() -> ok | error.
+-spec check_turn_config() -> ok.
 check_turn_config() ->
     case turn_enabled() of
         true ->
@@ -523,30 +473,24 @@ check_turn_config() ->
                   get_opt(relay_min_port),
                   get_opt(relay_max_port)} of
                 {_GotAddr, Min, Max} when Max =< Min ->
-                    ?LOG_CRITICAL("The 'relay_max_port' must be larger than "
-                                  "the 'relay_min_port'"),
-                    error;
+                    exit(turn_config_failure);
                 {false, _Min, _Max} ->
-                    ?LOG_WARNING("Specify a 'relay_ipv4_addr' to enable TURN"),
-                    ok;
+                    ?LOG_WARNING("Specify a 'relay_ipv4_addr' to enable TURN");
                 {true, _Min, _Max} ->
-                    ?LOG_DEBUG("TURN configuration seems fine"),
-                    ok
+                    ?LOG_DEBUG("TURN configuration seems fine")
             end;
         false ->
-            ?LOG_DEBUG("TURN is disabled"),
-            ok
+            ?LOG_DEBUG("TURN is disabled")
     end.
 
--spec check_proxy_config() -> ok | error.
+-spec check_proxy_config() -> ok.
 check_proxy_config() ->
     case lists:any(
            fun({_IP, _Port, Transport, ProxyProtocol, _EnableTURN}) ->
                    (Transport =:= udp) and (ProxyProtocol =:= true)
            end, get_opt(listen)) of
         true ->
-            ?LOG_CRITICAL("The 'proxy_protocol' ist not supported for 'udp'"),
-            error;
+            exit(proxy_config_failure);
         false ->
             ok
     end.
@@ -614,12 +558,12 @@ apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
     end,
     State1 = case module_config_changed(ConfigChanges) of
                  true ->
-                     case {stop_modules(State), start_modules()} of
-                         {ok, {ok, Modules}} ->
+                     try {stop_modules(State), start_modules()} of
+                         {ok, Modules} ->
                              ?LOG_INFO("Applied new module configuration"),
-                             State#eturnal_state{modules = Modules};
-                         {_, _} -> % Error has been logged.
-                             abort(module_failure)
+                             State#eturnal_state{modules = Modules}
+                     catch exit:Reason1 ->
+                             abort(Reason1)
                      end;
                  false ->
                      ?LOG_DEBUG("Module configuration unchanged"),
@@ -627,13 +571,13 @@ apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
              end,
     State2 = case listener_config_changed(ConfigChanges) of
                  true ->
-                     case {stop_listeners(State), timer:sleep(500),
-                           start_listeners()} of
-                         {ok, ok, {ok, Listeners}} ->
+                     try {stop_listeners(State), timer:sleep(500),
+                          start_listeners()} of
+                         {ok, ok, Listeners} ->
                              ?LOG_INFO("Applied new listen configuration"),
-                             State1#eturnal_state{listeners = Listeners};
-                         {_, ok, _} -> % Error has been logged.
-                             abort(listener_failure)
+                             State1#eturnal_state{listeners = Listeners}
+                     catch exit:Reason2 ->
+                             abort(Reason2)
                      end;
                  false ->
                      ?LOG_DEBUG("Listen configuration unchanged"),
@@ -647,7 +591,7 @@ apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
 get_pem_file_path() ->
     filename:join(get_opt(run_dir), <<?PEM_FILE_NAME>>).
 
--spec check_pem_file() -> ok | unmodified | error.
+-spec check_pem_file() -> ok | unmodified.
 check_pem_file() ->
     case tls_enabled() of
         true ->
@@ -659,7 +603,7 @@ check_pem_file() ->
                 {none, OutTime} when OutTime =:= 0 ->
                     ?LOG_WARNING("TLS enabled without 'tls_crt_file', creating "
                                  "self-signed certificate"),
-                    create_self_signed(OutFile);
+                    ok = create_self_signed(OutFile);
                 {CrtFile, OutTime} ->
                     case filelib:last_modified(CrtFile) of
                         CrtTime when CrtTime =< OutTime ->
@@ -667,7 +611,7 @@ check_pem_file() ->
                             unmodified;
                         CrtTime when CrtTime =/= 0 -> % Assert to be true.
                             ?LOG_DEBUG("Updating PEM file (~ts)", [OutFile]),
-                            import_pem_file(CrtFile, OutFile)
+                            ok = import_pem_file(CrtFile, OutFile)
                     end
             end;
         false ->
@@ -675,7 +619,7 @@ check_pem_file() ->
             unmodified
     end.
 
--spec import_pem_file(binary(), file:filename_all()) -> ok | error.
+-spec import_pem_file(binary(), file:filename_all()) -> ok.
 import_pem_file(CrtFile, OutFile) ->
     try
         ok = touch(OutFile),
@@ -687,24 +631,18 @@ import_pem_file(CrtFile, OutFile) ->
                           [CrtFile])
         end,
         ok = copy_file(CrtFile, OutFile, append)
-    catch
-        error:{badarg, {error, Reason}} ->
-            ?LOG_CRITICAL("Cannot create ~ts: ~ts",
-                          [OutFile, file:format_error(Reason)]),
-            error
+    catch error:{_, {error, Reason}} ->
+            exit({pem_failure, OutFile, Reason})
     end.
 
--spec create_self_signed(file:filename_all()) -> ok | error.
+-spec create_self_signed(file:filename_all()) -> ok.
 create_self_signed(File) ->
     try
         PEM = eturnal_cert:create(get_opt(realm)),
         ok = touch(File),
         ok = file:write_file(File, PEM, [raw])
-    catch
-        error:{badarg, {error, Reason}} ->
-            ?LOG_CRITICAL("Cannot create ~ts: ~ts",
-                          [File, file:format_error(Reason)]),
-            error
+    catch error:{_, {error, Reason}} ->
+            exit({pem_failure, File, Reason})
     end.
 
 -spec copy_file(file:name_all(), file:name_all(), write | append) -> ok.
@@ -722,17 +660,14 @@ touch(File) ->
 
 %% Internal functions: run directory.
 
--spec ensure_run_dir() -> ok | error.
+-spec ensure_run_dir() -> ok.
 ensure_run_dir() ->
     RunDir = get_opt(run_dir),
     case filelib:ensure_dir(filename:join(RunDir, <<"state.dat">>)) of
         ok ->
-            ?LOG_DEBUG("Using run directory ~ts", [RunDir]),
-            ok;
+            ?LOG_DEBUG("Using run directory ~ts", [RunDir]);
         {error, Reason} ->
-            ?LOG_CRITICAL("Cannot create run directory ~ts: ~ts",
-                          [RunDir, file:format_error(Reason)]),
-            error
+            exit({run_dir_failure, RunDir, Reason})
     end.
 
 -spec clean_run_dir() -> ok | {error, term()}.
@@ -742,8 +677,7 @@ clean_run_dir() ->
         true ->
             case file:delete(PEMFile) of
                 ok ->
-                    ?LOG_DEBUG("Removed ~ts", [PEMFile]),
-                    ok;
+                    ?LOG_DEBUG("Removed ~ts", [PEMFile]);
                 {error, Reason} = Err ->
                     ?LOG_WARNING("Cannot remove ~ts: ~ts",
                                  [PEMFile, file:format_error(Reason)]),
@@ -755,23 +689,39 @@ clean_run_dir() ->
 
 %% Internal functions: error message formatting.
 
--spec format_error(atom()) -> binary().
-format_error(certificate_failure) ->
-    <<"PEM file failure">>;
-format_error(dependency_failure) ->
-    <<"Dependency failure">>;
-format_error(listener_failure) ->
-    <<"Listener startup failure">>;
-format_error(module_failure) ->
-    <<"Module startup failure">>;
+-spec format_error(atom() | tuple()) -> binary().
+format_error({module_failure, Action, Mod, Reason}) ->
+    format("Failed to ~s ~s: ~p", [Action, Mod, Reason]);
+format_error({dependency_failure, Mod, Dep}) ->
+    format("Dependency ~s is missing; install it below ~s, or point ERL_LIBS "
+           "to it, or disable ~s", [Dep, code:lib_dir(), Mod]);
+format_error({listener_failure, Action, IP, Port, Transport, Reason}) ->
+    format("Cannot ~s listening on ~s (~s): ~p",
+           [Action, eturnal_misc:addr_to_str(IP, Port), Transport, Reason]);
+format_error({run_dir_failure, RunDir, Reason}) ->
+    format("Cannot create run directory ~ts: ~ts",
+           [RunDir, file:format_error(Reason)]);
+format_error({pem_failure, File, Reason}) ->
+    format("Cannot create PEM file ~ts: ~ts",
+           [File, file:format_error(Reason)]);
+format_error({otp_too_old, Key, Value, Vsn}) ->
+    format("Setting '~s: ~s' requires Erlang/OTP ~B or later",
+           [Key, Value, Vsn]);
 format_error(proxy_config_failure) ->
-    <<"Proxy protocol configuration failure">>;
+    <<"The 'proxy_protocol' ist not supported for 'udp'">>;
 format_error(turn_config_failure) ->
-    <<"TURN configuration failure">>;
-format_error(run_dir_failure) ->
-    <<"Run directory failure">>;
+    <<"The 'relay_max_port' must be larger than the 'relay_min_port'">>;
 format_error(_Unknown) ->
     <<"Unknown error">>.
+
+-spec format(io:format(), [term()]) -> binary().
+format(Fmt, Data) ->
+    case unicode:characters_to_binary(io_lib:format(Fmt, Data)) of
+        Bin when is_binary(Bin) ->
+            Bin;
+        _ ->
+            <<"(Cannot format string)">>
+    end.
 
 %% EUnit tests.
 
