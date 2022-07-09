@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Added
+- Docker: Adjust image `ENTRYPOINT` to provide a way to autodetect (in most
+  cases) the Docker host's IPv4 address during container startup within isolated
+  network environments, without explicitly defining the IPv4 address (with an
+  `ENV` variable or a configuration file).
 
 ## [1.9.0] - 2022-07-07
 ### Added
