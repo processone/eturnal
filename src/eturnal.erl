@@ -83,17 +83,17 @@ init(_Opts) ->
     ok = eturnal_module:init(),
     ok = log_relay_addresses(),
     ok = log_control_listener(),
-    case turn_enabled() of
-        true ->
-            ok = check_turn_config(got_relay_addr());
-        false ->
-            ?LOG_DEBUG("TURN is disabled")
-    end,
     case ensure_run_dir() of
         ok ->
             ok;
         error -> % Has been logged.
             abort(run_dir_failure)
+    end,
+    case check_turn_config() of
+        ok ->
+            ok;
+        error -> % Has been logged.
+            abort(turn_config_failure)
     end,
     case check_proxy_config() of
         ok ->
@@ -515,11 +515,28 @@ got_relay_addr() ->
             false
     end.
 
--spec check_turn_config(boolean()) -> ok.
-check_turn_config(_GotAddr = true) ->
-    ?LOG_DEBUG("TURN configuration seems fine");
-check_turn_config(_GotAddr = false) ->
-    ?LOG_WARNING("Specify a 'relay_ipv4_addr' to enable TURN").
+-spec check_turn_config() -> ok | error.
+check_turn_config() ->
+    case turn_enabled() of
+        true ->
+            case {got_relay_addr(),
+                  get_opt(relay_min_port),
+                  get_opt(relay_max_port)} of
+                {_GotAddr, Min, Max} when Max =< Min ->
+                    ?LOG_CRITICAL("The 'relay_max_port' must be larger than "
+                                  "the 'relay_min_port'"),
+                    error;
+                {false, _Min, _Max} ->
+                    ?LOG_WARNING("Specify a 'relay_ipv4_addr' to enable TURN"),
+                    ok;
+                {true, _Min, _Max} ->
+                    ?LOG_DEBUG("TURN configuration seems fine"),
+                    ok
+            end;
+        false ->
+            ?LOG_DEBUG("TURN is disabled"),
+            ok
+    end.
 
 -spec check_proxy_config() -> ok | error.
 check_proxy_config() ->
@@ -749,6 +766,8 @@ format_error(module_failure) ->
     <<"Module startup failure">>;
 format_error(proxy_config_failure) ->
     <<"Proxy protocol configuration failure">>;
+format_error(turn_config_failure) ->
+    <<"TURN configuration failure">>;
 format_error(run_dir_failure) ->
     <<"Run directory failure">>;
 format_error(_Unknown) ->
