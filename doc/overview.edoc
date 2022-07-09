@@ -321,7 +321,9 @@ relaying from/to IPv6 peers.
 Default: `65535'</div>
 
 This option defines the upper bound of the UDP port range to be used for TURN
-relaying. The value should usually be (well) above `49152'.
+relaying. The value should usually be (well) above `49152'. If this option isn't
+specified, the value of the envionment variable {@section
+ETURNAL_RELAY_MAX_PORT} is used instead.
 
 Note that each TURN relay allocation requires a dedicated port, and that several
 TURN relays might be allocated for a single, e.g., audio/video call. Therefore,
@@ -334,7 +336,8 @@ Default: `49152'</div>
 
 This option defines the lower bound of the UDP port range to be used for TURN
 relaying. The value should usually be above `49151' and (well) below the
-{@section relay_max_port} number.
+{@section relay_max_port} number. If this option isn't specified, the value of
+the envionment variable {@section ETURNAL_RELAY_MIN_PORT} is used instead.
 
 === run_dir ===
 
@@ -558,6 +561,19 @@ variable defines the IPv4 address used for relaying data from/to TURN peers.
 
 If the {@section relay_ipv6_addr} option isn't specified, this environment
 variable defines the IPv6 address used for relaying data from/to TURN peers.
+
+=== ETURNAL_RELAY_MAX_PORT ===
+
+If the {@section relay_max_port} option isn't specified, this environment
+variable defines the upper bound of the UDP port range to be used for TURN
+relaying. The value should usually be (well) above `49152'.
+
+=== ETURNAL_RELAY_MIN_PORT ===
+
+If the {@section relay_min_port} option isn't specified, this environment
+variable defines the lower bound of the UDP port range to be used for TURN
+relaying. The value should usually be above `49151' and (well) below the
+{@section ETURNAL_RELAY_MAX_PORT} number.
 
 === ETURNAL_SECRET ===
 

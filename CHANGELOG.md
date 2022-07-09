@@ -5,6 +5,8 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 ### Added
+- Fall back to reading the relay port range boundaries from environment
+  variables when `relay_min_port` and/or `relay_max_port` aren't specified.
 - Docker: Adjust image `ENTRYPOINT` to provide a way to autodetect (in most
   cases) the Docker host's IPv4 address during container startup within isolated
   network environments, without explicitly defining the IPv4 address (with an

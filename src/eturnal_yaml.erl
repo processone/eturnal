@@ -33,6 +33,7 @@
 -type listener() :: {inet:ip_address(), inet:port_number(), eturnal:transport(),
                      boolean(), boolean()}.
 -type family() :: ipv4 | ipv6.
+-type boundary() :: min | max.
 
 %% API.
 
@@ -74,8 +75,8 @@ validator() ->
                      {{0, 0, 0, 0, 0, 0, 0, 0}, 3478, tcp, false, true}],
           relay_ipv4_addr => get_default_addr(ipv4),
           relay_ipv6_addr => get_default_addr(ipv6),
-          relay_min_port => 49152,
-          relay_max_port => 65535,
+          relay_min_port => get_default_port(min, 49152),
+          relay_max_port => get_default_port(max, 65535),
           tls_crt_file => none,
           tls_key_file => none,
           tls_dh_file => none,
@@ -223,6 +224,25 @@ get_default_addr(Family) ->
             end;
         undefined ->
             MyAddr()
+    end.
+
+-spec get_default_port(boundary(), inet:port_number()) -> inet:port_number().
+get_default_port(MinMax, Default) ->
+    MinMaxStr = atom_to_list(MinMax),
+    Opt = list_to_existing_atom("relay_" ++ MinMaxStr ++ "_port"),
+    case get_default(Opt, Default) of
+        Bin when is_binary(Bin) ->
+            try
+                Port = binary_to_integer(Bin),
+                true = (Port >= 1),
+                true = (Port =< 65535),
+                Port
+            catch error:_ ->
+                    abort("Bad ETURNAL_RELAY_~s_PORT: ~s",
+                          [string:uppercase(MinMaxStr), Bin])
+            end;
+        Default ->
+            Default
     end.
 
 -spec get_default(atom() | string(), Term) -> binary() | Term.
