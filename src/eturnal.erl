@@ -257,7 +257,7 @@ abort(Reason) ->
             exit(Reason);
         _Halt ->
             ?LOG_ALERT("Aborting eturnal: ~s", [format_error(Reason)]),
-            eturnal_logger:stop(), % Flush logs.
+            eturnal_logger:flush(),
             halt(1)
     end.
 

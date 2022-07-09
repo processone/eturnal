@@ -268,4 +268,5 @@ fail(Reason) ->
 -spec abort(io:format(), [term()]) -> no_return().
 abort(Format, Data) ->
     ?LOG_CRITICAL(Format, Data),
-    init:stop(2).
+    eturnal_logger:flush(),
+    halt(2).

@@ -24,7 +24,8 @@
          reconfigure/0,
          is_valid_level/1,
          get_level/0,
-         set_level/1]).
+         set_level/1,
+         flush/0]).
 -export_type([level/0]).
 
 -include_lib("kernel/include/logger.hrl").
