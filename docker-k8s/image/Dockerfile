@@ -46,8 +46,8 @@ RUN apk update --no-cache \
     && ln -s $HOME/bin/eturnalctl /usr/local/bin/eturnalctl \
     && echo -e \
         '#!/bin/sh \
-        \nexport ETURNAL_RELAY_IPV4_ADDR=${ETURNAL_RELAY_IPV4_ADDR:-$(wget -qO - https://v4.ident.me | xargs echo)} \
-        \nexec eturnalctl $@' > /usr/local/bin/run.sh \
+        \nexport ETURNAL_RELAY_IPV4_ADDR=${ETURNAL_RELAY_IPV4_ADDR:-$(wget -qO - https://v4.ident.me)} \
+        \nexec "$@"' > /usr/local/bin/run.sh \
     && chmod +x /usr/local/bin/* \
     && sed -i -e "s/#log_dir: stdout/log_dir: stdout/g" $HOME/etc/eturnal.yml
 
@@ -57,4 +57,4 @@ VOLUME ["$HOME/log", "$HOME/run", "$HOME/tls"]
 EXPOSE 3478 3478/udp 5349
 
 ENTRYPOINT ["/sbin/tini","--","run.sh"]
-CMD ["foreground"]
+CMD ["eturnalctl", "foreground"]
