@@ -52,7 +52,9 @@ RUN apk update --no-cache \
     && echo -e \
         '# A more detailed, commented example configuration can be found here: https://github.com/processone/eturnal/blob/master/config/eturnal.yml \
         \neturnal: \
-        \n  log_dir: stdout' > $HOME/etc/eturnal.yml
+        \n  log_dir: stdout \
+        \n  modules: \
+        \n    mod_log_stun: {} ' > $HOME/etc/eturnal.yml
 
 WORKDIR $HOME
 USER eturnal
