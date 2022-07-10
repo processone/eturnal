@@ -9,7 +9,7 @@ Services][3] specification is implemented.
 ## Installation
 
 > _Note:_ Running eturnal in **container environments** such as Docker or
-> Kubernetes is described in a [separate documentation][4] page.
+> Kubernetes is described on a [separate documentation][4] page.
 
 On **APT-based** Linux distributions, run:
 
