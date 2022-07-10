@@ -27,9 +27,11 @@ eturnal:
     - "@STRENGTH"
   max_bps: 100000
   blacklist:
+    - recommended
     - "203.0.113.0/24"
     - "2001:db8::/32"
   whitelist:
+    - "127.0.0.1"
     - "203.0.113.113"
     - "2001:db8::/64"
   modules:

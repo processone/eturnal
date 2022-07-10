@@ -5,6 +5,11 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 ### Added
+- Allow for adding the special keywords `default` or `recommended` to the
+  `blacklist`. The former expands to the addresses blocked by default, the
+  latter to a number of networks
+  [recommended](https://rtcsec.com/article/cve-2020-26262-bypass-of-coturns-access-control-protection/#further-concerns-what-else)
+  to be blocked.
 - Fall back to reading the relay port range boundaries from environment
   variables when `relay_min_port` and/or `relay_max_port` aren't specified.
 - Docker: Adjust image `ENTRYPOINT` to provide a way to autodetect (in most
