@@ -120,7 +120,7 @@ addresses is refused, unless the address is also matched by a {@section
 whitelist} entry. The `blacklist' may also contain the special keyword
 `default', which expands to the addresses blocked by default, or the special
 keyword `recommended', which expands to the addresses <a
-href="https://www.rtcsec.com/article/cve-2020-26262-bypass-of-coturns-access-control-protection/#further-concerns-what-else">suggested</a>
+href="https://rtcsec.com/article/cve-2020-26262-bypass-of-coturns-access-control-protection/#further-concerns-what-else">suggested</a>
 by <a href="https://www.enablesecurity.com">Enable Security</a>. (As the latter
 is a superset of the former, there's no point in listing both.) Note that the
 `recommended' addresses include private networks. Therefore, if eturnal is
