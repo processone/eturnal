@@ -226,10 +226,11 @@ get_default_addr(Family) ->
             MyAddr()
     end.
 
+
 -spec get_default_port(boundary(), inet:port_number()) -> inet:port_number().
 get_default_port(MinMax, Default) ->
-    MinMaxStr = atom_to_list(MinMax),
-    Opt = list_to_existing_atom("relay_" ++ MinMaxStr ++ "_port"),
+    MinMaxStr = from_atom(MinMax),
+    Opt = to_atom(<<"relay_", MinMaxStr/binary, "_port">>),
     case get_default(Opt, Default) of
         Bin when is_binary(Bin) ->
             try
@@ -280,6 +281,16 @@ openssl_list(Sep) ->
 -spec join(char()) -> fun(([binary()]) -> binary()).
 join(Sep) ->
     fun(Opts) -> unicode:characters_to_binary(lists:join(<<Sep>>, Opts)) end.
+
+-spec from_atom(atom()) -> binary().
+-spec to_atom(binary()) -> atom().
+-ifdef(old_atom_conversion). % Erlang/OTP < 23.0.
+from_atom(A) -> atom_to_binary(A, utf8).
+to_atom(S) -> list_to_existing_atom(binary_to_list(S)).
+-else.
+from_atom(A) -> atom_to_binary(A).
+to_atom(S) -> binary_to_existing_atom(S).
+-endif.
 
 -spec fail({atom(), term()}) -> no_return().
 fail(Reason) ->
