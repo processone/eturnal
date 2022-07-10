@@ -189,7 +189,8 @@ code_change(_OldVsn, State, _Extra) ->
 run_hook(Event, Info) ->
     eturnal_module:handle_event(Event, Info).
 
--spec get_password(binary(), binary()) -> binary() | [binary()].
+-spec get_password(binary(), binary())
+      -> binary() | [binary()] | {expired, binary() | [binary()]}.
 get_password(Username, _Realm) ->
     [Expiration | _Suffix] = binary:split(Username, <<$:>>),
     try binary_to_integer(Expiration) of
