@@ -172,9 +172,18 @@ handle_info(Info, State) ->
 -spec terminate(normal | shutdown | {shutdown, term()} | term(), state()) -> ok.
 terminate(Reason, State) ->
     ?LOG_DEBUG("Terminating ~s (~p)", [?MODULE, Reason]),
-    _ = stop_listeners(State),
-    _ = stop_modules(State),
-    _ = clean_run_dir(),
+    try stop_listeners(State)
+    catch exit:Reason ->
+            ?LOG_ERROR(format_error(Reason))
+    end,
+    try stop_modules(State)
+    catch exit:Reason ->
+            ?LOG_ERROR(format_error(Reason))
+    end,
+    try clean_run_dir()
+    catch exit:Reason ->
+            ?LOG_ERROR(format_error(Reason))
+    end,
     _ = eturnal_module:terminate(),
     ok.
 
@@ -228,10 +237,10 @@ get_opt(Opt) ->
 abort(Reason) ->
     case application:get_env(eturnal, on_fail, halt) of
         exit ->
-            ?LOG_CRITICAL("Stopping eturnal: ~s", [format_error(Reason)]),
+            ?LOG_CRITICAL("Stopping: ~s", [format_error(Reason)]),
             exit(Reason);
         _Halt ->
-            ?LOG_CRITICAL("Aborting eturnal: ~s", [format_error(Reason)]),
+            ?LOG_CRITICAL("Aborting: ~s", [format_error(Reason)]),
             eturnal_logger:flush(),
             halt(1)
     end.
@@ -668,10 +677,10 @@ ensure_run_dir() ->
         ok ->
             ?LOG_DEBUG("Using run directory ~ts", [RunDir]);
         {error, Reason} ->
-            exit({run_dir_failure, RunDir, Reason})
+            exit({run_dir_failure, create, RunDir, Reason})
     end.
 
--spec clean_run_dir() -> ok | {error, term()}.
+-spec clean_run_dir() -> ok.
 clean_run_dir() ->
     PEMFile = get_pem_file_path(),
     case filelib:is_regular(PEMFile) of
@@ -679,10 +688,8 @@ clean_run_dir() ->
             case file:delete(PEMFile) of
                 ok ->
                     ?LOG_DEBUG("Removed ~ts", [PEMFile]);
-                {error, Reason} = Err ->
-                    ?LOG_WARNING("Cannot remove ~ts: ~ts",
-                                 [PEMFile, file:format_error(Reason)]),
-                    Err
+                {error, Reason} ->
+                    exit({run_dir_failure, clean, PEMFile, Reason})
             end;
         false ->
             ?LOG_DEBUG("PEM file doesn't exist: ~ts", [PEMFile])
@@ -698,10 +705,11 @@ format_error({dependency_failure, Mod, Dep}) ->
            "to it, or disable ~s", [Dep, code:lib_dir(), Mod]);
 format_error({listener_failure, Action, IP, Port, Transport, Reason}) ->
     format("Cannot ~s listening on ~s (~s): ~p",
-           [Action, eturnal_misc:addr_to_str(IP, Port), Transport, Reason]);
-format_error({run_dir_failure, RunDir, Reason}) ->
-    format("Cannot create run directory ~ts: ~ts",
-           [RunDir, file:format_error(Reason)]);
+           [Action, eturnal_misc:addr_to_str(IP, Port), Transport,
+            inet:format_error(Reason)]);
+format_error({run_dir_failure, Action, RunDir, Reason}) ->
+    format("Cannot ~s run directory ~ts: ~ts",
+           [Action, RunDir, file:format_error(Reason)]);
 format_error({pem_failure, File, Reason}) ->
     format("Cannot create PEM file ~ts: ~ts",
            [File, file:format_error(Reason)]);
