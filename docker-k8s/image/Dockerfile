@@ -49,7 +49,10 @@ RUN apk update --no-cache \
         \nexport ETURNAL_RELAY_IPV4_ADDR=${ETURNAL_RELAY_IPV4_ADDR:-$(wget -qO - https://v4.ident.me)} \
         \nexec "$@"' > /usr/local/bin/run.sh \
     && chmod +x /usr/local/bin/* \
-    && sed -i -e "s/#log_dir: stdout/log_dir: stdout/g" $HOME/etc/eturnal.yml
+    && echo -e \
+        '# A more detailed, commented example configuration can be found here: https://github.com/processone/eturnal/blob/master/config/eturnal.yml \
+        \neturnal: \
+        \n  log_dir: stdout' > $HOME/etc/eturnal.yml
 
 WORKDIR $HOME
 USER eturnal
