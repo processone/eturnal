@@ -194,7 +194,7 @@ listen:
 
 === log_dir ===
 
-<div class="spec">Type: `path name | stdout'<br/>
+<div class="spec">Type: `path name' | `stdout'<br/>
 Default: `log'</div>
 
 This option specifies the directory the `eturnal.log' file is written into.
@@ -225,7 +225,7 @@ is ignored.
 
 === log_rotate_size ===
 
-<div class="spec">Type: `positive integer | unlimited'<br/>
+<div class="spec">Type: `positive integer' | `unlimited'<br/>
 Default: `unlimited'</div>
 
 If this option is set to a positive integer value and the {@section log_dir}
@@ -239,7 +239,7 @@ eturnal (e.g., by sending a `HUP' signal) after log rotation.
 
 === max_bps ===
 
-<div class="spec">Type: `positive integer | unlimited'<br/>
+<div class="spec">Type: `positive integer' | `unlimited'<br/>
 Default: `10'</div>
 
 This option limits the bandwidth of TCP and TLS connections to the specified
@@ -248,7 +248,7 @@ number of bytes per second. If the option isn't specified (or set to
 
 === max_permissions ===
 
-<div class="spec">Type: `positive integer | unlimited'<br/>
+<div class="spec">Type: `positive integer' | `unlimited'<br/>
 Default: `10'</div>
 
 This option specifies the maximum number of TURN <a
@@ -499,7 +499,7 @@ has the following configuration options:
 
 ==== host ====
 
-<div class="spec">Type: `string | IP address'<br/>
+<div class="spec">Type: `string' | `IP address'<br/>
 Default: `localhost'</div>
 
 This option specifies the host name or IP address InfluxDB's UDP service is
