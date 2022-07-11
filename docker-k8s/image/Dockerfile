@@ -59,7 +59,7 @@ RUN apk update --no-cache \
 WORKDIR $HOME
 USER eturnal
 VOLUME ["$HOME/log", "$HOME/run", "$HOME/tls"]
-EXPOSE 3478 3478/udp 5349
+EXPOSE 3478 3478/udp
 
 ENTRYPOINT ["/sbin/tini","--","run.sh"]
 CMD ["eturnalctl", "foreground"]
