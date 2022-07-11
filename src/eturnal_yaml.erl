@@ -262,7 +262,6 @@ get_default_addr(Family) ->
             MyAddr()
     end.
 
-
 -spec get_default_port(boundary(), inet:port_number()) -> inet:port_number().
 get_default_port(MinMax, Default) ->
     MinMaxStr = from_atom(MinMax),
