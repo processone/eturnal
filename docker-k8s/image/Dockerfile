@@ -30,8 +30,8 @@ RUN apk update --no-cache \
     && cd $HOME \
     && addgroup eturnal -g 9000 \
     && adduser -s /bin/sh -D -u 9000 -h $HOME -G eturnal eturnal \
-# extract eturnal
-    && tar -xzf $BUILD_DIR/_build/prod/rel/eturnal/eturnal-*.tar.gz -C $HOME \
+# copy eturnal release tarball to eturnal's home
+    && cp $BUILD_DIR/_build/prod/rel/eturnal/eturnal-*.tar.gz $HOME \
     && chown -R 9000:9000 $HOME \
 # add runtime packages
     && apk add --no-cache \
@@ -46,19 +46,21 @@ RUN apk update --no-cache \
     && ln -s $HOME/bin/eturnalctl /usr/local/bin/eturnalctl \
     && echo -e \
         '#!/bin/sh \
+        \ntar -xzf $HOME/eturnal-*.tar.gz -C $HOME \
+        \nrm -f $HOME/eturnal-*.tar.gz \
+        \necho -e "# A more detailed, commented example configuration can be found here:" > $HOME/etc/eturnal.yml \
+        \necho -e "# https://github.com/processone/eturnal/blob/master/config/eturnal.yml" >> $HOME/etc/eturnal.yml \
+        \necho -e "eturnal:" >> $HOME/etc/eturnal.yml \
+        \necho -e "  log_dir: stdout" >> $HOME/etc/eturnal.yml \
+        \necho -e "  modules:" >> $HOME/etc/eturnal.yml \
+        \necho -e "    mod_log_stun: {}" >> $HOME/etc/eturnal.yml \
         \nexport ETURNAL_RELAY_IPV4_ADDR=${ETURNAL_RELAY_IPV4_ADDR:-$(wget -qO - https://v4.ident.me)} \
         \nexec "$@"' > /usr/local/bin/run.sh \
-    && chmod +x /usr/local/bin/* \
-    && echo -e \
-        '# A more detailed, commented example configuration can be found here: https://github.com/processone/eturnal/blob/master/config/eturnal.yml \
-        \neturnal: \
-        \n  log_dir: stdout \
-        \n  modules: \
-        \n    mod_log_stun: {} ' > $HOME/etc/eturnal.yml
+    && chmod +x /usr/local/bin/run.sh
 
 WORKDIR $HOME
 USER eturnal
-VOLUME ["$HOME/log", "$HOME/run", "$HOME/tls"]
+VOLUME ["$HOME"]
 EXPOSE 3478 3478/udp
 
 ENTRYPOINT ["/sbin/tini","--","run.sh"]
