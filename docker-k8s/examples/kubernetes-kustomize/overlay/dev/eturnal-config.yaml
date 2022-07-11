@@ -44,7 +44,7 @@ spec:
         - name: eturnal
           volumeMounts:
           - name: eturnal-config-modified
-            mountPath: /opt/eturnal/etc/eturnal.yml
+            mountPath: /etc/eturnal.yml
             subPath: eturnal.yml
   #          readOnly: true
       volumes:

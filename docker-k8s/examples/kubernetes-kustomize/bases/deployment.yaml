@@ -62,7 +62,7 @@ spec:
             periodSeconds: 30
 #          volumeMounts:
 #          - name: eturnal-config
-#            mountPath: /opt/eturnal/etc/eturnal.yml
+#            mountPath: /etc/eturnal.yml
 #            subPath: eturnal.yml
 #            readOnly: true
 #        volumes:

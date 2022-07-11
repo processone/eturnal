@@ -103,7 +103,7 @@ Stop the running container with:
 
 Configuration is mainly done by a mounted `eturnal.yml` file (recommended), see the [example configuration file](https://github.com/processone/eturnal/blob/master/config/eturnal.yml). The file must be readable by the eturnal user (`chown 9000:9000` and `chmod 640`). **Mountpath**, e.g. with `docker run` add:
 
-    -v /path/to/eturnal.yml:/opt/eturnal/etc/eturnal.yml
+    -v /path/to/eturnal.yml:/etc/eturnal.yml
 
 eturnal may also be configured by specifying certain environment variables, see the [documentation](https://eturnal.net/documentation/#Environment_Variables). Here are some more hints [how to configure eturnal](https://eturnal.net/documentation/#Global_Configuration).
 
