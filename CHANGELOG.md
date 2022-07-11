@@ -17,6 +17,9 @@ project adheres to [Semantic Versioning][SemVer].
   network environments, without explicitly defining the IPv4 address (with an
   `ENV` variable or a configuration file).
 
+### Changed
+- Apply minor logging improvements.
+
 ## [1.9.0] - 2022-07-07
 ### Added
 - Publish Docker images and provide configuration examples for Docker/Kubernetes
