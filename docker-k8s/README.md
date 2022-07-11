@@ -103,7 +103,7 @@ Stop the running container with:
 
 Configuration is mainly done by a mounted `eturnal.yml` file (recommended), see the [example configuration file](https://github.com/processone/eturnal/blob/master/config/eturnal.yml). The file must be readable by the eturnal user (`chown 9000:9000` and `chmod 640`). **Mountpath**, e.g. with `docker run` add:
 
-    -v /path/to/eturnal.yml:/etc/eturnal.yml
+    -v /path/to/eturnal.yml:/etc/eturnal.yml:ro
 
 eturnal may also be configured by specifying certain environment variables, see the [documentation](https://eturnal.net/documentation/#Environment_Variables). Here are some more hints [how to configure eturnal](https://eturnal.net/documentation/#Global_Configuration).
 
@@ -116,7 +116,7 @@ eturnal may also be configured by specifying certain environment variables, see 
 
 To use eturnal's TLS listener with cutsom TLS certificates/dh-parameter files they must be mounted into the container and [referenced](https://eturnal.net/documentation/#tls_crt_file) in the `eturnal.yml` file. TLS certificates and the dh-parameter file shall be `.pem` files. They must be readable by the eturnal user/group `9000:9000` and should not have world-readable access rights (`chmod 400`). **Mountpath**, e.g. with `docker run` add:
 
-    -v /path/to/tls-files:/opt/eturnal/tls
+    -v /path/to/tls-files:/opt/eturnal/tls:ro
 
 ## Examples for Docker Compose and Kubernetes
 

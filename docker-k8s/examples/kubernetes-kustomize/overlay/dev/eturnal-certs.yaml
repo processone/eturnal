@@ -46,7 +46,7 @@ spec:
           volumeMounts:
           - name: eturnal-certs-modified
             mountPath: /opt/eturnal/tls
-  #          readOnly: true
+            readOnly: true
       volumes:
         - name: eturnal-certs-modified
           emptyDir:

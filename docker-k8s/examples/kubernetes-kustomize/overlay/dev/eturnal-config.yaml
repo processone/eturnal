@@ -46,7 +46,7 @@ spec:
           - name: eturnal-config-modified
             mountPath: /etc/eturnal.yml
             subPath: eturnal.yml
-  #          readOnly: true
+            readOnly: true
       volumes:
         - name: eturnal-config-modified
           emptyDir:
