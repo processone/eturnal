@@ -516,25 +516,37 @@ logging_config_changed({Changed, New, Removed}) ->
                    log_rotate_count],
     lists:any(fun(Key) -> lists:member(Key, ModifiedKeys) end, LoggingKeys).
 
--spec listener_config_changed(config_changes()) -> boolean().
-listener_config_changed({Changed, New, Removed}) ->
+-spec relay_config_changed(config_changes()) -> boolean().
+relay_config_changed({Changed, New, Removed}) ->
     ModifiedKeys = proplists:get_keys(Changed ++ New ++ Removed),
-    ListenerKeys = [listen,
-                    relay_ipv4_addr,
-                    relay_ipv6_addr,
-                    relay_min_port,
-                    relay_max_port,
-                    max_allocations,
-                    max_permissions,
-                    max_bps,
-                    blacklist,
-                    whitelist,
-                    realm,
-                    software_name,
-                    tls_options,
-                    tls_ciphers,
-                    tls_dh_file],
-    lists:any(fun(Key) -> lists:member(Key, ModifiedKeys) end, ListenerKeys).
+    RelayKeys = [relay_ipv4_addr,
+                 relay_ipv6_addr,
+                 relay_min_port,
+                 relay_max_port],
+    lists:any(fun(Key) -> lists:member(Key, ModifiedKeys) end, RelayKeys).
+
+-spec listener_config_changed(config_changes()) -> boolean().
+listener_config_changed({Changed, New, Removed} = ConfigChanges) ->
+    case relay_config_changed(ConfigChanges) of
+        true ->
+            true;
+        false ->
+            ModifiedKeys = proplists:get_keys(Changed ++ New ++ Removed),
+            ListenerKeys = [listen,
+                            max_allocations,
+                            max_permissions,
+                            max_bps,
+                            blacklist,
+                            whitelist,
+                            realm,
+                            software_name,
+                            tls_options,
+                            tls_ciphers,
+                            tls_dh_file],
+            lists:any(fun(Key) ->
+                              lists:member(Key, ModifiedKeys)
+                      end, ListenerKeys)
+    end.
 
 -spec module_config_changed(config_changes()) -> boolean().
 module_config_changed({Changed, New, Removed}) ->
@@ -565,6 +577,12 @@ apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
             ?LOG_INFO("Applied new logging configuration");
         false ->
             ?LOG_DEBUG("Logging configuration unchanged")
+    end,
+    case relay_config_changed(ConfigChanges) of
+        true ->
+            log_relay_addresses();
+        false ->
+            ok
     end,
     State1 = case module_config_changed(ConfigChanges) of
                  true ->
