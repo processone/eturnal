@@ -112,10 +112,10 @@ handle_call(reload, _From, State) ->
                 ok ->
                     ok = fast_tls:clear_cache(),
                     ?LOG_INFO("Using new TLS certificate");
-                unmodified ->
+                unchanged ->
                     ?LOG_DEBUG("TLS certificate unchanged")
             catch exit:Reason ->
-                    abort(Reason)
+                    ?LOG_ERROR(format_error(Reason))
             end,
             ?LOG_DEBUG("Reloaded configuration"),
             {reply, ok, State};
@@ -173,16 +173,16 @@ handle_info(Info, State) ->
 terminate(Reason, State) ->
     ?LOG_DEBUG("Terminating ~s (~p)", [?MODULE, Reason]),
     try stop_listeners(State)
-    catch exit:Reason ->
-            ?LOG_ERROR(format_error(Reason))
+    catch exit:Reason1 ->
+            ?LOG_ERROR(format_error(Reason1))
     end,
     try stop_modules(State)
-    catch exit:Reason ->
-            ?LOG_ERROR(format_error(Reason))
+    catch exit:Reason2 ->
+            ?LOG_ERROR(format_error(Reason2))
     end,
     try clean_run_dir()
-    catch exit:Reason ->
-            ?LOG_ERROR(format_error(Reason))
+    catch exit:Reason3 ->
+            ?LOG_ERROR(format_error(Reason3))
     end,
     _ = eturnal_module:terminate(),
     ok.
@@ -507,6 +507,132 @@ check_proxy_config() ->
 
 %% Internal functions: configuration reload.
 
+-spec apply_config_changes(state(), config_changes()) -> state() | no_return().
+apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
+    if length(Changed) > 0 ->
+            ?LOG_DEBUG("Changed options: ~p", [Changed]);
+       length(Changed) =:= 0 ->
+            ?LOG_DEBUG("No changed options")
+    end,
+    if length(Removed) > 0 ->
+            ?LOG_DEBUG("Removed options: ~p", [Removed]);
+       length(Removed) =:= 0 ->
+            ?LOG_DEBUG("No removed options")
+    end,
+    if length(New) > 0 ->
+            ?LOG_DEBUG("New options: ~p", [New]);
+       length(New) =:= 0 ->
+            ?LOG_DEBUG("No new options")
+    end,
+    try apply_logging_config_changes(ConfigChanges) of
+        ok ->
+            ?LOG_INFO("Using new logging configuration");
+        unchanged ->
+            ?LOG_DEBUG("Logging configuration unchanged")
+    catch exit:Reason1 ->
+            ?LOG_ERROR(format_error(Reason1))
+    end,
+    try apply_run_dir_config_changes(ConfigChanges) of
+        ok ->
+            ?LOG_INFO("Using new run directory configuration");
+        unchanged ->
+            ?LOG_DEBUG("Run directory configuration unchanged")
+    catch exit:Reason2 ->
+            ?LOG_ERROR(format_error(Reason2))
+    end,
+    try apply_relay_config_changes(ConfigChanges) of
+        ok ->
+            ?LOG_INFO("Using new TURN relay configuration");
+        unchanged ->
+            ?LOG_DEBUG("TURN relay configuration unchanged")
+    catch exit:Reason3 ->
+            ?LOG_ERROR(format_error(Reason3))
+    end,
+    State1 = try apply_module_config_changes(ConfigChanges, State) of
+                 {ok, NewState1} ->
+                     ?LOG_INFO("Using new module configuration"),
+                     NewState1;
+                 unchanged ->
+                     ?LOG_DEBUG("Module configuration unchanged"),
+                     State
+             catch exit:Reason4 ->
+                     ?LOG_ERROR(format_error(Reason4)),
+                     State
+             end,
+    State2 = try apply_listener_config_changes(ConfigChanges, State) of
+                 {ok, NewState2} ->
+                     ?LOG_INFO("Using new listen configuration"),
+                     NewState2;
+                 unchanged ->
+                     ?LOG_DEBUG("Listen configuration unchanged"),
+                     State1
+             catch exit:Reason5 ->
+                     ?LOG_ERROR(format_error(Reason5)),
+                     State1
+             end,
+    State2.
+
+-spec apply_logging_config_changes(config_changes()) -> ok | unchanged.
+apply_logging_config_changes(ConfigChanges) ->
+    case logging_config_changed(ConfigChanges) of
+        true ->
+            ok = eturnal_logger:reconfigure();
+        false ->
+            unchanged
+    end.
+
+-spec apply_run_dir_config_changes(config_changes()) -> ok | unchanged.
+apply_run_dir_config_changes(ConfigChanges) ->
+    case run_dir_config_changed(ConfigChanges) of
+        true ->
+            ok = ensure_run_dir(),
+            case check_pem_file() of
+                ok ->
+                    ok = fast_tls:clear_cache();
+                unchanged ->
+                    ok
+            end;
+        false ->
+            unchanged
+    end.
+
+-spec apply_relay_config_changes(config_changes()) -> ok | unchanged.
+apply_relay_config_changes(ConfigChanges) ->
+    case relay_config_changed(ConfigChanges) of
+        true ->
+            ok = log_relay_addresses();
+        false ->
+            unchanged
+    end.
+
+-spec apply_module_config_changes(config_changes(), state())
+      -> {ok, state()} | unchanged.
+apply_module_config_changes(ConfigChanges, State) ->
+    case module_config_changed(ConfigChanges) of
+        true ->
+            ok = stop_modules(State),
+            Modules = start_modules(),
+            {ok, State#eturnal_state{modules = Modules}};
+        false ->
+            ?LOG_DEBUG("Module configuration unchanged"),
+            unchanged
+    end.
+
+-spec apply_listener_config_changes(config_changes(), state())
+      -> {ok, state()} | unchanged.
+apply_listener_config_changes(ConfigChanges, State) ->
+    case listener_config_changed(ConfigChanges) of
+        true ->
+            ok = check_turn_config(),
+            ok = check_proxy_config(),
+            ok = stop_listeners(State),
+            ok = timer:sleep(500),
+            Listeners = start_listeners(),
+            {ok, State#eturnal_state{listeners = Listeners}};
+        false ->
+            unchanged
+    end.
+
 -spec logging_config_changed(config_changes()) -> boolean().
 logging_config_changed({Changed, New, Removed}) ->
     ModifiedKeys = proplists:get_keys(Changed ++ New ++ Removed),
@@ -515,6 +641,12 @@ logging_config_changed({Changed, New, Removed}) ->
                    log_rotate_size,
                    log_rotate_count],
     lists:any(fun(Key) -> lists:member(Key, ModifiedKeys) end, LoggingKeys).
+
+-spec run_dir_config_changed(config_changes()) -> boolean().
+run_dir_config_changed({Changed, New, Removed}) ->
+    ModifiedKeys = proplists:get_keys(Changed ++ New ++ Removed),
+    RunDirKeys = [run_dir],
+    lists:any(fun(Key) -> lists:member(Key, ModifiedKeys) end, RunDirKeys).
 
 -spec relay_config_changed(config_changes()) -> boolean().
 relay_config_changed({Changed, New, Removed}) ->
@@ -527,7 +659,8 @@ relay_config_changed({Changed, New, Removed}) ->
 
 -spec listener_config_changed(config_changes()) -> boolean().
 listener_config_changed({Changed, New, Removed} = ConfigChanges) ->
-    case relay_config_changed(ConfigChanges) of
+    case relay_config_changed(ConfigChanges) or
+         run_dir_config_changed(ConfigChanges) of
         true ->
             true;
         false ->
@@ -554,72 +687,13 @@ module_config_changed({Changed, New, Removed}) ->
     ModuleKeys = [modules],
     lists:any(fun(Key) -> lists:member(Key, ModifiedKeys) end, ModuleKeys).
 
--spec apply_config_changes(state(), config_changes()) -> state() | no_return().
-apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
-    if length(Changed) > 0 ->
-            ?LOG_DEBUG("Changed options: ~p", [Changed]);
-       length(Changed) =:= 0 ->
-            ?LOG_DEBUG("No changed options")
-    end,
-    if length(Removed) > 0 ->
-            ?LOG_DEBUG("Removed options: ~p", [Removed]);
-       length(Removed) =:= 0 ->
-            ?LOG_DEBUG("No removed options")
-    end,
-    if length(New) > 0 ->
-            ?LOG_DEBUG("New options: ~p", [New]);
-       length(New) =:= 0 ->
-            ?LOG_DEBUG("No new options")
-    end,
-    case logging_config_changed(ConfigChanges) of
-        true ->
-            ok = eturnal_logger:reconfigure(),
-            ?LOG_INFO("Applied new logging configuration");
-        false ->
-            ?LOG_DEBUG("Logging configuration unchanged")
-    end,
-    case relay_config_changed(ConfigChanges) of
-        true ->
-            log_relay_addresses();
-        false ->
-            ok
-    end,
-    State1 = case module_config_changed(ConfigChanges) of
-                 true ->
-                     try {stop_modules(State), start_modules()} of
-                         {ok, Modules} ->
-                             ?LOG_INFO("Applied new module configuration"),
-                             State#eturnal_state{modules = Modules}
-                     catch exit:Reason1 ->
-                             abort(Reason1)
-                     end;
-                 false ->
-                     ?LOG_DEBUG("Module configuration unchanged"),
-                     State
-             end,
-    State2 = case listener_config_changed(ConfigChanges) of
-                 true ->
-                     try {stop_listeners(State), timer:sleep(500),
-                          start_listeners()} of
-                         {ok, ok, Listeners} ->
-                             ?LOG_INFO("Applied new listen configuration"),
-                             State1#eturnal_state{listeners = Listeners}
-                     catch exit:Reason2 ->
-                             abort(Reason2)
-                     end;
-                 false ->
-                     ?LOG_DEBUG("Listen configuration unchanged"),
-                     State1
-             end,
-    State2.
-
 %% Internal functions: PEM file handling.
 
 -spec get_pem_file_path() -> file:filename_all().
 get_pem_file_path() ->
     filename:join(get_opt(run_dir), <<?PEM_FILE_NAME>>).
 
--spec check_pem_file() -> ok | unmodified.
+-spec check_pem_file() -> ok | unchanged.
 check_pem_file() ->
     case tls_enabled() of
         true ->
@@ -627,7 +701,7 @@ check_pem_file() ->
             case {get_opt(tls_crt_file), filelib:last_modified(OutFile)} of
                 {none, OutTime} when OutTime =/= 0 ->
                     ?LOG_DEBUG("Keeping PEM file (~ts)", [OutFile]),
-                    unmodified;
+                    unchanged;
                 {none, OutTime} when OutTime =:= 0 ->
                     ?LOG_WARNING("TLS enabled without 'tls_crt_file', creating "
                                  "self-signed certificate"),
@@ -636,7 +710,7 @@ check_pem_file() ->
                     case filelib:last_modified(CrtFile) of
                         CrtTime when CrtTime =< OutTime ->
                             ?LOG_DEBUG("Keeping PEM file (~ts)", [OutFile]),
-                            unmodified;
+                            unchanged;
                         CrtTime when CrtTime =/= 0 -> % Assert to be true.
                             ?LOG_DEBUG("Updating PEM file (~ts)", [OutFile]),
                             ok = import_pem_file(CrtFile, OutFile)
@@ -644,7 +718,7 @@ check_pem_file() ->
             end;
         false ->
             ?LOG_DEBUG("TLS not enabled, ignoring certificate configuration"),
-            unmodified
+            unchanged
     end.
 
 -spec import_pem_file(binary(), file:filename_all()) -> ok.
@@ -755,9 +829,13 @@ format(Fmt, Data) ->
 -ifdef(EUNIT).
 config_change_test_() ->
     [?_assert(logging_config_changed({[{log_level, info}], [], []})),
+     ?_assert(run_dir_config_changed({[{run_dir, <<"run">>}], [], []})),
+     ?_assert(relay_config_changed({[{relay_min_port, 50000}], [], []})),
      ?_assert(listener_config_changed({[{max_bps, 42}], [], []})),
      ?_assert(module_config_changed({[{modules, []}], [], []})),
      ?_assertNot(logging_config_changed({[{strict_expiry, false}], [], []})),
+     ?_assertNot(run_dir_config_changed({[{strict_expiry, false}], [], []})),
+     ?_assertNot(relay_config_changed({[{strict_expiry, false}], [], []})),
      ?_assertNot(listener_config_changed({[{strict_expiry, false}], [], []})),
      ?_assertNot(module_config_changed({[{strict_expiry, false}], [], []}))].
 -endif.
