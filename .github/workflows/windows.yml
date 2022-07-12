@@ -4,6 +4,7 @@ on:
   push:
     paths-ignore:
       - '*.md'
+      - 'docker-k8s/**'
 
 jobs:
   installer:

@@ -4,9 +4,11 @@ on:
   push:
     paths-ignore:
       - '*.md'
+      - 'docker-k8s/**'
   pull_request:
     paths-ignore:
       - '*.md'
+      - 'docker-k8s/**'
 
 jobs:
   test:
