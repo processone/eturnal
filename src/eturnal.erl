@@ -614,7 +614,6 @@ apply_module_config_changes(ConfigChanges, State) ->
             Modules = start_modules(),
             {ok, State#eturnal_state{modules = Modules}};
         false ->
-            ?LOG_DEBUG("Module configuration unchanged"),
             unchanged
     end.
 
