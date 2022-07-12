@@ -800,8 +800,8 @@ format(Fmt, Data) ->
     case unicode:characters_to_binary(io_lib:format(Fmt, Data)) of
         Bin when is_binary(Bin) ->
             Bin;
-        _ ->
-            <<"(Cannot format string)">>
+        {_, _, _} = Err ->
+            erlang:error(Err)
     end.
 
 %% EUnit tests.
