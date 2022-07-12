@@ -524,67 +524,45 @@ apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
        length(New) =:= 0 ->
             ?LOG_DEBUG("No new options")
     end,
-    try apply_logging_config_changes(ConfigChanges) of
-        ok ->
-            ?LOG_INFO("Using new logging configuration");
-        unchanged ->
-            ?LOG_DEBUG("Logging configuration unchanged")
+    try apply_logging_config_changes(ConfigChanges)
     catch exit:Reason1 ->
             ?LOG_ERROR(format_error(Reason1))
     end,
-    try apply_run_dir_config_changes(ConfigChanges) of
-        ok ->
-            ?LOG_INFO("Using new run directory configuration");
-        unchanged ->
-            ?LOG_DEBUG("Run directory configuration unchanged")
+    try apply_run_dir_config_changes(ConfigChanges)
     catch exit:Reason2 ->
             ?LOG_ERROR(format_error(Reason2))
     end,
-    try apply_relay_config_changes(ConfigChanges) of
-        ok ->
-            ?LOG_INFO("Using new TURN relay configuration");
-        unchanged ->
-            ?LOG_DEBUG("TURN relay configuration unchanged")
+    try apply_relay_config_changes(ConfigChanges)
     catch exit:Reason3 ->
             ?LOG_ERROR(format_error(Reason3))
     end,
-    State1 = try apply_module_config_changes(ConfigChanges, State) of
-                 {ok, NewState1} ->
-                     ?LOG_INFO("Using new module configuration"),
-                     NewState1;
-                 unchanged ->
-                     ?LOG_DEBUG("Module configuration unchanged"),
-                     State
+    State1 = try apply_module_config_changes(ConfigChanges, State)
              catch exit:Reason4 ->
                      ?LOG_ERROR(format_error(Reason4)),
                      State
              end,
-    State2 = try apply_listener_config_changes(ConfigChanges, State) of
-                 {ok, NewState2} ->
-                     ?LOG_INFO("Using new listen configuration"),
-                     NewState2;
-                 unchanged ->
-                     ?LOG_DEBUG("Listen configuration unchanged"),
-                     State1
+    State2 = try apply_listener_config_changes(ConfigChanges, State)
              catch exit:Reason5 ->
                      ?LOG_ERROR(format_error(Reason5)),
                      State1
              end,
     State2.
 
--spec apply_logging_config_changes(config_changes()) -> ok | unchanged.
+-spec apply_logging_config_changes(config_changes()) -> ok.
 apply_logging_config_changes(ConfigChanges) ->
     case logging_config_changed(ConfigChanges) of
         true ->
+            ?LOG_INFO("Using new logging configuration"),
             ok = eturnal_logger:reconfigure();
         false ->
-            unchanged
+            ?LOG_DEBUG("Logging configuration unchanged")
     end.
 
--spec apply_run_dir_config_changes(config_changes()) -> ok | unchanged.
+-spec apply_run_dir_config_changes(config_changes()) -> ok.
 apply_run_dir_config_changes(ConfigChanges) ->
     case run_dir_config_changed(ConfigChanges) of
         true ->
+            ?LOG_INFO("Using new run directory configuration"),
             ok = ensure_run_dir(),
             case check_pem_file() of
                 ok ->
@@ -593,43 +571,46 @@ apply_run_dir_config_changes(ConfigChanges) ->
                     ok
             end;
         false ->
-            unchanged
+            ?LOG_DEBUG("Run directory configuration unchanged")
     end.
 
--spec apply_relay_config_changes(config_changes()) -> ok | unchanged.
+-spec apply_relay_config_changes(config_changes()) -> ok.
 apply_relay_config_changes(ConfigChanges) ->
     case relay_config_changed(ConfigChanges) of
         true ->
+            ?LOG_INFO("Using new TURN relay configuration"),
             ok = log_relay_addresses();
         false ->
-            unchanged
+            ?LOG_DEBUG("TURN relay configuration unchanged")
     end.
 
--spec apply_module_config_changes(config_changes(), state())
-      -> {ok, state()} | unchanged.
+-spec apply_module_config_changes(config_changes(), state()) -> state().
 apply_module_config_changes(ConfigChanges, State) ->
     case module_config_changed(ConfigChanges) of
         true ->
+            ?LOG_INFO("Using new module configuration"),
             ok = stop_modules(State),
             Modules = start_modules(),
-            {ok, State#eturnal_state{modules = Modules}};
+            State#eturnal_state{modules = Modules};
         false ->
-            unchanged
+            ?LOG_DEBUG("Module configuration unchanged"),
+            State
     end.
 
--spec apply_listener_config_changes(config_changes(), state())
-      -> {ok, state()} | unchanged.
+-spec apply_listener_config_changes(config_changes(), state()) -> state().
 apply_listener_config_changes(ConfigChanges, State) ->
     case listener_config_changed(ConfigChanges) of
         true ->
+            ?LOG_INFO("Using new listener configuration"),
             ok = check_turn_config(),
             ok = check_proxy_config(),
             ok = stop_listeners(State),
             ok = timer:sleep(500),
             Listeners = start_listeners(),
-            {ok, State#eturnal_state{listeners = Listeners}};
+            State#eturnal_state{listeners = Listeners};
         false ->
-            unchanged
+            ?LOG_DEBUG("Listener configuration unchanged"),
+            State
     end.
 
 -spec logging_config_changed(config_changes()) -> boolean().
