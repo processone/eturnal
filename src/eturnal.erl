@@ -722,7 +722,7 @@ format_error({dependency_failure, Mod, Dep}) ->
     format("Dependency ~s is missing; install it below ~s, or point ERL_LIBS "
            "to it, or disable ~s", [Dep, code:lib_dir(), Mod]);
 format_error({listener_failure, Action, IP, Port, Transport, Reason}) ->
-    format("Cannot ~s listening on ~s (~s): ~p",
+    format("Cannot ~s listening on ~s (~s): ~s",
            [Action, eturnal_misc:addr_to_str(IP, Port), Transport,
             inet:format_error(Reason)]);
 format_error({run_dir_failure, Action, RunDir, Reason}) ->
