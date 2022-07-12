@@ -77,7 +77,7 @@ start_link() ->
 
 %% API: gen_server callbacks.
 
--spec init(any()) -> {ok, state()} | no_return().
+-spec init(any()) -> {ok, state()}.
 init(_Opts) ->
     process_flag(trap_exit, true),
     ok = eturnal_module:init(),
@@ -154,7 +154,7 @@ handle_call(Request, From, State) ->
 
 -spec handle_cast({config_change, config_changes(),
                    fun(() -> ok), fun(() -> ok)} | term(), state())
-      -> {noreply, state()} | no_return().
+      -> {noreply, state()}.
 handle_cast({config_change, Changes, BeginFun, EndFun}, State) ->
     ok = BeginFun(),
     State1 = apply_config_changes(State, Changes),
@@ -507,7 +507,7 @@ check_proxy_config() ->
 
 %% Internal functions: configuration reload.
 
--spec apply_config_changes(state(), config_changes()) -> state() | no_return().
+-spec apply_config_changes(state(), config_changes()) -> state().
 apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
     if length(Changed) > 0 ->
             ?LOG_DEBUG("Changed options: ~p", [Changed]);

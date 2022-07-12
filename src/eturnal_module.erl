@@ -200,7 +200,7 @@ get_opt(Mod, Opt) ->
     #{Mod := #{Opt := Val}} = eturnal:get_opt(modules),
     Val.
 
--spec ensure_deps(module(), [dep()]) -> ok | no_return().
+-spec ensure_deps(module(), [dep()]) -> ok.
 ensure_deps(Mod, Deps) ->
     lists:foreach(fun(Dep) -> ok = ensure_dep(Mod, Dep) end, Deps).
 
@@ -276,7 +276,7 @@ get_subscribers(Event) ->
     persistent_term:get(?e(Event), []).
 -endif.
 
--spec ensure_dep(module(), dep()) -> ok | no_return().
+-spec ensure_dep(module(), dep()) -> ok.
 ensure_dep(Mod, Dep) ->
     case application:ensure_all_started(Dep) of
         {ok, _Apps} ->

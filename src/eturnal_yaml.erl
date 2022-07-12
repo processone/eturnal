@@ -188,7 +188,7 @@ check_overlapping_listeners(Listeners) ->
 
 -spec check_overlapping_listeners([listener()],
                                   fun(([listener()]) -> [listener()]))
-      -> ok | no_return().
+      -> ok.
 check_overlapping_listeners(Listeners, PrepareFun) ->
     _ = lists:foldl(
           fun({IP, Port, Transport, _ProxyProtocol, _EnableTURN} = Listener,
@@ -227,7 +227,7 @@ format_listener({IP, Port, Transport, _ProxyProtocol, _EnableTURN}) ->
     Addr = eturnal_misc:addr_to_str(IP, Port),
     list_to_binary(io_lib:format("~s (~s)", [Addr, Transport])).
 
--spec check_relay_addr(inet:ip_address()) -> inet:ip_address() | no_return().
+-spec check_relay_addr(inet:ip_address()) -> inet:ip_address().
 check_relay_addr({0, 0, 0, 0} = Addr) ->
     fail({bad_ip, inet:ntoa(Addr)});
 check_relay_addr({_, _, _, _} = Addr) ->
@@ -237,7 +237,7 @@ check_relay_addr({0, 0, 0, 0, 0, 0, 0, 0} = Addr) ->
 check_relay_addr({_, _, _, _, _, _, _, _} = Addr) ->
     Addr.
 
--spec get_default_addr(family()) -> inet:ip_address() | undefined | no_return().
+-spec get_default_addr(family()) -> inet:ip_address() | undefined.
 get_default_addr(Family) ->
     {Vsn, Opt, ParseAddr, MyAddr} =
         case Family of
