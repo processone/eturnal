@@ -18,7 +18,9 @@ project adheres to [Semantic Versioning][SemVer].
   `ENV` variable or a configuration file).
 
 ### Changed
-- Apply minor logging improvements.
+- Omit the code location from log messages, except when debug logging is
+  enabled.
+- Apply other minor logging improvements.
 - Docker: Reduce image size. IMPORTANT: A custom `eturnal.yml` config file should 
   be mounted to the default path `/etc/eturnal.yml` or to a custom path defined with 
   `ETURNAL_ETC_PREFIX` as mounting it to eturnal's home directory etc path 

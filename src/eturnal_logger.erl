@@ -29,6 +29,7 @@
 -export_type([level/0]).
 
 -include_lib("kernel/include/logger.hrl").
+-define(ETURNAL_HANDLER, eturnal_log).
 -define(LOG_FILE_NAME, "eturnal.log").
 -define(VALID_LEVELS, [critical, error, warning, notice, info, debug]).
 
@@ -75,9 +76,9 @@ progress_filter(_Event, _Extra) ->
 -spec reconfigure() -> ok.
 reconfigure() ->
     Config = get_config(),
-    case logger:get_handler_config(eturnal_log) of
+    case logger:get_handler_config(?ETURNAL_HANDLER) of
         {ok, _OldConfig} ->
-            case logger:set_handler_config(eturnal_log, config, Config) of
+            case logger:set_handler_config(?ETURNAL_HANDLER, config, Config) of
                 ok ->
                     ok;
                 {error, {illegal_config_change, _, _, _}} ->
@@ -100,7 +101,9 @@ get_level() ->
 
 -spec set_level(level()) -> ok.
 set_level(Level) ->
-    ok = logger:set_primary_config(level, Level).
+    ok = logger:set_primary_config(level, Level),
+    ok = logger:update_formatter_config(
+           ?ETURNAL_HANDLER, template, format_template()).
 
 %% Internal functions.
 
@@ -108,8 +111,7 @@ set_level(Level) ->
 init(Config) ->
     FmtConfig = #{time_designator => $\s,
                   max_size => 100 * 1024,
-                  single_line => false,
-                  template => format_template()},
+                  single_line => false},
     case logger:add_primary_filter(progress_report,
                                    {fun ?MODULE:progress_filter/2, stop}) of
         ok ->
@@ -117,7 +119,7 @@ init(Config) ->
         {error, {already_exist, _}} ->
             ok
     end,
-    case logger:add_handler(eturnal_log, logger_std_h,
+    case logger:add_handler(?ETURNAL_HANDLER, logger_std_h,
                             #{level => all,
                               config => Config,
                               formatter => {logger_formatter, FmtConfig}}) of
@@ -175,7 +177,9 @@ get_log_file() ->
 
 -spec set_level() -> ok.
 set_level() ->
-    ok = set_level(eturnal:get_opt(log_level)).
+    ok = set_level(eturnal:get_opt(log_level)),
+    ok = logger:update_formatter_config(
+           ?ETURNAL_HANDLER, template, format_template()).
 
 -spec logging_to_journal() -> boolean().
 logging_to_journal() ->
@@ -184,7 +188,7 @@ logging_to_journal() ->
 
 -spec format_template() -> template().
 format_template() ->
-    format_prefix() ++ format_message().
+    format_prefix() ++ format_message() ++ format_suffix().
 
 -spec format_prefix() -> template().
 format_prefix() ->
@@ -200,10 +204,18 @@ format_message() ->
     % For progress reports:
     [{logger_formatter, [[logger_formatter, title], ":", io_lib:nl()], []},
     % The actual log message:
-     msg,
-    % Append (Module:Function/Arity and maybe :Line), if available:
-     {mfa, [" (", mfa, {line, [":", line], []}, ")"], []},
-     io_lib:nl()].
+     msg].
+
+-spec format_suffix() -> template().
+format_suffix() ->
+    case get_level() of
+        debug ->
+            % Append (Module:Function/Arity and maybe :Line), if available:
+            [{mfa, [" (", mfa, {line, [":", line], []}, ")"], []},
+             io_lib:nl()];
+        _Level ->
+            [io_lib:nl()]
+    end.
 
 -spec configure_default_handler() -> ok.
 configure_default_handler() ->
@@ -228,4 +240,4 @@ terminate() ->
     ok = flush(),
     ok = logger:set_handler_config(default, level, notice),
     ok = logger:remove_primary_filter(progress_report),
-    ok = logger:remove_handler(eturnal_log).
+    ok = logger:remove_handler(?ETURNAL_HANDLER).
