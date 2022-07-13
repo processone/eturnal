@@ -45,7 +45,6 @@ docker run -d --rm \
 ```shell
 docker run -d --rm \
     --name eturnal \
-    --user 9000:9000 \
     --security-opt no-new-privileges \
     --cap-drop=ALL \
     --read-only \
@@ -60,7 +59,6 @@ As an alternative, since Docker [performs badly with large port ranges](https://
 ```shell
 docker run -d --rm \
     --name eturnal \
-    --user 9000:9000 \
     --security-opt no-new-privileges \
     --cap-drop=ALL \
     --read-only \
@@ -77,7 +75,6 @@ Or use the [host network](https://docs.docker.com/network/host/) by adding `--ne
 ```shell
 docker run -d --rm \
     --name eturnal \
-    --user 9000:9000 \
     --security-opt no-new-privileges \
     --cap-drop=ALL \
     --read-only \
