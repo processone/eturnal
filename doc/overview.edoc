@@ -552,7 +552,8 @@ section: `Environment="ERL_EPMD_ADDRESS=127.0.0.1"').
 === ERL_EPMD_PORT ===
 
 Setting this environment variable tells EPMD to listen on the specified port. By
-default, EPMD listens on port 4369.
+default, EPMD listens on port 4369. `ERL_EPMD_PORT' must be set to the same port
+number during eturnal startup and when calling `eturnalctl'.
 
 === ETURNAL_ETC_PREFIX ===
 
