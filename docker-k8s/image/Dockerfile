@@ -35,13 +35,20 @@ RUN apk update --no-cache \
     && chown -R 9000:9000 $HOME \
 # add runtime packages
     && apk add --no-cache \
+      ca-certificates-bundle \
+      libssl1.1 \
       libstdc++ \
       ncurses-libs \
       tini \
       yaml \
-# remove build dependencies and source files
+      zlib \
+# remove build dependencies, apk packet manager and source files
     && apk del build-deps \
-    && rm -rf $BUILD_DIR \
+    && apk del --repositories-file /dev/null \
+      alpine-keys \
+      apk-tools \
+      libc-utils \
+    && rm -rf $BUILD_DIR /var/cache/apk /lib/apk /etc/apk \
 # eturnalctl link, scripts, and configuration files
     && ln -s $HOME/bin/eturnalctl /usr/local/bin/eturnalctl \
     && echo -e \
