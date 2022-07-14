@@ -1,0 +1,89 @@
+#!{{eturnal_bin_prefix}}/erts-{{release_erts_version}}/bin/escript
+
+%%% Simple STUN client (IPv4-only, UDP-only).
+%%%
+%%% Copyright (c) 2022 Holger Weiss <holger@zedat.fu-berlin.de>.
+%%% Copyright (c) 2022 ProcessOne, SARL.
+%%% All rights reserved.
+%%%
+%%% Licensed under the Apache License, Version 2.0 (the "License");
+%%% you may not use this file except in compliance with the License.
+%%% You may obtain a copy of the License at
+%%%
+%%%     http://www.apache.org/licenses/LICENSE-2.0
+%%%
+%%% Unless required by applicable law or agreed to in writing, software
+%%% distributed under the License is distributed on an "AS IS" BASIS,
+%%% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+%%% See the License for the specific language governing permissions and
+%%% limitations under the License.
+
+-define(STUN_METHOD_BINDING, 16#001).
+-define(STUN_TIMEOUT, timer:seconds(5)).
+-define(STUN_PORT, "3478").
+
+-record(stun, {class,
+               method = ?STUN_METHOD_BINDING,
+               magic = 16#2112a442,
+               trid = 0,
+               raw = <<>>,
+               unsupported = [],
+               'ALTERNATE-SERVER',
+               'CHANNEL-NUMBER',
+               'DATA',
+               'DONT-FRAGMENT' = false,
+               'ERROR-CODE',
+               'LIFETIME',
+               'MAPPED-ADDRESS',
+               'MESSAGE-INTEGRITY',
+               'NONCE',
+               'REALM',
+               'REQUESTED-ADDRESS-FAMILY',
+               'REQUESTED-TRANSPORT',
+               'SOFTWARE',
+               'UNKNOWN-ATTRIBUTES' = [],
+               'USERNAME',
+               'XOR-MAPPED-ADDRESS',
+               'XOR-PEER-ADDRESS' = [],
+               'XOR-RELAYED-ADDRESS'}).
+
+-spec main([string()]) -> any().
+main([Server, Port]) ->
+    query(Server, Port);
+main([Server]) ->
+    query(Server, ?STUN_PORT);
+main(_Args) ->
+    abort("Usage: stun <server> [<port>]").
+
+-spec query(inet:hostname() | inet:ip4_address(), string()) -> any().
+query(Server0, Port0) ->
+    try
+        {ok, Server} = inet:getaddr(Server0, inet),
+        Port = list_to_integer(Port0),
+        TrID = stun:rand_uniform(1 bsl 96),
+        Msg = #stun{method = ?STUN_METHOD_BINDING,
+                    class = request,
+                    trid = TrID},
+        {ok, Sock} = gen_udp:open(0, [binary, {active, false}]),
+        PktOut = stun_codec:encode(Msg),
+        ok = gen_udp:send(Sock, Server, Port, PktOut),
+        {ok, {_, _, PktIn}} = gen_udp:recv(Sock, 0, ?STUN_TIMEOUT),
+        {ok, #stun{trid = TrID,
+                   'XOR-MAPPED-ADDRESS' = {Addr, _}}} =
+            stun_codec:decode(PktIn, datagram),
+        ok = gen_udp:close(Sock),
+        ok = io:put_chars(inet:ntoa(Addr)),
+        ok = io:nl()
+    catch _:E ->
+            abort("Cannot query server: ~p", [E])
+    end.
+
+-spec abort(iolist() | binary() | atom()) -> no_return().
+abort(Data) ->
+    abort("~s", [Data]).
+
+-spec abort(io:format(), [term()]) -> no_return().
+abort(Format, Data) ->
+    ok = io:format(standard_error, Format, Data),
+    ok = io:nl(standard_error),
+    halt(1).
