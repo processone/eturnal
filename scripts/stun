@@ -55,7 +55,7 @@ main([Server]) ->
 main(_Args) ->
     abort("Usage: stun <server> [<port>]").
 
--spec query(inet:hostname() | inet:ip4_address(), string()) -> any().
+-spec query(inet:hostname(), string()) -> any().
 query(Server0, Port0) ->
     try
         {ok, Server} = inet:getaddr(Server0, inet),
@@ -75,7 +75,7 @@ query(Server0, Port0) ->
         ok = io:put_chars(inet:ntoa(Addr)),
         ok = io:nl()
     catch _:E ->
-            abort("Cannot query server: ~p", [E])
+            abort("Cannot query ~s:~s: ~p", [Server0, Port0, E])
     end.
 
 -spec abort(iolist() | binary() | atom()) -> no_return().
