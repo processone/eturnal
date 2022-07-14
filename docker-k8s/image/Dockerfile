@@ -3,7 +3,7 @@ FROM alpine:3.16.0 AS eturnal
 ARG REPOSITORY=https://github.com/processone/eturnal.git
 ARG VERSION=master
 ARG BUILD_DIR=/eturnal
-ARG REBAR_PROFILE=prod
+ARG REBAR_PROFILE=stripped
 # runtime environment variables
 ENV HOME=/opt/eturnal \
     ERL_DIST_PORT=3470
