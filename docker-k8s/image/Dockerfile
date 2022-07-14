@@ -3,6 +3,7 @@ FROM alpine:3.16.0 AS eturnal
 ARG REPOSITORY=https://github.com/processone/eturnal.git
 ARG VERSION=master
 ARG BUILD_DIR=/eturnal
+ARG REBAR_PROFILE=prod
 # runtime environment variables
 ENV HOME=/opt/eturnal \
     ERL_DIST_PORT=3470
@@ -24,16 +25,16 @@ RUN apk update --no-cache \
     && echo "-setcookie eturnal" >> config/vm.args \
     && wget https://s3.amazonaws.com/rebar3/rebar3 \
     && chmod +x rebar3 \
-    && ./rebar3 as prod tar \
-# user and directories
+    && ./rebar3 as $REBAR_PROFILE tar \
+# add runtime user and directories
     && mkdir -p $HOME/log $HOME/run $HOME/tls \
     && cd $HOME \
     && addgroup eturnal -g 9000 \
     && adduser -s /bin/sh -D -u 9000 -h $HOME -G eturnal eturnal \
 # copy eturnal release tarball to eturnal's home
-    && cp $BUILD_DIR/_build/prod/rel/eturnal/eturnal-*.tar.gz $HOME \
+    && cp $BUILD_DIR/_build/$REBAR_PROFILE/rel/eturnal/eturnal-*.tar.gz $HOME \
     && chown -R 9000:9000 $HOME \
-# add runtime packages
+# add/ define runtime packages
     && apk add --no-cache \
       ca-certificates-bundle \
       libssl1.1 \
@@ -42,11 +43,11 @@ RUN apk update --no-cache \
       tini \
       yaml \
       zlib \
-# remove build dependencies, apk packet manager and source files
-    && apk del build-deps \
+# remove build dependencies, apk package manager and source files
     && apk del --repositories-file /dev/null \
       alpine-keys \
       apk-tools \
+      build-deps \
       libc-utils \
     && rm -rf $BUILD_DIR /var/cache/apk /lib/apk /etc/apk \
 # eturnalctl link, scripts, and configuration files
