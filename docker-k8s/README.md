@@ -29,7 +29,7 @@ To pull the image:
 
     docker pull ghcr.io/processone/eturnal:latest
 
-Docker will run a container named `eturnal` in `foreground` mode with default ports published, if started this way:
+Docker will run a container named `eturnal` with the default, non-root user `eturnal` (`uid=9000`) in `foreground` mode with default ports published, if started this way:
 
 ```shell
 docker run -d --rm \
@@ -40,7 +40,7 @@ docker run -d --rm \
   ghcr.io/processone/eturnal:latest
 ```
 
-**Recommended:** The container can also run in a less privileged mode:
+**Recommended:** The container can also run in an unprivileged mode:
 
 ```shell
 docker run -d --rm \
