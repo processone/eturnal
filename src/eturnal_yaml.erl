@@ -299,7 +299,7 @@ get_env_name(Opt) ->
 -spec make_random_secret() -> binary().
 -ifdef(old_rand).
 make_random_secret() ->
-    <<(rand:uniform(16#80000000000000000000000000000000)):128>>.
+    <<(rand:uniform(1 bsl 127)):128>>.
 -else.
 make_random_secret() ->
     rand:bytes(16).
