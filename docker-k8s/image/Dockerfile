@@ -62,7 +62,7 @@ RUN apk update --no-cache \
         \necho -e "  log_dir: stdout" >> $HOME/etc/eturnal.yml \
         \necho -e "  modules:" >> $HOME/etc/eturnal.yml \
         \necho -e "    mod_log_stun: {}" >> $HOME/etc/eturnal.yml \
-        \nexport ETURNAL_RELAY_IPV4_ADDR=${ETURNAL_RELAY_IPV4_ADDR:-$(wget -qO - https://v4.ident.me)} \
+        \nexport ETURNAL_RELAY_IPV4_ADDR=${ETURNAL_RELAY_IPV4_ADDR-$(wget -qO - https://v4.ident.me)} \
         \nexec "$@"' > /usr/local/bin/run.sh \
     && chmod +x /usr/local/bin/run.sh
 
