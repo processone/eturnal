@@ -107,7 +107,7 @@ eturnal may also be configured by specifying certain environment variables, see 
 **Note:** 
 
 * For logs to be printed with the `docker logs` command, `log_dir:` should be set to `stdout` in `eturnal.yml`.
-* The container attempts to autodetect the `relay_ipv4_address` using an external HTTPS service. If that fails, consider defining it either within a mounted `eturnal.yml` file or with the `ETURNAL_RELAY_IPV4_ADDR` environment variable to enable the TURN service. This applies for the IPv6 address as well.
+* The container attempts to autodetect the `relay_ipv4_address` using an external HTTPS service. If that fails, consider defining it either within a mounted `eturnal.yml` file or with the `ETURNAL_RELAY_IPV4_ADDR` environment variable to enable the TURN service. If the external HTTPS lookup is not desired, specify an empty `ETURNAL_RELAY_IPV4_ADDR=""` variable in the `docker run` command. 
 
 ## Custom TLS certificates and dh-parameter file
 
