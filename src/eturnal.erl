@@ -340,11 +340,13 @@ start_listeners() ->
               ?LOG_DEBUG("Starting listener ~s (~s) with options:~n~p",
                          [eturnal_misc:addr_to_str(IP, Port), Transport,
                           Opts3]),
+              InfoArgs = [eturnal_misc:addr_to_str(IP, Port), Transport,
+                          describe_listener(EnableTURN)],
               case stun_listener:add_listener(IP, Port, Transport, Opts3) of
                   ok ->
-                      ?LOG_INFO("Listening on ~s (~s) (~s)",
-                                [eturnal_misc:addr_to_str(IP, Port), Transport,
-                                 describe_listener(EnableTURN)]);
+                      ?LOG_INFO("Listening on ~s (~s) (~s)", InfoArgs);
+                  {error, already_started} ->
+                      ?LOG_INFO("Already listening on ~s (~s) (~s)", InfoArgs);
                   {error, Reason} ->
                       exit({listener_failure, start, IP, Port, Transport,
                              Reason})

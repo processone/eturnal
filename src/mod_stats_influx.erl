@@ -39,10 +39,17 @@ start() ->
     ok = eturnal_module:ensure_deps(?MODULE, [influx_udp]),
     Host = eturnal_module:get_opt(?MODULE, host),
     Port = eturnal_module:get_opt(?MODULE, port),
-    {ok, _} = influx_udp:start_pool(?INFLUX_POOL, #{host => Host,
-                                                    port => Port,
-                                                    pool_size => 1}),
-    {ok, [turn_session_stop, stun_query]}.
+    Events = [turn_session_stop, stun_query],
+    case influx_udp:start_pool(?INFLUX_POOL, #{host => Host,
+                                               port => Port,
+                                               pool_size => 1}) of
+        {ok, _} ->
+            {ok, Events};
+        {error, {already_started, _}} ->
+            {ok, Events};
+        {error, Reason} ->
+            exit(Reason)
+    end.
 
 -spec handle_event(eturnal_module:event(), eturnal_module:info()) -> ok.
 handle_event(stun_query, Info) ->
