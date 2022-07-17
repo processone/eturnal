@@ -14,12 +14,12 @@ The image is available as `ghcr.io/processone/eturnal` from [GitHub Packages](ht
 
 ## Tags
 
-`XX.YY.ZZ` represents the official eturnal release, a `-AA` suffix the image version of a particular release in case of any bug fix etc. of the image. Images are available from version `1.9.0` onwards.
+`XX.YY.ZZ` represents the official eturnal release, a `-AA` suffix the image version of a particular release in case of any bug fix etc. of the image. Images are available from version `1.9.1` onwards.
 
 | Tags  | Description  | Additional notes  |
 | ------------ | ------------ | ------------ |
 | `edge`  | Built from `master` branch, see [changelog](https://github.com/processone/eturnal/blob/master/CHANGELOG.md)  | For testing purposes.  |
-| `1.9.0`, `latest`  | [Release changelog](https://github.com/processone/eturnal/releases/tag/1.9.0)  |   |
+| `1.9.1`, `latest`  | [Release changelog](https://github.com/processone/eturnal/releases/tag/1.9.1)  |   |
 
 Images are scanned daily by [Trivy](https://www.aquasec.com/products/trivy) and, if necessary, the `latest` release will be rebuilt and updated.
 
