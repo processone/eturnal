@@ -125,7 +125,7 @@ by <a href="https://www.enablesecurity.com">Enable Security</a>. (As the latter
 is a superset of the former, there's no point in listing both.) Note that the
 `recommended' addresses include private networks. Therefore, if eturnal is
 supposed to serve clients within a local, private network, that network must be
-exempted from the `recommended` addresses by adding it to the {@section
+exempted from the `recommended' addresses by adding it to the {@section
 whitelist}.
 
 Example:
