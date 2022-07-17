@@ -14,7 +14,7 @@ The image is available as `ghcr.io/processone/eturnal` from [GitHub Packages](ht
 
 ## Tags
 
-`XX.YY.ZZ` represents the official eturnal release, a `-AA` suffix the image version of a particular release in case of any bug fix etc. of the image. Images are available from version `1.9.0` onwards.
+`XX.YY.ZZ` represents the official eturnal release, a `-AA` suffix the image version of a particular release in case of any bug fix etc. of the image.
 
 | Tags  | Description  | Additional notes  |
 | ------------ | ------------ | ------------ |
@@ -54,7 +54,7 @@ docker run -d --rm \
   ghcr.io/processone/eturnal:latest
 ```
 
-As an alternative, since Docker [performs badly with large port ranges](https://github.com/instrumentisto/coturn-docker-image/issues/3), consider decreasing the TURN default port range, e.g. through [environment variables](https://eturnal.net/documentation/#Environment_Variables) (from version `1.9.1` onwards):
+As an alternative, since Docker [performs badly with large port ranges](https://github.com/instrumentisto/coturn-docker-image/issues/3), consider decreasing the TURN default port range, e.g. through [environment variables](https://eturnal.net/documentation/#Environment_Variables):
 
 ```shell
 docker run -d --rm \
