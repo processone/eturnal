@@ -32,6 +32,7 @@ else
 	usage
 fi
 
+export BUILD_DIR='/build'
 export REBAR_COLOR='none'
 
 rel_name='eturnal'
