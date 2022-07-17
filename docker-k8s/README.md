@@ -14,7 +14,7 @@ The image is available as `ghcr.io/processone/eturnal` from [GitHub Packages](ht
 
 ## Tags
 
-`XX.YY.ZZ` represents the official eturnal release, a `-AA` suffix the image version of a particular release in case of any bug fix etc. of the image. Images are available from version `1.9.1` onwards.
+`XX.YY.ZZ` represents the official eturnal release, a `-AA` suffix the image version of a particular release in case of any bug fix etc. of the image. Images are available from version `1.9.0` onwards.
 
 | Tags  | Description  | Additional notes  |
 | ------------ | ------------ | ------------ |
