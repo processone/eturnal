@@ -7,7 +7,7 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Allow for adding the special keywords `default` or `recommended` to the
   `blacklist`. The former expands to the addresses blocked by default, the
-  latter to a number of networks
+  latter includes the former and additionally expands to a number of networks
   [recommended](https://rtcsec.com/article/cve-2020-26262-bypass-of-coturns-access-control-protection/#further-concerns-what-else)
   to be blocked.
 - Fall back to reading the relay port range boundaries from environment
@@ -26,10 +26,11 @@ project adheres to [Semantic Versioning][SemVer].
 - Omit the code location from log messages, except when debug logging is
   enabled.
 - Apply other minor logging improvements.
-- Docker: Reduce image size. IMPORTANT: A custom `eturnal.yml` config file should 
-  be mounted to the default path `/etc/eturnal.yml` or to a custom path defined with 
-  `ETURNAL_ETC_PREFIX` as mounting it to eturnal's home directory etc path 
-  `/opt/eturnal/etc/eturnal.yml` will prevent the container to start successfully.
+- Docker: Reduce image size. IMPORTANT: A custom `eturnal.yml` configuration
+  file should be mounted to the default path `/etc/eturnal.yml` or to a custom
+  path defined with `ETURNAL_ETC_PREFIX`, as mounting it to
+  `/opt/eturnal/etc/eturnal.yml` will prevent the container to start up
+  successfully.
 - Binary release: Update Erlang/OTP from 25.0.2 to 25.0.3.
 - Windows: Update to LibYAML 0.2.5.
 - Windows: Update to OpenSSL 3.0.5.

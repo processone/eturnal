@@ -1,7 +1,6 @@
 {application, eturnal,
  [{description, "STUN/TURN server"},
   {vsn, {cmd, "scripts/get-version"}},
-  {registered, []},
   {mod, {eturnal_app, []}},
   {applications,
    [kernel,
@@ -10,4 +9,5 @@
     stun,
     public_key]},
   {env, []},
+  {registered, []},
   {modules, []}]}.
