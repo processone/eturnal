@@ -31,6 +31,8 @@ project adheres to [Semantic Versioning][SemVer].
   `ETURNAL_ETC_PREFIX` as mounting it to eturnal's home directory etc path 
   `/opt/eturnal/etc/eturnal.yml` will prevent the container to start successfully.
 - Binary release: Update Erlang/OTP from 25.0.2 to 25.0.3.
+- Windows: Update to LibYAML 0.2.5.
+- Windows: Update to OpenSSL 3.0.5.
 
 ## [1.9.0] - 2022-07-07
 ### Added

@@ -15,6 +15,11 @@ jobs:
         uses: actions/checkout@v3
         with: # For scripts/get-version:
           fetch-depth: 0
+      - name: Set up MSVC environment
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Remove GNU link (shadows MS link)
+        run: rm /usr/bin/link.exe
+        shell: bash
       - name: Cache Rebar data
         uses: actions/cache@v3
         with:
@@ -25,6 +30,15 @@ jobs:
         with:
           otp-version: '25.x'
           rebar3-version: '3.x'
+      - name: Install LibYAML
+        run: vcpkg install libyaml:x64-windows-static-md
+      - name: Install OpenSSL
+        run: vcpkg install openssl:x64-windows-static-md
+      - name: Set compiler and linker flags
+        run: |
+          echo CFLAGS=/I"%VCPKG_INSTALLATION_ROOT%\installed\x64-windows-static-md\include" /MD >> %GITHUB_ENV%
+          echo LDFLAGS=/LIBPATH:"%VCPKG_INSTALLATION_ROOT%\installed\x64-windows-static-md\lib" >> %GITHUB_ENV%
+        shell: cmd
       - name: Compile installer
         run: windows/make-installer
         shell: bash

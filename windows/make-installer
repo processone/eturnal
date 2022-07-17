@@ -4,9 +4,10 @@
 
 # The following tools must be in the PATH:
 #
-# - The curl tool.
-# - A few POSIX tools, such as sh, tr, grep, sed, and tar.
-# - Git for Windows (includes curl and the POSIX tools).
+# - Microsoft Visual C++.
+# - The LibYAML and OpenSSL libraries.
+# - A few POSIX tools, such as sh, tr, grep, and sed.
+# - Git for Windows (includes the POSIX tools).
 # - Erlang/OTP.
 # - Rebar3.
 # - Inno Setup.
@@ -38,18 +39,8 @@ fi
 rel_name='eturnal'
 rel_vsn=$(scripts/get-version)
 inno_dep_installer_url='https://github.com/DomGries/InnoDependencyInstaller.git'
-windows_deps_url='https://github.com/processone/eturnal/tarball/windows/deps'
 
 echo "$myself: Creating Windows installer for $rel_name $rel_vsn."
-
-if [ -d '_checkouts' ]
-then
-	echo "$myself: Using checked out $rel_name dependencies ..."
-else
-	echo "$myself: Downloading $rel_name dependencies ..."
-	curl -sSL "$windows_deps_url" |
-	    tar --strip-components=1 --wildcards -xzf - '*/_checkouts/'
-fi
 
 echo "$myself: Editing $rel_name repository files ..."
 sed -i "s|@VERSION@|$rel_vsn|" \
@@ -68,8 +59,19 @@ sed -i 's/$ETURNAL_ETC_PREFIX/@INSTALL_DIR@/' 'config/sys.config'
 echo "$myself: Cleaning $rel_name repository ..."
 rm -rf '_build'
 
+echo "$myself: Switching to Windows branches of $rel_name dependencies ..."
+grep -q 'fast_yaml' 'rebar.config' ||
+  sed -i '/{conf,/a\
+  {fast_tls, {git, "https://github.com/weiss/fast_tls.git", {branch, "windows"}}},\
+  {fast_yaml, {git, "https://github.com/weiss/fast_yaml.git", {branch, "windows"}}},' \
+    'rebar.config'
+rebar3 upgrade 'fast_tls','fast_yaml'
+
 echo "$myself: Building $rel_name release ..."
 REBAR_COLOR='none' rebar3 as stripped release
+
+echo "$myself: Removing LIB and EXP files ..."
+find '_build' '(' -iname '*.lib' -o -iname '*.exp' ')' -delete
 
 if [ -d "../InnoDependencyInstaller" ]
 then
