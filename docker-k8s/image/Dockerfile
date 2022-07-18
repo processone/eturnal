@@ -13,7 +13,7 @@ RUN apk update --no-cache \
 # add build dependencies
     && apk add --no-cache -t build-deps \
       build-base \
-      erlang-dev \
+      erlang-dev --repository https://dl-cdn.alpinelinux.org/alpine/edge/community/ \
       git \
       openssl-dev \
       yaml-dev \

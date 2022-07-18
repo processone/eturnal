@@ -28,8 +28,10 @@ eturnal:
   blacklist:                # This is the default blacklist.
     - "127.0.0.0/8"         # IPv4 loopback.
     - "::1"                 # IPv6 loopback.
-#    - "10.42.0.0/16"
-#    - "10.43.0.0/16"
+    #- recommended          # Expands to a number of networks recommended to be
+                            # blocked, but includes private networks. Those
+                            # would have to be 'whitelist'ed if eturnal serves
+                            # local clients/peers within such networks.
   strict_expiry: false      # This is the default.
   log_level: info           # critical | error | warning | notice | info | debug
   log_rotate_size: 10485760 # 10 MiB (default: unlimited, i.e., no rotation).
