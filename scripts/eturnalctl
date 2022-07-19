@@ -148,6 +148,7 @@ then
 else
     if [ "$(id -u)" = '0' ]
     then
+        cd '/'
         arg="$(printf '%s' "$*" | sed 's/[^[:alnum:][:space:]]/\\&/g')"
         exec su "$user" -c "$cmd $arg"
     else
