@@ -1,4 +1,4 @@
-FROM alpine:3.16.0 AS eturnal
+FROM alpine:3.16.1 AS eturnal
 # build arguments
 ARG REPOSITORY=https://github.com/processone/eturnal.git
 ARG VERSION=master
