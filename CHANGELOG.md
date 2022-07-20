@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Fixed
+- Avoid permission issues in the case where `eturnalctl` was invoked by root
+  from a directory the user running eturnal isn't permitted to change into.
 
 ## [1.9.1] - 2022-07-17
 ### Added
