@@ -7,6 +7,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Fixed
 - Avoid permission issues in the case where `eturnalctl` was invoked by root
   from a directory the user running eturnal isn't permitted to change into.
+- Make sure `eturnalctl daemon` won't hang on the very first startup when using
+  Erlang/OTP 23 or newer.
 
 ## [1.9.1] - 2022-07-17
 ### Added

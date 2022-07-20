@@ -2,3 +2,14 @@ if ! [ -e "$ETURNAL_ETC_PREFIX/etc/eturnal.yml" ]
 then
     export ETURNAL_ETC_PREFIX="$RELEASE_ROOT_DIR"
 fi
+
+# Until https://github.com/erlware/relx/issues/905 is fixed:
+if [ -z "$COOKIE" ]
+then
+    "$ERTS_DIR/bin/erl" \
+        -noinput \
+        -boot 'no_dot_erlang' \
+        -sname 'cookie' \
+        -eval 'halt()' \
+        2>'/dev/null' || :
+fi
