@@ -343,7 +343,7 @@ load_app(App) ->
                 ok
         end
     catch _:Err ->
-              {error, Err}
+            {error, Err}
     end.
 
 %% EUnit tests.
