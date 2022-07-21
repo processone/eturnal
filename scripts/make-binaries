@@ -400,7 +400,6 @@ build_rel()
 	    "$target_dst_dir/bin/$rel_name-$rel_vsn"
 	sed -i 's/^dist_port="${ERL_DIST_PORT:-}"/dist_port="${ERL_DIST_PORT:-3470}"/' \
 	    "$target_dst_dir/bin/${rel_name}ctl"
-	rm "$target_dst_dir/erts-"*'/bin/epmd' # We run don't use EPMD.
 	find "$target_dst_dir/lib" -type f -name 'otp_test_engine.so' \
 	    -delete # Remove shared object file used only in test suite.
 	find "$target_dst_dir/lib/crypto-"* "$target_dst_dir/lib/asn1-"* \
