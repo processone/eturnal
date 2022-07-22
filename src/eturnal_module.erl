@@ -72,7 +72,6 @@
 %%% module configuration options are to be documented in that file as well.
 
 -module(eturnal_module).
--author('holger@zedat.fu-berlin.de').
 -export([init/0,
          terminate/0,
          start/1,

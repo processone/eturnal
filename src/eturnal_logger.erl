@@ -17,7 +17,6 @@
 %%% limitations under the License.
 
 -module(eturnal_logger).
--author('holger@zedat.fu-berlin.de').
 -export([start/0,
          stop/0,
          progress_filter/2,

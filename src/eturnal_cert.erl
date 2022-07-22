@@ -17,7 +17,6 @@
 %%% limitations under the License.
 
 -module(eturnal_cert).
--author('holger@zedat.fu-berlin.de').
 -export([create/1]).
 
 -include_lib("public_key/include/public_key.hrl").

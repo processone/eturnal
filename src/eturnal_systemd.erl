@@ -17,7 +17,6 @@
 %%% limitations under the License.
 
 -module(eturnal_systemd).
--author('holger@zedat.fu-berlin.de').
 -behaviour(gen_server).
 -export([ready/0,
          reloading/0,

@@ -20,7 +20,6 @@
 %%% database.
 
 -module(mod_stats_influx).
--author('dev@zapb.de').
 -behaviour(eturnal_module).
 -export([start/0,
          stop/0,

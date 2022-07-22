@@ -19,7 +19,6 @@
 %%% This module logs STUN queries (or rather, responses).
 
 -module(mod_log_stun).
--author('holger@zedat.fu-berlin.de').
 -behaviour(eturnal_module).
 -export([start/0,
          stop/0,
