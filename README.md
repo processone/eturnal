@@ -53,13 +53,13 @@ eturnal:
   relay_ipv6_addr: "2001:db8::4" # The server's public IPv6 address (optional).
 ```
 
-A more detailed, commented [example configuration][10] is shipped with the
+A more detailed, commented [example configuration][11] is shipped with the
 eturnal server.
 
 ## Running eturnal
 
-On Linux systems, the eturnal server is usually invoked by [systemd][11]. For
-non-systemd platforms, example [init][12] and [OpenRC][13] scripts are shipped
+On Linux systems, the eturnal server is usually invoked by [systemd][12]. For
+non-systemd platforms, example [init][13] and [OpenRC][14] scripts are shipped
 below the `etc` directory.
 
 For controlling eturnal, the `eturnalctl` command can be used; see:
@@ -69,20 +69,20 @@ For controlling eturnal, the `eturnalctl` command can be used; see:
 ## Logging
 
 If eturnal was started by systemd, log files are written into the
-`/var/log/eturnal` directory by default. In order to log to the [journal][14]
+`/var/log/eturnal` directory by default. In order to log to the [journal][15]
 instead, the `log_dir` option can be set to `stdout` in the configuration file.
 
 ## Documentation
 
 For a detailed description of eturnal's configuration options and the
-`eturnalctl` tool, see the [reference documentation][15]. For notable changes
-between eturnal releases, see the [change log][16].
+`eturnalctl` tool, see the [reference documentation][16]. For notable changes
+between eturnal releases, see the [change log][17].
 
 ## Feedback/Support
 
-Please use [our issue tracker][17] for bug reports and feature requests. Feel
+Please use [our issue tracker][18] for bug reports and feature requests. Feel
 free to (ab)use it for usage questions as well. If you happen to be using
-[XMPP][18], you could also join our public channel
+[XMPP][19], you could also join our public channel
 `eturnal@conference.process-one.net`.
 
  [1]: https://github.com/processone/eturnal/actions/workflows/ci.yml
