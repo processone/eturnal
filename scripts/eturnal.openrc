@@ -2,15 +2,24 @@
 
 name="${RC_SVCNAME}"
 command="{{eturnal_bin_prefix}}/bin/${name}ctl"
-command_args="foreground" # Leave backgrounding to start-stop-daemon.
-command_background=true
 extra_started_commands="reload"
 capabilities="^cap_net_bind_service"
-pidfile="/run/$name.pid"
 
 depend() {
 	need net
 	after firewall
+}
+
+start() {
+	ebegin "Starting $name"
+	$command daemon
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping $name"
+	$command stop
+	eend $?
 }
 
 reload() {
