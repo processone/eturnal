@@ -1,0 +1,9 @@
+# logrotate configuration for the eturnal STUN/TURN server.
+
+# If logrotate is used, any log_rotate_* options should be removed from the
+# eturnal.yml file.
+
+/var/log/eturnal/*.log {
+	missingok
+	delaycompress
+}

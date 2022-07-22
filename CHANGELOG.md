@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Added
+- Include an example configuration for logrotate.
+
 ### Changed
 - If an EPMD process was spawned, stop it on shutdown, unless it's used by other
   Erlang nodes. (If eturnal was started by systemd and EPMD isn't controlled by
