@@ -1,7 +1,6 @@
 #!/sbin/openrc-run
 
-name="${RC_SVCNAME}"
-command="{{eturnal_bin_prefix}}/bin/${name}ctl"
+command="{{eturnal_bin_prefix}}/bin/${RC_SVCNAME}ctl"
 extra_started_commands="reload"
 capabilities="^cap_net_bind_service"
 
@@ -11,19 +10,19 @@ depend() {
 }
 
 start() {
-	ebegin "Starting $name"
+	ebegin "Starting $RC_SVCNAME"
 	$command daemon
 	eend $?
 }
 
 stop() {
-	ebegin "Stopping $name"
+	ebegin "Stopping $RC_SVCNAME"
 	$command stop
 	eend $?
 }
 
 reload() {
-	ebegin "Reloading $name"
+	ebegin "Reloading $RC_SVCNAME"
 	$command reload
 	eend $?
 }
