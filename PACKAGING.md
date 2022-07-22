@@ -65,9 +65,9 @@ moved, systemd/init must be pointed to the new path.
 
 The `_build/distro/rel/eturnal/etc` directory holds a [sample configuration
 file][9], which can be installed into `/etc`. It also contains a [systemd
-unit][10] and an [init script][11] example. The [LICENSE.txt][12] file can be
-found in the `_build/distro/rel/eturnal/doc` directory. Other directories
-created below the `_build` folder can be ignored.
+unit][10] and examples for [SysV init][11] and [OpenRC][12] scripts. The
+[LICENSE.txt][13] file can be found in the `_build/distro/rel/eturnal/doc`
+directory. Other directories created below the `_build` folder can be ignored.
 
  [1]: https://erlang.org/doc/design_principles/release_structure.html
  [2]: https://rebar3.org
@@ -80,4 +80,5 @@ created below the `_build` folder can be ignored.
  [9]: https://github.com/processone/eturnal/blob/master/config/eturnal.yml
 [10]: https://github.com/processone/eturnal/blob/master/config/eturnal.service
 [11]: https://github.com/processone/eturnal/blob/master/scripts/eturnal.init
-[12]: https://github.com/processone/eturnal/blob/master/LICENSE
+[12]: https://github.com/processone/eturnal/blob/master/scripts/eturnal.openrc
+[13]: https://github.com/processone/eturnal/blob/master/LICENSE

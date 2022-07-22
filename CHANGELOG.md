@@ -6,6 +6,7 @@ project adheres to [Semantic Versioning][SemVer].
 ## [Unreleased]
 ### Added
 - Include an example configuration for logrotate.
+- Include an example OpenRC init (and configuration) file.
 
 ### Changed
 - If an EPMD process was spawned, stop it on shutdown, unless it's used by other

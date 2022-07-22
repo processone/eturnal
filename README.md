@@ -59,8 +59,8 @@ eturnal server.
 ## Running eturnal
 
 On Linux systems, the eturnal server is usually invoked by [systemd][11]. For
-non-systemd platforms, an [example init script][12] is shipped in the
-`etc/init.d` directory.
+non-systemd platforms, example [init][12] and [OpenRC][13] scripts are shipped
+below the `etc` directory.
 
 For controlling eturnal, the `eturnalctl` command can be used; see:
 
@@ -69,20 +69,20 @@ For controlling eturnal, the `eturnalctl` command can be used; see:
 ## Logging
 
 If eturnal was started by systemd, log files are written into the
-`/var/log/eturnal` directory by default. In order to log to the [journal][13]
+`/var/log/eturnal` directory by default. In order to log to the [journal][14]
 instead, the `log_dir` option can be set to `stdout` in the configuration file.
 
 ## Documentation
 
 For a detailed description of eturnal's configuration options and the
-`eturnalctl` tool, see the [reference documentation][14]. For notable changes
-between eturnal releases, see the [change log][15].
+`eturnalctl` tool, see the [reference documentation][15]. For notable changes
+between eturnal releases, see the [change log][16].
 
 ## Feedback/Support
 
-Please use [our issue tracker][16] for bug reports and feature requests. Feel
+Please use [our issue tracker][17] for bug reports and feature requests. Feel
 free to (ab)use it for usage questions as well. If you happen to be using
-[XMPP][17], you could also join our public channel
+[XMPP][18], you could also join our public channel
 `eturnal@conference.process-one.net`.
 
  [1]: https://github.com/processone/eturnal/actions/workflows/ci.yml
@@ -98,8 +98,9 @@ free to (ab)use it for usage questions as well. If you happen to be using
 [11]: https://github.com/processone/eturnal/blob/1.9.1/config/eturnal.yml
 [12]: https://www.freedesktop.org/software/systemd/man/systemctl.html
 [13]: https://github.com/processone/eturnal/blob/1.9.1/scripts/eturnal.init
-[14]: https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html
-[15]: https://eturnal.net/documentation/
-[16]: https://github.com/processone/eturnal/blob/1.9.1/CHANGELOG.md
-[17]: https://github.com/processone/eturnal/issues
-[18]: https://xmpp.org
+[14]: https://github.com/processone/eturnal/blob/1.9.1/scripts/eturnal.openrc
+[15]: https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html
+[16]: https://eturnal.net/documentation/
+[17]: https://github.com/processone/eturnal/blob/1.9.1/CHANGELOG.md
+[18]: https://github.com/processone/eturnal/issues
+[19]: https://xmpp.org
