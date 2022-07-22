@@ -150,7 +150,7 @@ is_public_addr({169, 254, _, _}) ->
     false;
 is_public_addr({10, _, _, _}) ->
     false;
-is_public_addr({172, D2, _, _}) when D2 >= 16, D2 =< 31->
+is_public_addr({172, D2, _, _}) when D2 >= 16, D2 =< 31 ->
     false;
 is_public_addr({192, 168, _, _}) ->
     false;
