@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Changed
+- If an EPMD process was spawned, stop it on shutdown, unless it's used by other
+  Erlang nodes. (If eturnal was started by systemd and EPMD isn't controlled by
+  a separate unit file, this will happen anyway.)
+
 ### Fixed
 - Avoid permission issues in the case where `eturnalctl` was invoked by root
   from a directory the user running eturnal isn't permitted to change into.
