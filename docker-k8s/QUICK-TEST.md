@@ -6,9 +6,9 @@ UDP/TCP port 3478:
 ```
 docker run -d --rm --name eturnal \
   -p 3478:3478 -p 3478:3478/udp \
-  -p 50000-50100:50000-50100/udp \
+  -p 50000-50050:50000-50050/udp \
   -e ETURNAL_RELAY_MIN_PORT=50000 \
-  -e ETURNAL_RELAY_MAX_PORT=50100 \
+  -e ETURNAL_RELAY_MAX_PORT=50050 \
   ghcr.io/processone/eturnal:latest
 ```
 
@@ -20,7 +20,7 @@ The image can be removed with `docker rmi ghcr.io/processone/eturnal:latest`.
 
 - If the system's public IP address cannot be autodetected, it must be defined
   with the environment variable `ETURNAL_RELAY_IPV4_ADDR` within the `docker run` command.
-- The example UDP port range [50000][1]-[50100][2] must be accessible in addition to
+- The example UDP port range [50000][1]-[50050][2] must be accessible in addition to
   port [3478][3].
 - Use `docker exec eturnal eturnalctl credentials` to retrieve a
   temporary username/password.
@@ -33,7 +33,7 @@ The image can be removed with `docker rmi ghcr.io/processone/eturnal:latest`.
 Create the STUN/TURN service, check basic logging and create credentials for TURN authentication.
 
 ```shell
-# docker run -d --rm --name eturnal -p 3478:3478 -p 3478:3478/udp -p 50000-50100:50000-50100/udp -e ETURNAL_RELAY_MIN_PORT=50000 -e ETURNAL_RELAY_MAX_PORT=50100 ghcr.io/processone/eturnal:latest
+# docker run -d --rm --name eturnal -p 3478:3478 -p 3478:3478/udp -p 50000-50050:50000-50050/udp -e ETURNAL_RELAY_MIN_PORT=50000 -e ETURNAL_RELAY_MAX_PORT=50050 ghcr.io/processone/eturnal:latest
 Unable to find image 'ghcr.io/processone/eturnal:latest' locally
 latest: Pulling from processone/eturnal
 2408cc74d12b: Already exists 
@@ -45,7 +45,7 @@ Status: Downloaded newer image for ghcr.io/processone/eturnal:latest
 ##
 # docker logs eturnal | egrep 'Start|IPv4|STUN|TURN'
 2022-07-23 07:06:28.645727+00:00 [notice] Starting eturnal 1.9.1 on Erlang/OTP 24 (ERTS 12.3.1)
-2022-07-23 07:06:28.645951+00:00 [info] Relay IPv4 address: 203.0.113.4 (port range: 50000-50100)
+2022-07-23 07:06:28.645951+00:00 [info] Relay IPv4 address: 203.0.113.4 (port range: 50000-50050)
 2022-07-23 07:06:28.646162+00:00 [info] Started mod_log_stun
 2022-07-23 07:06:28.646349+00:00 [info] Listening on [::]:3478 (udp) (STUN/TURN)
 2022-07-23 07:06:28.646523+00:00 [info] Listening on [::]:3478 (tcp) (STUN/TURN)
