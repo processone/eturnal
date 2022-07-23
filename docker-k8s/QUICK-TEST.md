@@ -18,17 +18,20 @@ The image can be removed with `docker rmi ghcr.io/processone/eturnal:latest`.
 
 ## TURN Setup
 
-- If the system's public IP address cannot be autodetected, it must be specified
-  as an environment variable `ETURNAL_RELAY_IPV4_ADDR` within the `docker run` command.
+- If the system's public IP address cannot be autodetected, it must be defined
+  with the environment variable `ETURNAL_RELAY_IPV4_ADDR` within the `docker run` command.
 - The example UDP port range [50000][1]-[50100][2] must be accessible in addition to
   port [3478][3].
 - Use `docker exec eturnal eturnalctl credentials` to retrieve a
   temporary username/password.
 - Those credentials are invalidated on eturnal restart unless a `secret` was
-  specified with the environment variable `ETURNAL_SECRET` within the `docker run` command before generating them.
+  defined with the environment variable `ETURNAL_SECRET` within the `docker run` command before generating them.
 - Use e.g. [https://icetest.info][4] for a quick connection test.
 
 ## Example workflow
+
+Create the STUN/TURN service, check basic logging and create credentials for TURN authentication.
+
 ```shell
 # docker run -d --rm --name eturnal -p 3478:3478 -p 3478:3478/udp -p 50000-50100:50000-50100/udp -e ETURNAL_RELAY_MIN_PORT=50000 -e ETURNAL_RELAY_MAX_PORT=50100 ghcr.io/processone/eturnal:latest
 Unable to find image 'ghcr.io/processone/eturnal:latest' locally
@@ -42,7 +45,7 @@ Status: Downloaded newer image for ghcr.io/processone/eturnal:latest
 ##
 # docker logs eturnal | egrep 'Start|IPv4|STUN|TURN'
 2022-07-23 07:06:28.645727+00:00 [notice] Starting eturnal 1.9.1 on Erlang/OTP 24 (ERTS 12.3.1)
-2022-07-23 07:06:28.645951+00:00 [info] Relay IPv4 address: 80.68.24.166 (port range: 50000-50100)
+2022-07-23 07:06:28.645951+00:00 [info] Relay IPv4 address: 203.0.113.4 (port range: 50000-50100)
 2022-07-23 07:06:28.646162+00:00 [info] Started mod_log_stun
 2022-07-23 07:06:28.646349+00:00 [info] Listening on [::]:3478 (udp) (STUN/TURN)
 2022-07-23 07:06:28.646523+00:00 [info] Listening on [::]:3478 (tcp) (STUN/TURN)
@@ -65,19 +68,19 @@ Workflow commands during/after connecting to the server, e.g. with [https://icet
 
 ```shell
 # docker logs eturnal | egrep 'request|authentication|allocation'
-2022-07-23 07:10:35.632957+00:00 [info] Responding to STUN request [UDP, session fez426jli6f3, anonymous, client 98.112.234.97:11388]
-2022-07-23 07:10:35.673616+00:00 [info] Responding to STUN request [UDP, session o3y9sx0fb4g4, anonymous, client 98.112.234.97:1836]
-2022-07-23 07:10:35.683408+00:00 [info] Accepting long-term STUN/TURN authentication [UDP, session mszi8d37hm67, user 1658648497, client 98.112.234.97:11388]
-2022-07-23 07:10:35.683830+00:00 [notice] Creating TURN allocation (lifetime: 600 seconds) [UDP, session mszi8d37hm67, user 1658648497, client 98.112.234.97:11388, relay 80.68.24.166:50029]
-2022-07-23 07:10:35.724713+00:00 [info] Accepting long-term STUN/TURN authentication [UDP, session 2jnlheam2zrh, user 1658648497, client 98.112.234.97:1836]
-2022-07-23 07:10:35.725302+00:00 [notice] Creating TURN allocation (lifetime: 599 seconds) [UDP, session 2jnlheam2zrh, user 1658648497, client 98.112.234.97:1836, relay 80.68.24.166:50030]
+2022-07-23 07:10:35.632957+00:00 [info] Responding to STUN request [UDP, session fez426jli6f3, anonymous, client 192.0.2.44:11388]
+2022-07-23 07:10:35.673616+00:00 [info] Responding to STUN request [UDP, session o3y9sx0fb4g4, anonymous, client 192.0.2.44:1836]
+2022-07-23 07:10:35.683408+00:00 [info] Accepting long-term STUN/TURN authentication [UDP, session mszi8d37hm67, user 1658648497, client 192.0.2.44:11388]
+2022-07-23 07:10:35.683830+00:00 [notice] Creating TURN allocation (lifetime: 600 seconds) [UDP, session mszi8d37hm67, user 1658648497, client 192.0.2.44:11388, relay 203.0.113.4:50029]
+2022-07-23 07:10:35.724713+00:00 [info] Accepting long-term STUN/TURN authentication [UDP, session 2jnlheam2zrh, user 1658648497, client 192.0.2.44:1836]
+2022-07-23 07:10:35.725302+00:00 [notice] Creating TURN allocation (lifetime: 599 seconds) [UDP, session 2jnlheam2zrh, user 1658648497, client 192.0.2.44:1836, relay 203.0.113.4:50030]
 ##
 # docker exec eturnal eturnalctl sessions
 2 active TURN sessions:
 
 -- TURN session of 1658648497 --
-          Client: 98.112.234.97:11388 (UDP)
-           Relay: 80.68.24.166:50029 (UDP)
+          Client: 192.0.2.44:11388 (UDP)
+           Relay: 203.0.113.4:50029 (UDP)
    Permission(s): none
          Peer(s): none
             Sent: 0 KiB (0 packets)
@@ -85,8 +88,8 @@ Workflow commands during/after connecting to the server, e.g. with [https://icet
      Running for: 5 seconds
 
 -- TURN session of 1658648497 --
-          Client: 98.112.234.97:1836 (UDP)
-           Relay: 80.68.24.166:50030 (UDP)
+          Client: 192.0.2.44:1836 (UDP)
+           Relay: 203.0.113.4:50030 (UDP)
    Permission(s): none
          Peer(s): none
             Sent: 0 KiB (0 packets)
