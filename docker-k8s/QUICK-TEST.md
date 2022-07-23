@@ -1,14 +1,12 @@
 # Quick Test of eturnal with Docker
 
-On Linux docker hosts, the following commands provide STUN/TURN services on
+On Linux docker hosts, the following command provides STUN/TURN services on
 UDP/TCP port 3478:
 
 ```
 docker run -d --rm --name eturnal \
-  -p 3478:3478 -p 3478:3478/udp \
-  -p 50000-50050:50000-50050/udp \
-  -e ETURNAL_RELAY_MIN_PORT=50000 \
-  -e ETURNAL_RELAY_MAX_PORT=50050 \
+    -p 3478:3478/udp -p 3478:3478 -p 50000-50050:50000-50050/udp \
+    -e ETURNAL_RELAY_MIN_PORT=50000 -e ETURNAL_RELAY_MAX_PORT=50050 \
   ghcr.io/processone/eturnal:latest
 ```
 
