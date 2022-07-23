@@ -26,7 +26,7 @@ The image can be removed with `docker rmi ghcr.io/processone/eturnal:latest`.
   temporary username/password.
 - Those credentials are invalidated on eturnal restart unless a `secret` was
   defined with the environment variable `ETURNAL_SECRET` within the `docker run` command before generating them.
-- Use e.g. [https://icetest.info][4] for a quick connection test.
+- Use e.g. [icetest.info][4] or [trickle ice test][5] for a quick connection test.
 
 ## Example workflow
 
@@ -64,7 +64,7 @@ Username: 1658645797
 Password: VnIk+7J3E7smzET6DytxX00Q+XU=
 ```
 
-Workflow commands during/after connecting to the server, e.g. with [https://icetest.info][4]
+Workflow commands during/after connecting to the server, e.g. with [icetest.info][4] or [trickle ice test][5].
 
 ```shell
 # docker logs eturnal | egrep 'request|authentication|allocation'
@@ -101,3 +101,4 @@ Workflow commands during/after connecting to the server, e.g. with [https://icet
 [2]: https://eturnal.net/documentation/#relay_max_port
 [3]: https://eturnal.net/documentation/#listen
 [4]: https://icetest.info/
+[5]: https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/
