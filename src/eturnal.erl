@@ -113,11 +113,17 @@ handle_call(reload, _From, State) ->
                     ?LOG_INFO("Using new TLS certificate");
                 unchanged ->
                     ?LOG_DEBUG("TLS certificate unchanged")
-            catch exit:Reason ->
-                    ?LOG_ERROR(format_error(Reason))
+            catch exit:Reason1 ->
+                    ?LOG_ERROR(format_error(Reason1))
             end,
-            ?LOG_DEBUG("Reloaded configuration"),
-            {reply, ok, State};
+            try {stop_modules(State), start_modules()} of
+                {ok, Modules} ->
+                    ?LOG_DEBUG("Restarted modules"),
+                    {reply, ok, State#eturnal_state{modules = Modules}}
+            catch exit:Reason2 ->
+                    ?LOG_ERROR(format_error(Reason2)),
+                    {reply, ok, State}
+            end;
         {error, Reason} = Err ->
             ?LOG_ERROR("Cannot reload configuration: ~ts",
                        [conf:format_error(Reason)]),
@@ -537,17 +543,11 @@ apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
     catch exit:Reason3 ->
             ?LOG_ERROR(format_error(Reason3))
     end,
-    State1 = try apply_module_config_changes(ConfigChanges, State)
-             catch exit:Reason4 ->
-                     ?LOG_ERROR(format_error(Reason4)),
-                     State
-             end,
-    State2 = try apply_listener_config_changes(ConfigChanges, State)
-             catch exit:Reason5 ->
-                     ?LOG_ERROR(format_error(Reason5)),
-                     State1
-             end,
-    State2.
+    try apply_listener_config_changes(ConfigChanges, State)
+    catch exit:Reason4 ->
+            ?LOG_ERROR(format_error(Reason4)),
+            State
+    end.
 
 -spec apply_logging_config_changes(config_changes()) -> ok.
 apply_logging_config_changes(ConfigChanges) ->
@@ -583,19 +583,6 @@ apply_relay_config_changes(ConfigChanges) ->
             ok = log_relay_addresses();
         false ->
             ?LOG_DEBUG("TURN relay configuration unchanged")
-    end.
-
--spec apply_module_config_changes(config_changes(), state()) -> state().
-apply_module_config_changes(ConfigChanges, State) ->
-    case module_config_changed(ConfigChanges) of
-        true ->
-            ?LOG_INFO("Using new module configuration"),
-            ok = stop_modules(State),
-            Modules = start_modules(),
-            State#eturnal_state{modules = Modules};
-        false ->
-            ?LOG_DEBUG("Module configuration unchanged"),
-            State
     end.
 
 -spec apply_listener_config_changes(config_changes(), state()) -> state().
@@ -661,12 +648,6 @@ listener_config_changed({Changed, New, Removed} = ConfigChanges) ->
                               lists:member(Key, ModifiedKeys)
                       end, ListenerKeys)
     end.
-
--spec module_config_changed(config_changes()) -> boolean().
-module_config_changed({Changed, New, Removed}) ->
-    ModifiedKeys = proplists:get_keys(Changed ++ New ++ Removed),
-    ModuleKeys = [modules],
-    lists:any(fun(Key) -> lists:member(Key, ModifiedKeys) end, ModuleKeys).
 
 %% Internal functions: PEM file handling.
 
