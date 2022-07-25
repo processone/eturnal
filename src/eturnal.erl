@@ -794,10 +794,8 @@ config_change_test_() ->
      ?_assert(run_dir_config_changed({[{run_dir, <<"run">>}], [], []})),
      ?_assert(relay_config_changed({[{relay_min_port, 50000}], [], []})),
      ?_assert(listener_config_changed({[{max_bps, 42}], [], []})),
-     ?_assert(module_config_changed({[{modules, []}], [], []})),
      ?_assertNot(logging_config_changed({[{strict_expiry, false}], [], []})),
      ?_assertNot(run_dir_config_changed({[{strict_expiry, false}], [], []})),
      ?_assertNot(relay_config_changed({[{strict_expiry, false}], [], []})),
-     ?_assertNot(listener_config_changed({[{strict_expiry, false}], [], []})),
-     ?_assertNot(module_config_changed({[{strict_expiry, false}], [], []}))].
+     ?_assertNot(listener_config_changed({[{strict_expiry, false}], [], []}))].
 -endif.
