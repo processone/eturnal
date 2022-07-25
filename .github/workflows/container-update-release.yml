@@ -8,6 +8,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 #  DOCKERHUB_REPO: processone/eturnal
+  PKGREL: 1
 
 jobs:
   docker:    
@@ -50,6 +51,7 @@ jobs:
 #            ${{ env.DOCKERHUB_REPO }}
           tags: |
             latest
+            ${{ env.TAG_VERSION }}-r${{ env.PKGREL }}
             ${{ env.TAG_VERSION }}
             ${{ env.TAG_MINOR }}
             ${{ env.TAG_MAJOR }}

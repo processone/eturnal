@@ -39,6 +39,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 #            ${{ env.DOCKERHUB_REPO }}
           tags: |
+            type=semver,pattern={{version}}-r0          
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
