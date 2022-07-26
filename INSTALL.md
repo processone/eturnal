@@ -30,6 +30,15 @@ server will be executed by a user named `eturnal`. To change these defaults,
 edit the [build.config][7] file, re-run `./rebar3 as prod tar`, and adapt the
 following installation instructions accordingly.
 
+## Quick Test
+
+The following command starts the server in an Erlang shell, [using][8] the
+configuration in [config/eturnal.yml][9]:
+
+    $ ./rebar3 shell
+
+To stop the server, enter `q().` (including the trailing dot).
+
 ## Installation
 
 You'll need root privileges for the following commands. Therefore, call `su -`
@@ -62,15 +71,17 @@ or `sudo -i`, first.
 
 ## Configuration and Usage
 
-See the [README.md][8] file and the [reference documentation][9] for
+See the [README.md][10] file and the [reference documentation][11] for
 configuration and usage instructions.
 
-[1]: https://www.erlang.org
-[2]: https://pyyaml.org/wiki/LibYAML
-[3]: https://www.openssl.org
-[4]: https://gcc.gnu.org
-[5]: https://s3.amazonaws.com/rebar3/rebar3
-[6]: https://github.com/erlang/rebar3/releases/download/3.15.2/rebar3
-[7]: https://github.com/processone/eturnal/blob/1.9.1/build.config
-[8]: https://github.com/processone/eturnal/blob/1.9.1/README.md
-[9]: https://eturnal.net/documentation/
+ [1]: https://www.erlang.org
+ [2]: https://pyyaml.org/wiki/LibYAML
+ [3]: https://www.openssl.org
+ [4]: https://gcc.gnu.org
+ [5]: https://s3.amazonaws.com/rebar3/rebar3
+ [6]: https://github.com/erlang/rebar3/releases/download/3.15.2/rebar3
+ [7]: https://github.com/processone/eturnal/blob/1.9.1/build.config
+ [8]: https://github.com/processone/eturnal/blob/1.9.1/config/shell.config
+ [9]: https://github.com/processone/eturnal/blob/1.9.1/config/eturnal.yml
+[10]: https://github.com/processone/eturnal/blob/1.9.1/README.md
+[11]: https://eturnal.net/documentation/
