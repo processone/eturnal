@@ -78,8 +78,7 @@ jobs:
             VERSION=master
             REPOSITORY=https://github.com/${{ github.repository }}.git            
           context: docker-k8s/image/.
-          platforms: linux/amd64
-#          platforms: linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6
+          platforms: linux/amd64,linux/386,linux/s390x,linux/ppc64le,linux/arm64,linux/arm/v7,linux/arm/v6
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

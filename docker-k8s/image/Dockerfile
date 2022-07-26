@@ -16,6 +16,7 @@ RUN apk update --no-cache \
       erlang-dev \
       git \
       openssl-dev \
+      ssl_client --repository https://dl-cdn.alpinelinux.org/alpine/edge/main/ \
       yaml-dev \
 # build eturnal from source
     && mkdir -p $BUILD_DIR \
