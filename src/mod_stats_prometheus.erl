@@ -27,7 +27,7 @@
 -import(yval, [either/2, ip/0, port/0, bool/0, file/1]).
 
 -include_lib("kernel/include/logger.hrl").
- -define(PEM_FILE_NAME, "cert.pem").
+-define(PEM_FILE_NAME, "cert.pem").
 -define(SIZE_BUCKETS,
         [1024,
          1024 * 4,
@@ -68,6 +68,10 @@ start() ->
             ok = application:set_env(
                    prometheus, collectors, Collectors, [{persistent, true}]);
         {modified, _Opt} ->
+            % The 'prometheus' application doesn't support updating the list of
+            % collectors on configuration reload, and we cannot easily restart
+            % it, as the application controller might be blocking on our own
+            % startup.
             ?LOG_ERROR("New 'vm_metrics' setting requires restart")
     end,
     ok = eturnal_module:ensure_deps(?MODULE, [prometheus_httpd]),
@@ -272,9 +276,6 @@ get_module_or_global_opt(Opt) ->
 
 -spec check_vm_metrics_opt(boolean()) -> ok | modified.
 check_vm_metrics_opt(NewValue) ->
-    % The 'prometheus' app doesn't support updating the list of collectors on
-    % configuration reload, and we can't easily restart the 'prometheus' app, as
-    % the application controller might be blocking on our startup/shutdown.
     PID = whereis(prometheus_sup),
     OldValue = application:get_env(prometheus, collectors),
     if is_pid(PID),

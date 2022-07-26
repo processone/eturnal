@@ -10,9 +10,8 @@ project adheres to [Semantic Versioning][SemVer].
 - Include an example OpenRC init (and configuration) file.
 
 ### Changed
-- If an EPMD process was spawned, stop it on shutdown, unless it's used by other
-  Erlang nodes. (If eturnal was started by systemd and EPMD isn't controlled by
-  a separate unit file, this will happen anyway.)
+- If an EPMD process was spawned during eturnal startup, stop it on shutdown,
+  unless it's used by other Erlang nodes.
 
 ### Fixed
 - Avoid permission issues in the case where `eturnalctl` was invoked by root
@@ -35,9 +34,8 @@ project adheres to [Semantic Versioning][SemVer].
   `ENV` variable or a configuration file).
 
 ### Changed
-- If an [EPMD](https://erlang.org/doc/man/epmd.html) process is spawned during
-  eturnal startup, let it listen on `localhost` only (#9). (Note that our Linux
-  packages and container images are
+- If an EPMD process is spawned during eturnal startup, let it listen on
+  `localhost` only (#9). (Note that our Linux packages and container images are
   [configured](https://eturnal.net/documentation/#ERL_DIST_PORT) to _not_ start
   an EPMD process.)
 - Omit the code location from log messages, except when debug logging is
