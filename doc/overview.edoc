@@ -207,11 +207,11 @@ listen:
 Default: `log'</div>
 
 This option specifies the directory the `eturnal.log' file is written into.
-Alternatively, this option can be set to the special value `stdout', which tells
-eturnal to print log messages to the standard output rather than logging to a
-file. If this option isn't defined, the value of the envionment variable
-{@section LOGS_DIRECTORY} is used instead. If this environment variable is unset
-as well, a `log' directory is created within the installation prefix.
+Alternatively, this option can be set to the special value `stdout', which
+configures eturnal to print log messages to the standard output rather than
+logging to a file. If this option isn't defined, the value of the envionment
+variable {@section LOGS_DIRECTORY} is used instead. If this environment variable
+is unset as well, a `log' directory is created within the installation prefix.
 
 === log_level ===
 
@@ -282,6 +282,7 @@ Example:
 ```
 modules:
   mod_log_stun: {}
+  mod_stats_prometheus: {}
   mod_stats_influx:
     host: localhost
     port: 8089
@@ -440,9 +441,11 @@ Default: `none'</div>
 
 This option specifies the path to the PEM file containing the private key used
 while negotiating TLS connections. The PEM file must be readable by the user
-running the eturnal server. If a `tls_crt_file' but no `tls_key_file' is
-specified, it is assumed that the `tls_crt_file' contains both the certificate
-chain and the private key.
+running the eturnal server.
+
+If a {@section tls_crt_file} but no `tls_key_file' is specified, it is assumed
+that the {@section tls_crt_file} contains both the certificate chain and the
+private key.
 
 === tls_options ===
 
@@ -520,6 +523,76 @@ listening on.
 Default: `8089'</div>
 
 This option specifies the port number InfluxDB's UDP service is listening on.
+
+=== mod_stats_prometheus ===
+
+This module exposes various STUN/TURN and (by default) virtual machine metrics
+to Prometheus via HTTP under the `/metrics' endpoint.
+
+==== ip ====
+
+<div class="spec">Type: `IP address' | `any'<br/>
+Default: `any'</div>
+
+This option specifies the IPv4 or IPv6 address the module is listening on (note
+that IPv6 addresses with leading `"::"' must be enclosed with quotation marks).
+The default value is `any', which configures the module to listen on all
+available interfaces.
+
+==== port ====
+
+<div class="spec">Type: `port number'<br/>
+Default: `8081'</div>
+
+This option specifies the port number the module is listening on. The default
+value is `8081'.
+
+==== tls ====
+
+<div class="spec">Type: `boolean'<br/>
+Default: `false'</div>
+
+If this option is set to `true', the module accepts only TLS-encrypted HTTPS
+connections. The default value is `false', which configures the module to use
+unencrypted HTTP connections instead.
+
+==== tls_crt_file ====
+
+<div class="spec">Type: `path name'<br/>
+Default: `none'</div>
+
+This option specifies the path to the PEM file containing the certificate
+(chain) offered while negotiating HTTPS connections. The PEM file must be
+readable by the user running the eturnal server. The file may also contain the
+private key, in which case the `tls_key_file' option can be left unspecified.
+
+If this option isn't specified but `tls' is enabled, the module will fall back
+to using the global {@section tls_crt_file} setting. If that doesn't point to a
+PEM file either, eturnal will attempt to create a self-signed certificate during
+startup. However, it's <em>strongly recommended</em> to specify this option if
+TLS is enabled.
+
+==== tls_key_file ====
+
+<div class="spec">Type: `path name'<br/>
+Default: `none'</div>
+
+This option specifies the path to the PEM file containing the private key used
+while negotiating HTTPS connections. The PEM file must be readable by the user
+running the eturnal server. If this option isn't specified but `tls' is enabled,
+the module will fall back to using the global {@section tls_key_file} setting.
+
+If a `tls_crt_file' but no `tls_key_file' is specified, it is assumed that the
+`tls_crt_file' contains both the certificate chain and the private key.
+
+==== vm_metrics ====
+
+<div class="spec">Type: `boolean'<br/>
+Default: `true'</div>
+
+If this option is set to `false', omit metrics describing the state of the
+underlying virtual machine. The default value is `true', which tells the module
+to include those metrics.
 
 == Environment Variables ==
 

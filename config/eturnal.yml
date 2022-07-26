@@ -58,3 +58,9 @@ eturnal:
   ## See: https://eturnal.net/documentation/#Module_Configuration
   modules:
     mod_log_stun: {}        # Log STUN queries (in addition to TURN sessions).
+    #mod_stats_influx: {}   # Log STUN/TURN events into InfluxDB.
+    #mod_stats_prometheus:  # Expose STUN/TURN and VM metrics to Prometheus.
+    #  ip: any              # This is the default: Listen on all interfaces.
+    #  port: 8081           # This is the default.
+    #  tls: false           # This is the default.
+    #  vm_metrics: true     # This is the default.

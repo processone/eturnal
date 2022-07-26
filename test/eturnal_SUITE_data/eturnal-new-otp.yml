@@ -43,3 +43,6 @@ eturnal:
   modules:
     mod_log_stun: {}
     mod_stats_influx: {}
+    mod_stats_prometheus:
+      ip: "127.0.0.1"
+      port: 9081

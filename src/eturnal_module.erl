@@ -23,7 +23,8 @@
 %%% If a `start/0' callback is exported, it must return `ok' or `{ok, Events}',
 %%% where `Events' is either a single {@link event()} or a list of {@link
 %%% events()} the module is interested in. Currently, the following events may
-%%% be triggered: `stun_query', `turn_session_start', and `turn_session_stop'.
+%%% be triggered: `stun_query', `turn_session_start', `turn_session_stop', and
+%%% `protocol_error'.
 %%%
 %%% If a `start/0' function is exported and subscribes to one or more events, a
 %%% `handle_event/2' callback <em>must</em> be exported as well. It is called
@@ -179,7 +180,7 @@ handle_event(Event, Info) ->
                    try ok = Mod:handle_event(Event, Info)
                    catch _:_Err:Stack ->
                            ?LOG_ERROR("Module ~s failed at handling '~s':~n~p",
-                                      [Mod, Stack])
+                                      [Mod, Event, Stack])
                    end
            end, get_subscribers(Event)).
 

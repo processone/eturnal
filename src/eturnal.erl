@@ -30,6 +30,7 @@
 -export([run_hook/2,
          get_password/2,
          get_opt/1,
+         create_self_signed/1,
          abort/1]).
 -export_type([transport/0]).
 
@@ -727,7 +728,7 @@ touch(File) ->
 -spec ensure_run_dir() -> ok.
 ensure_run_dir() ->
     RunDir = get_opt(run_dir),
-    case filelib:ensure_dir(filename:join(RunDir, <<"state.dat">>)) of
+    case filelib:ensure_dir(filename:join(RunDir, <<"file">>)) of
         ok ->
             ?LOG_DEBUG("Using run directory ~ts", [RunDir]);
         {error, Reason} ->

@@ -5,6 +5,7 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 ### Added
+- Include `mod_stats_prometheus`, a module for exporting metrics to Prometheus.
 - Include an example configuration for logrotate.
 - Include an example OpenRC init (and configuration) file.
 

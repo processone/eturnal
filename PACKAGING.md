@@ -27,13 +27,21 @@ complete list of (direct and transitive) Erlang dependencies is:
 - [fast\_tls](https://github.com/processone/fast_tls)
 - [p1\_utils](https://github.com/processone/p1_utils)
 
-The `mod_stats_influx` module adds the following list of optional dependencies
-(if the module is enabled without those being available, eturnal will refuse to
-start up and log a proper error message):
+The `mod_stats_influx` module adds the following list of optional dependencies:
 
 - [influx\_udp](https://github.com/weiss/influx_udp)
 - [poolboy](https://github.com/devinus/poolboy)
 - [ulitos](https://github.com/palkan/ulitos)
+
+The `mod_stats_prometheus` module adds the following list of optional
+dependencies:
+
+- [prometheus\_httpd](https://github.com/deadtrickster/prometheus-httpd)
+- [prometheus](https://github.com/deadtrickster/prometheus)
+- [accept](https://github.com/deadtrickster/accept)
+
+If a module is enabled without its dependencies being available, eturnal will
+refuse to start up and log a proper error message.
 
 Assuming the required dependencies are installed into the distribution's
 Erlang/OTP tree, [Rebar3][2]'s built-in dependency management can be skipped by
