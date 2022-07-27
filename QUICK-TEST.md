@@ -4,7 +4,7 @@ On Linux/x64 systems, the following commands provide STUN/TURN services on
 UDP/TCP port 3478 (on Linux/arm64 systems, replace `x64` with `arm64`):
 
 ```
-curl https://eturnal.net/eturnal-1.9.1-linux-x64.tar.gz | tar -xzf -
+curl https://eturnal.net/eturnal-1.10.0-linux-x64.tar.gz | tar -xzf -
 eturnal/bin/eturnalctl foreground
 ```
 

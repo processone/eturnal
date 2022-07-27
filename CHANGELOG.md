@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [1.10.0] - 2022-07-27
 ### Added
 - Include `mod_stats_prometheus`, a module for exporting metrics to Prometheus.
 - Include an example configuration for logrotate.
@@ -374,7 +376,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/1.9.1...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.10.0...HEAD
+[1.10.0]: https://github.com/processone/eturnal/releases/tag/1.10.0
 [1.9.1]: https://github.com/processone/eturnal/releases/tag/1.9.1
 [1.9.0]: https://github.com/processone/eturnal/releases/tag/1.9.0
 [1.8.3]: https://github.com/processone/eturnal/releases/tag/1.8.3
