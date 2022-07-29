@@ -213,8 +213,8 @@ on_turn_session_stop(#{id := ID,
 
 -spec on_protocol_error(eturnal_module:info()) -> ok.
 on_protocol_error(#{transport := Transport,
-                    reason := {Code, Text}}) ->
-    ?LOG_NOTICE("Observing protocol error ~B for Prometheus", [Code]),
+                    reason := {_Code, Text}}) ->
+    ?LOG_DEBUG("Observing protocol error for Prometheus: ~s", [Text]),
     _ = prometheus_counter:inc(
           eturnal_protocol_error_total, [Transport, Text]),
     ok.
