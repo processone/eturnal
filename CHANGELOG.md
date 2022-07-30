@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Added
+- Docker: Allow to define a different external STUN service for the IPv4 
+  address lookup by adding the container image specific environment variable
+  `STUN_SERVICE`, defaulting to: `STUN_SERVICE="stun.conversations.im 3478"`.
 
 ## [1.10.0] - 2022-07-27
 ### Added

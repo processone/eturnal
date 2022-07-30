@@ -6,7 +6,8 @@ ARG BUILD_DIR=/eturnal
 ARG REBAR_PROFILE=stripped
 # runtime environment variables
 ENV HOME=/opt/eturnal \
-    ERL_DIST_PORT=3470
+    ERL_DIST_PORT=3470 \
+    STUN_SERVICE="stun.conversations.im 3478"
 
 RUN apk -U upgrade --latest \
 # add build dependencies
@@ -60,7 +61,7 @@ RUN apk -U upgrade --latest \
         \necho -e "  log_dir: stdout" >> $HOME/etc/eturnal.yml \
         \necho -e "  modules:" >> $HOME/etc/eturnal.yml \
         \necho -e "    mod_log_stun: {}" >> $HOME/etc/eturnal.yml \
-        \nexport ETURNAL_RELAY_IPV4_ADDR=${ETURNAL_RELAY_IPV4_ADDR-$($HOME/bin/stun stun.conversations.im)} \
+        \nexport ETURNAL_RELAY_IPV4_ADDR=${ETURNAL_RELAY_IPV4_ADDR-$($HOME/bin/stun $STUN_SERVICE)} \
         \nexec "$@"' > /usr/local/bin/run.sh \
     && chmod +x /usr/local/bin/run.sh
 
