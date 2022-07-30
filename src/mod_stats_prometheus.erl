@@ -76,14 +76,6 @@ start() ->
     end,
     ok = eturnal_module:ensure_deps(?MODULE, [prometheus_httpd]),
     ok = declare_metrics(),
-    case inets:start() of
-        ok ->
-            ok;
-        {error, {already_started, inets}} ->
-            ok;
-        {error, Reason1} ->
-            exit(Reason1)
-    end,
     Addr = eturnal_module:get_opt(?MODULE, ip),
     Port = eturnal_module:get_opt(?MODULE, port),
     Root = get_document_root(), % Empty and unused.
@@ -118,15 +110,7 @@ stop() ->
     ?LOG_DEBUG("Stopping ~s", [?MODULE]),
     AddrPort = {eturnal_module:get_opt(?MODULE, ip),
                 eturnal_module:get_opt(?MODULE, port)},
-    ok = inets:stop(httpd, AddrPort),
-    case inets:services() of
-        [{httpc, _PID}] -> % Assume it's just the httpc started by default.
-            ok = inets:stop();
-        [] ->
-            ok = inets:stop();
-        [_ | _] ->
-            ok
-    end.
+    ok = inets:stop(httpd, AddrPort).
 
 -spec options() -> eturnal_module:options().
 options() ->
