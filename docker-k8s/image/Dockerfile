@@ -8,15 +8,13 @@ ARG REBAR_PROFILE=stripped
 ENV HOME=/opt/eturnal \
     ERL_DIST_PORT=3470
 
-RUN apk update --no-cache \
-    && apk upgrade --available --no-cache \
+RUN apk -U upgrade --latest \
 # add build dependencies
-    && apk add --no-cache -t build-deps \
+    && apk add -t build-deps \
       build-base \
       erlang-dev \
       git \
       openssl-dev \
-      ssl_client --repository https://dl-cdn.alpinelinux.org/alpine/edge/main/ \
       yaml-dev \
 # build eturnal from source
     && mkdir -p $BUILD_DIR \
@@ -36,7 +34,7 @@ RUN apk update --no-cache \
     && cp $BUILD_DIR/_build/$REBAR_PROFILE/rel/eturnal/eturnal-*.tar.gz $HOME \
     && chown -R 9000:9000 $HOME \
 # add/ define runtime packages
-    && apk add --no-cache \
+    && apk add \
       libssl1.1 \
       libstdc++ \
       ncurses-libs \
