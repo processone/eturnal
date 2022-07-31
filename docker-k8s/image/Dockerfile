@@ -55,6 +55,7 @@ RUN apk -U upgrade --latest \
         \n    mod_log_stun: {}" > $HOME/etc/eturnal.yml \
 # CLEANUP: remove build dependencies, apk package manager and source files
     && apk del --repositories-file /dev/null \
+      alpine-baselayout \
       alpine-keys \
       apk-tools \
       build-deps \
