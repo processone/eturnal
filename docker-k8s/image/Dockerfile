@@ -4,8 +4,10 @@ ARG BUILD_DIR=/eturnal
 ARG REPOSITORY=https://github.com/processone/eturnal.git
 ARG VERSION=master
 ARG REBAR_PROFILE=stripped
+ARG HOME_DIR=/opt/eturnal
 # RUNTIME: define container runtime environment variables
-ENV HOME=/opt/eturnal \
+ENV HOME=$HOME_DIR \
+    PIPE_DIR=$HOME_DIR/run/pipe/ \
     ERL_DIST_PORT=3470 \
     STUN_SERVICE="stun.conversations.im 3478"
 
