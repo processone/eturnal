@@ -116,6 +116,7 @@ make_package()
 	    --provides 'turn-server' \
 	    --no-depends \
 	    --no-auto-depends \
+	    --deb-upstream-changelog './NEWS' \
 	    --deb-maintainerscripts-force-errorchecks \
 	    --deb-systemd-enable \
 	    --deb-systemd-auto-start \
@@ -160,6 +161,7 @@ do
 	create_scripts "$arch_dir"
 	make_package 'rpm' "$arch" "$arch_dir"
 
+	mv "$dst_dir/doc/CHANGELOG.md" "$arch_dir/NEWS"
 	mv "$etc_dir/systemd/system/$rel_name.service" "$arch_dir"
 	rm -r "$etc_dir/systemd"
 	make_package 'deb' "$arch" "$arch_dir"
