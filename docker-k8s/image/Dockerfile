@@ -31,9 +31,10 @@ RUN apk -U upgrade --latest \
     && cd $HOME \
     && addgroup eturnal -g 9000 \
     && adduser -s /bin/sh -D -u 9000 -h $HOME -G eturnal eturnal \
-# copy eturnal release tarball to eturnal's home
-    && cp $BUILD_DIR/_build/$REBAR_PROFILE/rel/eturnal/eturnal-*.tar.gz $HOME \
     && chown -R 9000:9000 $HOME \
+# extract release tarball to eturnal's home
+    && tar -xzf $BUILD_DIR/_build/$REBAR_PROFILE/rel/eturnal/eturnal-*.tar.gz -C $HOME \
+    && rm -rf $HOME/etc/* \
 # add/ define runtime packages
     && apk add \
       libssl1.1 \
@@ -49,25 +50,24 @@ RUN apk -U upgrade --latest \
       build-deps \
       libc-utils \
     && rm -rf $BUILD_DIR /var/cache/apk /lib/apk /etc/apk \
-# eturnalctl link, scripts, and configuration files
+# eturnalctl link, entrypoint script and configuration file
     && ln -s $HOME/bin/eturnalctl /usr/local/bin/eturnalctl \
     && echo -e \
         '#!/bin/sh \
-        \ntar -xzf $HOME/eturnal-*.tar.gz -C $HOME \
-        \nrm -f $HOME/eturnal-*.tar.gz \
-        \necho -e "# A more detailed, commented example configuration can be found here:" > $HOME/etc/eturnal.yml \
-        \necho -e "# https://github.com/processone/eturnal/blob/master/config/eturnal.yml" >> $HOME/etc/eturnal.yml \
-        \necho -e "eturnal:" >> $HOME/etc/eturnal.yml \
-        \necho -e "  log_dir: stdout" >> $HOME/etc/eturnal.yml \
-        \necho -e "  modules:" >> $HOME/etc/eturnal.yml \
-        \necho -e "    mod_log_stun: {}" >> $HOME/etc/eturnal.yml \
         \nexport ETURNAL_RELAY_IPV4_ADDR=${ETURNAL_RELAY_IPV4_ADDR-$($HOME/bin/stun $STUN_SERVICE)} \
         \nexec "$@"' > /usr/local/bin/run.sh \
-    && chmod +x /usr/local/bin/run.sh
+    && chmod +x /usr/local/bin/run.sh \
+    && echo -e \
+        "# A more detailed, commented example configuration can be found here: \
+        \n# https://github.com/processone/eturnal/blob/master/config/eturnal.yml \
+        \neturnal: \
+        \n  log_dir: stdout \
+        \n  modules: \
+        \n    mod_log_stun: {}" > $HOME/etc/eturnal.yml
 
 WORKDIR $HOME
 USER eturnal
-VOLUME ["$HOME"]
+VOLUME ["$HOME/log","$HOME/run"]
 EXPOSE 3478 3478/udp
 
 ENTRYPOINT ["/sbin/tini","--","run.sh"]
