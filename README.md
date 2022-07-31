@@ -84,8 +84,8 @@ between eturnal releases, see the [change log][18].
 Please use [our issue tracker][19] for bug reports and feature requests. Feel
 free to (ab)use it for usage questions as well. If you happen to be using
 [XMPP][20], you could also join our public room
-`eturnal@conference.process-one.net`. As an alternative, there's an `#eturnal`
-channel [on Slack][21].
+`eturnal@conference.process-one.net`. Otherwise, just use the [web client][21].
+As an alternative, there's an `#eturnal` channel [on Slack][22].
 
  [1]: https://github.com/processone/eturnal/actions/workflows/ci.yml
  [2]: https://eturnal.net/
@@ -107,4 +107,5 @@ channel [on Slack][21].
 [18]: https://github.com/processone/eturnal/blob/1.10.0/CHANGELOG.md
 [19]: https://github.com/processone/eturnal/issues
 [20]: https://xmpp.org
-[21]: https://erlef.org/slack-invite/erlanger
+[21]: https://eturnal.net/chat/
+[22]: https://erlef.org/slack-invite/erlanger
