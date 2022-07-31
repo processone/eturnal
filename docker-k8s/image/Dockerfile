@@ -1,10 +1,10 @@
 FROM alpine:3.16.1 AS eturnal
-# define image build arguments
+# BUILD: define image build arguments
 ARG BUILD_DIR=/eturnal
 ARG REPOSITORY=https://github.com/processone/eturnal.git
 ARG VERSION=master
 ARG REBAR_PROFILE=stripped
-# define container runtime environment variables
+# RUNTIME: define container runtime environment variables
 ENV HOME=/opt/eturnal \
     ERL_DIST_PORT=3470 \
     STUN_SERVICE="stun.conversations.im 3478"
@@ -33,10 +33,9 @@ RUN apk -U upgrade --latest \
       yaml \
       zlib \
 # RUNTIME: add runtime user and directories
-    && mkdir -p $HOME/log $HOME/run $HOME/tls \
+    && install -o 9000 -g 9000 -d $HOME/log $HOME/run $HOME/tls \
     && addgroup eturnal -g 9000 \
     && adduser -s /bin/sh -D -u 9000 -h $HOME -G eturnal eturnal \
-    && chown -R 9000:9000 $HOME \
 # RUNTIME: extract release tarball to eturnal's home
     && tar -xzf $BUILD_DIR/_build/$REBAR_PROFILE/rel/eturnal/eturnal-*.tar.gz -C $HOME \
     && rm -rf $HOME/etc/* \
@@ -63,7 +62,7 @@ RUN apk -U upgrade --latest \
     && rm -rf $BUILD_DIR /var/cache/apk /etc/apk \
     && find /lib/apk/db -type f -not -name 'installed' -delete
 
-# define container runtime parameters
+# RUNTIME: define container runtime parameters
 WORKDIR $HOME
 USER eturnal
 VOLUME ["$HOME/log","$HOME/run"]
