@@ -20,8 +20,7 @@ RUN apk -U upgrade --latest \
 # build eturnal from source
     && mkdir -p $BUILD_DIR \
     && cd $BUILD_DIR \
-    && git clone $REPOSITORY . \
-    && git checkout $VERSION \
+    && git clone $REPOSITORY --branch $VERSION --single-branch . \
     && echo "-setcookie eturnal" >> config/vm.args \
     && wget https://s3.amazonaws.com/rebar3/rebar3 \
     && chmod +x rebar3 \
