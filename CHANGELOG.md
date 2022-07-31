@@ -5,13 +5,17 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 ### Added
-- Docker: Allow to define a different external STUN service for the IPv4 
-  address lookup by adding the container image specific environment variable
+- Docker: Allow to define a different external STUN service for the IPv4 address
+  lookup by adding the container-image-specific environment variable
   `STUN_SERVICE`, defaulting to: `STUN_SERVICE="stun.conversations.im 3478"`.
 
+### Changed
+- Binary release: Reduce code size by omitting an unused transitive dependency
+  (which had slipped back into the previous release).
+
 ### Fixed
-- Docker: Keep list of installed packages, so that image scanners like Trivy
-  can check the image for vulnerabilities.
+- Docker: Keep list of installed packages, so that image scanners like Trivy can
+  check the image for vulnerabilities.
 
 ## [1.10.0] - 2022-07-27
 ### Added
