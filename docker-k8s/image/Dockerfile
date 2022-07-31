@@ -35,8 +35,8 @@ RUN apk -U upgrade --latest \
 # RUNTIME: add runtime user and directories
     && install -o 9000 -g 9000 -d $HOME/log $HOME/run $HOME/tls \
     && addgroup eturnal -g 9000 \
-    && adduser -s /bin/sh -D -u 9000 -h $HOME -G eturnal eturnal \
-# RUNTIME: extract release tarball to eturnal's home
+    && adduser -s /bin/sh -D -u 9000 -H -G eturnal eturnal \
+ # RUNTIME: extract release tarball to eturnal's runtime directory
     && tar -xzf $BUILD_DIR/_build/$REBAR_PROFILE/rel/eturnal/eturnal-*.tar.gz -C $HOME \
     && rm -rf $HOME/etc/* \
 # RUNTIME: create eturnalctl link, entrypoint script and configuration file
