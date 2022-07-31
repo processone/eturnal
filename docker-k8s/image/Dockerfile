@@ -63,7 +63,8 @@ RUN apk -U upgrade --latest \
       apk-tools \
       build-deps \
       libc-utils \
-    && rm -rf $BUILD_DIR /var/cache/apk /lib/apk /etc/apk
+    && rm -rf $BUILD_DIR /var/cache/apk /etc/apk \
+    && find /lib/apk/db -type f -not -name 'installed' -print0 | xargs -0  -I {} rm {}
 
 # define runtime parameters
 WORKDIR $HOME
