@@ -9,6 +9,10 @@ project adheres to [Semantic Versioning][SemVer].
   address lookup by adding the container image specific environment variable
   `STUN_SERVICE`, defaulting to: `STUN_SERVICE="stun.conversations.im 3478"`.
 
+### Fixed
+- Docker: Keep list of installed packages, so that image scanners like Trivy
+  can check the image for vulnerabilities.
+
 ## [1.10.0] - 2022-07-27
 ### Added
 - Include `mod_stats_prometheus`, a module for exporting metrics to Prometheus.
