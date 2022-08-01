@@ -12,7 +12,7 @@
  {<<"recon">>,{pkg,<<"recon">>,<<"2.5.2">>},0},
  {<<"stun">>,
   {git,"https://github.com/processone/stun.git",
-       {ref,"11646465d20b8a5a727e5aa76cd459f321849ec7"}},
+       {ref,"5e3aa417c672312acb9c4f295de131a233700666"}},
   0},
  {<<"ulitos">>,{pkg,<<"ulitos">>,<<"0.4.0">>},1},
  {<<"yval">>,{pkg,<<"yval">>,<<"1.0.10">>},1}]}.
