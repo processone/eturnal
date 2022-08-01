@@ -26,6 +26,7 @@ user="${ETURNAL_USER:-{{eturnal_user}}}"
 prefix="${ETURNAL_PREFIX:-{{eturnal_prefix}}}"
 epmd_address="${ERL_EPMD_ADDRESS:-{{erl_epmd_address}}}"
 dist_port="${ERL_DIST_PORT:-{{erl_dist_port}}}"
+code_loading="${CODE_LOADING_MODE:-{{code_loading}}}"
 config_file="${ETURNAL_ETC_PREFIX-}/etc/eturnalctl.cfg"
 
 # END OF CONFIGURATION SECTION.
@@ -107,6 +108,11 @@ if [ -z "${ERL_DIST_PORT+x}" ] && [ -n "$dist_port" ]
 then
     ERL_DIST_PORT="$dist_port"
     export ERL_DIST_PORT
+fi
+if [ -z "${CODE_LOADING_MODE+x}" ] && [ "$code_loading" = 'dynamic' ]
+then
+    CODE_LOADING_MODE='interactive'
+    export CODE_LOADING_MODE
 fi
 if [ -z "${RUNNER_LOG_DIR+x}" ]
 then

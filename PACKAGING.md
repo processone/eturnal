@@ -63,9 +63,11 @@ example, `/usr/lib/eturnal`):
 - `_build/distro/rel/eturnal/lib`
 - `_build/distro/rel/eturnal/releases`
 
-The `eturnal_prefix` setting in the [build.config][7] file must be set to that
+The `eturnal_prefix` option in the [build.config][7] file must be set to that
 location before building eturnal. The user for running eturnal can be adjusted
-in that file as well.
+in that file as well. Apart from that, you might want to set the `code_loading`
+option to `"dynamic"`, as that avoids hard-coding of Erlang dependency versions
+at build time.
 
 The `bin` directory contains, among other things, the [eturnalctl][8] script,
 which can be moved (or symlinked) elsewhere (e.g., into `/usr/sbin`). If it's

@@ -9,6 +9,10 @@ project adheres to [Semantic Versioning][SemVer].
   `max_bps` option).
 - `mod_stats_prometheus`: Add a counter for STUN/TURN protocol errors, bucketed
   by transport and error condition.
+- `build.config`: Add `code_loading` option to specify whether code is loaded
+  statically during eturnal startup or dynamically on demand. The latter may be
+  desirable for (distribution) builds that use separately packaged Erlang
+  dependencies, as it avoids hard-coding dependency versions at build time.
 - Docker: Allow to define a different external STUN service for the IPv4 address
   lookup by adding the container-image-specific environment variable
   `STUN_SERVICE`, defaulting to: `STUN_SERVICE="stun.conversations.im 3478"`.
