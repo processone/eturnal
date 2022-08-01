@@ -18,6 +18,8 @@ project adheres to [Semantic Versioning][SemVer].
   (which had slipped back into the previous release).
 
 ### Fixed
+- Fix dynamic loading of `mod_stats_prometheus` dependencies (for distribution
+  builds).
 - Docker: Keep list of installed packages, so that image scanners like Trivy can
   check the image for vulnerabilities.
 
