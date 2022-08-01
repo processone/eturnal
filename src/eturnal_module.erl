@@ -324,13 +324,9 @@ load_app(App) ->
         LibDir = code:lib_dir(),
         AppDir = lists:max(filelib:wildcard([App, "{,-*}"], LibDir)),
         EbinDir = filename:join([LibDir, AppDir, "ebin"]),
-        BeamFiles = filelib:wildcard("*.beam", EbinDir),
-        Mods = lists:map(
-                 fun(File) ->
-                         list_to_atom(
-                           unicode:characters_to_list(
-                             string:replace(File, ".beam", "", trailing)))
-                 end, BeamFiles),
+        AppFile = filename:join(EbinDir, [App, ".app"]),
+        {ok, [{application, App, Props}]} = file:consult(AppFile),
+        Mods = proplists:get_value(modules, Props),
         true = code:add_path(EbinDir),
         case lists:any(fun(Mod) ->
                                code:module_status(Mod) =:= not_loaded
