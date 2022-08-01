@@ -14,6 +14,8 @@ project adheres to [Semantic Versioning][SemVer].
   `STUN_SERVICE`, defaulting to: `STUN_SERVICE="stun.conversations.im 3478"`.
 
 ### Changed
+- `build.config`: Rename the `eturnal_bin_prefix` option to `eturnal_prefix`.
+- `build.config`: Remove the `eturnal_etc_prefix` option.
 - Binary release: Reduce code size by omitting an unused transitive dependency
   (which had slipped back into the previous release).
 

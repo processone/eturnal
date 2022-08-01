@@ -1,6 +1,6 @@
 #!/sbin/openrc-run
 
-command="{{eturnal_bin_prefix}}/bin/${RC_SVCNAME}ctl"
+command="{{eturnal_prefix}}/bin/${RC_SVCNAME}ctl"
 extra_started_commands="reload"
 capabilities="^cap_net_bind_service"
 

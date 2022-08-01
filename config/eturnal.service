@@ -9,9 +9,9 @@ Documentation=https://github.com/processone/eturnal/blob/{{release_version}}/CHA
 [Service]
 Type=notify
 User={{eturnal_user}}
-ExecStart={{eturnal_bin_prefix}}/bin/eturnalctl foreground
-ExecReload={{eturnal_bin_prefix}}/bin/eturnalctl reload
-ExecStop={{eturnal_bin_prefix}}/bin/eturnalctl stop
+ExecStart={{eturnal_prefix}}/bin/eturnalctl foreground
+ExecReload={{eturnal_prefix}}/bin/eturnalctl reload
+ExecStop={{eturnal_prefix}}/bin/eturnalctl stop
 Restart=on-failure
 RestartSec=3
 WatchdogSec=30

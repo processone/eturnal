@@ -1,4 +1,4 @@
-#!{{eturnal_bin_prefix}}/erts-{{release_erts_version}}/bin/escript
+#!{{eturnal_prefix}}/erts-{{release_erts_version}}/bin/escript
 
 %%% Simple STUN client (UDP-only).
 %%%

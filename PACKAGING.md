@@ -63,9 +63,9 @@ example, `/usr/lib/eturnal`):
 - `_build/distro/rel/eturnal/lib`
 - `_build/distro/rel/eturnal/releases`
 
-The `eturnal_bin_prefix` setting in the [build.config][7] file must be set to
-that location before building eturnal. The user for running eturnal and the
-default configuration file path can be adjusted in that file as well.
+The `eturnal_prefix` setting in the [build.config][7] file must be set to that
+location before building eturnal. The user for running eturnal can be adjusted
+in that file as well.
 
 The `bin` directory contains, among other things, the [eturnalctl][8] script,
 which can be moved (or symlinked) elsewhere (e.g., into `/usr/sbin`). If it's

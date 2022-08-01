@@ -11,7 +11,7 @@
 ### END INIT INFO
 
 name='eturnal'
-eturnalctl='{{eturnal_bin_prefix}}/bin/eturnalctl'
+eturnalctl='{{eturnal_prefix}}/bin/eturnalctl'
 PATH='/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin'
 export PATH
 

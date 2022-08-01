@@ -23,11 +23,10 @@ set -u
 # CONFIGURATION SECTION:
 
 user="${ETURNAL_USER:-{{eturnal_user}}}"
-bin_prefix="${ETURNAL_BIN_PREFIX:-{{eturnal_bin_prefix}}}"
-etc_prefix="${ETURNAL_ETC_PREFIX:-{{eturnal_etc_prefix}}}"
+prefix="${ETURNAL_PREFIX:-{{eturnal_prefix}}}"
 epmd_address="${ERL_EPMD_ADDRESS:-{{erl_epmd_address}}}"
 dist_port="${ERL_DIST_PORT:-{{erl_dist_port}}}"
-config_file="$etc_prefix/etc/eturnalctl.cfg"
+config_file="${ETURNAL_ETC_PREFIX-}/etc/eturnalctl.cfg"
 
 # END OF CONFIGURATION SECTION.
 
@@ -65,7 +64,7 @@ find_eturnal_yml()
 {
     set -- \
         "$(printf '%s' "$*" | sed -n 's/.*-conf file "\([^"][^"]*\)".*/\1/p')" \
-        "$etc_prefix/etc/eturnal.yml" \
+        "${ETURNAL_ETC_PREFIX-}/etc/eturnal.yml" \
         "$release_dir/etc/eturnal.yml" \
         '/dev/null'
 
@@ -109,11 +108,6 @@ then
     ERL_DIST_PORT="$dist_port"
     export ERL_DIST_PORT
 fi
-if [ -z "${ETURNAL_ETC_PREFIX+x}" ] && [ -n "$etc_prefix" ]
-then
-    ETURNAL_ETC_PREFIX="$etc_prefix"
-    export ETURNAL_ETC_PREFIX
-fi
 if [ -z "${RUNNER_LOG_DIR+x}" ]
 then
     if [ -n "$log_dir" ] && [ "$log_dir" != 'stdout' ]
@@ -127,9 +121,9 @@ then
     fi
 fi
 
-if [ -x "$bin_prefix/bin/eturnal" ]
+if [ -x "$prefix/bin/eturnal" ]
 then
-    cmd="$bin_prefix/bin/eturnal"
+    cmd="$prefix/bin/eturnal"
 elif [ -x "$release_dir/bin/eturnal" ]
 then
     cmd="$release_dir/bin/eturnal"
