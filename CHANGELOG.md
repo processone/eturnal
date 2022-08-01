@@ -5,6 +5,10 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 ### Added
+- Improve TCP/TLS performance if no traffic shaper is configured (using the
+  `max_bps` option).
+- `mod_stats_prometheus`: Add a counter for STUN/TURN protocol errors, bucketed
+  by transport and error condition.
 - Docker: Allow to define a different external STUN service for the IPv4 address
   lookup by adding the container-image-specific environment variable
   `STUN_SERVICE`, defaulting to: `STUN_SERVICE="stun.conversations.im 3478"`.
