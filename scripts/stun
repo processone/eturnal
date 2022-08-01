@@ -83,9 +83,17 @@ query(Server0, Port0, Family) ->
         ok = gen_udp:close(Sock),
         ok = io:put_chars(inet:ntoa(Addr)),
         ok = io:nl()
-    catch _:E ->
-            abort("Cannot query ~s:~s: ~p", [Server0, Port0, E])
+    catch _:Err ->
+            abort("Cannot query ~s:~s: ~s", [Server0, Port0, format_error(Err)])
     end.
+
+-spec format_error(any()) -> string().
+format_error({_, {error, timeout}}) ->
+    "request timed out";
+format_error({_, {error, Reason}}) ->
+    inet:format_error(Reason);
+format_error(Err) ->
+    unicode:characters_to_list(io_lib:format("~p", [Err])).
 
 -spec abort(iolist() | binary() | atom()) -> no_return().
 abort(Data) ->
