@@ -13,9 +13,12 @@ project adheres to [Semantic Versioning][SemVer].
   statically during eturnal startup or dynamically on demand. The latter may be
   desirable for (distribution) builds that use separately packaged Erlang
   dependencies, as it avoids hard-coding dependency versions at build time.
-- Docker: Allow to define a different external STUN service for the IPv4 address
-  lookup by adding the container-image-specific environment variable
+- Docker: Include STUN lookup at container start for an IPv6 address as well.
+- Docker: Allow to define a different external STUN service for the IPv4 and
+  IPv6 address lookup by adding the container-image-specific environment variable
   `STUN_SERVICE`, defaulting to: `STUN_SERVICE="stun.conversations.im 3478"`.
+  This same variable may also be used to disable the STUN lookup by defining
+  `STUN_SERVICE=false`.
 
 ### Changed
 - `build.config`: Rename the `eturnal_bin_prefix` option to `eturnal_prefix`.

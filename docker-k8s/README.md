@@ -107,10 +107,10 @@ eturnal may also be configured by specifying certain environment variables, see 
 **Note:** 
 
 * For logs to be printed with the `docker logs` command, `log_dir:` should be set to `stdout` in `eturnal.yml`.
-* The container attempts to autodetect the `relay_ipv4_address` using an external STUN service. 
+* The container attempts to autodetect the `relay_ipv4_address` and `relay_ipv6_address` using an external STUN service. 
   * This STUN service may be exchanged by defining a different external STUN service with the `STUN_SERVICE` environment variable, which defaults to: `STUN_SERVICE="stun.conversations.im 3478"`. Note: the stun client **only supports UDP** queries. 
-  * If that fails, consider defining the `relay_ipv4_address` either within a mounted `eturnal.yml` file or with the `ETURNAL_RELAY_IPV4_ADDR` environment variable to enable the TURN service. 
-  * If the external STUN lookup is not desired, specify a(n) (empty) `ETURNAL_RELAY_IPV4_ADDR` variable in the `docker run` command. 
+  * If that fails, consider defining the `relay_ipv4_address` (and `relay_ipv6_address`) either within a mounted `eturnal.yml` file or with the `ETURNAL_RELAY_IPV4_ADDR` (and `ETURNAL_RELAY_IPV6_ADDR`) environment variable to enable the TURN service. Note: the **IPv6 address is optional**.
+  * If the external STUN lookup is not desired, define the environment variable `STUN_SERVICE=false` in the `docker run` command. 
 
 ## Custom TLS certificates and dh-parameter file
 

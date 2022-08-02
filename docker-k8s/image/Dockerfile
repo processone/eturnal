@@ -45,7 +45,11 @@ RUN apk -U upgrade --latest \
     && ln -s $HOME/bin/eturnalctl /usr/local/bin/eturnalctl \
     && echo -e \
         '#!/bin/sh \
-        \nexport ETURNAL_RELAY_IPV4_ADDR=${ETURNAL_RELAY_IPV4_ADDR-$($HOME/bin/stun $STUN_SERVICE)} \
+        \nif [ "$STUN_SERVICE" != "false" ] \
+        \nthen \
+        \n  export ETURNAL_RELAY_IPV4_ADDR=${ETURNAL_RELAY_IPV4_ADDR-$($HOME/bin/stun -4 $STUN_SERVICE)} \
+        \n  export ETURNAL_RELAY_IPV6_ADDR=${ETURNAL_RELAY_IPV6_ADDR-$($HOME/bin/stun -6 $STUN_SERVICE)} \
+        \nfi \
         \nexec "$@"' > /usr/local/bin/run.sh \
     && chmod +x /usr/local/bin/run.sh \
     && echo -e \
