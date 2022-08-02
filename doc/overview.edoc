@@ -19,7 +19,7 @@ limitations under the License.
 --------------------------------------------------------------------------------
 
 @title eturnal Documentation
-@version 1.10.0 ({@date})
+@version 1.10.1 ({@date})
 @copyright 2020-2022 ProcessOne, SARL
 @author Holger Weiss
 
@@ -33,7 +33,7 @@ clients receive temporary TURN credentials where the user name is comprised of
 the (Unix) expiry timestamp and the password is derived from a {@section secret}
 shared between the service generating those credentials and eturnal. The service
 offering the credentials <a
-href="https://github.com/processone/eturnal/blob/1.10.0/scripts/examples/make-credentials">performs</a>
+href="https://github.com/processone/eturnal/blob/1.10.1/scripts/examples/make-credentials">performs</a>
 a `Base64(HMAC-SHA1($secret, $timestamp))' operation to generate the ephemeral
 password, and eturnal does the same to verify it.
 
@@ -51,18 +51,18 @@ Linux/x64 and Linux/arm64 systems, the <a
 href="https://eturnal.net/download/linux/installer/">binary release</a> can be
 installed as described in this section. For building eturnal from source, see
 the <a
-href="https://github.com/processone/eturnal/blob/1.10.0/INSTALL.md">INSTALL.md</a>
+href="https://github.com/processone/eturnal/blob/1.10.1/INSTALL.md">INSTALL.md</a>
 file shipped with eturnal's <a
-href="https://eturnal.net/download/eturnal-1.10.0.tar.gz">source code
+href="https://eturnal.net/download/eturnal-1.10.1.tar.gz">source code
 archive</a>.
 
 The binary release is installed using the following commands (on AArch64
 systems, `x64' must be replaced with `arm64'):
 
 ```
-curl -O https://eturnal.net/eturnal-1.10.0-linux-x64.run
-chmod +x eturnal-1.10.0-linux-x64.run
-sudo ./eturnal-1.10.0-linux-x64.run
+curl -O https://eturnal.net/eturnal-1.10.1-linux-x64.run
+chmod +x eturnal-1.10.1-linux-x64.run
+sudo ./eturnal-1.10.1-linux-x64.run
 '''
 
 The installer extracts the release archive into `/opt/eturnal' and creates a

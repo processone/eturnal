@@ -4,9 +4,11 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [1.10.1] - 2022-08-02
 ### Added
-- Improve TCP/TLS performance if no traffic shaper is configured (using the
-  `max_bps` option).
+- Improve TCP/TLS performance if no traffic shaper is configured using the
+  `max_bps` option.
 - `mod_stats_prometheus`: Add a counter for STUN/TURN protocol errors, bucketed
   by transport and error condition.
 - `build.config`: Add `code_loading` option to specify whether code is loaded
@@ -14,17 +16,19 @@ project adheres to [Semantic Versioning][SemVer].
   desirable for (distribution) builds that use separately packaged Erlang
   dependencies, as it avoids hard-coding dependency versions at build time.
 - Docker: Include STUN lookup at container start for an IPv6 address as well.
-- Docker: Allow to define a different external STUN service for the IPv4 and
-  IPv6 address lookup by adding the container-image-specific environment variable
+- Docker: Allow to define a different external STUN service for IP address
+  lookups by adding the container-image-specific environment variable
   `STUN_SERVICE`, defaulting to: `STUN_SERVICE="stun.conversations.im 3478"`.
   This same variable may also be used to disable the STUN lookup by defining
   `STUN_SERVICE=false`.
 
 ### Changed
 - `build.config`: Rename the `eturnal_bin_prefix` option to `eturnal_prefix`.
-- `build.config`: Remove the `eturnal_etc_prefix` option.
 - Binary release: Reduce code size by omitting an unused transitive dependency
   (which had slipped back into the previous release).
+
+### Removed
+- `build.config`: Remove the `eturnal_etc_prefix` option.
 
 ### Fixed
 - Fix dynamic loading of `mod_stats_prometheus` dependencies (for distribution
@@ -403,7 +407,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/1.10.0...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.10.1...HEAD
+[1.10.1]: https://github.com/processone/eturnal/releases/tag/1.10.1
 [1.10.0]: https://github.com/processone/eturnal/releases/tag/1.10.0
 [1.9.1]: https://github.com/processone/eturnal/releases/tag/1.9.1
 [1.9.0]: https://github.com/processone/eturnal/releases/tag/1.9.0
