@@ -443,7 +443,7 @@ nl() ->
 
 -spec call(term()) -> ok | {ok | error, term()}.
 call(Request) ->
-    try gen_server:call(eturnal, Request) of
+    try gen_server:call(eturnal, Request, timer:minutes(1)) of
         ok ->
             ?LOG_DEBUG("eturnal call (~p) returned ok", [Request]),
             ok;
