@@ -368,7 +368,7 @@ This option defines the shared authentication secret used to derive the
 passwords for ephemeral TURN user names as described in the <a
 href="https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00">REST API for
 Access to TURN Services</a> specification. If this option isn't defined, the
-value of the environment variable {@section ETURNAL_SECRET}) is used instead. If
+value of the environment variable {@section ETURNAL_SECRET} is used instead. If
 this environment variable is unset as well, a pseudorandom secret (which is
 <em>not</em> cryptographically secure) is used. If a list of secrets is
 specified, credentials derived from any of those will be accepted. This allows
