@@ -31,7 +31,7 @@
 
 -spec suite() -> [info()].
 suite() ->
-    [{timetrap, {seconds, 30}}].
+    [{timetrap, {seconds, 120}}].
 
 -spec init_per_suite(config()) -> config().
 init_per_suite(Config) ->
