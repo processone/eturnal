@@ -74,7 +74,7 @@ start() ->
             % startup.
             ?LOG_ERROR("New 'vm_metrics' setting requires restart")
     end,
-    ok = eturnal_module:ensure_deps(?MODULE, [prometheus_httpd]),
+    ok = eturnal_module:ensure_deps(?MODULE, get_deps()),
     ok = declare_metrics(),
     Addr = eturnal_module:get_opt(?MODULE, ip),
     Port = eturnal_module:get_opt(?MODULE, port),
@@ -211,6 +211,15 @@ socket_opts() ->
             {socket_type, {essl, [{certfile, CrtFile}, {keyfile, KeyFile}]}};
         false ->
             {socket_type, ip_comm}
+    end.
+
+-spec get_deps() -> [eturnal_module:dep()].
+get_deps() ->
+    case eturnal_module:get_opt(?MODULE, tls) of
+        true ->
+            [ssl, prometheus_httpd];
+        false ->
+            [prometheus_httpd]
     end.
 
 -spec get_pem_files() -> {file:filename(), file:filename()}.

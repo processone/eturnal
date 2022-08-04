@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Fixed
+- Include the `ssl` library with non-distro builds, as it's required for
+  enabling TLS for the `mod_stats_prometheus` endpoint.
 
 ## [1.10.1] - 2022-08-02
 ### Added

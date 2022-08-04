@@ -81,7 +81,8 @@
          options/1,
          get_opt/2,
          ensure_deps/2]).
--export_type([event/0,
+-export_type([dep/0,
+              event/0,
               events/0,
               info/0,
               option/0,
