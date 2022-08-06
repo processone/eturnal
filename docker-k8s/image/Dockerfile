@@ -26,6 +26,10 @@ RUN apk -U upgrade --latest \
     && wget https://s3.amazonaws.com/rebar3/rebar3 \
     && chmod +x rebar3 \
     && ./rebar3 as $REBAR_PROFILE tar \
+# BUILD: run rebar3 test suites
+    && ./rebar3 xref \
+    && ./rebar3 eunit \
+    && ./rebar3 ct \
 # RUNTIME: add/ define runtime packages
     && apk add \
       libssl1.1 \
@@ -38,7 +42,7 @@ RUN apk -U upgrade --latest \
     && install -o 9000 -g 9000 -d $HOME/log $HOME/run $HOME/tls \
     && addgroup eturnal -g 9000 \
     && adduser -s /bin/sh -D -u 9000 -H -G eturnal eturnal \
- # RUNTIME: extract release tarball to eturnal's runtime directory
+# RUNTIME: extract release tarball to eturnal's runtime directory
     && tar -xzf $BUILD_DIR/_build/$REBAR_PROFILE/rel/eturnal/eturnal-*.tar.gz -C $HOME \
     && rm -rf $HOME/etc/* \
 # RUNTIME: create eturnalctl link, entrypoint script and configuration file
