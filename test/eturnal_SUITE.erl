@@ -104,29 +104,35 @@ start_eturnal(_Config) ->
 check_info(_Config) ->
     ct:pal("Checking eturnal statistics"),
     {ok, Info} = eturnal_ctl:get_info(),
+    ct:pal("Got eturnal statistics: ~p", [Info]),
     true = is_list(Info).
 
 -spec check_all_sessions(config()) -> any().
 check_all_sessions(_Config) ->
     ct:pal("Checking active TURN sessions"),
     {ok, Sessions} = eturnal_ctl:get_sessions(),
+    ct:pal("Got active TURN sessions: ~p", [Sessions]),
     true = is_list(Sessions).
 
 -spec check_user_sessions(config()) -> any().
 check_user_sessions(_Config) ->
     ct:pal("Checking active TURN sessions of user"),
     {ok, Sessions} = eturnal_ctl:get_sessions("alice"),
+    ct:pal("Got active TURN sessions of user: ~p", [Sessions]),
     true = is_list(Sessions),
     ct:pal("Checking active TURN sessions of invalid user"),
-    {error, _Reason} = eturnal_ctl:disconnect(alice).
+    {error, Reason} = eturnal_ctl:disconnect(alice),
+    ct:pal("Got an error, as expected: ~p", [Reason]).
 
 -spec check_disconnect(config()) -> any().
 check_disconnect(_Config) ->
     ct:pal("Checking disconnection of TURN user"),
     {ok, Msg} = eturnal_ctl:disconnect("alice"),
+    ct:pal("Got result for disconnecting TURN user: ~p", [Msg]),
     true = is_list(Msg),
     ct:pal("Checking disconnection of invalid TURN user"),
-    {error, _Reason} = eturnal_ctl:disconnect(alice).
+    {error, Reason} = eturnal_ctl:disconnect(alice),
+    ct:pal("Got an error, as expected: ~p", [Reason]).
 
 -spec check_credentials(config()) -> any().
 check_credentials(_Config) ->
@@ -172,6 +178,7 @@ check_loglevel(_Config) ->
 check_version(_Config) ->
     ct:pal("Checking eturnal version"),
     {ok, Version} = eturnal_ctl:get_version(),
+    ct:pal("Got eturnal version: ~p", [Version]),
     match = re:run(Version, "^[0-9]+\\.[0-9]+\\.[0-9](\\+[0-9]+)?",
                    [{capture, none}]).
 
@@ -220,6 +227,7 @@ stun_udp(_Config) ->
     ct:pal("Performing STUN query against 127.0.0.1:~B (UDP)", [Port]),
     {ok, Addr} = inet:parse_address("127.0.0.1"),
     Result = stun_test:bind_udp(Addr, Port),
+    ct:pal("Got query result: ~p", [Result]),
     true = is_tuple(Result),
     true = element(1, Result) =:= stun.
 
@@ -229,6 +237,7 @@ stun_tcp(_Config) ->
     ct:pal("Performing STUN query against 127.0.0.1:~B (TCP)", [Port]),
     {ok, Addr} = inet:parse_address("127.0.0.1"),
     Result = stun_test:bind_tcp(Addr, Port),
+    ct:pal("Got query result: ~p", [Result]),
     true = is_tuple(Result),
     true = element(1, Result) =:= stun.
 
@@ -238,6 +247,7 @@ stun_tls(_Config) ->
     ct:pal("Performing STUN query against 127.0.0.1:~B (TLS)", [Port]),
     {ok, Addr} = inet:parse_address("127.0.0.1"),
     Result = stun_test:bind_tls(Addr, Port),
+    ct:pal("Got query result: ~p", [Result]),
     true = is_tuple(Result),
     true = element(1, Result) =:= stun.
 
@@ -247,6 +257,7 @@ stun_tcp_auto(_Config) ->
     ct:pal("Performing STUN query against 127.0.0.1:~B (TCP)", [Port]),
     {ok, Addr} = inet:parse_address("127.0.0.1"),
     Result = stun_test:bind_tcp(Addr, Port),
+    ct:pal("Got query result: ~p", [Result]),
     true = is_tuple(Result),
     true = element(1, Result) =:= stun.
 
@@ -256,6 +267,7 @@ stun_tls_auto(_Config) ->
     ct:pal("Performing STUN query against 127.0.0.1:~B (TLS)", [Port]),
     {ok, Addr} = inet:parse_address("127.0.0.1"),
     Result = stun_test:bind_tls(Addr, Port),
+    ct:pal("Got query result: ~p", [Result]),
     true = is_tuple(Result),
     true = element(1, Result) =:= stun.
 
