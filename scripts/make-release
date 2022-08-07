@@ -60,6 +60,7 @@ fi
 
 echo "$myself: Editing repository files ..."
 sed -i -e "s|^rel_vsn=.*|rel_vsn='$new_vsn'|" 'scripts/get-version'
+sed -i -e "s|^$old_vsn-r.*|$new_vsn-r0|" 'docker-k8s/pkgrel'
 sed -i -e "s|$(echo "$old_vsn" | sed 's/\./\\./g')|$new_vsn|g" \
     'README.md' 'INSTALL.md' 'QUICK-TEST.md' 'doc/overview.edoc' \
     'docker-k8s/README.md'
@@ -74,8 +75,8 @@ sed -i -e "s|compare/$old_vsn|compare/$new_vsn|" \
 
 echo "$myself: Committing result ..."
 git add 'rebar.config' 'CHANGELOG.md' 'README.md' 'INSTALL.md' 'QUICK-TEST.md' \
-    'doc/overview.edoc' 'docker-k8s/README.md' 'scripts/get-version' \
-    'scripts/make-source' 'scripts/make-binaries'
+    'doc/overview.edoc' 'docker-k8s/README.md' 'docker-k8s/pkgrel' \
+    'scripts/get-version' 'scripts/make-source' 'scripts/make-binaries'
 git commit -m "Release $new_vsn"
 git -P show
 read -p "$myself: Does the commit look fine? (y/n) [n] " response
