@@ -1,3 +1,32 @@
+% For each profile specified in the rebar.config file, generate three additional
+% profiles. E.g., for the 'prod' profile:
+%
+% - The 'prod_debug' profile sets 'debug_info' to 'keep' (required for hot
+%   release upgrades) and removes any 'erl_opts'.
+% - The 'prod_cross' profile includes ERTS and system libraries from the
+%   "lib/erlang" directory (required for cross compilation).
+% - The 'prod_cross_debug' profile does both.
+
+{value, {profiles, Profiles}, Config1} = lists:keytake(profiles, 1, CONFIG),
+
+Profiles1 =
+    lists:flatmap(
+      fun({Name, Opts} = Profile) ->
+              InclErts = {include_erts, "lib/erlang"},
+              InclLibs = {system_libs, "lib/erlang/lib"},
+              InclInfo = {debug_info, keep},
+              Name1 = list_to_atom(atom_to_list(Name) ++ "_cross"),
+              Name2 = list_to_atom(atom_to_list(Name) ++ "_debug"),
+              Name3 = list_to_atom(atom_to_list(Name) ++ "_cross_debug"),
+              Opts0 = lists:keystore(include_erts, 1, Opts, InclErts),
+              Opts1 = lists:keystore(system_libs, 1, Opts0, InclLibs),
+              Opts2 = lists:keystore(debug_info, 1, lists:keydelete(erl_opts, 1, Opts), InclInfo),
+              Opts3 = lists:keystore(debug_info, 1, lists:keydelete(erl_opts, 1, Opts1), InclInfo),
+              [Profile, {Name1, Opts1}, {Name2, Opts2}, {Name3, Opts3}]
+      end, Profiles),
+
+Config2 = lists:keystore(profiles, 1, Config1, {profiles, Profiles1}),
+
 % Remove the rebar.lock file and set SKIP_DEPS=true to skip dependency handling.
 
 case os:getenv("SKIP_DEPS") of
@@ -5,7 +34,7 @@ case os:getenv("SKIP_DEPS") of
         SkipOpts = [deps, plugins],
         lists:foldl(fun(Opt, Acc) ->
                             lists:keydelete(Opt, 1, Acc)
-                    end, CONFIG, SkipOpts);
+                    end, Config2, SkipOpts);
     _ ->
-        CONFIG
+        Config2
 end.
