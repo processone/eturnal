@@ -1,0 +1,5 @@
+# to update a container image release
+## only necessary, e.g. if (relevant) vulnerabilities in image packages have been detected.
+## github action "tails" the last line of this file to extract the relevant release and tags.
+## the 'r0'-suffix is the initial release version, so an updated release suffix should start with 'r1', following 'r2', 'r3', etc.
+1.10.0-r1
