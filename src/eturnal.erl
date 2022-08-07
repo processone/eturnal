@@ -106,28 +106,10 @@ init(_Opts) ->
                   {pid(), term()}, state())
       -> {reply, ok | {ok, term()} | {error, term()}, state()}.
 handle_call(reload, _From, State) ->
-    case conf:reload_file() of
-        ok ->
-            try check_pem_file() of
-                ok ->
-                    ok = fast_tls:clear_cache(),
-                    ?LOG_INFO("Using new TLS certificate");
-                unchanged ->
-                    ?LOG_DEBUG("TLS certificate unchanged")
-            catch exit:Reason1 ->
-                    ?LOG_ERROR(format_error(Reason1))
-            end,
-            try {stop_modules(State), start_modules()} of
-                {ok, Modules} ->
-                    ?LOG_DEBUG("Restarted modules"),
-                    {reply, ok, State#eturnal_state{modules = Modules}}
-            catch exit:Reason2 ->
-                    ?LOG_ERROR(format_error(Reason2)),
-                    {reply, ok, State}
-            end;
-        {error, Reason} = Err ->
-            ?LOG_ERROR("Cannot reload configuration: ~ts",
-                       [conf:format_error(Reason)]),
+    case reload(State) of
+        {ok, State1} ->
+            {reply, ok, State1};
+        {error, _Reason} = Err ->
             {reply, Err, State}
     end;
 handle_call(get_info, _From, State) ->
@@ -158,9 +140,17 @@ handle_call(Request, From, State) ->
     ?LOG_ERROR("Got unexpected request from ~p: ~p", [From, Request]),
     {reply, {error, badarg}, State}.
 
--spec handle_cast({config_change, config_changes(),
+-spec handle_cast(reload |
+                  {config_change, config_changes(),
                    fun(() -> ok), fun(() -> ok)} | term(), state())
       -> {noreply, state()}.
+handle_cast(reload, State) ->
+    case reload(State) of
+        {ok, State1} ->
+            {noreply, State1};
+        {error, _Reason} ->
+            {noreply, State}
+    end;
 handle_cast({config_change, Changes, BeginFun, EndFun}, State) ->
     ok = BeginFun(),
     State1 = apply_config_changes(State, Changes),
@@ -514,6 +504,33 @@ check_proxy_config() ->
     end.
 
 %% Internal functions: configuration reload.
+
+-spec reload(state()) -> {ok, state()} | {error, term()}.
+reload(State) ->
+    case conf:reload_file() of
+        ok ->
+            try check_pem_file() of
+                ok ->
+                    ok = fast_tls:clear_cache(),
+                    ?LOG_INFO("Using new TLS certificate");
+                unchanged ->
+                    ?LOG_DEBUG("TLS certificate unchanged")
+            catch exit:Reason1 ->
+                    ?LOG_ERROR(format_error(Reason1))
+            end,
+            try {stop_modules(State), start_modules()} of
+                {ok, Modules} ->
+                    ?LOG_DEBUG("Restarted modules"),
+                    {ok, State#eturnal_state{modules = Modules}}
+            catch exit:Reason2 ->
+                    ?LOG_ERROR(format_error(Reason2)),
+                    {ok, State}
+            end;
+        {error, Reason} = Err ->
+            ?LOG_ERROR("Cannot reload configuration: ~ts",
+                       [conf:format_error(Reason)]),
+            Err
+    end.
 
 -spec apply_config_changes(state(), config_changes()) -> state().
 apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->

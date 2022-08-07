@@ -1,7 +1,7 @@
 %%% eturnal STUN/TURN server.
 %%%
-%%% Copyright (c) 2020 Holger Weiss <holger@zedat.fu-berlin.de>.
-%%% Copyright (c) 2020 ProcessOne, SARL.
+%%% Copyright (c) 2020-2022 Holger Weiss <holger@zedat.fu-berlin.de>.
+%%% Copyright (c) 2020-2022 ProcessOne, SARL.
 %%% All rights reserved.
 %%%
 %%% Licensed under the Apache License, Version 2.0 (the "License");
@@ -58,19 +58,41 @@ stop(_State) ->
 
 -spec config_change([{atom(), term()}], [{atom(), term()}], [atom()]) -> ok.
 config_change(Changed, New, Removed) ->
-    ok = gen_server:cast(eturnal, {config_change, {Changed, New, Removed},
-                                   fun eturnal_systemd:reloading/0,
-                                   fun eturnal_systemd:ready/0}).
+    case conf_is_loaded() of
+        true ->
+            ok = gen_server:cast(
+                   eturnal, {config_change, {Changed, New, Removed},
+                             fun eturnal_systemd:reloading/0,
+                             fun eturnal_systemd:ready/0});
+        false ->
+            ?LOG_NOTICE("Upgraded to eturnal ~s, reapplying configuration",
+                        [eturnal_misc:version()]),
+            ok = conf_load(),
+            ok = gen_server:cast(eturnal, reload)
+    end.
 
 %% Internal functions.
 
 -spec conf_init() -> ok.
 conf_init() -> % Just to cope with an empty configuration file.
+    case conf_is_loaded() of
+        true ->
+            ?LOG_DEBUG("Configuration has been loaded successfully"),
+            ok;
+        false ->
+            ?LOG_DEBUG("Empty configuration, using defaults"),
+            ok = conf_load()
+    end.
+
+-spec conf_load() -> ok.
+conf_load() ->
+    ok = conf:load([{eturnal, []}]).
+
+-spec conf_is_loaded() -> boolean().
+conf_is_loaded() ->
     try eturnal:get_opt(realm) of
         Realm when is_binary(Realm) ->
-            ?LOG_DEBUG("Configuration has been loaded successfully"),
-            ok
+            true
     catch error:{badmatch, undefined} ->
-            ?LOG_DEBUG("Empty configuration, using defaults"),
-            ok = conf:load([{eturnal, []}])
+            false
     end.
