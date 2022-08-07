@@ -6,8 +6,9 @@ on:
       - master
     paths-ignore:
       - 'doc/**'
-      - 'docker-k8s/pkgrel'      
+      - 'docker-k8s/pkgrel'
       - 'docker-k8s/examples/**'
+      - 'scripts/get-version'
       - 'windows/**'
       - '**.md'
   schedule:

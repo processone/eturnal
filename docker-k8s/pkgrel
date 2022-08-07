@@ -1,6 +1,18 @@
-# to update a container image release
-## only necessary, e.g. if (relevant) vulnerabilities in image packages have been detected.
-## github action "tails" the last line of this file to extract the relevant release and tags.
-## the 'r0'-suffix is the initial release version, so an updated release suffix should start with 'r1', following 'r2', 'r3', etc.
+#  File containing the...
+#     container image version
+#  ...to create and update container-image releases (see github workflows)
+#
+#  Usage:
+#    Case 1) New eturnal release/tag with x.x.x
+#      * the container image version will be x.x.x-r0 ('r0'-suffix is adopted from AlpineLinux package versioning)
+#
+#    Case 2) Container image update, eturnal release remains as in the first case
+#      * only necessary, e.g. if (relevant) vulnerabilities in image packages have been detected
+#      * only the suffix of the container image version is updated,
+#        e.g. x.x.x-r1, x.x.x-r2, etc.
+#
+#  Hint:
+#  The github action "tails" the last line of this file to extract the relevant release and tags.
+#
 
 1.10.1-r1

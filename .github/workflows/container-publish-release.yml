@@ -1,19 +1,48 @@
-name: 'Docker: Publish release image'
+name: 'Docker: Publish/update release image'
 
 on:
   push:
-    tags:
-      - '*.*.*'
+    paths:
+      - 'docker-k8s/pkgrel'
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 #  DOCKERHUB_REPO: processone/eturnal
+  PKGREL_FILE: docker-k8s/pkgrel
 
 jobs:
-  build-x86-64:
-    name: x86-64 - Build & publish release image
+  detect-change:
+    name: Check ctr version change
     runs-on: ubuntu-latest
+    outputs:
+      update: ${{ steps.check_version_changed.outputs.update }}
+    steps:
+      -
+        name: Check out repository code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+      -
+        name: Compare versions between commits
+        id: check_version_changed
+        shell: bash
+        run: |
+          TAG_PKGREL=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1))
+          git checkout HEAD^
+          TAG_PKGREL_BASELINE=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1))
+          if [[ "$TAG_PKGREL" != "$TAG_PKGREL_BASELINE" ]]
+          then
+            echo "::set-output name=update::true"
+          else
+            echo "::set-output name=update::false" 
+          fi
+
+  build-x86-64:
+    name: x86-64 - Build & publish/update release
+    runs-on: ubuntu-latest
+    needs: [detect-change]
+    if: needs.detect-change.outputs.update == 'true'
     permissions:
       contents: read
       packages: write
@@ -24,12 +53,22 @@ jobs:
       -
         name: Check out repository code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       -
-        name: Extract tags for build arguments
+        name: Extract tag of release to be published/updated
         run: |
-          echo "TAG_VERSION=$(git describe --tags `git rev-list --tags --max-count=0`)" >> $GITHUB_ENV
+          echo "TAG_PKGREL=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1))" >> $GITHUB_ENV
+          echo "TAG_VERSION=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\-/ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_MINOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /2' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_MAJOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+      -
+        name: Check out release to be published/updated
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.TAG_VERSION }}
+      -
+        name: Extract Dockerfile path
+        run: |
+          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
       -
         name: Docker meta
         id: meta
@@ -39,13 +78,11 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 #            ${{ env.DOCKERHUB_REPO }}
           tags: |
-            type=semver,pattern={{version}}-r0-x86-64
-            type=semver,pattern={{version}}-x86-64
-            type=semver,pattern={{major}}.{{minor}}-x86-64
-            type=semver,pattern={{major}}-x86-64
             latest-x86-64
-          flavor: |
-            latest=false
+            ${{ env.TAG_PKGREL }}-x86-64
+            ${{ env.TAG_VERSION }}-x86-64
+            ${{ env.TAG_MINOR }}-x86-64
+            ${{ env.TAG_MAJOR }}-x86-64
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -71,7 +108,7 @@ jobs:
           build-args: |
             VERSION=${{ env.TAG_VERSION }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
-          context: docker-k8s/image/.
+          context: ${{ env.DOCKERFILE_PATH }}/.
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
@@ -79,8 +116,10 @@ jobs:
 
 
   build-i386:
-    name: i386 - Build & publish release image
+    name: i386 - Build & publish/update release
     runs-on: ubuntu-latest
+    needs: [detect-change]
+    if: needs.detect-change.outputs.update == 'true'
     permissions:
       contents: read
       packages: write
@@ -91,12 +130,22 @@ jobs:
       -
         name: Check out repository code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       -
-        name: Extract tags for build arguments
+        name: Extract tag of release to be published/updated
         run: |
-          echo "TAG_VERSION=$(git describe --tags `git rev-list --tags --max-count=0`)" >> $GITHUB_ENV
+          echo "TAG_PKGREL=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1))" >> $GITHUB_ENV
+          echo "TAG_VERSION=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\-/ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_MINOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /2' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_MAJOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+      -
+        name: Check out release to be published/updated
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.TAG_VERSION }}
+      -
+        name: Extract Dockerfile path
+        run: |
+          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
       -
         name: Docker meta
         id: meta
@@ -106,13 +155,11 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 #            ${{ env.DOCKERHUB_REPO }}
           tags: |
-            type=semver,pattern={{version}}-r0-i386
-            type=semver,pattern={{version}}-i386
-            type=semver,pattern={{major}}.{{minor}}-i386
-            type=semver,pattern={{major}}-i386
             latest-i386
-          flavor: |
-            latest=false
+            ${{ env.TAG_PKGREL }}-i386
+            ${{ env.TAG_VERSION }}-i386
+            ${{ env.TAG_MINOR }}-i386
+            ${{ env.TAG_MAJOR }}-i386
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -138,15 +185,17 @@ jobs:
           build-args: |
             VERSION=${{ env.TAG_VERSION }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
-          context: docker-k8s/image/.
+          context: ${{ env.DOCKERFILE_PATH }}/.
           platforms: linux/386
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
   build-aarch64:
-    name: aarch64 - Build & publish release image
+    name: aarch64 - Build & publish/update release
     runs-on: ubuntu-latest
+    needs: [detect-change]
+    if: needs.detect-change.outputs.update == 'true'
     permissions:
       contents: read
       packages: write
@@ -157,12 +206,22 @@ jobs:
       -
         name: Check out repository code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       -
-        name: Extract tags for build arguments
+        name: Extract tag of release to be published/updated
         run: |
-          echo "TAG_VERSION=$(git describe --tags `git rev-list --tags --max-count=0`)" >> $GITHUB_ENV
+          echo "TAG_PKGREL=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1))" >> $GITHUB_ENV
+          echo "TAG_VERSION=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\-/ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_MINOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /2' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_MAJOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+      -
+        name: Check out release to be published/updated
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.TAG_VERSION }}
+      -
+        name: Extract Dockerfile path
+        run: |
+          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
       -
         name: Docker meta
         id: meta
@@ -172,13 +231,11 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 #            ${{ env.DOCKERHUB_REPO }}
           tags: |
-            type=semver,pattern={{version}}-r0-aarch64
-            type=semver,pattern={{version}}-aarch64
-            type=semver,pattern={{major}}.{{minor}}-aarch64
-            type=semver,pattern={{major}}-aarch64
             latest-aarch64
-          flavor: |
-            latest=false
+            ${{ env.TAG_PKGREL }}-aarch64
+            ${{ env.TAG_VERSION }}-aarch64
+            ${{ env.TAG_MINOR }}-aarch64
+            ${{ env.TAG_MAJOR }}-aarch64
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -207,15 +264,17 @@ jobs:
           build-args: |
             VERSION=${{ env.TAG_VERSION }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
-          context: docker-k8s/image/.
+          context: ${{ env.DOCKERFILE_PATH }}/.
           platforms: linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
   build-armv7:
-    name: armv7 - Build & publish release image
+    name: armv7 - Build & publish/update release
     runs-on: ubuntu-latest
+    needs: [detect-change]
+    if: needs.detect-change.outputs.update == 'true'
     permissions:
       contents: read
       packages: write
@@ -226,12 +285,22 @@ jobs:
       -
         name: Check out repository code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       -
-        name: Extract tags for build arguments
+        name: Extract tag of release to be published/updated
         run: |
-          echo "TAG_VERSION=$(git describe --tags `git rev-list --tags --max-count=0`)" >> $GITHUB_ENV
+          echo "TAG_PKGREL=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1))" >> $GITHUB_ENV
+          echo "TAG_VERSION=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\-/ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_MINOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /2' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_MAJOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+      -
+        name: Check out release to be published/updated
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.TAG_VERSION }}
+      -
+        name: Extract Dockerfile path
+        run: |
+          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
       -
         name: Docker meta
         id: meta
@@ -241,13 +310,11 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 #            ${{ env.DOCKERHUB_REPO }}
           tags: |
-            type=semver,pattern={{version}}-r0-armv7
-            type=semver,pattern={{version}}-armv7
-            type=semver,pattern={{major}}.{{minor}}-armv7
-            type=semver,pattern={{major}}-armv7
             latest-armv7
-          flavor: |
-            latest=false
+            ${{ env.TAG_PKGREL }}-armv7
+            ${{ env.TAG_VERSION }}-armv7
+            ${{ env.TAG_MINOR }}-armv7
+            ${{ env.TAG_MAJOR }}-armv7
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -276,15 +343,17 @@ jobs:
           build-args: |
             VERSION=${{ env.TAG_VERSION }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
-          context: docker-k8s/image/.
+          context: ${{ env.DOCKERFILE_PATH }}/.
           platforms: linux/arm/v7
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
   build-armhf:
-    name: armhf - Build & publish release image
+    name: armhf - Build & publish/update release
     runs-on: ubuntu-latest
+    needs: [detect-change]
+    if: needs.detect-change.outputs.update == 'true'
     permissions:
       contents: read
       packages: write
@@ -295,12 +364,22 @@ jobs:
       -
         name: Check out repository code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       -
-        name: Extract tags for build arguments
+        name: Extract tag of release to be published/updated
         run: |
-          echo "TAG_VERSION=$(git describe --tags `git rev-list --tags --max-count=0`)" >> $GITHUB_ENV
+          echo "TAG_PKGREL=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1))" >> $GITHUB_ENV
+          echo "TAG_VERSION=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\-/ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_MINOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /2' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_MAJOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+      -
+        name: Check out release to be published/updated
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.TAG_VERSION }}
+      -
+        name: Extract Dockerfile path
+        run: |
+          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
       -
         name: Docker meta
         id: meta
@@ -310,13 +389,11 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 #            ${{ env.DOCKERHUB_REPO }}
           tags: |
-            type=semver,pattern={{version}}-r0-armhf
-            type=semver,pattern={{version}}-armhf
-            type=semver,pattern={{major}}.{{minor}}-armhf
-            type=semver,pattern={{major}}-armhf
             latest-armhf
-          flavor: |
-            latest=false
+            ${{ env.TAG_PKGREL }}-armhf
+            ${{ env.TAG_VERSION }}-armhf
+            ${{ env.TAG_MINOR }}-armhf
+            ${{ env.TAG_MAJOR }}-armhf
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -345,15 +422,17 @@ jobs:
           build-args: |
             VERSION=${{ env.TAG_VERSION }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
-          context: docker-k8s/image/.
+          context: ${{ env.DOCKERFILE_PATH }}/.
           platforms: linux/arm/v6
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
   build-ppc64le:
-    name: ppc64le - Build & publish release image
+    name: ppc64le - Build & publish/update release
     runs-on: ubuntu-latest
+    needs: [detect-change]
+    if: needs.detect-change.outputs.update == 'true'
     permissions:
       contents: read
       packages: write
@@ -364,12 +443,22 @@ jobs:
       -
         name: Check out repository code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       -
-        name: Extract tags for build arguments
+        name: Extract tag of release to be published/updated
         run: |
-          echo "TAG_VERSION=$(git describe --tags `git rev-list --tags --max-count=0`)" >> $GITHUB_ENV
+          echo "TAG_PKGREL=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1))" >> $GITHUB_ENV
+          echo "TAG_VERSION=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\-/ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_MINOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /2' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_MAJOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+      -
+        name: Check out release to be published/updated
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.TAG_VERSION }}
+      -
+        name: Extract Dockerfile path
+        run: |
+          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
       -
         name: Docker meta
         id: meta
@@ -379,13 +468,11 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 #            ${{ env.DOCKERHUB_REPO }}
           tags: |
-            type=semver,pattern={{version}}-r0-ppc64le
-            type=semver,pattern={{version}}-ppc64le
-            type=semver,pattern={{major}}.{{minor}}-ppc64le
-            type=semver,pattern={{major}}-ppc64le
             latest-ppc64le
-          flavor: |
-            latest=false
+            ${{ env.TAG_PKGREL }}-ppc64le
+            ${{ env.TAG_VERSION }}-ppc64le
+            ${{ env.TAG_MINOR }}-ppc64le
+            ${{ env.TAG_MAJOR }}-ppc64le
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -414,15 +501,17 @@ jobs:
           build-args: |
             VERSION=${{ env.TAG_VERSION }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
-          context: docker-k8s/image/.
+          context: ${{ env.DOCKERFILE_PATH }}/.
           platforms: linux/ppc64le
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
   build-s390x:
-    name: s390x - Build & publish release image
+    name: s390x - Build & publish/update release
     runs-on: ubuntu-latest
+    needs: [detect-change]
+    if: needs.detect-change.outputs.update == 'true'
     permissions:
       contents: read
       packages: write
@@ -433,12 +522,22 @@ jobs:
       -
         name: Check out repository code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       -
-        name: Extract tags for build arguments
+        name: Extract tag of release to be published/updated
         run: |
-          echo "TAG_VERSION=$(git describe --tags `git rev-list --tags --max-count=0`)" >> $GITHUB_ENV
+          echo "TAG_PKGREL=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1))" >> $GITHUB_ENV
+          echo "TAG_VERSION=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\-/ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_MINOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /2' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_MAJOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+      -
+        name: Check out release to be published/updated
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.TAG_VERSION }}
+      -
+        name: Extract Dockerfile path
+        run: |
+          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
       -
         name: Docker meta
         id: meta
@@ -448,13 +547,11 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 #            ${{ env.DOCKERHUB_REPO }}
           tags: |
-            type=semver,pattern={{version}}-r0-s390x
-            type=semver,pattern={{version}}-s390x
-            type=semver,pattern={{major}}.{{minor}}-s390x
-            type=semver,pattern={{major}}-s390x
             latest-s390x
-          flavor: |
-            latest=false
+            ${{ env.TAG_PKGREL }}-s390x
+            ${{ env.TAG_VERSION }}-s390x
+            ${{ env.TAG_MINOR }}-s390x
+            ${{ env.TAG_MAJOR }}-s390x
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -483,7 +580,7 @@ jobs:
           build-args: |
             VERSION=${{ env.TAG_VERSION }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
-          context: docker-k8s/image/.
+          context: ${{ env.DOCKERFILE_PATH }}/.
           platforms: linux/s390x
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
@@ -501,19 +598,15 @@ jobs:
       id-token: write
     steps:
       -
-        name: Check out master
+        name: Check out repository code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
       -
-        name: Extract tag of latest release
+        name: Extract tag of release to be published/updated
         run: |
-          echo "TAG_VERSION=$(git describe --tags `git rev-list --tags --max-count=1`)" >> $GITHUB_ENV
-      -
-        name: Extract major/ minor release tags
-        run: |
-          echo "TAG_MINOR=$(echo "$TAG_VERSION" | sed 's/\./ /2' | awk '{ print $1 }')" >> $GITHUB_ENV
-          echo "TAG_MAJOR=$(echo "$TAG_VERSION" | sed 's/\./ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_PKGREL=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1))" >> $GITHUB_ENV
+          echo "TAG_VERSION=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\-/ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_MINOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /2' | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "TAG_MAJOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -537,27 +630,27 @@ jobs:
         run: |
           docker buildx imagetools create \
             --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-            --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-r0 \
+            --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_PKGREL }} \
             --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }} \
             --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_MINOR }} \
             --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_MAJOR }} \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-x86-64 \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-i386 \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-aarch64 \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-armv7 \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-armhf \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-ppc64le \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-s390x
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_PKGREL }}-x86-64 \
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_PKGREL }}-i386 \
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_PKGREL }}-aarch64 \
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_PKGREL }}-armv7 \
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_PKGREL }}-armhf \
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_PKGREL }}-ppc64le \
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_PKGREL }}-s390x
 #          docker buildx imagetools create \
 #            --tag ${{ env.DOCKERHUB_REPO }}:latest \
-#            --tag ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-r0 \
+#            --tag ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_PKGREL }} \
 #            --tag ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }} \
 #            --tag ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_MINOR }} \
 #            --tag ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_MAJOR }} \
-#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-x86-64 \
-#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-i386 \
-#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-aarch64 \
-#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-armv7 \
-#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-armhf \
-#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-ppc64le \
-#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-s390x
+#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_PKGREL }}-x86-64 \
+#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_PKGREL }}-i386 \
+#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_PKGREL }}-aarch64 \
+#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_PKGREL }}-armv7 \
+#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_PKGREL }}-armhf \
+#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_PKGREL }}-ppc64le \
+#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_PKGREL }}-s390x
