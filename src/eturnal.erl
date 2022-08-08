@@ -28,8 +28,6 @@
          terminate/2,
          code_change/3]).
 -export([init_config/0,
-         load_config/0,
-         reload_config/0,
          config_is_loaded/0,
          run_hook/2,
          get_password/2,
@@ -204,16 +202,8 @@ init_config() -> % Just to cope with an empty configuration file.
             ok;
         false ->
             ?LOG_DEBUG("Empty configuration, using defaults"),
-            ok = load_config()
+            ok = conf:load([{eturnal, []}])
     end.
-
--spec load_config() -> ok.
-load_config() ->
-    ok = conf:load([{eturnal, []}]).
-
--spec reload_config() -> ok.
-reload_config() ->
-    ok = gen_server:cast(eturnal, reload).
 
 -spec config_is_loaded() -> boolean().
 config_is_loaded() ->
@@ -288,6 +278,12 @@ abort(Reason) ->
             eturnal_logger:flush(),
             halt(1)
     end.
+
+%% Internal functions: reload configuration.
+
+-spec reload_config() -> ok.
+reload_config() ->
+    ok = gen_server:cast(?MODULE, reload).
 
 %% Internal functions: authentication.
 
