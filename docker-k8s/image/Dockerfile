@@ -4,11 +4,10 @@ ARG BUILD_DIR=/eturnal
 ARG REPOSITORY=https://github.com/processone/eturnal.git
 ARG VERSION=master
 ARG REBAR_PROFILE=stripped
-ARG HOME_DIR=/opt/eturnal
+ARG HOME=/opt/eturnal
 # RUNTIME: define container runtime environment variables
-ENV HOME=$HOME_DIR \
-    PIPE_DIR=$HOME_DIR/run/pipe/ \
-    ERL_DIST_PORT=3470 \
+ENV ERL_DIST_PORT=3470 \
+    PIPE_DIR=$HOME/run/pipe/ \
     STUN_SERVICE="stun.conversations.im 3478"
 
 WORKDIR $BUILD_DIR
@@ -45,14 +44,15 @@ RUN set -x && apk -U upgrade --latest \
 # RUNTIME: extract release tarball to eturnal's runtime directory
     && tar -xzf $BUILD_DIR/_build/$REBAR_PROFILE/rel/eturnal/eturnal-*.tar.gz -C $HOME \
     && rm -rf $HOME/etc/* \
-# RUNTIME: create eturnalctl link, entrypoint script and configuration file
+# RUNTIME: create symbolic links, entrypoint script and minimal configuration file
     && ln -s $HOME/bin/eturnalctl /usr/local/bin/eturnalctl \
+    && ln -s $HOME/bin/stun /usr/local/bin/stun \
     && echo -e \
         '#!/bin/sh \
         \nif [ "$STUN_SERVICE" != "false" ] \
         \nthen \
-        \n  export ETURNAL_RELAY_IPV4_ADDR=${ETURNAL_RELAY_IPV4_ADDR-$($HOME/bin/stun -4 $STUN_SERVICE)} \
-        \n  export ETURNAL_RELAY_IPV6_ADDR=${ETURNAL_RELAY_IPV6_ADDR-$($HOME/bin/stun -6 $STUN_SERVICE)} \
+        \n  export ETURNAL_RELAY_IPV4_ADDR=${ETURNAL_RELAY_IPV4_ADDR-$(stun -4 $STUN_SERVICE)} \
+        \n  export ETURNAL_RELAY_IPV6_ADDR=${ETURNAL_RELAY_IPV6_ADDR-$(stun -6 $STUN_SERVICE)} \
         \nfi \
         \nexec "$@"' > /usr/local/bin/run.sh \
     && chmod +x /usr/local/bin/run.sh \
