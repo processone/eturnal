@@ -191,7 +191,6 @@ terminate(Reason, State) ->
 code_change(_OldVsn, State, _Extra) ->
     ?LOG_NOTICE("Upgraded to eturnal ~s, reapplying configuration",
                 [eturnal_misc:version()]),
-    ok = load_config(),
     ok = reload_config(),
     {ok, State}.
 
