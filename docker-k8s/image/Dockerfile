@@ -12,7 +12,7 @@ ENV HOME=$HOME_DIR \
     STUN_SERVICE="stun.conversations.im 3478"
 
 WORKDIR $BUILD_DIR
-RUN apk -U upgrade --latest \
+RUN set -x && apk -U upgrade --latest \
 # BUILD: add build dependencies
     && apk add -t build-deps \
       build-base \
