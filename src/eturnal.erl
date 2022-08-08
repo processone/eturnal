@@ -27,7 +27,11 @@
          handle_info/2,
          terminate/2,
          code_change/3]).
--export([run_hook/2,
+-export([init_config/0,
+         load_config/0,
+         reload_config/0,
+         config_is_loaded/0,
+         run_hook/2,
          get_password/2,
          get_opt/1,
          create_self_signed/1,
@@ -185,8 +189,41 @@ terminate(Reason, State) ->
 
 -spec code_change({down, term()} | term(), state(), term()) -> {ok, state()}.
 code_change(_OldVsn, State, _Extra) ->
-    ?LOG_INFO("Got code change request"),
+    ?LOG_NOTICE("Upgraded to eturnal ~s, reapplying configuration",
+                [eturnal_misc:version()]),
+    ok = load_config(),
+    ok = reload_config(),
     {ok, State}.
+
+%% API: (re)load configuration.
+
+-spec init_config() -> ok.
+init_config() -> % Just to cope with an empty configuration file.
+    case config_is_loaded() of
+        true ->
+            ?LOG_DEBUG("Configuration has been loaded successfully"),
+            ok;
+        false ->
+            ?LOG_DEBUG("Empty configuration, using defaults"),
+            ok = load_config()
+    end.
+
+-spec load_config() -> ok.
+load_config() ->
+    ok = conf:load([{eturnal, []}]).
+
+-spec reload_config() -> ok.
+reload_config() ->
+    ok = gen_server:cast(eturnal, reload).
+
+-spec config_is_loaded() -> boolean().
+config_is_loaded() ->
+    try eturnal:get_opt(realm) of
+        Realm when is_binary(Realm) ->
+            true
+    catch error:{badmatch, undefined} ->
+            false
+    end.
 
 %% API: stun callbacks.
 
@@ -226,6 +263,18 @@ get_password(Username, _Realm) ->
 get_opt(Opt) ->
     {ok, Val} = application:get_env(eturnal, Opt),
     Val.
+
+%% API: create self-signed certificate.
+
+-spec create_self_signed(file:filename_all()) -> ok.
+create_self_signed(File) ->
+    try
+        PEM = eturnal_cert:create(get_opt(realm)),
+        ok = touch(File),
+        ok = file:write_file(File, PEM, [raw])
+    catch error:{_, {error, Reason}} ->
+            exit({pem_failure, File, Reason})
+    end.
 
 %% API: abnormal termination.
 
@@ -715,16 +764,6 @@ import_pem_file(CrtFile, OutFile) ->
         ok = copy_file(CrtFile, OutFile, append)
     catch error:{_, {error, Reason}} ->
             exit({pem_failure, OutFile, Reason})
-    end.
-
--spec create_self_signed(file:filename_all()) -> ok.
-create_self_signed(File) ->
-    try
-        PEM = eturnal_cert:create(get_opt(realm)),
-        ok = touch(File),
-        ok = file:write_file(File, PEM, [raw])
-    catch error:{_, {error, Reason}} ->
-            exit({pem_failure, File, Reason})
     end.
 
 -spec copy_file(file:name_all(), file:name_all(), write | append) -> ok.
