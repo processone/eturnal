@@ -70,7 +70,7 @@ RUN apk -U upgrade --latest \
       apk-tools \
       build-deps \
       libc-utils \
-    && rm -rf $BUILD_DIR /var/cache/apk /etc/apk \
+    && rm -rf $BUILD_DIR /var/cache/apk /etc/apk /tmp \
     && find /lib/apk/db -type f -not -name 'installed' -delete
 
 # RUNTIME: define container runtime parameters
