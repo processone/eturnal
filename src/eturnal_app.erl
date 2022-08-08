@@ -61,10 +61,9 @@ config_change(Changed, New, Removed) ->
     case eturnal:config_is_loaded() of
         true ->
             ?LOG_DEBUG("Got configuration change event"),
-            ok = gen_server:cast(
-                   eturnal, {config_change, {Changed, New, Removed},
-                             fun eturnal_systemd:reloading/0,
-                             fun eturnal_systemd:ready/0});
+            ok = eturnal:reload({Changed, New, Removed},
+                                fun eturnal_systemd:reloading/0,
+                                fun eturnal_systemd:ready/0);
         false ->
             ?LOG_DEBUG("Got configuration change event after release upgrade")
     end.

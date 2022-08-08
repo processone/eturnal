@@ -33,6 +33,7 @@
          get_password/2,
          get_opt/1,
          create_self_signed/1,
+         reload/3,
          abort/1]).
 -export_type([transport/0]).
 
@@ -264,6 +265,13 @@ create_self_signed(File) ->
     catch error:{_, {error, Reason}} ->
             exit({pem_failure, File, Reason})
     end.
+
+%% API: reload service.
+
+-spec reload(config_changes(), fun(() -> ok), fun(() -> ok)) -> ok.
+reload(ConfigChanges, BeginFun, EndFun) ->
+    Msg = {config_change, ConfigChanges, BeginFun, EndFun},
+    ok = gen_server:cast(?MODULE, Msg).
 
 %% API: abnormal termination.
 
