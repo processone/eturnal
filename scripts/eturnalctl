@@ -150,7 +150,7 @@ else
     then
         cd '/'
         arg="$(printf '%s' "$*" | sed 's/[^[:alnum:][:space:]]/\\&/g')"
-        exec su "$user" -c "$cmd $arg"
+        exec su "$user" -c "exec $cmd $arg"
     else
         exec "$cmd" "$@"
     fi
