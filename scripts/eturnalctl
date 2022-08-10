@@ -145,21 +145,19 @@ then
     else
         usage "$cmd"
     fi
+elif [ "$(id -u)" = '0' ]
+then
+    cd '/'
+    arg="$(printf '%s' "$*" | sed 's/[^[:alnum:][:space:]]/\\&/g')"
+    case $(uname -s) in
+        Linux|OpenBSD)
+            s_opt='-s /bin/sh'
+            ;;
+        *)
+            s_opt=''
+            ;;
+    esac
+    exec su $s_opt "$user" -c "exec $cmd $arg"
 else
-    if [ "$(id -u)" = '0' ]
-    then
-        cd '/'
-        arg="$(printf '%s' "$*" | sed 's/[^[:alnum:][:space:]]/\\&/g')"
-        case $(uname -s) in
-            Linux|OpenBSD)
-                s_opt='-s /bin/sh'
-                ;;
-            *)
-                s_opt=''
-                ;;
-        esac
-        exec su $s_opt "$user" -c "exec $cmd $arg"
-    else
-        exec "$cmd" "$@"
-    fi
+    exec "$cmd" "$@"
 fi
