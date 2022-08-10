@@ -150,7 +150,15 @@ else
     then
         cd '/'
         arg="$(printf '%s' "$*" | sed 's/[^[:alnum:][:space:]]/\\&/g')"
-        exec su "$user" -c "exec $cmd $arg"
+        case $(uname -s) in
+            Linux|OpenBSD)
+                s_opt='-s /bin/sh'
+                ;;
+            *)
+                s_opt=''
+                ;;
+        esac
+        exec su $s_opt "$user" -c "exec $cmd $arg"
     else
         exec "$cmd" "$@"
     fi
