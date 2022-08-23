@@ -1,0 +1,42 @@
+#!/usr/bin/env escript
+
+%%% Build escript(s) to be included with an eturnal release.
+%%%
+%%% Copyright (c) 2022 Holger Weiss <holger@zedat.fu-berlin.de>.
+%%% Copyright (c) 2022 ProcessOne, SARL.
+%%% All rights reserved.
+%%%
+%%% Licensed under the Apache License, Version 2.0 (the "License");
+%%% you may not use this file except in compliance with the License.
+%%% You may obtain a copy of the License at
+%%%
+%%%     http://www.apache.org/licenses/LICENSE-2.0
+%%%
+%%% Unless required by applicable law or agreed to in writing, software
+%%% distributed under the License is distributed on an "AS IS" BASIS,
+%%% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+%%% See the License for the specific language governing permissions and
+%%% limitations under the License.
+
+-define(SHEBANG, "#!{{eturnal_prefix}}/erts-{{release_erts_version}}/bin/escript").
+-define(DEFAULT_LIB_DIR, "_build/default/lib").
+
+-spec main([string()]) -> ok.
+main(Files) ->
+    Opts = [{i, lib_dir()}, binary, deterministic],
+    ok = lists:foreach(
+           fun(DstFile) ->
+                   SrcFile = DstFile ++ ".erl",
+                   {ok, _Mod, Code} = compile:file(SrcFile, Opts),
+                   ok = file:write_file(DstFile, [?SHEBANG, io_lib:nl(), Code]),
+                   ok = file:change_mode(DstFile, 8#00755)
+           end, Files).
+
+-spec lib_dir() -> string().
+lib_dir() ->
+    case os:getenv("REBAR_DEPS_DIR") of
+        Dir when is_list(Dir) ->
+            Dir;
+        false ->
+            ?DEFAULT_LIB_DIR
+    end.

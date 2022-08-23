@@ -1,5 +1,3 @@
-#!{{eturnal_prefix}}/erts-{{release_erts_version}}/bin/escript
-
 %%% Simple STUN client (UDP-only).
 %%%
 %%% Copyright (c) 2022 Holger Weiss <holger@zedat.fu-berlin.de>.
@@ -18,34 +16,12 @@
 %%% See the License for the specific language governing permissions and
 %%% limitations under the License.
 
--define(STUN_METHOD_BINDING, 16#001).
+-module(stun).
+-export([main/1]).
+
+-include_lib("stun/include/stun.hrl").
 -define(STUN_TIMEOUT, timer:seconds(5)).
 -define(STUN_PORT, "3478").
-
--record(stun, {class,
-               method = ?STUN_METHOD_BINDING,
-               magic = 16#2112a442,
-               trid = 0,
-               raw = <<>>,
-               unsupported = [],
-               'ALTERNATE-SERVER',
-               'CHANNEL-NUMBER',
-               'DATA',
-               'DONT-FRAGMENT' = false,
-               'ERROR-CODE',
-               'LIFETIME',
-               'MAPPED-ADDRESS',
-               'MESSAGE-INTEGRITY',
-               'NONCE',
-               'REALM',
-               'REQUESTED-ADDRESS-FAMILY',
-               'REQUESTED-TRANSPORT',
-               'SOFTWARE',
-               'UNKNOWN-ATTRIBUTES' = [],
-               'USERNAME',
-               'XOR-MAPPED-ADDRESS',
-               'XOR-PEER-ADDRESS' = [],
-               'XOR-RELAYED-ADDRESS'}).
 -define(STUN_FAMILY, inet).
 
 -spec main([string()]) -> any().
@@ -69,7 +45,7 @@ query(Server0, Port0, Family) ->
     try
         {ok, Server} = inet:getaddr(Server0, Family),
         Port = list_to_integer(Port0),
-        TrID = stun:rand_uniform(1 bsl 96),
+        TrID = rand:uniform(1 bsl 96),
         Msg = #stun{method = ?STUN_METHOD_BINDING,
                     class = request,
                     trid = TrID},
@@ -96,8 +72,8 @@ format_error(Err) ->
     unicode:characters_to_list(io_lib:format("~p", [Err])).
 
 -spec abort(iolist() | binary() | atom()) -> no_return().
-abort(Data) ->
-    abort("~s", [Data]).
+abort(Msg) ->
+    abort("~s", [Msg]).
 
 -spec abort(io:format(), [term()]) -> no_return().
 abort(Format, Data) ->
