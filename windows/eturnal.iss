@@ -19,7 +19,7 @@ ArchitecturesAllowed=x64
 ArchitecturesInstallIn64BitMode=x64
 AllowNoIcons=yes
 LicenseFile=doc\LICENSE.txt
-SourceDir=..\_build\stripped\rel\eturnal
+SourceDir=..\_build\prod\rel\eturnal
 OutputDir=..\..\..\..\windows\installer
 SetupIconFile=..\..\..\..\windows\logo.ico
 

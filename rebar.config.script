@@ -1,31 +1,71 @@
-% For each profile specified in the rebar.config file, generate three additional
-% profiles. E.g., for the 'prod' profile:
+% For each profile with a 'relx' configuration specified in the rebar.config
+% file, generate three additional profiles. E.g., for the 'prod' profile:
 %
-% - The 'prod_debug' profile sets 'debug_info' to 'keep' (required for hot
-%   release upgrades) and removes any 'erl_opts'.
+% - The 'prod_minimal' excludes non-essential dependencies.
 % - The 'prod_cross' profile includes ERTS and system libraries from the
-%   "lib/erlang" directory (required for cross compilation).
-% - The 'prod_cross_debug' profile does both.
+%   "lib/erlang" directory (for cross compilation).
+% - The 'prod_cross_minimal' does both.
 
-{value, {profiles, Profiles}, Config1} = lists:keytake(profiles, 1, CONFIG),
+Find =
+    fun(K, L) ->
+            lists:keyfind(K, 1, L)
+    end,
+
+Take =
+    fun(K, L) ->
+            lists:keytake(K, 1, L)
+    end,
+
+Store =
+    fun(K, V, L) ->
+            lists:keystore(K, 1, L, {K, V})
+    end,
+
+Delete =
+    fun(K, L) ->
+            lists:keydelete(K, 1, L)
+    end,
+
+AddSuffix =
+    fun(N, S) ->
+            list_to_atom(atom_to_list(N) ++ [$_ | atom_to_list(S)])
+    end,
+
+{value, {profiles, Profiles}, Config1} = Take(profiles, CONFIG),
 
 Profiles1 =
     lists:flatmap(
-      fun({Name, Opts} = Profile) ->
-              InclErts = {include_erts, "lib/erlang"},
-              InclLibs = {system_libs, "lib/erlang/lib"},
-              InclInfo = {debug_info, keep},
-              Name1 = list_to_atom(atom_to_list(Name) ++ "_cross"),
-              Name2 = list_to_atom(atom_to_list(Name) ++ "_debug"),
-              Name3 = list_to_atom(atom_to_list(Name) ++ "_cross_debug"),
-              Opts0 = lists:keystore(include_erts, 1, Opts, InclErts),
-              Opts1 = lists:keystore(system_libs, 1, Opts0, InclLibs),
-              Opts2 = lists:keystore(debug_info, 1, lists:keydelete(erl_opts, 1, Opts), InclInfo),
-              Opts3 = lists:keystore(debug_info, 1, lists:keydelete(erl_opts, 1, Opts1), InclInfo),
-              [Profile, {Name1, Opts1}, {Name2, Opts2}, {Name3, Opts3}]
+      fun({ProfName, ProfOpts} = Profile) ->
+              case Find(relx, ProfOpts) of
+                  {relx, RelxOpts} ->
+                      InclErts = "lib/erlang",
+                      InclLibs = "lib/erlang/lib",
+                      ExclApps = case Find(exclude_apps, RelxOpts) of
+                                     {exclude_apps, Apps} ->
+                                         [sasl, recon | Apps];
+                                     false ->
+                                         [sasl, recon]
+                                 end,
+                      ProfName1 = AddSuffix(ProfName, cross),
+                      ProfName2 = AddSuffix(ProfName, minimal),
+                      ProfName3 = AddSuffix(ProfName1, minimal),
+                      RelxOpts0 = Store(include_erts, InclErts, RelxOpts),
+                      RelxOpts1 = Store(system_libs, InclLibs, RelxOpts0),
+                      RelxOpts2 = Store(exclude_apps, ExclApps, RelxOpts),
+                      RelxOpts3 = Store(exclude_apps, ExclApps, RelxOpts1),
+                      ProfOpts1 = Store(relx, RelxOpts1, ProfOpts),
+                      ProfOpts2 = Store(relx, RelxOpts2, ProfOpts),
+                      ProfOpts3 = Store(relx, RelxOpts3, ProfOpts),
+                      [Profile,
+                       {ProfName1, ProfOpts1},
+                       {ProfName2, ProfOpts2},
+                       {ProfName3, ProfOpts3}];
+                  false ->
+                      [Profile]
+              end
       end, Profiles),
 
-Config2 = lists:keystore(profiles, 1, Config1, {profiles, Profiles1}),
+Config2 = Store(profiles, Profiles1, Config1),
 
 % Remove the rebar.lock file and set SKIP_DEPS=true to skip dependency handling.
 
@@ -33,7 +73,7 @@ case os:getenv("SKIP_DEPS") of
     "true" ->
         SkipOpts = [deps, plugins],
         lists:foldl(fun(Opt, Acc) ->
-                            lists:keydelete(Opt, 1, Acc)
+                            Delete(Opt, 1, Acc)
                     end, Config2, SkipOpts);
     _ ->
         Config2

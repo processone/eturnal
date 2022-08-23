@@ -194,8 +194,8 @@ rebar3_profile()
 	local mode="$1"
 
 	if [ "$mode" = 'native' ]
-	then printf 'stripped'
-	else printf 'cross'
+	then printf 'prod'
+	else printf 'prod_cross'
 	fi
 }
 #.
@@ -412,9 +412,10 @@ build_rel()
 	    -exec "$STRIP" -s '{}' '+'
 	find "$target_dst_dir/erts-"*'/bin' -type f -perm '-u+x' \
 	    -exec "$STRIP" -s '{}' '+' 2>'/dev/null' || :
+	# See https://github.com/erlware/relx/pull/906 re. ["Attr"] argument.
 	test "$mode" = 'cross' &&
 	    erl -noinput -eval \
-	        "{ok, _} = beam_lib:strip_release('$target_dst_dir'), halt()"
+	        "{ok, _} = beam_lib:strip_release('$target_dst_dir', [\"Attr\"]), halt()"
 	tar -C "$prefix" --owner="$rel_name" --group="$rel_name" -cf - \
 	    "$rel_name" | gzip -9 >"$target_dst_tar"
 

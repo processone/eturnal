@@ -68,7 +68,7 @@ grep -q 'fast_yaml' 'rebar.config' ||
 rebar3 upgrade 'fast_tls','fast_yaml'
 
 echo "$myself: Building $rel_name release ..."
-REBAR_COLOR='none' rebar3 as stripped release
+REBAR_COLOR='none' rebar3 as prod release
 
 echo "$myself: Removing LIB and EXP files ..."
 find '_build' '(' -iname '*.lib' -o -iname '*.exp' ')' -delete
