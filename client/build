@@ -18,19 +18,19 @@
 %%% See the License for the specific language governing permissions and
 %%% limitations under the License.
 
--define(SHEBANG, "#!{{eturnal_prefix}}/erts-{{release_erts_version}}/bin/escript").
+-define(SHEBANG, "{{eturnal_prefix}}/erts-{{release_erts_version}}/bin/escript").
 -define(DEFAULT_LIB_DIR, "_build/default/lib").
+-define(COMPILE_OPTS, [{i, lib_dir()}, binary, deterministic]).
 
 -spec main([string()]) -> ok.
 main(Files) ->
-    Opts = [{i, lib_dir()}, binary, deterministic],
-    ok = lists:foreach(
-           fun(DstFile) ->
-                   SrcFile = DstFile ++ ".erl",
-                   {ok, _Mod, Code} = compile:file(SrcFile, Opts),
-                   ok = file:write_file(DstFile, [?SHEBANG, io_lib:nl(), Code]),
-                   ok = file:change_mode(DstFile, 8#00755)
-           end, Files).
+    ok = lists:foreach(fun(File) -> ok = create_escript(File) end, Files).
+
+-spec create_escript(file:filename()) -> ok.
+create_escript(File) ->
+    {ok, _Mod, Code} = compile:file(File ++ ".erl", ?COMPILE_OPTS),
+    ok = escript:create(File, [{shebang, ?SHEBANG}, {beam, Code}]),
+    ok = file:change_mode(File, 8#00755).
 
 -spec lib_dir() -> string().
 lib_dir() ->
