@@ -24,7 +24,17 @@
 
 -spec main([string()]) -> ok.
 main(Files) ->
+    ok = maybe_compile_deps(),
     ok = lists:foreach(fun(File) -> ok = create_escript(File) end, Files).
+
+-spec maybe_compile_deps() -> ok.
+maybe_compile_deps() ->
+    case os:getenv("REBAR_DEPS_DIR") of
+        Dir when is_list(Dir) ->
+            ok;
+        false ->
+            ok = io:put_chars(os:cmd("rebar3 compile"))
+    end.
 
 -spec create_escript(file:filename()) -> ok.
 create_escript(File) ->
