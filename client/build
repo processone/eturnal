@@ -20,7 +20,7 @@
 
 -define(SHEBANG, "{{eturnal_prefix}}/erts-{{release_erts_version}}/bin/escript").
 -define(DEFAULT_LIB_DIR, "_build/default/lib").
--define(COMPILE_OPTS, [{i, lib_dir()}, binary, deterministic]).
+-define(COMPILE_OPTS, [binary, deterministic | include_opts()]).
 
 -spec main([string()]) -> ok.
 main(Files) ->
@@ -31,6 +31,17 @@ create_escript(File) ->
     {ok, _Mod, Code} = compile:file(File ++ ".erl", ?COMPILE_OPTS),
     ok = escript:create(File, [{shebang, ?SHEBANG}, {beam, Code}]),
     ok = file:change_mode(File, 8#00755).
+
+-spec include_opts() -> [{i, string()}].
+include_opts() ->
+    LibDir = lib_dir(),
+    CheckoutsDir = filename:join([filename:dirname(LibDir), "checkouts"]),
+    case filelib:is_dir(CheckoutsDir) of
+        true ->
+            [{i, LibDir}, {i, CheckoutsDir}];
+        false ->
+            [{i, LibDir}]
+    end.
 
 -spec lib_dir() -> string().
 lib_dir() ->
