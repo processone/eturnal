@@ -68,7 +68,7 @@ jobs:
       -
         name: Extract Dockerfile path
         run: |
-          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
+          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile.binary))" >> $GITHUB_ENV
       -
         name: Docker meta
         id: meta
@@ -109,6 +109,7 @@ jobs:
             VERSION=${{ env.TAG_VERSION }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
           context: ${{ env.DOCKERFILE_PATH }}/.
+          file: ${{ env.DOCKERFILE_PATH }}/Dockerfile.binary
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
@@ -221,7 +222,7 @@ jobs:
       -
         name: Extract Dockerfile path
         run: |
-          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
+          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile.binary))" >> $GITHUB_ENV
       -
         name: Docker meta
         id: meta
@@ -265,6 +266,7 @@ jobs:
             VERSION=${{ env.TAG_VERSION }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
           context: ${{ env.DOCKERFILE_PATH }}/.
+          file: ${{ env.DOCKERFILE_PATH }}/Dockerfile.binary
           platforms: linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}

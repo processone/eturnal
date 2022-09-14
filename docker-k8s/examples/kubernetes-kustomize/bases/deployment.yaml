@@ -25,7 +25,7 @@ spec:
           image: ghcr.io/processone/eturnal:latest
           imagePullPolicy: Always
           securityContext:
-            allowPrivilegeEscalation: false
+            allowPrivilegeEscalation: false # Note: if eturnal binds to privileged ports (<1024) this option must set to 'true'.
             readOnlyRootFilesystem: true
             runAsUser: 9000
             runAsGroup: 9000
@@ -33,6 +33,7 @@ spec:
             privileged: false
             capabilities:
               drop: [ALL]
+              add: [NET_BIND_SERVICE]
           ports:
             - name: stunturn-udp
               containerPort: 3478

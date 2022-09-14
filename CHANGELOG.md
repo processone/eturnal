@@ -4,9 +4,18 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Changed
+- Docker: Switch to binary releases for `linux/amd64` and `linux/arm64`. This
+  brings support to the newly added features for eturnal with this version for
+  these two architectures.
+
 ### Fixed
 - Include the `ssl` library with non-distro builds, as it's required for
   enabling TLS for the `mod_stats_prometheus` endpoint.
+- Docker: Include libcap libraries into the image to be able to bind to 
+  privileged ports (<1024).
+  Hint: If the `docker run` option `--cap-drop=ALL` is used, `CAP_NET_BIND_SERVICE`
+  must be included again to make the container work (see examples).
 
 ## [1.10.1] - 2022-08-02
 ### Added

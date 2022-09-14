@@ -31,6 +31,7 @@ RUN set -x && apk -U upgrade --latest \
     && ./rebar3 ct \
 # RUNTIME: add/ define runtime packages
     && apk add \
+      libcap \
       libssl1.1 \
       libstdc++ \
       ncurses-libs \
@@ -56,6 +57,7 @@ RUN set -x && apk -U upgrade --latest \
         \nfi \
         \nexec "$@"' > /usr/local/bin/run.sh \
     && chmod +x /usr/local/bin/run.sh \
+    && setcap 'cap_net_bind_service=+ep' $(find $HOME -name beam.smp) \
     && echo -e \
         "# A more detailed, commented example configuration can be found here: \
         \n# https://github.com/processone/eturnal/blob/master/config/eturnal.yml \

@@ -1,16 +1,11 @@
 # Container image for eturnal STUN/TURN Server
 
-This is a multi-arch [eturnal](https://eturnal.net/) image based on [Alpine Linux](https://alpinelinux.org) and currently built for:
+[eturnal](https://eturnal.net/) container images are available as `ghcr.io/processone/eturnal` from [GitHub Packages](https://github.com/processone/eturnal/pkgs/container/eturnal). The table below provides some more details about the nature of the image.
 
-* linux/amd64
-* linux/386
-* linux/s390x
-* linux/ppc64le
-* linux/arm64
-* linux/arm/v7
-* linux/arm/v6
-
-The image is available as `ghcr.io/processone/eturnal` from [GitHub Packages](https://github.com/processone/eturnal/pkgs/container/eturnal).
+| Distro: | [Google "Distroless", Debian latest](https://github.com/GoogleContainerTools/distroless)  | [Alpine Linux latest](https://alpinelinux.org) |
+| ------------ | ------------ | ------------ | 
+| Architectures: | linux/amd64, linux/arm64  | linux/386, linux/arm/v7, linux/arm/v6, linux/s390x, linux/ppc64le | 
+| Notes: | glibc based | musl-libc based |
 
 ## Tags
 
@@ -47,6 +42,7 @@ docker run -d --rm \
     --name eturnal \
     --security-opt no-new-privileges \
     --cap-drop=ALL \
+    --cap-add=NET_BIND_SERVICE \
     --read-only \
     -p 3478:3478 \
     -p 3478:3478/udp \
@@ -61,6 +57,7 @@ docker run -d --rm \
     --name eturnal \
     --security-opt no-new-privileges \
     --cap-drop=ALL \
+    --cap-add=NET_BIND_SERVICE \
     --read-only \
     -p 3478:3478 \
     -p 3478:3478/udp \
@@ -77,6 +74,7 @@ docker run -d --rm \
     --name eturnal \
     --security-opt no-new-privileges \
     --cap-drop=ALL \
+    --cap-add=NET_BIND_SERVICE \
     --read-only \
     --network=host \
   ghcr.io/processone/eturnal:latest
@@ -98,7 +96,7 @@ Stop the running container with:
 
 ## Configuration
 
-Configuration is mainly done by a mounted `eturnal.yml` file (recommended), see the [example configuration file](https://github.com/processone/eturnal/blob/master/config/eturnal.yml). The file must be readable by the eturnal user (`chown 9000:9000` and `chmod 640`). **Mountpath**, e.g. with `docker run` add:
+Configuration is mainly done by a mounted `eturnal.yml` file (recommended), see the [example configuration file](https://github.com/processone/eturnal/blob/master/config/eturnal.yml). The file must be readable by the eturnal user (e.g. `chown 9000:9000` and `chmod 640`). **Mountpath**, e.g. with `docker run` add:
 
     -v /path/to/eturnal.yml:/etc/eturnal.yml:ro
 
@@ -110,11 +108,12 @@ eturnal may also be configured by specifying certain environment variables, see 
 * The container attempts to autodetect the `relay_ipv4_address` and `relay_ipv6_address` using an external STUN service. 
   * This STUN service may be exchanged by defining a different external STUN service with the `STUN_SERVICE` environment variable, which defaults to: `STUN_SERVICE="stun.conversations.im 3478"`. Note: the stun client **only supports UDP** queries. 
   * If that fails, consider defining the `relay_ipv4_address` (and `relay_ipv6_address`) either within a mounted `eturnal.yml` file or with the `ETURNAL_RELAY_IPV4_ADDR` (and `ETURNAL_RELAY_IPV6_ADDR`) environment variable to enable the TURN service. Note: the **IPv6 address is optional**.
-  * If the external STUN lookup is not desired, define the environment variable `STUN_SERVICE=false` in the `docker run` command. 
+  * If the external STUN lookup is not desired, define the environment variable `STUN_SERVICE=false` in the `docker run` command.
+* If eturnal shall bind directly to privileged ports (<1024), then the `docker run` option `--security-opt no-new-privileges` must not be used, since the unprivileged eturnal user needs to escalate the `CAP_NET_BIND_SERVICE`. 
 
 ## Custom TLS certificates and dh-parameter file
 
-To use eturnal's TLS listener with cutsom TLS certificates/dh-parameter files they must be mounted into the container and [referenced](https://eturnal.net/documentation/#tls_crt_file) in the `eturnal.yml` file. TLS certificates and the dh-parameter file shall be `.pem` files. They must be readable by the eturnal user/group `9000:9000` and should not have world-readable access rights (`chmod 400`). **Mountpath**, e.g. with `docker run` add:
+To use eturnal's TLS listener with cutsom TLS certificates/dh-parameter files they must be mounted into the container and [referenced](https://eturnal.net/documentation/#tls_crt_file) in the `eturnal.yml` file. TLS certificates and the dh-parameter file shall be `.pem` files. They must be readable by the eturnal user/group and should not have world-readable access rights (e.g. `chown 9000:9000` and `chmod 440`). **Mountpath**, e.g. with `docker run` add:
 
     -v /path/to/tls-files:/opt/eturnal/tls:ro
 
