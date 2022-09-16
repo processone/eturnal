@@ -1,11 +1,13 @@
 # Container image for eturnal STUN/TURN Server
 
-[eturnal](https://eturnal.net/) container images are available as `ghcr.io/processone/eturnal` from [GitHub Packages](https://github.com/processone/eturnal/pkgs/container/eturnal). The table below provides some more details about the nature of the image.
+[eturnal](https://eturnal.net/) container images are available as `ghcr.io/processone/eturnal` from [GitHub Packages](https://github.com/processone/eturnal/pkgs/container/eturnal). The table below provides some more details about the nature of the images.
 
-| Distro: | [Google "Distroless", Debian latest](https://github.com/GoogleContainerTools/distroless)  | [Alpine Linux latest](https://alpinelinux.org) |
+| Distro/ OS: | [Google "Distroless", Debian latest](https://github.com/GoogleContainerTools/distroless)  | [Alpine Linux latest](https://alpinelinux.org) |
 | ------------ | ------------ | ------------ | 
 | Architectures: | linux/amd64, linux/arm64  | linux/386, linux/arm/v7, linux/arm/v6, linux/s390x, linux/ppc64le | 
 | Notes: | glibc based | musl-libc based |
+
+Note: Images with Version 1.x.x are Alpine Linux based for all architectures.
 
 ## Tags
 
@@ -13,7 +15,7 @@
 
 | Tags  | Description  | Additional notes  |
 | ------------ | ------------ | ------------ |
-| `edge`  | Built from `master` branch, see [changelog](https://github.com/processone/eturnal/blob/master/CHANGELOG.md)  | For testing purposes. |
+| `edge`  | Built from `master` branch, see [changelog](https://github.com/processone/eturnal/blob/master/CHANGELOG.md)  | For testing purposes, Alpine Linux based. |
 | `1.10.1`, `latest`  | [Release changelog](https://github.com/processone/eturnal/releases/tag/1.10.1)  |   |
 
 Images are scanned daily by [Trivy](https://www.aquasec.com/products/trivy) and, if necessary, the `latest` release will be rebuilt and updated.
@@ -35,15 +37,15 @@ docker run -d --rm \
   ghcr.io/processone/eturnal:latest
 ```
 
-**Recommended:** The container can also run in an unprivileged mode:
+**Recommended:** The container can also run in a less privileged mode:
 
 ```shell
 docker run -d --rm \
     --name eturnal \
-    --security-opt no-new-privileges \
+    --read-only \
     --cap-drop=ALL \
     --cap-add=NET_BIND_SERVICE \
-    --read-only \
+    --security-opt no-new-privileges \
     -p 3478:3478 \
     -p 3478:3478/udp \
     -p 49152-65535:49152-65535/udp \
@@ -55,10 +57,10 @@ As an alternative, since Docker [performs badly with large port ranges](https://
 ```shell
 docker run -d --rm \
     --name eturnal \
-    --security-opt no-new-privileges \
+    --read-only \
     --cap-drop=ALL \
     --cap-add=NET_BIND_SERVICE \
-    --read-only \
+    --security-opt no-new-privileges \
     -p 3478:3478 \
     -p 3478:3478/udp \
     -p 50000-50500:50000-50500/udp \
@@ -72,10 +74,10 @@ Or use the [host network](https://docs.docker.com/network/host/) by adding `--ne
 ```shell
 docker run -d --rm \
     --name eturnal \
-    --security-opt no-new-privileges \
+    --read-only \
     --cap-drop=ALL \
     --cap-add=NET_BIND_SERVICE \
-    --read-only \
+    --security-opt no-new-privileges \
     --network=host \
   ghcr.io/processone/eturnal:latest
 ```
@@ -109,7 +111,7 @@ eturnal may also be configured by specifying certain environment variables, see 
   * This STUN service may be exchanged by defining a different external STUN service with the `STUN_SERVICE` environment variable, which defaults to: `STUN_SERVICE="stun.conversations.im 3478"`. Note: the stun client **only supports UDP** queries. 
   * If that fails, consider defining the `relay_ipv4_address` (and `relay_ipv6_address`) either within a mounted `eturnal.yml` file or with the `ETURNAL_RELAY_IPV4_ADDR` (and `ETURNAL_RELAY_IPV6_ADDR`) environment variable to enable the TURN service. Note: the **IPv6 address is optional**.
   * If the external STUN lookup is not desired, define the environment variable `STUN_SERVICE=false` in the `docker run` command.
-* If eturnal shall bind directly to privileged ports (<1024), then the `docker run` option `--security-opt no-new-privileges` must not be used, since the unprivileged eturnal user needs to escalate the `CAP_NET_BIND_SERVICE`. 
+* If eturnal shall bind directly to privileged ports (<1024), then the `docker run` option `--security-opt no-new-privileges` must not be used, since the unprivileged eturnal user needs to escalate `CAP_NET_BIND_SERVICE`. 
 
 ## Custom TLS certificates and dh-parameter file
 
