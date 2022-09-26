@@ -41,7 +41,7 @@ RUN set -x && apk -U upgrade --latest \
 # RUNTIME: add runtime user and directories
     && install -o 9000 -g 9000 -d $HOME/log $HOME/run $HOME/tls \
     && addgroup eturnal -g 9000 \
-    && adduser -s /bin/sh -D -u 9000 -H -G eturnal eturnal \
+    && adduser -s /sbin/nologin -D -u 9000 -H -G eturnal eturnal \
 # RUNTIME: extract release tarball to eturnal's runtime directory
     && tar -xzf $BUILD_DIR/_build/$REBAR_PROFILE/rel/eturnal/eturnal-*.tar.gz -C $HOME \
     && rm -rf $HOME/etc/* \
@@ -57,7 +57,6 @@ RUN set -x && apk -U upgrade --latest \
         \nfi \
         \nexec "$@"' > /usr/local/bin/run.sh \
     && chmod +x /usr/local/bin/run.sh \
-    && setcap 'cap_net_bind_service=+ep' $(find $HOME -name beam.smp) \
     && echo -e \
         "# A more detailed, commented example configuration can be found here: \
         \n# https://github.com/processone/eturnal/blob/master/config/eturnal.yml \
@@ -65,6 +64,9 @@ RUN set -x && apk -U upgrade --latest \
         \n  log_dir: stdout \
         \n  modules: \
         \n    mod_log_stun: {}" > $HOME/etc/eturnal.yml \
+# RUNTIME: set CAPS for binding to privileged ports and remove unnecessary binaries
+    && setcap 'cap_net_bind_service=+ep' $(find $HOME -name beam.smp) \
+    && find /usr/sbin -type f -not -name 'capsh,getcap,getpcaps,setcap' -delete \
 # CLEANUP: remove build dependencies, apk package manager and source files
     && apk del --repositories-file /dev/null \
       alpine-baselayout \

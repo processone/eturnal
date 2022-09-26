@@ -36,11 +36,10 @@ ARG HOME=/opt/eturnal
 RUN set -x \
 # RUNTIME: add runtime group and user
     && echo "eturnal:x:9000:eturnal" >> /etc/group \
-    && echo "eturnal:x:9000:9000:Linux User,,,:/opt/eturnal:/bin/sh" >> /etc/passwd \
+    && echo "eturnal:x:9000:9000:eturnal,,,:$HOME:/sbin/nologin" >> /etc/passwd \
 # RUNTIME: create symbolic links, entrypoint script and minimal configuration file
     && ln -s $HOME/bin/eturnalctl /usr/sbin/eturnalctl \
     && ln -s $HOME/bin/stun /usr/sbin/stun \
-    && setcap 'cap_net_bind_service=+ep' $(find $HOME -name beam.smp) \
     && echo -e \
         '#!/bin/sh \
         \necho "-setcookie eturnal" >> $(find -name vm.args) \
@@ -57,7 +56,10 @@ RUN set -x \
         \neturnal: \
         \n  log_dir: stdout \
         \n  modules: \
-        \n    mod_log_stun: {}" > $HOME/etc/eturnal.yml
+        \n    mod_log_stun: {}" > $HOME/etc/eturnal.yml \
+# RUNTIME: set CAPS for binding to privileged ports and remove unnecessary binaries
+    && setcap 'cap_net_bind_service=+ep' $(find $HOME -name beam.smp) \
+    && rm -f /sbin/capsh /sbin/getcap /sbin/getpcaps /sbin/setcap
 
 # remove libssl and openssl from distroless image
 # as they are statically built within eturnal binary
