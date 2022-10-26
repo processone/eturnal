@@ -15,7 +15,8 @@ RUN ARCH=$(uname -m | sed -e 's/x86_64/x64/;s/aarch64/arm64/;s/armv7l/arm/;s/s39
     && rm -rf eturnal-*.run /opt/eturnal/etc/* /etc/eturnal.yml
 # RUNTIME: create rootfs and copy eturnal into it
 RUN mkdir -p /rootfs/opt/eturnal/log /rootfs/opt/eturnal/run /rootfs/opt/eturnal/tls \
-    && cp -r /opt/eturnal /rootfs/opt
+    && cp -r /opt/eturnal /rootfs/opt \
+    && chown -R 9000:9000 /rootfs/opt
 # RUNTIME: install runtime init
 RUN ARCH=$(uname -m | sed -e 's/x86_64/amd64/;s/aarch64/arm64/;s/armv7l/arm/;s/s390x/s390x/;s/ppc64le/ppc64le/') \
     && curl -fL -o /rootfs/tini https://github.com/krallin/tini/releases/download/v$TINI_VERSION/tini-$ARCH \
@@ -26,11 +27,19 @@ RUN gccMultiarch="$(gcc -print-multiarch)" \
     && cp -r /sbin/capsh /sbin/getcap /sbin/getpcaps /sbin/setcap /rootfs/sbin \
     && cp -r /lib/$gccMultiarch/libcap*.so.* /rootfs/lib/$gccMultiarch/
 
+# copy alpine linux' busybox, as it contains bug and security fixes for the latest version,
+# latest official busybox version 1.35.0 is almost one year old (2021-12-26)
+FROM alpine:latest AS busybox
+RUN apk -U upgrade --available --no-cache \
+    && apk add busybox-static --no-cache \
+    && mkdir -p /rootfs/bin \
+    && ln -v /bin/busybox.static /rootfs/bin/busybox \ 
+    && chroot rootfs /bin/busybox --install /bin
+
 FROM gcr.io/distroless/base-debian11 AS eturnal
 # BUILD: copy eturnal
 COPY --from=prepare /rootfs /
-COPY --from=prepare --chown=9000:9000 /rootfs/opt /opt
-COPY --from=busybox:stable-glibc /bin /bin
+COPY --from=busybox /rootfs /
 ARG HOME=/opt/eturnal
 
 RUN set -x \
