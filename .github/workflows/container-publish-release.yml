@@ -33,9 +33,9 @@ jobs:
           TAG_PKGREL_BASELINE=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1))
           if [[ "$TAG_PKGREL" != "$TAG_PKGREL_BASELINE" ]]
           then
-            echo "::set-output name=update::true"
+            echo "update=true" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=update::false" 
+            echo "update=false" >> $GITHUB_OUTPUT
           fi
 
   build-x86-64:
