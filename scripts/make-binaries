@@ -230,6 +230,7 @@ build_toolchain()
 		cd "$root_dir"
 		create_${arch}_config 'defconfig'
 		ct-ng defconfig
+		sed -i 's|^CT_ZLIB_MIRRORS=.*|CT_ZLIB_MIRRORS="https://github.com/madler/zlib/releases/download/v${CT_ZLIB_VERSION} https://www.zlib.net/ https://www.zlib.net/fossils/"|' '.config'
 		ct-ng build CT_PREFIX="$ct_prefix_dir" CT_JOBS="$ct_jobs"
 		rm -rf 'defconfig' '.config'* '.build' 'build.log'
 		cd "$OLDPWD"
@@ -465,7 +466,7 @@ info 'Downloading dependencies ...'
 cd "$src_dir"
 curl -LO "http://crosstool-ng.org/download/crosstool-ng/$crosstool_tar"
 curl -LO "https://ftp.gnu.org/gnu/termcap/$termcap_tar"
-curl -LO "https://zlib.net/$zlib_tar"
+curl -LO "https://zlib.net/fossils/$zlib_tar"
 curl -LO "https://pyyaml.org/download/libyaml/$yaml_tar"
 curl -LO "https://www.openssl.org/source/$ssl_tar"
 curl -LO "https://github.com/erlang/otp/releases/download/OTP-$otp_vsn/$otp_tar"
