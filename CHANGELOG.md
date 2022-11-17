@@ -5,6 +5,7 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 ### Changed
+- Binary release: Update Erlang/OTP from 25.0.3 to 25.1.2.
 - Binary release: Update Rebar3 from 3.19.0 to 3.20.0.
 - Binary release: Update zlib from 1.2.12 to 1.2.13.
 - Docker: Switch to binary releases for `linux/amd64` and `linux/arm64`. This
