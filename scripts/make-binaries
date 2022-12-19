@@ -42,7 +42,7 @@ termcap_vsn='1.3.1'
 zlib_vsn='1.2.13'
 yaml_vsn='0.2.5'
 ssl_vsn='1.1.1s'
-otp_vsn='25.1.2'
+otp_vsn='25.2'
 root_dir="${BUILD_DIR:-$HOME/build}"
 bootstrap_dir="$root_dir/bootstrap"
 ct_prefix_dir="$root_dir/x-tools"
@@ -276,7 +276,7 @@ build_rel()
 	export CFLAGS="-g0 -O2 -pipe -fomit-frame-pointer -static-libgcc $CPPFLAGS"
 	export CXXFLAGS="$CFLAGS -static-libstdc++"
 	export LDFLAGS="-L$prefix/lib -static-libgcc -static-libstdc++"
-	export ERL_COMPILER_OPTIONS='[deterministic, no_debug_info]'
+	export ERL_COMPILER_OPTIONS='[no_debug_info]' # Building 25.x fails with 'deterministic'.
 
 	if [ "$mode" = 'cross' ]
 	then configure="./configure --host=$target --build=$platform"

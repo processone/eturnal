@@ -397,7 +397,7 @@ format_info(#eturnal_node_info{
                total_queue_len = QueueLen,
                total_memory = Memory}) ->
     MiB = round(Memory / 1024 / 1024),
-    Seconds = erlang:convert_time_unit(Uptime, millisecond,  second),
+    Seconds = erlang:convert_time_unit(Uptime, millisecond, second),
     {Ds, {Hs, Ms, Ss}} = calendar:seconds_to_daystime(Seconds),
     io_lib:format(
       "eturnal ~s on Erlang/OTP ~s (ERTS ~s)~s"
