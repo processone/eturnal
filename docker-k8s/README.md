@@ -17,13 +17,16 @@ version of a particular release in case of any bug fix etc. of the image.
 Images are scanned daily by [Trivy](https://www.aquasec.com/products/trivy) and,
 if necessary, the `latest` release will be rebuilt and updated.
 
-## Usage with [Docker](https://www.docker.com)
+## Usage with [Docker](https://www.docker.com) or [Podman](https://podman.io/)
+
+> _Note:_ the below commands can be run with podman as well, just use podman as 
+> an equivalent: **alias docker=podman**
 
 To pull the image:
 
     docker pull ghcr.io/processone/eturnal:latest
 
-Docker will run a container named `eturnal` with the default, non-root user 
+This will run a container named `eturnal` with the default, unprivileged user 
 `eturnal` (`uid=9000`) in `foreground` mode with default ports published, if 
 started this way:
 
@@ -51,7 +54,8 @@ docker run -d --rm \
   ghcr.io/processone/eturnal:latest
 ```
 
-As an alternative, since Docker [does not perform well with large port ranges](https://github.com/instrumentisto/coturn-docker-image/issues/3), 
+**Only relevant for Docker, not Podman**: Since Docker 
+[does not perform well with large port ranges](https://github.com/instrumentisto/coturn-docker-image/issues/3), 
 consider decreasing the TURN default port range, e.g. through [environment variables](https://eturnal.net/documentation/#Environment_Variables):
 
 ```shell
@@ -83,8 +87,8 @@ docker run -d --rm \
   ghcr.io/processone/eturnal:latest
 ```
 
-**Note:** The Docker container is no longer isolated from the 
-[host network](https://docs.docker.com/network/host/) when using this option.
+**Note:** The container is no longer isolated from the [host network](https://docs.docker.com/network/host/) 
+when using this option.
 
 Inspect the running container with:
 
@@ -149,3 +153,4 @@ This repository also contains configuration examples for:
 
 * [Docker Compose](https://github.com/processone/eturnal/tree/master/docker-k8s/examples/docker-compose)
 * [Kubernetes (Kustomize)](https://github.com/processone/eturnal/tree/master/docker-k8s/examples/kubernetes-kustomize)
+
