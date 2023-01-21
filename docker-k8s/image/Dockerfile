@@ -1,4 +1,4 @@
-FROM alpine:3.16.1 AS eturnal
+FROM alpine:3.17.0 AS eturnal
 # BUILD: define image build arguments
 ARG BUILD_DIR=/eturnal
 ARG REPOSITORY=https://github.com/processone/eturnal.git
@@ -11,12 +11,13 @@ ENV ERL_DIST_PORT=3470 \
     STUN_SERVICE="stun.conversations.im 3478"
 
 WORKDIR $BUILD_DIR
-RUN set -x && apk -U upgrade --latest \
+RUN set -x && apk -U upgrade --available \
 # BUILD: add build dependencies
     && apk add -t build-deps \
       build-base \
       erlang-dev \
       git \
+      libcap-utils \
       openssl-dev \
       yaml-dev \
 # BUILD: prepare and build
@@ -31,8 +32,9 @@ RUN set -x && apk -U upgrade --latest \
     && ./rebar3 ct \
 # RUNTIME: add/ define runtime packages
     && apk add \
-      libcap \
-      libssl1.1 \
+      busybox-binsh \ 
+      libcap2 \
+      libssl3 \
       libstdc++ \
       ncurses-libs \
       tini \
@@ -64,9 +66,8 @@ RUN set -x && apk -U upgrade --latest \
         \n  log_dir: stdout \
         \n  modules: \
         \n    mod_log_stun: {}" > $HOME/etc/eturnal.yml \
-# RUNTIME: set CAPS for binding to privileged ports and remove unnecessary binaries
+# RUNTIME: set CAPS for binding to privileged ports
     && setcap 'cap_net_bind_service=+ep' $(find $HOME -name beam.smp) \
-    && find /usr/sbin -type f -not -name 'capsh,getcap,getpcaps,setcap' -delete \
 # CLEANUP: remove build dependencies, apk package manager and source files
     && apk del --repositories-file /dev/null \
       alpine-baselayout \
