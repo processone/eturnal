@@ -64,7 +64,7 @@ jobs:
         name: Build binary archives
         run: |
           set -x
-          sed -i "s|targets='.*'|targets='x86_64-linux-musl aarch64-linux-musl'|" scripts/make-binaries
+          sed -i "s|targets='.*'|targets='x86_64-linux-gnu x86_64-linux-musl aarch64-linux-musl'|" scripts/make-binaries
           chmod +x scripts/make-binaries
           CHECK_DEPS=false scripts/make-binaries
           mkdir -p ~/tarballs/
