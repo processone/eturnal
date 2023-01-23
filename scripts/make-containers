@@ -1,0 +1,192 @@
+#!/bin/bash
+
+#
+# Build container images for Linux/x64 and Linux/arm64.
+#
+# Docker requires buildx
+# https://docs.docker.com/build/install-buildx/
+#
+# For non-native platforms, e.g. building arm64 on x86_64, QEMU is required
+## Install with e.g. Debian bullseye:
+#
+# $ apt-get install -y binfmt-support qemu-user-static
+# 
+# https://medium.com/@artur.klauser/building-multi-architecture-docker-images-with-buildx-27d80f7e2408
+# https://manpages.debian.org/testing/binfmt-support/update-binfmts.8.en.html#fix
+#
+## used by github actions: https://github.com/tonistiigi/binfmt
+# $ qemu='arm64'
+# $ docker run --privileged --rm docker.io/tonistiigi/binfmt --install "$qemu"
+#
+# To push into registries which require credentials, please use the environment
+# variable CREDENTIALS_DIR to specify the path to the credentials stored in
+# files. Password/token and username should be named this way:
+# - for Dockerhub:
+#   	-> 'token_docker.io' and 'user_docker.io'
+# - for GitHub container registry:
+#   	-> 'token_ghcr.io' and 'user_ghcr.io'
+#
+
+set -e
+set -u
+
+myself=${0##*/}
+
+usage()
+{
+	echo >&2 "Usage: $myself"
+	exit 2
+}
+
+docker_buildx()
+{
+	local push="$1"
+
+	"$docker" buildx build "$push" "--no-cache" \
+		--platform "$platforms" \
+		--build-arg METHOD="$install" \
+		-t "$registry/$repo_name:$tag_vsn" \
+		-t "$registry/$repo_name:$tag_minor" \
+		-t "$registry/$repo_name:$tag_major" \
+		-t "$registry/$repo_name:latest" \
+		-f "$dockerfile" .
+}
+
+buildah_build()
+{
+	"$docker" build "--no-cache" \
+		--build-arg METHOD="$install" \
+		--manifest "$registry/$repo_name:manifest" \
+		--platform "$platforms" \
+		-f "$dockerfile" .
+}
+
+buildah_push_manifest()
+{
+	local tag="$1"
+
+	"$docker" manifest push \
+		--all "$registry/$repo_name:manifest" \
+		docker://"$registry/$repo_name:$tag"
+}
+
+if ! [ -e 'rebar.config' ] || ! [ -e "scripts/$myself" ]
+then
+	echo >&2 "Please call this script from the repository's root directory."
+	exit 2
+elif [ $# -ne 0 ]
+then
+	usage
+fi
+# check for docker or podman existence
+if type 'docker' >'/dev/null'
+then docker='docker'
+elif type 'podman' >'/dev/null'
+then docker='podman'
+elif type 'buildah' >'/dev/null'
+then docker='buildah'
+else
+	echo >&2 'This script requires docker: https://docker.io'
+	echo >&2 '... or podman: https://podman.io'
+	echo >&2 '... or buildah: https://buildah.io'
+	exit 1
+fi
+
+# set build variables
+rel_name='eturnal'
+rel_vsn="$(scripts/get-version)"
+tag_vsn="$(echo $rel_vsn | sed -e 's|+|-|')"
+tag_minor="$(echo $tag_vsn | sed -e 's|\.| |2' | awk '{{print $1}}')"
+tag_major="$(echo $tag_vsn | sed -e 's|\.| |1' | awk '{{print $1}}')"
+prefix="/home/$rel_name"
+registry_credentials_dir="${CREDENTIALS_DIR:-$prefix/credentials}"
+registries='docker.io'
+repo_name='eturnal/eturnal'
+dockerfile="$(find -name Dockerfile)"
+install="${METHOD:-build}"
+readme='docker-k8s/README.md'
+
+if [ "$install" = 'binary' ]
+then
+	architectures='x64 arm64'
+	# check if musl-libc binary tarballs exist
+	for arch in $architectures
+	do
+		rel_tarball="$rel_name-$rel_vsn-linux-musl-$arch.tar.gz"
+		if [ ! -f "$PWD/$rel_tarball" ]
+		then
+			echo >&2 'This script requires tarballs built for musl-libc with make-binaries script ...'
+			echo >&2 'Please execute "scripts/make-binaries" with targets "x86_64-linux-musl" and "aarch64-linux-musl" ...'
+			exit 1
+		fi
+	done
+else
+	architectures='x64 i386 arm64 armv7 ppc64le s390x'
+fi
+
+# translate our architecture names into docker platform architecture names
+tmp_platforms=''
+for arch in $architectures
+do
+	docker_arch="$(echo $arch | sed -e 's|x64|amd64|;s|i386|386|;s|arm64|arm64/v8|;s|armv7|arm/v7|')"
+	tmp_platforms+="linux/$docker_arch,"
+done
+platforms=$(echo "$tmp_platforms" | sed 's/.$//')
+unset tmp_platforms
+
+for registry in $registries
+do
+	if [ "${PUSH_IMAGES:-true}" = 'true' ]
+	then
+		user="$(cat $registry_credentials_dir/user_$registry)"
+		echo "$myself: Login into $registry ..."
+		cat "$registry_credentials_dir/token_$registry" \
+			| "$docker" login -u "$user" --password-stdin "$registry"
+		if [ "$docker" = 'docker' ]
+		then
+			docker_buildx "--push"
+		else
+			buildah_build
+			buildah_push_manifest "$tag_major"
+			buildah_push_manifest "$tag_minor"
+			buildah_push_manifest "$tag_vsn"
+			buildah_push_manifest "latest"
+		fi
+		echo "$myself: Successfully pushed images into container registries ..."
+		"$docker" logout $registry
+		if [ "$registry" = 'docker.io' ] && [ ! "$docker" = 'buildah' ]
+		then
+			echo "$myself: Update README in DockerHub ..."
+			cp "$readme" "$readme-docker"
+			sed -i "s|ghcr.io/processone/eturnal|docker.io/$repo_name|g" \
+				"$readme-docker"
+			sed -i 's|GitHub Packages|DockerHub|g' \
+				"$readme-docker"
+			sed -i "s|https://github.com/processone/eturnal/pkgs/container/eturnal|https://hub.docker.com/r/$repo_name|g" \
+				"$readme-docker"
+			"$docker" run --rm -v $PWD:/workspace \
+				-e DOCKERHUB_USERNAME="$user" \
+				-e DOCKERHUB_PASSWORD="$(cat "$registry_credentials_dir/token_$registry")" \
+				-e DOCKERHUB_REPOSITORY="$repo_name" \
+				-e README_FILEPATH="/workspace/$readme-docker" \
+				-e SHORT_DESCRIPTION='STUN / TURN standalone server' \
+				docker.io/peterevans/dockerhub-description:3
+			rm "$readme-docker"
+		fi
+	else
+		if [ "$docker" = 'docker' ]
+		then
+			# Docker buildx cannot '--load' image manifest into local storage
+			platforms="$(uname -m | sed -e 's|x64|amd64|;s|i386|386|;s|arm64|arm64/v8|;s|armv7|arm/v7|')"
+			docker_buildx "--load"
+		else
+			buildah_build
+		fi
+		echo "$myself: Won't push images to defined registries ..."
+	fi
+done
+
+# cleanup build context, manifests
+if ! [ "$docker" = 'docker' ]
+then "$docker" manifest rm "$registry/$repo_name:manifest"
+fi
