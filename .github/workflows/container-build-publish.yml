@@ -342,6 +342,7 @@ jobs:
       -
         name: On push master - build and push ctr image
         uses: docker/build-push-action@v3
+        continue-on-error: true
         if: needs.detect-change.outputs.update == 'false'
         with:
           build-args: |
@@ -349,7 +350,7 @@ jobs:
             REPOSITORY=https://github.com/${{ github.repository }}.git
           context: ${{ env.DOCKERFILE_PATH }}/.
           platforms: linux/${{ env.PLATFORM }}
-          push: ${{ github.event_name != 'pull_request' }}
+          load: true
           tags: ${{ steps.meta-master.outputs.tags }}
           labels: ${{ steps.meta-master.outputs.labels }}
 
@@ -439,22 +440,12 @@ jobs:
             --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:edge \
             --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }} \
               ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-x64 \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-i386 \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-arm64 \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-armv7 \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-armhf \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-ppc64le \
-              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-s390x
+              ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-arm64
 #          docker buildx imagetools create \
 #            --tag ${{ env.DOCKERHUB_REPO }}:edge \
 #            --tag ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }} \
 #              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-x64 \
-#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-i386 \
-#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-arm64 \
-#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-armv7 \
-#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-armhf \
-#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-ppc64le \
-#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-s390x
+#              ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-arm64
 
       # On release - merge and publish
       -
