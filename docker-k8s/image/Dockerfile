@@ -1,4 +1,6 @@
-FROM alpine:3.17.0 AS eturnal
+# BUILD: Define base image
+ARG ALPINE_VSN="3.17"
+FROM alpine:${ALPINE_VSN} AS eturnal
 # BUILD: define image build arguments
 ARG BUILD_DIR=/eturnal
 ARG REPOSITORY=https://github.com/processone/eturnal.git
