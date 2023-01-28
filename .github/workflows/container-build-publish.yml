@@ -23,7 +23,7 @@ jobs:
 
   ## check whether to compile from master branch or from tagged version
   detect-change:
-    name: Check ctr version change
+    name: Check for ctr version change
     runs-on: ubuntu-latest
     outputs:
       update: ${{ steps.check_version_changed.outputs.update }}
@@ -49,7 +49,7 @@ jobs:
 
   ## build musl-libc based binary tarballs for x64/arm64
   build-musl-binary-archives:
-    name: build musl-libc binary archives
+    name: ${{ matrix.arch }} - build musl-libc binary archives 
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -123,9 +123,110 @@ jobs:
           cp eturnal-*.tar.gz ~/tarballs
 
 
+  ## Test the musl-libc tarballs for incompatibilities between musl-libc versions
+  ci-ctr-binary-based:
+    name: CI - test binaries on Alpine ${{ matrix.alpine }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # [versions: alpine = musl] :
+        #   3.5 = 1.1.15, 3.6 = 1.1.16, 3.7 = 1.1.18, 3.8.4 = 1.1.19,
+        #   3.11.0 = 1.1.24, 3.13.0 = 1.2.2, 3.16.0 = 1.2.3, edge = latest
+        alpine: [3.5, 3.6, 3.7, 3.8.4, 3.11.0, 3.13.0, 3.16.0, edge]
+        arch: [x86_64]
+      fail-fast: false
+    needs: [detect-change, build-musl-binary-archives]
+    steps:
+      -
+        name: Check out repository code
+        uses: actions/checkout@v3
+      
+      # performing steps for building images from master
+      - 
+        name: Extract version of master branch
+        if: needs.detect-change.outputs.update == 'false'
+        run: echo "TAG_VERSION=$(echo "$(./scripts/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
+      
+      # performing steps for building images on release
+      -
+        name: Extract tag of release to be published/updated
+        if: needs.detect-change.outputs.update == 'true'
+        run: echo "TAG_VERSION=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\-/ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+      -
+        name: Check out release to be published/updated
+        uses: actions/checkout@v3
+        if: needs.detect-change.outputs.update == 'true'
+        with:
+          ref: ${{ env.TAG_VERSION }}
+      - 
+        name: Get cached binary archives
+        uses: actions/cache@v3
+        with:
+          path: ~/tarballs/
+          key: eturnal-${{ matrix.arch }}-musl-tarballs-${{ env.TAG_VERSION }}
+      -
+        name: Extract test environment variables ...
+        run: |
+          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile.ci-musl))" >> $GITHUB_ENV
+          # Match the docker platform names
+          echo "PLATFORM=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|amd64|;s|aarch64|arm64|')" >> $GITHUB_ENV
+          # Test data
+          echo "TEST_CONFIG=$(find . -name eturnal-new-otp.yml)" >> $GITHUB_ENV
+      -
+        name: Prepare build context and CI environemnt
+        run: |
+          mkdir -p ${{ env.DOCKERFILE_PATH }}/tarballs
+          cp -r ~/tarballs/eturnal-*.tar.gz ${{ env.DOCKERFILE_PATH }}/tarballs
+          cp ${{ env.TEST_CONFIG }} $PWD/eturnal.yml
+          echo "  log_dir: stdout" >> $PWD/eturnal.yml
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - 
+        name: Build CI image ...
+        run: |
+          docker buildx build --load \
+                --platform linux/${{ env.PLATFORM }} \
+                -f ${{ env.DOCKERFILE_PATH }}/Dockerfile.ci-musl \
+                --build-arg ALPINE_VSN=${{ matrix.alpine }} \
+                -t processone/eturnal:musl-libc-test \
+                ${{ env.DOCKERFILE_PATH }}/.
+      - 
+        name: Start CI container ...
+        run: |
+          docker run --init -d --name eturnal \
+                --platform linux/${{ env.PLATFORM }} \
+                --user eturnal \
+                -v $PWD/eturnal.yml:/etc/eturnal.yml \
+                processone/eturnal:musl-libc-test \
+                eturnalctl foreground
+          echo ">> sleep shortly to have the service up ..." && sleep 5s
+      - 
+        name: CI | print eturnal log ...
+        run: docker logs eturnal
+      - 
+        name: CI | send ping to eturnal container ...
+        run: docker exec eturnal eturnalctl ping
+      - 
+        name: CI | perform STUN query ...
+        run: docker exec eturnal stun stun.conversations.im 3478
+      - 
+        name: CI | print musl-libc versions ...
+        run: |
+          echo ">> musl-libc eturnal binaries are build with ..."
+          cat scripts/make-binaries | grep CT_MUSL
+          echo ">> Print container musl libc version ..."
+          docker exec eturnal apk info -q musl
+      - 
+        name: Stop CI container ...
+        run: docker stop eturnal
+
   ## build actual images for x64/arm64 with built binary tarballs
   build-ctr-binary-based:
-    name: publish/update release for binaries-based-containers
+    name: ${{ matrix.arch }} - build & publish container image (binary-based)
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -260,7 +361,7 @@ jobs:
 
   ## build container images for remaining architectures with standard Dockerfile
   build-ctr:
-    name: Build & publish/update release for non-binaries containers
+    name: ${{ matrix.arch }} - build & publish container image (non-binary-based)
     runs-on: ubuntu-latest
     strategy:
       matrix:

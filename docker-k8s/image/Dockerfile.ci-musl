@@ -1,0 +1,20 @@
+ARG ALPINE_VSN="latest"
+FROM alpine:${ALPINE_VSN} AS eturnal
+
+ARG HOME=/opt/eturnal
+
+RUN --mount=type=bind,source=tarballs,target=/tarballs set -x \
+    && addgroup eturnal -g 9000 \
+    && adduser -s /sbin/nologin -D -u 9000 -h $HOME -G eturnal eturnal \
+    # some older alpine versions lack '/opt' directory, at least before v3.11.0
+    && if ! [ -d '/opt' ]; then mkdir /opt; fi \
+    && ARCH=$(uname -m | sed -e 's/x86_64/x64/;s/aarch64/arm64/') \
+    && tar -xzf /tarballs/eturnal-*-linux-musl-$ARCH.tar.gz -C /opt \
+    && chown -R 9000:9000 $HOME \
+    && install -o 9000 -g 9000 -d $HOME/log $HOME/run $HOME/tls \
+    && echo "-setcookie eturnal" >> $(find $HOME -name vm.args) \
+    && ln -s $HOME/bin/eturnalctl /usr/local/bin/eturnalctl \
+    && ln -s $HOME/bin/stun /usr/local/bin/stun
+
+ENV ERL_DIST_PORT=3470 PIPE_DIR=$HOME/run/pipe/
+USER eturnal
