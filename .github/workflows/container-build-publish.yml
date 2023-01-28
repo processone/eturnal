@@ -60,7 +60,9 @@ jobs:
       -
         name: Check out repository code
         uses: actions/checkout@v3
-      -
+        with:
+          fetch-depth: 0
+      - 
         name: Cache toolchain directory
         uses: actions/cache@v3
         with:
@@ -140,6 +142,8 @@ jobs:
       -
         name: Check out repository code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       
       # performing steps for building images from master
       - 
@@ -237,6 +241,8 @@ jobs:
       -
         name: Check out repository code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       # performing steps for building images from master
       -
@@ -372,7 +378,9 @@ jobs:
       -
         name: Check out repository code
         uses: actions/checkout@v3
-
+        with:
+          fetch-depth: 0
+      
       # performing steps for building images from master
       -
         name: Extract version of master branch
@@ -495,7 +503,9 @@ jobs:
       -
         name: Check out repository code
         uses: actions/checkout@v3
-
+        with:
+          fetch-depth: 0
+      
       # performing steps to push manifest from master
       -
         name: Extract version of master branch
