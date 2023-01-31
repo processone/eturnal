@@ -127,14 +127,11 @@ jobs:
 
   ## Test the musl-libc tarballs for incompatibilities between musl-libc versions
   ci-ctr-binary-based:
-    name: CI - test binaries on Alpine ${{ matrix.alpine }}
+    name: CI - check musl-libc v${{ matrix.musl }} compatibality
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # [versions: alpine = musl] :
-        #   3.5 = 1.1.15, 3.6 = 1.1.16, 3.7 = 1.1.18, 3.8.4 = 1.1.19,
-        #   3.11.0 = 1.1.24, 3.13.0 = 1.2.2, 3.16.0 = 1.2.3, edge = latest
-        alpine: [3.5, 3.6, 3.7, 3.8.4, 3.11.0, 3.13.0, 3.16.0, edge]
+        musl: [1.1.16, 1.1.17, 1.1.18, 1.1.19, 1.1.20, 1.1.21, 1.1.22, 1.1.23, 1.1.24, 1.2.0, 1.2.1, 1.2.2, 1.2.3, 1.2.4]
         arch: [x86_64]
       fail-fast: false
     needs: [detect-change, build-musl-binary-archives]
@@ -176,6 +173,8 @@ jobs:
           echo "PLATFORM=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|amd64|;s|aarch64|arm64|')" >> $GITHUB_ENV
           # Test data
           echo "TEST_CONFIG=$(find . -name eturnal-new-otp.yml)" >> $GITHUB_ENV
+          echo "SHA512_SUM=$(wget https://musl.libc.org/releases/musl-${{ matrix.musl }}.tar.gz -O - \
+                | sha512sum | awk '{print $1}')" >> $GITHUB_ENV
       -
         name: Prepare build context and CI environemnt
         run: |
@@ -195,7 +194,8 @@ jobs:
           docker buildx build --load \
                 --platform linux/${{ env.PLATFORM }} \
                 -f ${{ env.DOCKERFILE_PATH }}/Dockerfile.ci-musl \
-                --build-arg ALPINE_VSN=${{ matrix.alpine }} \
+                --build-arg MUSL_VSN=${{ matrix.musl }} \
+                --build-arg SHA512_SUM=${{ env.SHA512_SUM }} \
                 -t processone/eturnal:musl-libc-test \
                 ${{ env.DOCKERFILE_PATH }}/.
       - 
@@ -218,12 +218,8 @@ jobs:
         name: CI | perform STUN query ...
         run: docker exec eturnal stun stun.conversations.im 3478
       - 
-        name: CI | print musl-libc versions ...
-        run: |
-          echo ">> musl-libc eturnal binaries are build with ..."
-          cat scripts/make-binaries | grep CT_MUSL
-          echo ">> Print container musl libc version ..."
-          docker exec eturnal apk info -q musl
+        name: CI | print binary-archives musl-libc version ...
+        run: cat scripts/make-binaries | grep CT_MUSL
       - 
         name: Stop CI container ...
         run: docker stop eturnal
