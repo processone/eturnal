@@ -116,7 +116,7 @@ eturnal may also be configured by specifying certain environment variables, see
 the [documentation](https://eturnal.net/documentation/#Environment_Variables). 
 Here are some more hints [how to configure eturnal](https://eturnal.net/documentation/#Global_Configuration).
 
-**Note:** 
+### General hints:
 
 * For logs to be printed with the `docker logs` command, `log_dir:` should be 
 set to `stdout` in `eturnal.yml`.
@@ -134,9 +134,9 @@ set to `stdout` in `eturnal.yml`.
   `STUN_SERVICE=false` in the `docker run` command.
 * If eturnal shall bind directly to privileged ports (<1024), then the 
 `docker run` option `--security-opt no-new-privileges` must not be used, since 
-the unprivileged eturnal user needs to escalate `CAP_NET_BIND_SERVICE`. 
+the unprivileged eturnal user needs to escalate `CAP_NET_BIND_SERVICE`.
 
-## Custom TLS certificates and dh-parameter file
+### Custom TLS certificates and dh-parameter file
 
 To use eturnal's TLS listener with cutsom TLS certificates/dh-parameter files 
 they must be mounted into the container and [referenced](https://eturnal.net/documentation/#tls_crt_file) 
@@ -146,6 +146,19 @@ have world-readable access rights (e.g. `chown 9000:9000` and `chmod 440`).
 **Mountpath**, e.g. with `docker run` add:
 
     -v /path/to/tls-files:/opt/eturnal/tls:ro
+
+### Rootless environments:
+
+* If eturnal runs in rootless environments, e.g. `podman rootless`, then file
+  permissions and editing files must be performed within the same user namespace
+  as the container runs in. More information [here](https://www.tutorialworks.com/podman-rootless-volumes/).
+* The "magic" command in e.g. `podman rootless` is called [podman unshare](https://docs.podman.io/en/latest/markdown/podman-unshare.1.html).
+* To change e.g. the file permissions for `eturnal.yml` use:
+
+```
+podman unshare chown 9000:9000 /path/to/eturnal.yml
+podman unshare chmod 640 /path/to/eturnal.yml
+```
 
 ## Examples for Docker Compose and Kubernetes
 
