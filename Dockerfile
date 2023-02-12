@@ -5,12 +5,16 @@ ARG BUILD_IMAGE="docker.io/erlang:${OTP_VSN}-alpine"
 ## specific ARGs for METHOD='package'
 ARG ALPINE_VSN='3.18'
 ARG PACKAGE_IMAGE="docker.io/alpine:${ALPINE_VSN}"
+## specific ARGs for VARIANT='acme'
+ARG ACMESH_VSN='3.0.6'
+ARG ACMESH_SHA512='2ddd561356586a289bcd08770b7347ef2e1cb121948987031a9e53d19abd5beda433e50c659aa3ee5dc3b06bdf8e479b5b31ba0b52c4a283d2c491aead4d10ac'
 ## general ARGs
 ARG UID='9000'
 ARG USER='eturnal'
 ARG HOME="opt/$USER"
 ARG METHOD='build'
 ARG SOURCE='local'
+ARG VARIANT='standalone'
 ARG BUILD_DIR="/$USER"
 ARG REPOSITORY='https://github.com/processone/eturnal'
 ARG VERSION='master'
@@ -97,7 +101,7 @@ RUN home_root_dir=$(echo $HOME | sed 's|\(.*\)/.*|\1 |') \
 
 ################################################################################
 #' Prepare eturnal for runtime
-FROM ${METHOD} AS eturnal
+FROM ${METHOD} AS eturnal-standalone
 RUN apk -U add --no-cache \
         libcap
 
@@ -106,11 +110,6 @@ ARG HOME
 RUN mkdir -p $HOME/log $HOME/run $HOME/tls bin etc usr/local/bin
 # we symlink busybox's 'ash' for compatibility reasons with Alpine vsn < 3.17
 RUN ln -s $(command -v busybox) bin/sh
-
-ARG USER
-ARG UID
-RUN echo "$USER:x:$UID:$UID:$USER,,,:/$HOME:/sbin/nologin" >> etc/passwd \
-    && echo "$USER:x:$UID:$USER" >> etc/group
 
 RUN rm -rf $HOME/etc/* \
     && echo -e \
@@ -147,7 +146,40 @@ RUN home_root_dir=$(echo $HOME | sed 's|\(.*\)/.*|\1 |') \
         | sed -e "s|so:libc.so|so:libc.musl-$(uname -m).so.1|" \
             > /tmp/runDeps
 
+ARG UID
 RUN chown -R $UID:$UID $HOME
+
+################################################################################
+#' VARIANT='acme' - copy s6 entrypoint/ runtime scripts
+FROM eturnal-standalone AS eturnal-acme
+RUN apk add --no-cache \
+        openssl
+
+ARG UID
+ARG HOME
+COPY --chown=$UID:$UID overlay/container/acmesh/etc /rootfs/$HOME/etc
+COPY overlay/container/acmesh/usr /rootfs/usr
+
+WORKDIR /rootfs
+RUN mkdir -p etc \
+    && ln -s /$HOME/etc/s6.d etc/s6.d
+
+RUN export PEM=$HOME/tls/key.pem \
+    && openssl req -x509 \
+            -batch \
+            -nodes \
+            -newkey rsa:4096 \
+            -keyout $PEM \
+            -out $PEM \
+            -days 3650 \
+            -subj "/CN=localhost" \
+    && touch $HOME/tls/fullchain.pem \
+    && chmod 644 $HOME/tls/fullchain.pem \
+    && chown -R $UID:$UID $HOME/tls
+
+################################################################################
+#' define the final eturnal VARIANT
+FROM eturnal-${VARIANT} AS eturnal
 
 ################################################################################
 #' METHOD='build' - Remove erlang/rebar3
@@ -165,7 +197,43 @@ FROM ${PACKAGE_IMAGE} AS base-package
 #' Update, finalize & strip Alpine to only include necessary runtime packages
 FROM base-${METHOD} AS runtime
 RUN apk -U upgrade --available --no-cache
-COPY --from=eturnal /tmp/runDeps /tmp/runDeps
+
+ARG USER
+ARG UID
+ARG HOME
+RUN addgroup $USER -g $UID \
+    && adduser -s /sbin/nologin -D -u $UID -h /$HOME -G $USER $USER
+
+ARG VARIANT
+RUN if [ "$VARIANT" = 'acme' ]; \
+    then \
+        apk add --no-cache -t .acmesh-deps \
+            ca-certificates-bundle \
+            openssl \
+            s6 \
+            socat \
+            wget ; \
+    fi
+
+ARG ACMESH_VSN
+ARG ACMESH_SHA512
+USER $USER
+ENV HOME="/$HOME"
+WORKDIR /$HOME
+RUN if [ "$VARIANT" = 'acme' ]; \
+    then \
+        wget -O acmesh.tar.gz \
+            https://github.com/acmesh-official/acme.sh/archive/"${ACMESH_VSN}".tar.gz \
+        && echo "$ACMESH_SHA512 *acmesh.tar.gz" | sha512sum -c - \
+        && tar -xzf acmesh.tar.gz -C /tmp \
+        && cd /tmp/acme.sh-"${ACMESH_VSN}" \
+        && ./acme.sh --install --no-cron \
+        && cd $OLDPWD \
+        && rm -rf /tmp/acme.sh-"${ACMESH_VSN}" acmesh.tar.gz ; \
+    fi
+
+USER root
+COPY --from=eturnal-standalone /tmp/runDeps /tmp/runDeps
 RUN apk add --no-cache -t .runtime-deps \
         $(cat /tmp/runDeps) \
         busybox \
@@ -177,7 +245,7 @@ RUN apk del --repositories-file /dev/null \
         alpine-keys \
         apk-tools \
         libc-utils \
-    && rm -rf /var/cache/apk /etc/apk \
+    && rm -rf /var/cache/apk /etc/apk /tmp/* \
     && find /lib/apk/db -type f -not -name 'installed' -delete
 
 ################################################################################
@@ -185,6 +253,12 @@ RUN apk del --repositories-file /dev/null \
 # source: https://github.com/sando38/musl-ctr/blob/main/Dockerfile
 FROM docker.io/sando38/musl-ctr:${CI_MUSL_VSN} AS musl-ci
 COPY --from=eturnal /rootfs /
+
+ARG USER
+ARG UID
+ARG HOME
+RUN echo "$USER:x:$UID:$UID:$USER,,,:/$HOME:/sbin/nologin" >> /etc/passwd \
+    && echo "$USER:x:$UID:$USER" >> /etc/group
 
 ################################################################################
 #' Build together production image

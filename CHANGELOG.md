@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Added
+- Docker: Offer a container `VARIANT` which includes the `acme.sh` cert creation
+  script. The variant has a tag suffix `-acme` or just `acme` as `latest`
+  synonym and can be configured with environment variables.
+
 ### Changed
 - Binary release: Update Erlang/OTP from 26.0.2 to 26.1.2.
 
