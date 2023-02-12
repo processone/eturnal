@@ -1,0 +1,451 @@
+diff --git a/scripts/make-binaries b/scripts/make-binaries
+index 584ead6..8addb0f 100755
+--- a/scripts/make-binaries
++++ b/scripts/make-binaries
+@@ -36,13 +36,13 @@ fi
+ 
+ rel_name='eturnal'
+ rel_vsn=$(scripts/get-version)
+-rebar_vsn='3.19.0'
++rebar_vsn='3.20.0'
+ crosstool_vsn='1.25.0'
+ termcap_vsn='1.3.1'
+-zlib_vsn='1.2.12'
++zlib_vsn='1.2.13'
+ yaml_vsn='0.2.5'
+-ssl_vsn='1.1.1q'
+-otp_vsn='25.0.3'
++ssl_vsn='1.1.1t'
++otp_vsn='25.3.2'
+ root_dir="${BUILD_DIR:-$HOME/build}"
+ bootstrap_dir="$root_dir/bootstrap"
+ ct_prefix_dir="$root_dir/x-tools"
+@@ -62,9 +62,19 @@ otp_tar="$otp_dir.tar.gz"
+ rel_tar="$rel_name-$rel_vsn.tar.gz"
+ ct_jobs=$(nproc)
+ src_dir="$root_dir/src"
+-platform='x86_64-pc-linux-gnu'
+-targets='x86_64-linux-gnu aarch64-linux-gnu'
++platform=$(gcc -dumpmachine)
++platform_libc=$(echo $platform | sed "s/\-/\ /g" | awk '{print $NF}')
++targets='x86_64-linux-gnu aarch64-linux-gnu x86_64-linux-musl aarch64-linux-musl'
+ build_start=$(date '+%F %T')
++have_current_deps='false'
++dep_vsns_file="$build_dir/.dep_vsns"
++dep_vsns=''
++deps='crosstool
++      termcap
++      zlib
++      yaml
++      ssl
++      otp'
+ 
+ umask 022
+ 
+@@ -123,6 +133,31 @@ check_deps()
+ }
+ #.
+ 
++#' Check whether existing dependencies are up-to-date.
++check_built_dep_vsns()
++{
++	for dep in $deps
++	do
++		eval dep_vsns=\"\$dep_vsns\$${dep}_vsn\"
++	done
++
++	if [ -e "$dep_vsns_file" ]
++	then
++		if [ "$dep_vsns" = "$(cat "$dep_vsns_file")" ]
++		then have_current_deps='true'
++		fi
++		rm "$dep_vsns_file"
++	fi
++}
++#.
++
++#' Save built dependency versions.
++save_built_dep_vsns()
++{
++	echo "$dep_vsns" >"$dep_vsns_file"
++}
++#.
++
+ #' Create common part of Crosstool-NG configuration file.
+ create_common_config()
+ {
+@@ -135,6 +170,19 @@ create_common_config()
+ 		CT_CC_LANG_CXX=y
+ 		CT_ARCH_64=y
+ 		CT_KERNEL_LINUX=y
++		CT_LOG_PROGRESS_BAR=n
++	EOF
++}
++#.
++
++#' Create Crosstool-NG configuration file for glibc.
++create_gnu_config()
++{
++	local file="$1"
++
++	create_common_config "$file"
++
++	cat >>"$file" <<-'EOF'
+ 		CT_LINUX_V_3_16=y
+ 		CT_GLIBC_V_2_19=y
+ 		CT_GLIBC_KERNEL_VERSION_NONE=y
+@@ -142,12 +190,29 @@ create_common_config()
+ }
+ #.
+ 
++#' Create Crosstool-NG configuration file for musl.
++create_musl_config()
++{
++	local file="$1"
++
++	create_common_config "$file"
++
++	cat >>"$file" <<-'EOF'
++		CT_EXPERIMENTAL=y
++		CT_LIBC_MUSL=y
++		CT_MUSL_V_1_2_2=y
++	EOF
++}
++#.
++
+ #' Create Crosstool-NG configuration file for x64.
+ create_x64_config()
+ {
+ 	local file="$1"
++	local libc="$2"
+ 
+ 	create_common_config "$file"
++	create_${libc}_config "$file"
+ 
+ 	cat >>"$file" <<-'EOF'
+ 		CT_ARCH_X86=y
+@@ -159,8 +224,10 @@ create_x64_config()
+ create_arm64_config()
+ {
+ 	local file="$1"
++	local libc="$2"
+ 
+ 	create_common_config "$file"
++	create_${libc}_config "$file"
+ 
+ 	cat >>"$file" <<-'EOF'
+ 		CT_ARCH_ARM=y
+@@ -188,6 +255,23 @@ arch_name()
+ }
+ #.
+ 
++#' Add native Erlang/OTP "bin" directory to PATH (for bootstrapping and Rebar3).
++add_otp_path()
++{
++	local mode="$1"
++	local prefix="$2"
++
++	if [ "$mode" = 'native' ]
++	then native_otp_bin="$prefix/bin"
++	# for github runners to build for non-native systems
++	# https://github.com/marketplace/actions/setup-erlang-otp-with-optional-elixir-and-mix-and-or-rebar3
++	elif [ ! -z "${INSTALL_DIR_FOR_OTP-}" ]
++	then native_otp_bin="$INSTALL_DIR_FOR_OTP/bin"
++	fi
++	export PATH="$native_otp_bin:$PATH"
++}
++#.
++
+ #' Return Rebar3 profile depending on compilation mode.
+ rebar3_profile()
+ {
+@@ -205,6 +289,7 @@ build_toolchain()
+ {
+ 	local target="$1"
+ 	local prefix="$2"
++	local libc="$3"
+ 	local arch=$(arch_name "$target")
+ 
+ 	if [ -d "$prefix" ]
+@@ -221,15 +306,16 @@ build_toolchain()
+ 			info "Building Crosstool-NG $crosstool_vsn ..."
+ 			cd "$src_dir/$crosstool_dir"
+ 			./configure --prefix="$bootstrap_dir"
+-			make
++			make V=0
+ 			make install
+ 			cd "$OLDPWD"
+ 		fi
+ 
+-		info "Building toolchain for $arch ..."
++		info "Building toolchain for $arch-$libc ..."
+ 		cd "$root_dir"
+-		create_${arch}_config 'defconfig'
++		create_${arch}_config 'defconfig' "$libc"
+ 		ct-ng defconfig
++		sed -i 's|^CT_ZLIB_MIRRORS=.*|CT_ZLIB_MIRRORS="https://github.com/madler/zlib/releases/download/v${CT_ZLIB_VERSION} https://www.zlib.net/ https://www.zlib.net/fossils/"|' '.config'
+ 		ct-ng build CT_PREFIX="$ct_prefix_dir" CT_JOBS="$ct_jobs"
+ 		rm -rf 'defconfig' '.config'* '.build' 'build.log'
+ 		cd "$OLDPWD"
+@@ -237,45 +323,19 @@ build_toolchain()
+ }
+ #.
+ 
+-#' Build target dependencies and the actual release.
+-build_rel()
++#' Build target dependencies.
++build_deps()
+ {
+ 	local mode="$1"
+ 	local target="$2"
+ 	local prefix="$3"
++	local libc="$4"
+ 	local arch="$(arch_name "$target")"
+ 	local profile="$(rebar3_profile "$mode")"
+ 	local rel_dir="$PWD/_build/$profile/rel/$rel_name"
+ 	local target_src_dir="$prefix/src"
+-	local target_dst_dir="$prefix/$rel_name"
+-	local target_dst_tar="$rel_name-$rel_vsn-linux-$arch.tar.gz"
+ 	local saved_path="$PATH"
+ 
+-	#
+-	# The "$ct_prefix_dir/$target/$target/bin" directory contains
+-	# cross-compilation tools without "$target-" prefix. We add it to the
+-	# PATH, just in case tools are called without prefix somewhere. However,
+-	# we try to use the prefixed tools everywhere, so it should be possible
+-	# to omit this directory from the path if desired. See also:
+-	#
+-	# https://stackoverflow.com/a/24243789
+-	#
+-	export PATH="$ct_prefix_dir/$target/bin:$ct_prefix_dir/$target/$target/bin:$PATH"
+-	export CC="$target-gcc"
+-	export CXX="$target-g++"
+-	export CPP="$target-cpp"
+-	export LD="$target-ld"
+-	export AS="$target-as"
+-	export AR="$target-ar"
+-	export NM="$target-nm"
+-	export RANLIB="$target-ranlib"
+-	export OBJCOPY="$target-objcopy"
+-	export STRIP="$target-strip"
+-	export CPPFLAGS="-I$prefix/include"
+-	export CFLAGS="-g0 -O2 -pipe -fomit-frame-pointer -static-libgcc $CPPFLAGS"
+-	export CXXFLAGS="$CFLAGS -static-libstdc++"
+-	export LDFLAGS="-L$prefix/lib -static-libgcc -static-libstdc++"
+-	export ERL_COMPILER_OPTIONS='[deterministic, no_debug_info]'
+ 
+ 	if [ "$mode" = 'cross' ]
+ 	then configure="./configure --host=$target --build=$platform"
+@@ -294,7 +354,7 @@ build_rel()
+ 	tar -xzf "$src_dir/$otp_tar"
+ 	cd "$OLDPWD"
+ 
+-	info "Building Termcap $termcap_vsn for $arch ..."
++	info "Building Termcap $termcap_vsn for $arch-$libc ..."
+ 	cd "$target_src_dir/$termcap_dir"
+ 	$configure --prefix="$prefix"
+ 	cat >'config.h' <<-'EOF'
+@@ -322,34 +382,34 @@ build_rel()
+ 	make install
+ 	cd "$OLDPWD"
+ 
+-	info "Building zlib $zlib_vsn for $arch ..."
++	info "Building zlib $zlib_vsn for $arch-$libc ..."
+ 	cd "$target_src_dir/$zlib_dir"
+ 	CFLAGS="$CFLAGS -O3 -fPIC" ./configure --prefix="$prefix" --static
+ 	make
+ 	make install
+ 	cd "$OLDPWD"
+ 
+-	info "Building LibYAML $yaml_vsn for $arch ..."
++	info "Building LibYAML $yaml_vsn for $arch-$libc ..."
+ 	cd "$target_src_dir/$yaml_dir"
+ 	$configure --prefix="$prefix" --disable-shared CFLAGS="$CFLAGS -fPIC"
+ 	make
+ 	make install
+ 	cd "$OLDPWD"
+ 
+-	info "Building OpenSSL $ssl_vsn for $arch ..."
++	info "Building OpenSSL $ssl_vsn for $arch-$libc ..."
+ 	cd "$target_src_dir/$ssl_dir"
+ 	CFLAGS="$CFLAGS -O3 -fPIC" ./Configure no-shared no-ui-console \
+ 	    --prefix="$prefix" \
+ 	    --openssldir="$prefix" \
+-	    "linux-${target%-linux-gnu}"
++	    "linux-${target%-linux-*}"
+ 	make build_libs
+ 	make install_dev
+ 	cd "$OLDPWD"
+ 
+-	info "Building Erlang/OTP $otp_vsn for $arch ..."
++	info "Building Erlang/OTP $otp_vsn for $arch-$libc ..."
+ 	if [ "$mode" = 'cross' ]
+ 	then
+-		export PATH="$native_otp_bin:$PATH" # For bootstrapping/Rebar3.
++		add_otp_path "$mode" "$prefix" # For bootstrapping/Rebar3.
+ 		export erl_xcomp_sysroot="$prefix"
+ 	fi
+ 	cd "$target_src_dir/$otp_dir"
+@@ -365,19 +425,67 @@ build_rel()
+ 	make
+ 	make install
+ 	if [ "$mode" = 'native' ]
+-	then
+-		native_otp_bin="$prefix/bin"
+-		export PATH="$native_otp_bin:$PATH" # For Rebar3.
+-	else
+-		unset erl_xcomp_sysroot
++	then add_otp_path "$mode" "$prefix" # For bootstrapping/Rebar3.
++	else unset erl_xcomp_sysroot
+ 	fi
+ 	cd "$OLDPWD"
+ 
++	export PATH="$saved_path"
++}
++#.
++
++#' Build release with Rebar3.
++build_rel()
++{
++	local mode="$1"
++	local target="$2"
++	local prefix="$3"
++	local libc="$4"
++	local arch="$(arch_name "$target")"
++	local profile="$(rebar3_profile "$mode")"
++	local rel_dir="$PWD/_build/$profile/rel/$rel_name"
++	local target_src_dir="$prefix/src"
++	local target_dst_dir="$prefix/$rel_name"
++	local target_dst_tar="$rel_name-$rel_vsn-linux-$libc-$arch.tar.gz"
++	local saved_path="$PATH"
++
++	#
++	# The "$ct_prefix_dir/$target/$target/bin" directory contains
++	# cross-compilation tools without "$target-" prefix. We add it to the
++	# PATH, just in case tools are called without prefix somewhere. However,
++	# we try to use the prefixed tools everywhere, so it should be possible
++	# to omit this directory from the path if desired. See also:
++	#
++	# https://stackoverflow.com/a/24243789
++	#
++	export PATH="$ct_prefix_dir/$target/bin:$ct_prefix_dir/$target/$target/bin:$PATH"
++	export CC="$target-gcc"
++	export CXX="$target-g++"
++	export CPP="$target-cpp"
++	export LD="$target-ld"
++	export AS="$target-as"
++	export AR="$target-ar"
++	export NM="$target-nm"
++	export RANLIB="$target-ranlib"
++	export OBJCOPY="$target-objcopy"
++	export STRIP="$target-strip"
++	export CPPFLAGS="-I$prefix/include"
++	export CFLAGS="-g0 -O2 -pipe -fomit-frame-pointer -static-libgcc $CPPFLAGS"
++	export CXXFLAGS="$CFLAGS -static-libstdc++"
++	export LDFLAGS="-L$prefix/lib -static-libgcc -static-libstdc++"
++	export ERL_COMPILER_OPTIONS='[no_debug_info]' # Building 25.x fails with 'deterministic'.
++
++	if [ $have_current_deps = false ]
++	then build_deps "$mode" "$target" "$prefix" "$libc"
++	fi
++
++	add_otp_path "$mode" "$prefix"
++
+ 	info "Removing Rebar3 cache and old $rel_name builds"
+-	rm -rf "$HOME/.cache/rebar3" '_build'
++	rm -rf "$HOME/.cache/rebar3" '_build' "$target_dst_dir"
+ 	rebar3 clean -a
+ 
+-	info "Building $rel_name $rel_vsn for $arch ..."
++	info "Building $rel_name $rel_vsn for $arch-$libc ..."
+ 	if [ "$mode" = 'native' ]
+ 	then
+ 		rebar3 as "$(rebar3_profile "$mode")" tar
+@@ -392,7 +500,7 @@ build_rel()
+ 		rm 'lib'
+ 	fi
+ 
+-	info "Editing $rel_name $rel_vsn for $arch ..."
++	info "Editing $rel_name $rel_vsn for $arch-$libc ..."
+ 	mkdir "$target_dst_dir"
+ 	tar -C "$target_dst_dir" -xzf "$rel_dir/$rel_tar"
+ 	sed -i "2iexport TERM='internal'" \
+@@ -446,29 +554,35 @@ then
+ 	exit 1
+ fi
+ 
+-# Keep existing toolchains but rebuild everything else.
++check_built_dep_vsns
+ 
+ info 'Removing old bootstrap tools ...'
+ rm -rf "$bootstrap_dir"
+ mkdir "$bootstrap_dir"
+ 
+-info 'Removing old builds ...'
+-rm -rf "$build_dir"
+-mkdir "$build_dir"
+-
+-info 'Removing old source ...'
+-rm -rf "$src_dir"
+-mkdir "$src_dir"
+-
+-info 'Downloading dependencies ...'
+-cd "$src_dir"
+-curl -LO "http://crosstool-ng.org/download/crosstool-ng/$crosstool_tar"
+-curl -LO "https://ftp.gnu.org/gnu/termcap/$termcap_tar"
+-curl -LO "https://zlib.net/$zlib_tar"
+-curl -LO "https://pyyaml.org/download/libyaml/$yaml_tar"
+-curl -LO "https://www.openssl.org/source/$ssl_tar"
+-curl -LO "https://github.com/erlang/otp/releases/download/OTP-$otp_vsn/$otp_tar"
+-cd "$OLDPWD"
++if [ $have_current_deps = true ]
++then
++	info 'Dependencies are up-to-date ...'
++else
++	# Keep existing toolchains but rebuild everything else.
++	info 'Removing old builds ...'
++	rm -rf "$build_dir"
++	mkdir "$build_dir"
++
++	info 'Removing old source ...'
++	rm -rf "$src_dir"
++	mkdir "$src_dir"
++
++	info 'Downloading dependencies ...'
++	cd "$src_dir"
++	curl -LO "https://github.com/crosstool-ng/crosstool-ng/releases/download/$crosstool_dir/$crosstool_tar"
++	curl -LO "https://ftp.gnu.org/gnu/termcap/$termcap_tar"
++	curl -LO "https://zlib.net/fossils/$zlib_tar"
++	curl -LO "https://pyyaml.org/download/libyaml/$yaml_tar"
++	curl -LO "https://www.openssl.org/source/$ssl_tar"
++	curl -LO "https://github.com/erlang/otp/releases/download/OTP-$otp_vsn/$otp_tar"
++	cd "$OLDPWD"
++fi
+ 
+ info "Downloading Rebar3 $rebar_vsn ..."
+ install -d "$bootstrap_dir/bin"
+@@ -481,17 +595,20 @@ export PATH="$bootstrap_dir/bin:$PATH" # For Rebar3 and possibly ct-ng.
+ 
+ for target in $targets
+ do
+-	prefix="$build_dir/$(arch_name "$target")"
++	libc="$(echo $target | sed "s/\-/\ /g" | awk '{print $NF}')"
++	prefix="$build_dir/$(arch_name "$target")-$libc"
+ 	toolchain_dir="$ct_prefix_dir/$target"
+ 
+-	if [ "$(uname -m)-linux-gnu" = "$target" ]
++	if [ "$(uname -m)-linux-$platform_libc" = "$target" ]
+ 	then mode='native'
+ 	else mode='cross'
+ 	fi
+-	build_toolchain "$target" "$toolchain_dir"
+-	build_rel "$mode" "$target" "$prefix"
++	build_toolchain "$target" "$toolchain_dir" "$libc"
++	build_rel "$mode" "$target" "$prefix" "$libc"
+ done
+ 
++save_built_dep_vsns
++
+ info "Build started: $build_start"
+ info "Build ended: $(date '+%F %T')"
+ 

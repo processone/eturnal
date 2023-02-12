@@ -49,7 +49,7 @@ jobs:
 
   ## build musl-libc based binary tarballs for x64/arm64
   build-musl-binary-archives:
-    name: ${{ matrix.arch }} - build musl-libc binary archives 
+    name: ${{ matrix.arch }} - build musl-libc binary archives
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -62,7 +62,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - 
+      -
         name: Cache toolchain directory
         uses: actions/cache@v3
         with:
@@ -73,16 +73,13 @@ jobs:
       -
         name: Extract version of master branch
         if: needs.detect-change.outputs.update == 'false'
-        run: |
-          echo "TAG_VERSION=$(echo "$(./scripts/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
+        run: echo "TAG_VERSION=$(echo "$(./scripts/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
 
       # performing steps for building binary tarballs on release
       -
         name: Extract tag of release to be published/updated and erlang/OTP
         if: needs.detect-change.outputs.update == 'true'
-        run: |
-          echo "TAG_PKGREL=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1))" >> $GITHUB_ENV
-          echo "TAG_VERSION=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\-/ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+        run: echo "TAG_VERSION=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\-/ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
       -
         name: Check out release to be published/updated
         uses: actions/checkout@v3
@@ -100,6 +97,14 @@ jobs:
           sudo apt-get -qq install gcc g++ gperf bison flex texinfo help2man make libncurses5-dev
           sudo apt-get -qq install python3-dev autoconf automake libtool libtool-bin gawk wget bzip2 xz-utils unzip
           sudo apt-get -qq install patch libstdc++6 rsync git meson ninja-build
+      -
+        name: Patch make-binaries script and obtain erlang/otp version
+        run: |
+          # check if patch is needed to build musl-libc binaries
+          if dpkg --compare-versions ${{ env.TAG_VERSION }} le "1.10.1"
+          then
+            wget -O - https://raw.githubusercontent.com/${{ github.repository }}/master/.github/workflows/make-binaries-musl.patch | git apply -
+          fi
           # obtain erlang/OTP version
           echo "OTP_VSN=$(awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' scripts/make-binaries)" >> $GITHUB_ENV
       -
@@ -121,8 +126,14 @@ jobs:
           sed -i "s|targets='.*'|targets='${{ matrix.arch }}-linux-musl'|" scripts/make-binaries
           chmod +x scripts/make-binaries
           CHECK_DEPS=false scripts/make-binaries
-          mkdir -p ~/tarballs/
-          cp eturnal-*.tar.gz ~/tarballs
+          echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|x64|;s|aarch64|arm64|')" >> $GITHUB_ENV
+          cp eturnal-*.tar.gz /tmp
+      -
+        name: Upload musl-libc binary tarball artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: eturnal-${{ matrix.arch }}-musl-tarballs-${{ env.TAG_VERSION }}
+          path: /tmp/eturnal-*-linux-musl-${{ env.ARCH }}.tar.gz
 
 
   ## Test the musl-libc tarballs for incompatibilities between musl-libc versions
@@ -141,30 +152,19 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      
+
       # performing steps for building images from master
-      - 
+      -
         name: Extract version of master branch
         if: needs.detect-change.outputs.update == 'false'
         run: echo "TAG_VERSION=$(echo "$(./scripts/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
-      
+
       # performing steps for building images on release
       -
         name: Extract tag of release to be published/updated
         if: needs.detect-change.outputs.update == 'true'
         run: echo "TAG_VERSION=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\-/ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
-      -
-        name: Check out release to be published/updated
-        uses: actions/checkout@v3
-        if: needs.detect-change.outputs.update == 'true'
-        with:
-          ref: ${{ env.TAG_VERSION }}
-      - 
-        name: Get cached binary archives
-        uses: actions/cache@v3
-        with:
-          path: ~/tarballs/
-          key: eturnal-${{ matrix.arch }}-musl-tarballs-${{ env.TAG_VERSION }}
+
       -
         name: Extract test environment variables ...
         run: |
@@ -175,11 +175,17 @@ jobs:
           echo "TEST_CONFIG=$(find . -name eturnal-new-otp.yml)" >> $GITHUB_ENV
           echo "SHA512_SUM=$(wget https://musl.libc.org/releases/musl-${{ matrix.musl }}.tar.gz -O - \
                 | sha512sum | awk '{print $1}')" >> $GITHUB_ENV
+          # Match our architecture names
+          echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|x64|;s|aarch64|arm64|')" >> $GITHUB_ENV
+      -
+        name: Download musl-libc binary tarball artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: eturnal-${{ matrix.arch }}-musl-tarballs-${{ env.TAG_VERSION }}
+          path: ${{ env.DOCKERFILE_PATH }}/tarballs
       -
         name: Prepare build context and CI environemnt
         run: |
-          mkdir -p ${{ env.DOCKERFILE_PATH }}/tarballs
-          cp -r ~/tarballs/eturnal-*.tar.gz ${{ env.DOCKERFILE_PATH }}/tarballs
           cp ${{ env.TEST_CONFIG }} $PWD/eturnal.yml
           echo "  log_dir: stdout" >> $PWD/eturnal.yml
       -
@@ -188,7 +194,7 @@ jobs:
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - 
+      -
         name: Build CI image ...
         run: |
           docker buildx build --load \
@@ -198,7 +204,7 @@ jobs:
                 --build-arg SHA512_SUM=${{ env.SHA512_SUM }} \
                 -t processone/eturnal:musl-libc-test \
                 ${{ env.DOCKERFILE_PATH }}/.
-      - 
+      -
         name: Start CI container ...
         run: |
           docker run --init -d --name eturnal \
@@ -208,19 +214,19 @@ jobs:
                 processone/eturnal:musl-libc-test \
                 eturnalctl foreground
           echo ">> sleep shortly to have the service up ..." && sleep 5s
-      - 
+      -
         name: CI | print eturnal log ...
         run: docker logs eturnal
-      - 
+      -
         name: CI | send ping to eturnal container ...
         run: docker exec eturnal eturnalctl ping
-      - 
+      -
         name: CI | perform STUN query ...
         run: docker exec eturnal stun stun.conversations.im 3478
-      - 
+      -
         name: CI | print binary-archives musl-libc version ...
         run: cat scripts/make-binaries | grep CT_MUSL
-      - 
+      -
         name: Stop CI container ...
         run: docker stop eturnal
 
@@ -244,23 +250,20 @@ jobs:
       -
         name: Extract version of master branch
         if: needs.detect-change.outputs.update == 'false'
-        run: echo "TAG_VERSION=$(echo "$(./scripts/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
+        run: |
+          echo "VSN=$(./scripts/get-version)" >> $GITHUB_ENV
+          echo "TAG_VERSION=$(echo "$(./scripts/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
 
       # performing steps for building images on release
       -
         name: Extract tag of release to be published/updated
         if: needs.detect-change.outputs.update == 'true'
         run: |
+          echo "VSN=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\-/ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
           echo "TAG_PKGREL=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1))" >> $GITHUB_ENV
           echo "TAG_VERSION=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\-/ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
           echo "TAG_MINOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /2' | awk '{ print $1 }')" >> $GITHUB_ENV
           echo "TAG_MAJOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
-      -
-        name: Check out release to be published/updated
-        uses: actions/checkout@v3
-        if: needs.detect-change.outputs.update == 'true'
-        with:
-          ref: ${{ env.TAG_VERSION }}
 
       # prepare runner for image build
       -
@@ -270,20 +273,17 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       -
-        name: Get cached binary archives
-        uses: actions/cache@v3
-        with:
-          path: ~/tarballs/
-          key: eturnal-${{ matrix.arch }}-musl-tarballs-${{ env.TAG_VERSION }}
-      -
         name: Extract Dockerfile.binary path
         run: |
           echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile.binary-musl))" >> $GITHUB_ENV
+          # Match our architecture names
+          echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|x64|;s|aarch64|arm64|')" >> $GITHUB_ENV
       -
-        name: Copy tarballs to docker build context
-        run: |
-          mkdir -p ${{ env.DOCKERFILE_PATH }}/tarballs
-          cp -r ~/tarballs/eturnal-*.tar.gz ${{ env.DOCKERFILE_PATH }}/tarballs
+        name: Download musl-libc binary tarball artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: eturnal-${{ matrix.arch }}-musl-tarballs-${{ env.TAG_VERSION }}
+          path: ${{ env.DOCKERFILE_PATH }}/tarballs
       -
         name: Log in to GHCR
         if: github.event_name != 'pull_request'
@@ -304,8 +304,6 @@ jobs:
         run: |
           # Match the docker platform names
           echo "PLATFORM=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|amd64|;s|aarch64|arm64|')" >> $GITHUB_ENV
-          # Match our architecture names
-          echo "TAGGING=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|x64|;s|aarch64|arm64|')" >> $GITHUB_ENV
 
       # build/publish on push master
       -
@@ -318,8 +316,8 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 #            ${{ env.DOCKERHUB_REPO }}
           tags: |
-            edge-${{ env.TAGGING }}
-            ${{ env.TAG_VERSION }}-${{ env.TAGGING }}
+            edge-${{ env.ARCH }}
+            ${{ env.TAG_VERSION }}-${{ env.ARCH }}
       -
         name: On push master - build and push ctr image
         uses: docker/build-push-action@v3
@@ -343,11 +341,11 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 #            ${{ env.DOCKERHUB_REPO }}
           tags: |
-            latest-${{ env.TAGGING }}
-            ${{ env.TAG_PKGREL }}-${{ env.TAGGING }}
-            ${{ env.TAG_VERSION }}-${{ env.TAGGING }}
-            ${{ env.TAG_MINOR }}-${{ env.TAGGING }}
-            ${{ env.TAG_MAJOR }}-${{ env.TAGGING }}
+            latest-${{ env.ARCH }}
+            ${{ env.TAG_PKGREL }}-${{ env.ARCH }}
+            ${{ env.TAG_VERSION }}-${{ env.ARCH }}
+            ${{ env.TAG_MINOR }}-${{ env.ARCH }}
+            ${{ env.TAG_MAJOR }}-${{ env.ARCH }}
       -
         name: On release - build and push ctr image
         uses: docker/build-push-action@v3
@@ -376,7 +374,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      
+
       # performing steps for building images from master
       -
         name: Extract version of master branch
@@ -392,12 +390,6 @@ jobs:
           echo "TAG_VERSION=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\-/ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
           echo "TAG_MINOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /2' | awk '{ print $1 }')" >> $GITHUB_ENV
           echo "TAG_MAJOR=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\./ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
-      -
-        name: Check out release to be published/updated
-        uses: actions/checkout@v3
-        if: needs.detect-change.outputs.update == 'true'
-        with:
-          ref: ${{ env.TAG_VERSION }}
 
       # prepare runner for image build
       -
@@ -407,9 +399,15 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       -
-        name: Extract Dockerfile path
+        name: Extract Dockerfile path and build arguments
         run: |
           echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
+          # Check if rebar common test should be performend
+          # fix for slow architectures was introduces after version 1.10.1
+          if dpkg --compare-versions ${{ env.TAG_VERSION }} le "1.10.1"
+          then echo "REBAR_CT=false" >> $GITHUB_ENV
+          else echo "REBAR_CT=true" >> $GITHUB_ENV
+          fi
       -
         name: Log in to GHCR
         if: github.event_name != 'pull_request'
@@ -453,6 +451,7 @@ jobs:
           build-args: |
             VERSION=master
             REPOSITORY=https://github.com/${{ github.repository }}.git
+            REBAR_CT=true
           context: ${{ env.DOCKERFILE_PATH }}/.
           platforms: linux/${{ env.PLATFORM }}
           load: true
@@ -483,6 +482,7 @@ jobs:
           build-args: |
             VERSION=${{ env.TAG_VERSION }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
+            REBAR_CT=${{ env.REBAR_CT }}
           context: ${{ env.DOCKERFILE_PATH }}/.
           platforms: linux/${{ env.PLATFORM }}
           push: ${{ github.event_name != 'pull_request' }}
@@ -501,7 +501,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      
+
       # performing steps to push manifest from master
       -
         name: Extract version of master branch
