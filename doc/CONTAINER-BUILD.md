@@ -122,6 +122,15 @@ significantly faster.
 Building e.g. with `Podman rootless` requires to have the correct permissions of
 the eturnal repository:
 
+    podman unshare chown -R $(id -u $(whoami)) $PWD
+
+## Build the variant with `acme.sh` included
+
+From the root of the repository, do:
+
 ```shell
-podman unshare chown -R $(id -u $(whoami)) $PWD
+DOCKER_BUILDKIT=1 docker build \
+    -t localhost/myname/eturnal:acme \
+    --build-arg VARIANT=acme \
+    .
 ```

@@ -1,0 +1,47 @@
+#!/bin/sh
+
+echo '>> Check if eturnal has started ...'
+## We run this script to ensure, that eturnal runs healthy before attemping the
+## first certificate generation. Otherwise, depending on the CA in use, we may
+## cause rate limit hits or anything else, we would like to avoid.
+max_iterations=15
+wait_seconds=2
+
+iterations=0
+while true
+do
+	iterations="$(expr $iterations + 1)"
+	echo ">> Attempt $iterations from $max_iterations"
+	sleep $wait_seconds
+
+	if [ "$(eturnalctl ping)" = 'pong' ]; then
+		echo '>> eturnal is running! ...'
+		break
+	fi
+
+	if [ "$iterations" -ge "$max_iterations" ]; then
+		echo '>> Loop Timeout!'
+		exit 1
+	fi
+done
+
+echo '>> Generate initial TLS certificatets ...'
+generate-certs.sh
+
+while true; do
+  sleep <ACME_CRON_PERIOD>
+  if [ -f "$(echo $ACME_SH_UPGRADE__FILE)" ]
+  then ACME_SH_UPGRADE="$(cat $ACME_SH_UPGRADE__FILE)"
+  fi
+  if [ ${ACME_SH_UPGRADE:-true} = 'true' ]
+  then
+          echo '>> Upgrading acme.sh ...'
+          <ACME_SH> --upgrade
+  else
+          echo '>> acme.sh auto-upgrade disabled ...'
+  fi
+  echo '>> Print current acme.sh version ...'
+  <ACME_SH> --version
+  echo '>> Cron job: Start certificate renewal with acme.sh ...'
+  <ACME_SH> --renew-all --force
+done

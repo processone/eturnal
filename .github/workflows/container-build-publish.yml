@@ -153,11 +153,12 @@ jobs:
 ################################################################################
   #' build actual images for x64/arm64 with built binary tarballs
   build-ctr-binary-based:
-    name: ${{ matrix.arch }} - build & publish container image (binary-based)
+    name: ${{ matrix.arch }} - ${{ matrix.method }}-based variant
     runs-on: ubuntu-latest
     strategy:
       matrix:
         arch: [x64, arm64]
+        method: [package]
       fail-fast: false
     needs: [detect-change, build-musl-binary-archives]
     steps:
@@ -204,14 +205,15 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       -
-        name: Build and push by digest
-        id: build
+        name: Standalone | build & push by digest
+        id: build-so
         uses: docker/build-push-action@v3
         with:
           build-args: |
-            METHOD=package
+            METHOD=${{ matrix.method }}
             VERSION=${{ env.TAG_VERSION }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
+            VARIANT=standalone
           context: .
           file: ${{ env.DOCKERFILE_PATH }}/Dockerfile
           platforms: linux/${{ env.ARCH }}
@@ -223,7 +225,7 @@ jobs:
           set -x
           docker run -d --name eturnal \
             --platform linux/${{ env.ARCH }} \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }} \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build-so.outputs.digest }} \
             sleep 600
           docker exec eturnal eturnalctl daemon
           docker exec eturnal eturnalctl ping
@@ -231,28 +233,58 @@ jobs:
           docker logs eturnal
           docker stop eturnal
       -
-        name: Export digest | ${{ matrix.arch }}
+        name: Standalone | export digest | ${{ matrix.arch }}
         run: |
-          mkdir -p /tmp/digests
-          digest="${{ steps.build.outputs.digest }}"
-          touch "/tmp/digests/${digest#sha256:}"
+          mkdir -p /tmp/digests-so
+          digest="${{ steps.build-so.outputs.digest }}"
+          touch "/tmp/digests-so/${digest#sha256:}"
       -
-        name: Upload digest | ${{ matrix.arch }}
+        name: Standalone | upload digest | ${{ matrix.arch }}
         uses: actions/upload-artifact@v3
         with:
-          name: digests
-          path: /tmp/digests/*
+          name: digests-standalone
+          path: /tmp/digests-so/*
+          if-no-files-found: error
+          retention-days: 5
+      -
+        name: ACME | build & push by digest
+        id: build-as
+        uses: docker/build-push-action@v3
+        with:
+          build-args: |
+            METHOD=${{ matrix.method }}
+            VERSION=${{ env.TAG_VERSION }}
+            REPOSITORY=https://github.com/${{ github.repository }}.git
+            VARIANT=acme
+          context: .
+          file: ${{ env.DOCKERFILE_PATH }}/Dockerfile
+          platforms: linux/${{ env.ARCH }}
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
+      -
+        name: ACME | export digest | ${{ matrix.arch }}
+        run: |
+          mkdir -p /tmp/digests-as
+          digest="${{ steps.build-as.outputs.digest }}"
+          touch "/tmp/digests-as/${digest#sha256:}"
+      -
+        name: ACME | upload digest | ${{ matrix.arch }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: digests-acme
+          path: /tmp/digests-as/*
           if-no-files-found: error
           retention-days: 5
 
 ################################################################################
   #' build container images with local source files
   build-ctr:
-    name: ${{ matrix.arch }} - build & publish container image (non-binary-based)
+    name: ${{ matrix.arch }} - ${{ matrix.method }}-based variant
     runs-on: ubuntu-latest
     strategy:
       matrix:
         arch: [386, arm/v7, ppc64le]
+        method: [build]
       fail-fast: false
     needs: [detect-change]
     steps:
@@ -318,8 +350,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       -
-        name: Build and push by digest
-        id: build
+        name: Standalone | build & push by digest
+        id: build-so
         uses: docker/build-push-action@v3
         with:
           build-args: |
@@ -328,6 +360,7 @@ jobs:
             OTP_VSN=${{ env.OTP_VSN }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
             REBAR_CT=${{ env.REBAR_CT }}
+            VARIANT=standalone
           context: .
           file: ${{ env.DOCKERFILE_PATH }}/Dockerfile
           platforms: linux/${{ matrix.arch }}
@@ -339,7 +372,7 @@ jobs:
           set -x
           docker run -d --name eturnal \
             --platform linux/${{ matrix.ARCH }} \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }} \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build-so.outputs.digest }} \
             sleep 600
           docker exec eturnal eturnalctl daemon
           docker exec eturnal eturnalctl ping
@@ -347,28 +380,60 @@ jobs:
           docker logs eturnal
           docker stop eturnal
       -
-        name: Export digest | ${{ matrix.arch }}
+        name: Standalone | export digest | ${{ matrix.arch }}
         run: |
-          mkdir -p /tmp/digests
-          digest="${{ steps.build.outputs.digest }}"
-          touch "/tmp/digests/${digest#sha256:}"
+          mkdir -p /tmp/digests-so
+          digest="${{ steps.build-so.outputs.digest }}"
+          touch "/tmp/digests-so/${digest#sha256:}"
       -
-        name: Upload digest | ${{ matrix.arch }}
+        name: Standalone | upload digest | ${{ matrix.arch }}
         uses: actions/upload-artifact@v3
         with:
-          name: digests
-          path: /tmp/digests/*
+          name: digests-standalone
+          path: /tmp/digests-so/*
+          if-no-files-found: error
+          retention-days: 5
+      -
+        name: ACME | build & push by digest
+        id: build-as
+        uses: docker/build-push-action@v3
+        with:
+          build-args: |
+            SOURCE=${{ env.SRC }}
+            VERSION=${{ env.VSN }}
+            OTP_VSN=${{ env.OTP_VSN }}
+            REPOSITORY=https://github.com/${{ github.repository }}.git
+            REBAR_CT=${{ env.REBAR_CT }}
+            VARIANT=acme
+          context: .
+          file: ${{ env.DOCKERFILE_PATH }}/Dockerfile
+          platforms: linux/${{ matrix.arch }}
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
+      -
+        name: ACME | export digest | ${{ matrix.arch }}
+        run: |
+          mkdir -p /tmp/digests-as
+          digest="${{ steps.build-as.outputs.digest }}"
+          touch "/tmp/digests-as/${digest#sha256:}"
+      -
+        name: ACME | upload digest | ${{ matrix.arch }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: digests-acme
+          path: /tmp/digests-as/*
           if-no-files-found: error
           retention-days: 5
 
 ################################################################################
   ## merge single images to only advertise one image plus tag
   publish:
-    name: ${{ matrix.registry }} - publish image manifest
+    name: ${{ matrix.registry }} - publish manifest ${{ matrix.variant }} variant
     runs-on: ubuntu-latest
     strategy:
       matrix:
         registry: [ghcr.io, docker.io]
+        variant: [standalone, acme]
       fail-fast: false
     if: github.event_name != 'pull_request' && github.event_name != 'schedule'
     needs: [detect-change, build-musl-binary-archives, build-ctr-binary-based, build-ctr]
@@ -407,14 +472,25 @@ jobs:
                          && secrets.DOCKERHUB_TOKEN)
                      || secrets.GITHUB_TOKEN }}
       -
-        name: Download digests
+        name: Download digests | ${{ matrix.variant }}
         uses: actions/download-artifact@v3
         with:
-          name: digests
+          name: digests-${{ matrix.variant }}
           path: /tmp/digests
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+      -
+        name: Define tag for latest ...
+        run: |
+          if [ ${{ matrix.variant }} = 'standalone' ]
+          then echo "TAG_LATEST=latest" >> $GITHUB_ENV
+          else echo "TAG_LATEST=${{ matrix.variant }}" >> $GITHUB_ENV
+          fi
+      -
+        name: For variant == 'acme' add a special tag suffix
+        if: matrix.variant == 'acme'
+        run: echo "TAG_ACME=-acme" >> $GITHUB_ENV
       -
         name: On push master | Docker meta
         id: meta
@@ -425,7 +501,7 @@ jobs:
                                         && env.DOCKERHUB_REPO)
                                         || env.IMAGE_NAME }}
           tags: |
-            edge
+            edge${{ env.TAG_ACME }}
       -
         name: On release | Docker meta
         id: meta-rel
@@ -436,11 +512,11 @@ jobs:
                                         && env.DOCKERHUB_REPO)
                                         || env.IMAGE_NAME }}
           tags: |
-            latest
-            ${{ env.TAG_PKGREL }}
-            ${{ env.TAG_VERSION }}
-            ${{ env.TAG_MINOR }}
-            ${{ env.TAG_MAJOR }}
+            ${{ env.TAG_LATEST }}
+            ${{ env.TAG_PKGREL }}${{ env.TAG_ACME }}
+            ${{ env.TAG_VERSION }}${{ env.TAG_ACME }}
+            ${{ env.TAG_MINOR }}${{ env.TAG_ACME }}
+            ${{ env.TAG_MAJOR }}${{ env.TAG_ACME }}
       -
         name: Create manifest list and push
         if: |
