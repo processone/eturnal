@@ -1,5 +1,7 @@
 # BUILD: Define base image
-ARG ALPINE_VSN="3.17"
+ARG ALPINE_VSN='3.17'
+ARG REPOSITORY='https://github.com/processone/eturnal'
+ARG VERSION='master'
 FROM alpine:${ALPINE_VSN} AS eturnal
 # BUILD: define image build arguments
 ARG HOME=/opt/eturnal
@@ -70,5 +72,13 @@ WORKDIR $HOME
 USER eturnal
 VOLUME ["$HOME"]
 EXPOSE 3478 3478/udp
+
+LABEL   org.opencontainers.image.title=eturnal \
+        org.opencontainers.image.description='STUN / TURN standalone server' \
+        org.opencontainers.image.url=https://eturnal.net \
+        org.opencontainers.image.source="$REPOSITORY" \
+        org.opencontainers.image.version="$VERSION" \
+        org.opencontainers.image.licenses=Apache-2.0
+
 ENTRYPOINT ["/sbin/tini","--","run.sh"]
 CMD ["eturnalctl", "foreground"]

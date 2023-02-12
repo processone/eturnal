@@ -6,6 +6,7 @@ ARG BUILD_DIR=/eturnal
 ARG REPOSITORY=https://github.com/processone/eturnal.git
 ARG VERSION=master
 ARG REBAR_PROFILE=prod
+ARG REBAR_CT=true
 ARG HOME=/opt/eturnal
 # RUNTIME: define container runtime environment variables
 ENV ERL_DIST_PORT=3470 \
@@ -23,7 +24,7 @@ RUN set -x && apk -U upgrade --available \
       openssl-dev \
       yaml-dev \
 # BUILD: prepare and build
-    && git clone $REPOSITORY --branch $VERSION --single-branch . \
+    && git clone $REPOSITORY . && git checkout $VERSION \
     && echo "-setcookie eturnal" >> config/vm.args \
     && wget https://s3.amazonaws.com/rebar3/rebar3 \
     && chmod +x rebar3 \
@@ -31,7 +32,7 @@ RUN set -x && apk -U upgrade --available \
 # BUILD: run rebar3 test suites
     && ./rebar3 xref \
     && ./rebar3 eunit \
-    && ./rebar3 ct \
+    && if [ "$REBAR_CT" = 'true' ]; then ./rebar3 ct; fi \
 # RUNTIME: add/ define runtime packages
     && apk add \
       busybox-binsh \ 
@@ -85,5 +86,13 @@ WORKDIR $HOME
 USER eturnal
 VOLUME ["$HOME/log","$HOME/run"]
 EXPOSE 3478 3478/udp
+
+LABEL   org.opencontainers.image.title=eturnal \
+        org.opencontainers.image.description='STUN / TURN standalone server' \
+        org.opencontainers.image.url=https://eturnal.net \
+        org.opencontainers.image.source="$REPOSITORY" \
+        org.opencontainers.image.version="$VERSION" \
+        org.opencontainers.image.licenses=Apache-2.0
+
 ENTRYPOINT ["/sbin/tini","--","run.sh"]
 CMD ["eturnalctl", "foreground"]
