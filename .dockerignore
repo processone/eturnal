@@ -1,0 +1,43 @@
+.win32
+.examples
+*.swp
+*~
+\#*#
+.#*
+.edts
+*.dump
+/*.cache
+/doc
+/hello-eturnal.png
+
+#
+# ExDoc:
+#
+/doc/assets/
+/doc/dist/
+/exdoc/
+#
+# For Reltool tests:
+#
+/rel/
+#
+# Auto-added by Rebar3:
+#
+.rebar3
+_*
+.eunit
+*.o
+*.beam
+*.plt
+*.swp
+*.swo
+.erlang.cookie
+ebin
+log
+erl_crash.dump
+.rebar
+logs
+_build
+.idea
+*.iml
+rebar3.crashdump

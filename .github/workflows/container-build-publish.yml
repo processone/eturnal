@@ -169,13 +169,11 @@ jobs:
       -
         name: Extract test environment variables ...
         run: |
-          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile.ci-musl))" >> $GITHUB_ENV
+          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
           # Match the docker platform names
           echo "PLATFORM=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|amd64|;s|aarch64|arm64|')" >> $GITHUB_ENV
           # Test data
           echo "TEST_CONFIG=$(find . -name eturnal-new-otp.yml)" >> $GITHUB_ENV
-          echo "SHA512_SUM=$(wget https://musl.libc.org/releases/musl-${{ matrix.musl }}.tar.gz -O - \
-                | sha512sum | awk '{print $1}')" >> $GITHUB_ENV
           # Match our architecture names
           echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|x64|;s|aarch64|arm64|')" >> $GITHUB_ENV
       -
@@ -183,7 +181,6 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: eturnal-${{ matrix.arch }}-musl-tarballs-${{ env.TAG_VERSION }}
-          path: ${{ env.DOCKERFILE_PATH }}/tarballs
       -
         name: Prepare build context and CI environemnt
         run: |
@@ -200,11 +197,12 @@ jobs:
         run: |
           docker buildx build --load \
                 --platform linux/${{ env.PLATFORM }} \
-                -f ${{ env.DOCKERFILE_PATH }}/Dockerfile.ci-musl \
-                --build-arg MUSL_VSN=${{ matrix.musl }} \
-                --build-arg SHA512_SUM=${{ env.SHA512_SUM }} \
-                -t ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:musl-libc-test \
-                ${{ env.DOCKERFILE_PATH }}/.
+                -f ${{ env.DOCKERFILE_PATH }}/Dockerfile \
+                --build-arg CI_MUSL_VSN=${{ matrix.musl }} \
+                --build-arg METHOD=binary \
+                --target musl-ci \
+                -t ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:musl-ci \
+                .
       -
         name: Start CI container ...
         run: |
@@ -212,7 +210,7 @@ jobs:
                 --platform linux/${{ env.PLATFORM }} \
                 --user eturnal \
                 -v $PWD/eturnal.yml:/etc/eturnal.yml \
-                ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:musl-libc-test \
+                ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:musl-ci \
                 eturnalctl foreground
           echo ">> sleep shortly to have the service up ..." && sleep 5s
       -
@@ -269,7 +267,7 @@ jobs:
       -
         name: Extract build & environment variables
         run: |
-          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile.binary-musl))" >> $GITHUB_ENV
+          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
           # Match our architecture names
           echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|x64|;s|aarch64|arm64|')" >> $GITHUB_ENV
           # Match the docker platform names
@@ -279,16 +277,16 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: eturnal-${{ matrix.arch }}-musl-tarballs-${{ env.TAG_VERSION }}
-          path: ${{ env.DOCKERFILE_PATH }}/tarballs
       -
         name: Build container image
         uses: docker/build-push-action@v3
         with:
           build-args: |
+            METHOD=binary
             VERSION=${{ env.TAG_VERSION }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
-          context: ${{ env.DOCKERFILE_PATH }}/.
-          file: ${{ env.DOCKERFILE_PATH }}/Dockerfile.binary-musl
+          context: .
+          file: ${{ env.DOCKERFILE_PATH }}/Dockerfile
           platforms: linux/${{ env.PLATFORM }}
           tags: ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-${{ env.ARCH }}
           outputs: type=docker,dest=/tmp/eturnal-${{ env.ARCH }}.tar
@@ -359,7 +357,8 @@ jobs:
             VERSION=${{ env.VSN }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
             REBAR_CT=${{ env.REBAR_CT }}
-          context: ${{ env.DOCKERFILE_PATH }}/.
+          context: .
+          file: ${{ env.DOCKERFILE_PATH }}/Dockerfile
           platforms: linux/${{ env.PLATFORM }}
           tags: ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-${{ matrix.arch }}
           outputs: type=docker,dest=/tmp/eturnal-${{ matrix.arch }}.tar
