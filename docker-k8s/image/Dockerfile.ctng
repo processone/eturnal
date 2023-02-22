@@ -1,0 +1,16 @@
+FROM debian AS build
+ENV DEBIAN_FRONTEND='noninteractive' \
+    DEBCONF_NONINTERACTIVE_SEEN='true' \
+    BUILD_DIR='/ctng' \
+    CHECK_DEPS='false'
+
+RUN apt-get update \
+    && apt-get install -y gcc g++ gperf bison flex texinfo help2man make \
+        libncurses5-dev python3-dev autoconf automake libtool libtool-bin gawk \
+        wget bzip2 xz-utils unzip patch libstdc++6 rsync git meson ninja-build \
+        curl makeself tini vim wget lynx
+
+WORKDIR /eturnal
+
+ENTRYPOINT ["/usr/bin/tini","--"]
+CMD ["/eturnal/scripts/make-binaries"]
