@@ -304,7 +304,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [i386, armv7, armhf, ppc64le, s390x]
+        arch: [amd64, i386, armv7, armhf, ppc64le, s390x]
       fail-fast: false
     needs: [detect-change]
     steps:
@@ -321,6 +321,7 @@ jobs:
         run: |
           echo "VSN=$(git describe --tag)" >> $GITHUB_ENV
           echo "TAG_VERSION=$(echo "$(./scripts/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
+          echo "SRC=local" >> $GITHUB_ENV
 
       # performing steps for building images on release
       -
@@ -329,6 +330,13 @@ jobs:
         run: |
           echo "VSN=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\-/ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
           echo "TAG_VERSION=$(echo $(cat ${{ env.PKGREL_FILE }} | tail -n 1) | sed 's/\-/ /1' | awk '{ print $1 }')" >> $GITHUB_ENV
+          # check whether to build from archive or git, because git repo is HEAD here
+          # hence, we would not build the specifc release when updating the ctr image
+          pkgrel=$(cat ${{ env.PKGREL_FILE }} | sed -e 's|.*r|r|' | tail -n1)
+          if [ "$pkgrel" = 'r0' ]
+          then echo "SRC=local" >> $GITHUB_ENV
+          else echo "SRC=web" >> $GITHUB_ENV
+          fi
 
       # prepare runner for image build
       -
@@ -354,6 +362,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           build-args: |
+            SOURCE=${{ env.SRC }}
             VERSION=${{ env.VSN }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
             REBAR_CT=${{ env.REBAR_CT }}
@@ -461,7 +470,7 @@ jobs:
         name: Load images and push to service registry
         if: needs.detect-change.outputs.update == 'true'
         run: |
-          archs='x64 arm64 i386 armv7 armhf ppc64le s390x'
+          archs='x64 arm64 amd64 i386 armv7 armhf ppc64le s390x'
           for arch in $archs
           do
             docker load --input /tmp/eturnal-$arch-${{ env.TAG_VERSION }}/eturnal-$arch.tar
