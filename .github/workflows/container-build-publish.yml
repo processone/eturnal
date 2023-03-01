@@ -128,13 +128,19 @@ jobs:
           chmod +x scripts/make-binaries
           CHECK_DEPS=false scripts/make-binaries
           echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|x64|;s|aarch64|arm64|')" >> $GITHUB_ENV
-          cp eturnal-*.tar.gz /tmp
+          tar -czf /tmp/_build.tar.gz _build
       -
-        name: Upload musl-libc binary tarball artifact
+        name: Upload artifact - musl-libc binary tarball
         uses: actions/upload-artifact@v3
         with:
           name: eturnal-${{ matrix.arch }}-musl-tarballs-${{ env.TAG_VERSION }}
-          path: /tmp/eturnal-*-linux-musl-${{ env.ARCH }}.tar.gz
+          path: eturnal-*-linux-musl-${{ env.ARCH }}.tar.gz
+      -
+        name: Upload artifact - rebar3 _build directory tarball
+        uses: actions/upload-artifact@v3
+        with:
+          name: rebar3-${{ matrix.arch }}-musl-${{ env.TAG_VERSION }}
+          path: /tmp/_build.tar.gz
 
 
   ## Test the musl-libc tarballs for incompatibilities between musl-libc versions
@@ -153,6 +159,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      -
+        name: Cache toolchain directory
+        uses: actions/cache@v3
+        with:
+          path: ~/build/
+          key: ${{runner.os}}-ct-ng-1.25.0-${{ matrix.arch }}-musl
 
       # performing steps for building images from master
       -
@@ -177,7 +189,7 @@ jobs:
           # Match our architecture names
           echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|x64|;s|aarch64|arm64|')" >> $GITHUB_ENV
       -
-        name: Download musl-libc binary tarball artifact
+        name: Download artifact - musl-libc binary tarball
         uses: actions/download-artifact@v3
         with:
           name: eturnal-${{ matrix.arch }}-musl-tarballs-${{ env.TAG_VERSION }}
@@ -206,7 +218,7 @@ jobs:
       -
         name: Start CI container ...
         run: |
-          docker run --init -d --name eturnal \
+          docker run --init -d --name eturnal-ci \
                 --platform linux/${{ env.PLATFORM }} \
                 --user eturnal \
                 -v $PWD/eturnal.yml:/etc/eturnal.yml \
@@ -215,19 +227,70 @@ jobs:
           echo ">> sleep shortly to have the service up ..." && sleep 5s
       -
         name: CI | print eturnal log ...
-        run: docker logs eturnal
+        run: docker logs eturnal-ci
       -
         name: CI | send ping to eturnal container ...
-        run: docker exec eturnal eturnalctl ping
+        run: docker exec eturnal-ci eturnalctl ping
       -
         name: CI | perform STUN query ...
-        run: docker exec eturnal stun stun.conversations.im 3478
-      -
-        name: CI | print binary-archives musl-libc version ...
-        run: cat scripts/make-binaries | grep CT_MUSL
+        run: docker exec eturnal-ci stun stun.conversations.im 3478
       -
         name: Stop CI container ...
-        run: docker stop eturnal
+        run: docker stop eturnal-ci
+
+      # checkout release in case this is an image release rebuild to
+      # have a correct rebar3 test suite file in the repository
+      -
+        name: Check out release to be published/updated
+        uses: actions/checkout@v3
+        if: |
+          needs.detect-change.outputs.update == 'true'
+          && ( success() || failure() )
+        with:
+          ref: ${{ env.TAG_VERSION }}
+      -
+        name: Download artifact - rebar3 _build directory tarball
+        uses: actions/download-artifact@v3
+        if: success() || failure()
+        with:
+          name: rebar3-${{ matrix.arch }}-musl-${{ env.TAG_VERSION }}
+          path: /tmp
+      -
+        name: Prepare environment for rebar3 test suites ...
+        if: success() || failure()
+        run: |
+          tar -xzf /tmp/_build.tar.gz
+          rebar3_path="$HOME/build/bootstrap/bin"
+          otp_path="$HOME/build/eturnal/${{ env.ARCH }}-musl/bin"
+          alpine_path='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+          echo "REBAR3=$rebar3_path:$otp_path:$alpine_path" >> $GITHUB_ENV
+      -
+        name: Start container for rebar3 test suites ...
+        if: success() || failure()
+        run: |
+          docker run --init -d --name eturnal-ci-2 \
+                -v $HOME/build:$HOME/build \
+                -v $PWD:/eturnal \
+                --workdir /eturnal \
+                -e PATH=${{ env.REBAR3 }} \
+                docker.io/sando38/musl-ctr:${{ matrix.musl }} \
+                sleep 600
+      -
+        name: CI | rebar3 xref ...
+        if: success() || failure()
+        run: docker exec eturnal-ci-2 rebar3 xref
+      -
+        name: CI | rebar3 eunit ...
+        if: success() || failure()
+        run: docker exec eturnal-ci-2 rebar3 eunit
+      -
+        name: CI | rebar3 ct ...
+        if: success() || failure()
+        run: docker exec eturnal-ci-2 rebar3 ct
+      -
+        name: Stop rebar3 test container ...
+        if: success() || failure()
+        run: docker stop eturnal-ci-2
 
   ## build actual images for x64/arm64 with built binary tarballs
   build-ctr-binary-based:
@@ -273,7 +336,7 @@ jobs:
           # Match the docker platform names
           echo "PLATFORM=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|amd64|;s|aarch64|arm64|')" >> $GITHUB_ENV
       -
-        name: Download musl-libc binary tarball artifact
+        name: Download artifact - musl-libc binary tarball
         uses: actions/download-artifact@v3
         with:
           name: eturnal-${{ matrix.arch }}-musl-tarballs-${{ env.TAG_VERSION }}
@@ -291,7 +354,7 @@ jobs:
           tags: ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-${{ env.ARCH }}
           outputs: type=docker,dest=/tmp/eturnal-${{ env.ARCH }}.tar
       -
-        name: Upload artifact eturnal-${{ env.ARCH }}.tar
+        name: Upload artifact - eturnal-${{ env.ARCH }}.tar
         uses: actions/upload-artifact@v3
         with:
           name: eturnal-${{ env.ARCH }}-${{ env.TAG_VERSION }}
@@ -372,7 +435,7 @@ jobs:
           tags: ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-${{ matrix.arch }}
           outputs: type=docker,dest=/tmp/eturnal-${{ matrix.arch }}.tar
       -
-        name: Upload artifact eturnal-${{ matrix.arch }}.tar
+        name: Upload artifact - eturnal-${{ matrix.arch }}.tar
         uses: actions/upload-artifact@v3
         with:
           name: eturnal-${{ matrix.arch }}-${{ env.TAG_VERSION }}
