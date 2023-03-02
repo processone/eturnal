@@ -41,7 +41,7 @@ crosstool_vsn='1.25.0'
 termcap_vsn='1.3.1'
 zlib_vsn='1.2.13'
 yaml_vsn='0.2.5'
-ssl_vsn='1.1.1t'
+ssl_vsn='3.0.8'
 otp_vsn='25.2.2'
 root_dir="${BUILD_DIR:-$HOME/build}"
 bootstrap_dir="$root_dir/bootstrap"
@@ -107,7 +107,7 @@ check_deps()
 {
 	check_vsn 'OpenSSL' "$ssl_vsn" \
 	          'https://www.openssl.org/source/' \
-	          'openssl-\(1\.[0-9][0-9a-z.]*\)\.tar\.gz'
+	          'openssl-\([0-9][0-9.]*\)\.tar\.gz'
 	check_vsn 'LibYAML' "$yaml_vsn" \
 	          'https://pyyaml.org/wiki/LibYAML' \
 	          'yaml-\([0-9][0-9.]*\)\.tar\.gz'
@@ -339,9 +339,11 @@ build_rel()
 
 	info "Building OpenSSL $ssl_vsn for $arch ..."
 	cd "$target_src_dir/$ssl_dir"
-	CFLAGS="$CFLAGS -O3 -fPIC" ./Configure no-shared no-ui-console \
+	CFLAGS="$CFLAGS -O3 -fPIC" \
+	    ./Configure no-shared no-module no-ui-console \
 	    --prefix="$prefix" \
 	    --openssldir="$prefix" \
+	    --libdir='lib' \
 	    "linux-${target%-linux-gnu}"
 	make build_libs
 	make install_dev
