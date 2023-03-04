@@ -102,20 +102,24 @@ RUN rm -rf $HOME/etc/* \
 RUN home_root_dir=$(echo $HOME | sed 's|\(.*\)/.*|\1 |') \
     && echo "-setcookie eturnal" >> $(find $home_root_dir -name vm.args) \
     && setcap 'cap_net_bind_service=+ep' $(find $home_root_dir -name beam.smp) \
-    && ln -s /$(find $home_root_dir -name eturnalctl) usr/local/bin/eturnalctl \
+    && echo -e \
+        "#!/bin/sh \
+        \n \
+        \nexec eturnalctl foreground" > usr/local/bin/run.sh \
+    && echo -e \
+        "#!/bin/sh \
+        \nif [ \"\$STUN_SERVICE\" != 'false' ] \
+        \nthen \
+        \n  case \"\$@\" in foreground|daemon*|console*|reload|restart|reboot) \
+        \n    export ETURNAL_RELAY_IPV4_ADDR=\${ETURNAL_RELAY_IPV4_ADDR-\$(stun -4 \$STUN_SERVICE)} \
+        \n    export ETURNAL_RELAY_IPV6_ADDR=\${ETURNAL_RELAY_IPV6_ADDR-\$(stun -6 \$STUN_SERVICE)} \
+        \n  esac \
+        \nfi \
+        \nexec /$(find $home_root_dir -name eturnalctl) \"\$@\"" > usr/local/bin/eturnalctl \
+    && chmod +x usr/local/bin/run.sh usr/local/bin/eturnalctl \
     && ln -s /$(find $home_root_dir -name stun) usr/local/bin/stun
 
 RUN chown -R $UID:$UID $HOME
-
-RUN echo -e \
-        '#!/bin/sh \
-        \nif [ "$STUN_SERVICE" != "false" ] \
-        \nthen \
-        \n  export ETURNAL_RELAY_IPV4_ADDR=${ETURNAL_RELAY_IPV4_ADDR-$(stun -4 $STUN_SERVICE)} \
-        \n  export ETURNAL_RELAY_IPV6_ADDR=${ETURNAL_RELAY_IPV6_ADDR-$(stun -6 $STUN_SERVICE)} \
-        \nfi \
-        \nexec "$@"' > usr/local/bin/run.sh \
-    && chmod +x usr/local/bin/run.sh
 
 ################################################################################
 #' METHOD='binary' - install runtime dependencies
@@ -180,5 +184,5 @@ LABEL   org.opencontainers.image.title='eturnal' \
         org.opencontainers.image.version="$VERSION" \
         org.opencontainers.image.licenses='Apache-2.0'
 
-ENTRYPOINT ["/sbin/tini","--","run.sh"]
-CMD ["eturnalctl", "foreground"]
+ENTRYPOINT ["/sbin/tini","--"]
+CMD run.sh
