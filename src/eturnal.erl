@@ -418,9 +418,9 @@ stop_listeners(#eturnal_state{listeners = Listeners}) ->
       end, Listeners).
 
 -spec describe_listener(boolean()) -> binary().
-describe_listener(_EnableTURN = true) ->
+describe_listener(true = _EnableTURN) ->
     <<"STUN/TURN">>;
-describe_listener(_EnableTURN = false) ->
+describe_listener(false = _EnableTURN) ->
     <<"STUN only">>.
 
 -spec opt_map() -> [{atom(), atom()}].
