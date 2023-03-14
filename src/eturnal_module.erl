@@ -88,12 +88,12 @@
               option/0,
               options/0]).
 
+-type dep() :: atom().
 -type event() :: atom().
 -type events() :: [event()].
 -type info() :: #{atom() => term()}.
 -type option() :: atom().
 -type options() :: {yval:validators(), [yval:validator_option()]}.
--type dep() :: atom().
 
 -callback start() -> ok | {ok, event() | [event()]}.
 -callback stop() -> ok.

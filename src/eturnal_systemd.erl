@@ -28,6 +28,8 @@
          handle_info/2,
          terminate/2,
          code_change/3]).
+-export_type([state/0,
+              watchdog_timeout/0]).
 
 -include_lib("kernel/include/logger.hrl").
 
@@ -37,8 +39,8 @@
          interval :: pos_integer() | undefined,
          last_ping :: integer() | undefined}).
 
--type watchdog_timeout() :: pos_integer() | hibernate.
--type state() :: #systemd_state{}.
+-opaque state() :: #systemd_state{}.
+-opaque watchdog_timeout() :: pos_integer() | hibernate.
 
 %% API: send systemd notifications.
 

@@ -35,7 +35,11 @@
          create_self_signed/1,
          reload/3,
          abort/1]).
--export_type([transport/0]).
+-export_type([transport/0,
+              option/0,
+              value/0,
+              config_changes/0,
+              state/0]).
 
 -ifdef(EUNIT).
 -include_lib("eunit/include/eunit.hrl").
@@ -48,14 +52,16 @@
          modules :: modules()}).
 
 -type transport() :: udp | tcp | tls | auto.
--type listeners() :: [{inet:ip_address(), inet:port_number(), transport()}].
--type modules() :: [module()].
 -type option() :: atom().
 -type value() :: term().
 -type config_changes() :: {[{option(), value()}],
                            [{option(), value()}],
                            [option()]}.
--type state() :: #eturnal_state{}.
+
+-opaque state() :: #eturnal_state{}.
+
+-type listeners() :: [{inet:ip_address(), inet:port_number(), transport()}].
+-type modules() :: [module()].
 
 %% API: non-release startup and shutdown (used by test suite).
 
