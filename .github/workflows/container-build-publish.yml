@@ -56,6 +56,8 @@ jobs:
         arch: [x86_64, aarch64]
       fail-fast: false
     needs: [detect-change]
+    outputs:
+      ci: ${{ steps.build.outputs.ci }}
     steps:
       -
         name: Check out repository code
@@ -91,6 +93,7 @@ jobs:
           sudo apt-get -qq install gcc g++ gperf bison flex texinfo help2man make libncurses5-dev
           sudo apt-get -qq install python3-dev autoconf automake libtool libtool-bin gawk wget bzip2 xz-utils unzip
           sudo apt-get -qq install patch libstdc++6 rsync git meson ninja-build
+          sudo apt-get -qq install binfmt-support qemu-user-static
       -
         name: Patch make-binaries script and obtain erlang/otp version
         run: |
@@ -108,12 +111,44 @@ jobs:
           version-type: strict
       -
         name: Build ${{ matrix.arch }} musl-libc based binary archives
+        id: build
         run: |
           sed -i "s|targets='.*'|targets='${{ matrix.arch }}-linux-musl'|" scripts/make-binaries
           chmod +x scripts/make-binaries
           CHECK_DEPS=false scripts/make-binaries
           echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|x64|;s|aarch64|arm64|')" >> $GITHUB_ENV
           tar -czf /tmp/_build.tar.gz _build
+          echo "ci=$(grep -q git, rebar.config ; echo $?)" >> $GITHUB_OUTPUT
+      -
+        name: Start container for rebar3 test suites ...
+        run: |
+          rebar3_path="$HOME/build/bootstrap/bin"
+          otp_path="$HOME/build/eturnal/${{ env.ARCH }}-musl/bin"
+          alpine_path='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+          arch=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|amd64|;s|aarch64|arm64|')
+          docker run --init -d --name test-suites \
+                --platform linux/$arch \
+                -v $HOME/build:$HOME/build \
+                -v $PWD:/eturnal \
+                --workdir /eturnal \
+                -e PATH=$rebar3_path:$otp_path:$alpine_path \
+                docker.io/alpine:latest \
+                sleep 600
+      - # add build-tools & git, if rebar.config uses e.g. "github" as source
+        name: add build tools to the container ...
+        run: docker exec test-suites apk add build-base git yaml-dev
+      -
+        name: rebar3 xref ...
+        run: docker exec test-suites rebar3 xref
+      -
+        name: rebar3 eunit ...
+        run: docker exec test-suites rebar3 eunit
+      -
+        name: rebar3 ct ...
+        run: docker exec test-suites rebar3 ct
+      -
+        name: Stop rebar3 test container ...
+        run: docker stop test-suites
       -
         name: Upload artifact | ${{ matrix.arch }} musl-libc based binary tarball
         uses: actions/upload-artifact@v3
@@ -216,23 +251,26 @@ jobs:
         if: success() || failure()
         run: docker stop ci
       - #' checkout release for a correct rebar3 test suite file
+        ## Don't run rebar3 tests, if rebar.config contains files to be compiled
+        ## e.g. stun from github, because test ctr do not contain build tools
         name: On release | check out release to be published/updated
         uses: actions/checkout@v3
         if: |
-          needs.detect-change.outputs.update == 'true'
-          && ( success() || failure() )
+          ( needs.detect-change.outputs.update == 'true'
+          && ( success() || failure() ) )
+          && needs.build-musl-binary-archives.outputs.ci != '0'
         with:
           ref: ${{ env.TAG_VERSION }}
       -
         name: Download artifact | rebar3 _build directory tarball
         uses: actions/download-artifact@v3
-        if: success() || failure()
+        if: ( success() || failure() ) && needs.build-musl-binary-archives.outputs.ci != '0'
         with:
           name: rebar3-build-${{ matrix.arch }}-musl-${{ env.TAG_VERSION }}
           path: /tmp
       -
         name: Prepare environment for rebar3 test suites ...
-        if: success() || failure()
+        if: ( success() || failure() ) && needs.build-musl-binary-archives.outputs.ci != '0'
         run: |
           tar -xzf /tmp/_build.tar.gz
           rebar3_path="$HOME/build/bootstrap/bin"
@@ -241,7 +279,7 @@ jobs:
           echo "REBAR3=$rebar3_path:$otp_path:$alpine_path" >> $GITHUB_ENV
       -
         name: Start container for rebar3 test suites ...
-        if: success() || failure()
+        if: ( success() || failure() ) && needs.build-musl-binary-archives.outputs.ci != '0'
         run: |
           docker run --init -d --name ci-2 \
                 -v $HOME/build:$HOME/build \
@@ -252,19 +290,19 @@ jobs:
                 sleep 600
       -
         name: CI | rebar3 xref ...
-        if: success() || failure()
+        if: ( success() || failure() ) && needs.build-musl-binary-archives.outputs.ci != '0'
         run: docker exec ci-2 rebar3 xref
       -
         name: CI | rebar3 eunit ...
-        if: success() || failure()
+        if: ( success() || failure() ) && needs.build-musl-binary-archives.outputs.ci != '0'
         run: docker exec ci-2 rebar3 eunit
       -
         name: CI | rebar3 ct ...
-        if: success() || failure()
+        if: ( success() || failure() ) && needs.build-musl-binary-archives.outputs.ci != '0'
         run: docker exec ci-2 rebar3 ct
       -
         name: Stop rebar3 test container ...
-        if: success() || failure()
+        if: ( success() || failure() ) && needs.build-musl-binary-archives.outputs.ci != '0'
         run: docker stop ci-2
 
 ################################################################################
