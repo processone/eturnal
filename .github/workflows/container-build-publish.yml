@@ -165,12 +165,12 @@ jobs:
 ################################################################################
   #' Test the musl-libc tarballs for incompatibilities between musl-libc versions
   ci-musl-libc:
-    name: CI - check musl-libc v${{ matrix.musl }} compatibality
+    name: CI - musl-libc v${{ matrix.musl }} compatibality test on ${{ matrix.arch }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         musl: [1.1.16, 1.1.17, 1.1.18, 1.1.19, 1.1.20, 1.1.21, 1.1.22, 1.1.23, 1.1.24, 1.2.0, 1.2.1, 1.2.2, 1.2.3, 1.2.4]
-        arch: [x86_64]
+        arch: [aarch64, x86_64]
       fail-fast: false
     needs: [detect-change, build-musl-binary-archives]
     steps:
@@ -236,7 +236,7 @@ jobs:
                 -v $PWD/eturnal.yml:/etc/eturnal.yml \
                 ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:musl-ci \
                 eturnalctl foreground
-          echo ">> sleep shortly to have the service up ..." && sleep 5s
+          echo ">> sleep shortly to have the service up ..." && sleep 15s
       -
         name: CI | print container log ...
         run: docker logs ci
@@ -282,6 +282,7 @@ jobs:
         if: ( success() || failure() ) && needs.build-musl-binary-archives.outputs.ci != '0'
         run: |
           docker run --init -d --name ci-2 \
+                --platform linux/${{ env.PLATFORM }} \
                 -v $HOME/build:$HOME/build \
                 -v $PWD:/eturnal \
                 --workdir /eturnal \
