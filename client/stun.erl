@@ -53,17 +53,27 @@ query(Server0, Port0, Family) ->
         PktOut = stun_codec:encode(Msg),
         ok = gen_udp:send(Sock, Server, Port, PktOut),
         {ok, {_, _, PktIn}} = gen_udp:recv(Sock, 0, ?STUN_TIMEOUT),
-        {ok, #stun{trid = TrID,
-                   'XOR-MAPPED-ADDRESS' = {Addr, _}}} =
-            stun_codec:decode(PktIn, datagram),
         ok = gen_udp:close(Sock),
-        ok = io:put_chars(inet:ntoa(Addr)),
-        ok = io:nl()
+        case stun_codec:decode(PktIn, datagram) of
+            {ok, #stun{trid = TrID, 'XOR-MAPPED-ADDRESS' = {Addr, _}}} ->
+                print_addr(Addr);
+            {ok, #stun{trid = TrID, 'MAPPED-ADDRESS' = {Addr, _}}} ->
+                print_addr(Addr);
+            _ ->
+                exit({error, bad_response})
+        end
     catch _:Err ->
             abort("Cannot query ~s:~s: ~s", [Server0, Port0, format_error(Err)])
     end.
 
+-spec print_addr(inet:ip_address()) -> ok.
+print_addr(Addr) ->
+    ok = io:put_chars(inet:ntoa(Addr)),
+    ok = io:nl().
+
 -spec format_error(any()) -> string().
+format_error({error, bad_response}) ->
+    "invalid STUN response";
 format_error({_, {error, timeout}}) ->
     "request timed out";
 format_error({_, {error, Reason}}) ->
