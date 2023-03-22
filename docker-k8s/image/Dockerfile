@@ -177,6 +177,13 @@ USER $USER
 VOLUME ["/$HOME"]
 EXPOSE 3478 3478/udp
 
+HEALTHCHECK \
+    --interval=1m \
+    --timeout=5s \
+    --start-period=5s \
+    --retries=3 \
+    CMD eturnalctl status
+
 LABEL   org.opencontainers.image.title='eturnal' \
         org.opencontainers.image.description='STUN / TURN standalone server' \
         org.opencontainers.image.url="$WEB_URL" \
