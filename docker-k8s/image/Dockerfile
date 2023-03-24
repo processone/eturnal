@@ -12,25 +12,34 @@ ARG WEB_URL='https://eturnal.net'
 ARG CI_MUSL_VSN='1.2.3'
 
 ################################################################################
+#' METHOD='build' - install build dependencies
+FROM alpine:${ALPINE_VSN} AS build-base
+RUN apk -U add --no-cache \
+        build-base \
+        erlang-dev \
+        git \
+        openssl-dev \
+        yaml-dev
+
+################################################################################
 #' METHOD='build', SOURCE='local' - source files from 'local' machine
-FROM alpine:${ALPINE_VSN} AS local
+FROM build-base AS local
 ARG BUILD_DIR
 COPY / $BUILD_DIR/
 
 ################################################################################
 #' METHOD='build', SOURCE='git' - source files from 'git' repository
-FROM alpine:${ALPINE_VSN} AS git
+FROM build-base AS git
 ARG REPOSITORY
 ARG VERSION
 ARG BUILD_DIR
 WORKDIR $BUILD_DIR
-RUN apk -U add --no-cache git \
-    && git clone $REPOSITORY . \
+RUN git clone $REPOSITORY . \
     && git checkout $VERSION
 
 ################################################################################
 #' METHOD='build', SOURCE='web' - source files from 'web': https://eturnal.net/
-FROM alpine:${ALPINE_VSN} AS web
+FROM build-base AS web
 ARG WEB_URL
 ARG VERSION
 ARG BUILD_DIR
@@ -40,13 +49,6 @@ RUN wget -O - $WEB_URL/download/eturnal-$VERSION.tar.gz | tar -xzf - \
 ################################################################################
 #' METHOD='build' - build and install eturnal from source
 FROM ${SOURCE} AS build
-RUN apk -U add --no-cache \
-        build-base \
-        erlang-dev \
-        git \
-        openssl-dev \
-        yaml-dev
-
 ARG BUILD_DIR
 WORKDIR $BUILD_DIR
 RUN if ! [ -f 'rebar3' ]; then wget https://s3.amazonaws.com/rebar3/rebar3; fi \
