@@ -13,19 +13,16 @@ project adheres to [Semantic Versioning][SemVer].
 - Binary release: Update OpenSSL from 1.1.1q to 3.1.1.
 - Binary release: Update zlib from 1.2.12 to 1.2.13.
 - Binary release: Build Erlang/OTP without Termcap support.
-- Docker: Switch to binary releases for `linux/amd64` and `linux/arm64`. This
-  counters an issue which prevents github actions from building eturnal with
-  Erlang/OTP v25 and QEMU (non-native Docker build) for `linux/arm64`.
 - Windows: Update Erlang/OTP to 26.x.
 
 ### Fixed
 - Include the `ssl` library with non-distro builds, as it's required for
   enabling TLS for the `mod_stats_prometheus` endpoint.
-- Docker: Include libcap libraries into the image to be able to bind to 
-  privileged ports (<1024).
-  Hint: If the `docker run` option `--cap-drop=ALL` is used, 
-  `CAP_NET_BIND_SERVICE` must be included again to make the container work 
-  (see examples).
+- Docker: Include libcap libraries into the image to enable binding to
+  privileged ports (<1024) directly.
+  Hint: Depending on the container runtime in use, if the `docker run` option
+  `--cap-drop=ALL` is used, `CAP_NET_BIND_SERVICE` may be included again to make
+  the container work (see examples).
 
 ## [1.10.1] - 2022-08-02
 ### Added

@@ -46,13 +46,15 @@ docker run -d --rm \
     --name eturnal \
     --read-only \
     --cap-drop=ALL \
-    --cap-add=NET_BIND_SERVICE \
     --security-opt no-new-privileges \
     -p 3478:3478 \
     -p 3478:3478/udp \
     -p 49152-65535:49152-65535/udp \
   ghcr.io/processone/eturnal:latest
 ```
+
+> _Note:_ Stating `--cap-add=NET_BIND_SERVICE` may be needed here depending
+> on the container runtime, see e.g. [Docker](https://github.com/moby/moby/pull/41030)
 
 **Only relevant for Docker, not Podman**: Since Docker 
 [does not perform well with large port ranges](https://github.com/instrumentisto/coturn-docker-image/issues/3), 
@@ -63,7 +65,6 @@ docker run -d --rm \
     --name eturnal \
     --read-only \
     --cap-drop=ALL \
-    --cap-add=NET_BIND_SERVICE \
     --security-opt no-new-privileges \
     -p 3478:3478 \
     -p 3478:3478/udp \
@@ -81,7 +82,6 @@ docker run -d --rm \
     --name eturnal \
     --read-only \
     --cap-drop=ALL \
-    --cap-add=NET_BIND_SERVICE \
     --security-opt no-new-privileges \
     --network=host \
   ghcr.io/processone/eturnal:latest
@@ -132,9 +132,11 @@ set to `stdout` in `eturnal.yml`.
   to enable the TURN service. Note: the **IPv6 address is optional**.
   * If the external STUN lookup is not desired, define the environment variable 
   `STUN_SERVICE=false` in the `docker run` command.
-* If eturnal shall bind directly to privileged ports (<1024), then the 
-`docker run` option `--security-opt no-new-privileges` must not be used, since 
-the unprivileged eturnal user needs to escalate `CAP_NET_BIND_SERVICE`.
+* Depending on the container runtime in use, if eturnal shall bind to privileged
+ports (<1024) directly, the option `--security-opt no-new-privileges` must not
+be used, since the unprivileged container user `eturnal` needs to escalate
+`CAP_NET_BIND_SERVICE`. Newer [Docker](https://github.com/moby/moby/pull/41030)
+versions for example are not affected.
 
 ### Custom TLS certificates and dh-parameter file
 
