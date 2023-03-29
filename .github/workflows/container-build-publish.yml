@@ -85,23 +85,19 @@ jobs:
         with:
           ref: ${{ env.TAG_VERSION }}
       -
-        name: Install prerequisites
+        name: Patch make-binaries script
+        if: env.TAG_VERSION <= '1.10.1'
+        run: wget -O - https://raw.githubusercontent.com/${{ github.repository }}/master/.github/workflows/make-binaries-musl.patch | git apply -
+      -
+        name: Install prerequisites and obtain erlang/otp version
         run: |
           sudo apt-get -qq update
-          sudo apt-get -qq install makeself build-essential
           # https://github.com/crosstool-ng/crosstool-ng/blob/master/testing/docker/ubuntu22.04/Dockerfile
-          sudo apt-get -qq install gcc g++ gperf bison flex texinfo help2man make libncurses5-dev
-          sudo apt-get -qq install python3-dev autoconf automake libtool libtool-bin gawk wget bzip2 xz-utils unzip
-          sudo apt-get -qq install patch libstdc++6 rsync git meson ninja-build
-          sudo apt-get -qq install binfmt-support qemu-user-static
-      -
-        name: Patch make-binaries script and obtain erlang/otp version
-        run: |
-          # check if patching make-binaries script is needed to build musl-libc binaries
-          if dpkg --compare-versions ${{ env.TAG_VERSION }} le "1.10.1"
-          then
-            wget -O - https://raw.githubusercontent.com/${{ github.repository }}/master/.github/workflows/make-binaries-musl.patch | git apply -
-          fi
+          sudo apt-get -qq install makeself build-essential \
+            gcc g++ gperf bison flex texinfo help2man make libncurses5-dev \
+            python3-dev autoconf automake libtool libtool-bin gawk wget bzip2 \
+            xz-utils unzip patch libstdc++6 rsync git meson ninja-build \
+            binfmt-support qemu-user-static
           echo "OTP_VSN=$(awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' scripts/make-binaries)" >> $GITHUB_ENV
       -
         name: Install erlang/OTP
