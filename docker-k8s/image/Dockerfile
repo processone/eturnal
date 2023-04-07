@@ -116,7 +116,10 @@ RUN home_root_dir=$(echo $HOME | sed 's|\(.*\)/.*|\1 |') \
         \nfi \
         \nexec /$(find $home_root_dir -name eturnalctl) \"\$@\"" > usr/local/bin/eturnalctl \
     && chmod +x usr/local/bin/run.sh usr/local/bin/eturnalctl \
-    && ln -s /$(find $home_root_dir -name stun) usr/local/bin/stun
+    && ln -s /$(find $home_root_dir -name stun) usr/local/bin/stun \
+    && scanelf --needed --nobanner --format '%n#p' --recursive $home_root_dir \
+        | tr ',' '\n' | sort -u | awk 'system("[ -e $home_root_dir" $1 " ]") == 0 { next } \
+        { print "so:" $1 }' > /tmp/runDeps
 
 RUN chown -R $UID:$UID $HOME
 
@@ -132,12 +135,9 @@ RUN apk -U upgrade --available --no-cache \
 ################################################################################
 #' METHOD='build' - install runtime dependencies
 FROM runtime-binary AS runtime-build
+COPY --from=eturnal /tmp/runDeps /tmp/runDeps
 RUN apk add --no-cache \
-        libssl3 \
-        libstdc++ \
-        ncurses-libs \
-        yaml \
-        zlib
+        $(cat /tmp/runDeps)
 
 ################################################################################
 #' Remove erlang/rebar3, strip Alpine to only include necessary runtime packages
