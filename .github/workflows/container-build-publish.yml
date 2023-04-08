@@ -16,7 +16,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-#  DOCKERHUB_REPO: docker.io/eturnal/eturnal
+  DOCKERHUB_REPO: eturnal/eturnal
   PKGREL_FILE: docker-k8s/pkgrel
   SVC_REGISTRY: 'localhost:5000'
 
@@ -480,13 +480,15 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-#      -
-#        name: Log in to DockerHub
-#        if: github.event_name != 'pull_request'
-#        uses: docker/login-action@v2
-#        with:
-#          username: ${{ secrets.DOCKERHUB_USERNAME }}
-#          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Log in to DockerHub
+        if: |
+          github.event_name != 'pull_request'
+          && github.repository_owner == 'sando38'
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
         name: Download image artifacts from previous jobs
         uses: actions/download-artifact@v3
@@ -507,22 +509,33 @@ jobs:
           done
           docker image ls -a
       -
-        name: On push master | merge and publish
-        if: needs.detect-change.outputs.update == 'false'
+        name: On push master | merge and publish to ghcr.io
+        if: |
+          github.event_name != 'pull_request'
+          && needs.detect-change.outputs.update == 'false'
         run: |
           docker buildx imagetools create \
             --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:edge \
             --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }} \
               ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-x64 \
               ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-arm64
-#          docker buildx imagetools create \
-#            --tag ${{ env.DOCKERHUB_REPO }}:edge \
-#            --tag ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }} \
-#              ${{ env.SVC_REGISTRY }}/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-x64 \
-#              ${{ env.SVC_REGISTRY }}/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-arm64
       -
-        name: On release | merge and publish
-        if: needs.detect-change.outputs.update == 'true'
+        name: On push master | merge and publish to docker.io
+        if: |
+          github.event_name != 'pull_request'
+          && needs.detect-change.outputs.update == 'false'
+          && github.repository_owner == 'sando38'
+        run: |
+          docker buildx imagetools create \
+            --tag docker.io/${{ env.DOCKERHUB_REPO }}:edge \
+            --tag docker.io/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }} \
+              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-x64 \
+              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-arm64
+      -
+        name: On release | merge and publish to ghcr.io
+        if: |
+          github.event_name != 'pull_request'
+          && needs.detect-change.outputs.update == 'true'
         run: |
           docker buildx imagetools create \
             --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
@@ -536,15 +549,22 @@ jobs:
               ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-armv7 \
               ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-ppc64le \
               ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-s390x
-#          docker buildx imagetools create \
-#            --tag ${{ env.DOCKERHUB_REPO }}:latest \
-#            --tag ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_PKGREL }} \
-#            --tag ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }} \
-#            --tag ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_MINOR }} \
-#            --tag ${{ env.DOCKERHUB_REPO }}:${{ env.TAG_MAJOR }} \
-#              ${{ env.SVC_REGISTRY }}/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-x64 \
-#              ${{ env.SVC_REGISTRY }}/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-i386 \
-#              ${{ env.SVC_REGISTRY }}/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-arm64 \
-#              ${{ env.SVC_REGISTRY }}/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-armv7 \
-#              ${{ env.SVC_REGISTRY }}/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-ppc64le \
-#              ${{ env.SVC_REGISTRY }}/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-s390x
+      -
+        name: On release | merge and publish to docker.io
+        if: |
+          github.event_name != 'pull_request'
+          && needs.detect-change.outputs.update == 'true'
+          && github.repository_owner == 'sando38'
+        run: |
+          docker buildx imagetools create \
+            --tag docker.io/${{ env.DOCKERHUB_REPO }}:latest \
+            --tag docker.io/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_PKGREL }} \
+            --tag docker.io/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }} \
+            --tag docker.io/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_MINOR }} \
+            --tag docker.io/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_MAJOR }} \
+              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-x64 \
+              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-i386 \
+              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-arm64 \
+              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-armv7 \
+              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-ppc64le \
+              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-s390x
