@@ -64,8 +64,8 @@ WORKDIR /rootfs/$HOME
 RUN tar -xzf $BUILD_DIR/_build/$REBAR_PROFILE/rel/eturnal/eturnal-*.tar.gz
 
 ################################################################################
-#' METHOD='binary' - install eturnal from binary tarball
-FROM docker.io/erlang:${OTP_VSN}-alpine AS binary
+#' METHOD='package' - install eturnal from binary tarball
+FROM docker.io/erlang:${OTP_VSN}-alpine AS package
 COPY eturnal-*-linux-musl-*.tar.gz /tmp/
 WORKDIR /rootfs
 ARG HOME
@@ -124,8 +124,8 @@ RUN home_root_dir=$(echo $HOME | sed 's|\(.*\)/.*|\1 |') \
 RUN chown -R $UID:$UID $HOME
 
 ################################################################################
-#' METHOD='binary' - install runtime dependencies
-FROM docker.io/erlang:${OTP_VSN}-alpine AS runtime-binary
+#' METHOD='package' - install runtime dependencies
+FROM docker.io/erlang:${OTP_VSN}-alpine AS runtime-package
 RUN apk -U upgrade --available --no-cache \
     && apk add --no-cache \
         busybox-binsh \
@@ -134,7 +134,7 @@ RUN apk -U upgrade --available --no-cache \
 
 ################################################################################
 #' METHOD='build' - install runtime dependencies
-FROM runtime-binary AS runtime-build
+FROM runtime-package AS runtime-build
 COPY --from=eturnal /tmp/runDeps /tmp/runDeps
 RUN apk add --no-cache \
         $(cat /tmp/runDeps)

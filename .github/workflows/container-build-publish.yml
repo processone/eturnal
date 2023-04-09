@@ -218,7 +218,7 @@ jobs:
                 --platform linux/${{ env.PLATFORM }} \
                 -f ${{ env.DOCKERFILE_PATH }}/Dockerfile \
                 --build-arg CI_MUSL_VSN=${{ matrix.musl }} \
-                --build-arg METHOD=binary \
+                --build-arg METHOD=package \
                 --target musl-ci \
                 -t ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:musl-ci \
                 .
@@ -350,7 +350,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           build-args: |
-            METHOD=binary
+            METHOD=package
             VERSION=${{ env.TAG_VERSION }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
           context: .

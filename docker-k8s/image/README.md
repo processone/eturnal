@@ -19,10 +19,10 @@ default build process defined by the build arguments in the `Dockerfile`.
     K[(output from:<br/>scripts/make-binaries)] -. eturnal-*musl*.tar.gz .-> E;
     end
     D(build) == METHOD='build' ==> F;
-    E(binary) -. METHOD='binary' .-> F;
+    E(package) -. METHOD='package' .-> F;
     subgraph prepare runtime image
-    G(runtime-binary) == METHOD='build' ==> H(runtime-build) ==> I;
-    G(runtime-binary) -. METHOD='binary' .-> I;
+    G(runtime-package) == METHOD='build' ==> H(runtime-build) ==> I;
+    G(runtime-package) -. METHOD='package' .-> I;
     end
     F(eturnal) ==> J(prod);
     I(runtime) ==> J(prod);
@@ -74,7 +74,7 @@ docker buildx build --load \
     .
 ```
 
-Building with `METHOD='binary'` requires eturnal binary tarballs built with the
+Building with `METHOD='package'` requires eturnal binary tarballs built with the
 [make-binaries](../../scripts/make-binaries) script from this repository. The
 respective targets must be `x86_64-linux-musl` or `aarch64-linux-musl`. This
 depends of course on the image variant you want to build. The tarballs must be
@@ -84,7 +84,7 @@ located in the root of the repository.
 docker buildx build --load \
     -f docker-k8s/image/Dockerfile \
     -t myname/eturnal:mytag \
-    --build-arg METHOD='binary' \
+    --build-arg METHOD='package' \
     .
 ```
 

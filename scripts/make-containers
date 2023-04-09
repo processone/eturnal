@@ -106,7 +106,7 @@ dockerfile="$(find -name Dockerfile)"
 install="${METHOD:-build}"
 readme='docker-k8s/README.md'
 
-if [ "$install" = 'binary' ]
+if [ "$install" = 'package' ]
 then
 	architectures='x64 arm64'
 	# check if musl-libc binary tarballs exist
