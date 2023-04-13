@@ -512,6 +512,7 @@ jobs:
         name: On push master | merge and publish to ghcr.io
         if: |
           github.event_name != 'pull_request'
+          && github.event_name != 'schedule'
           && needs.detect-change.outputs.update == 'false'
         run: |
           docker buildx imagetools create \
@@ -523,6 +524,7 @@ jobs:
         name: On push master | merge and publish to docker.io
         if: |
           github.event_name != 'pull_request'
+          && github.event_name != 'schedule'
           && needs.detect-change.outputs.update == 'false'
           && github.repository_owner == 'sando38'
         run: |
