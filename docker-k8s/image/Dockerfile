@@ -81,11 +81,13 @@ RUN home_root_dir=$(echo $HOME | sed 's|\(.*\)/.*|\1 |') \
 #' Prepare eturnal for runtime
 FROM ${METHOD} AS eturnal
 RUN apk -U add --no-cache \
-        libcap-utils
+        libcap
 
 WORKDIR /rootfs
 ARG HOME
-RUN mkdir -p $HOME/log $HOME/run $HOME/tls etc usr/local/bin
+RUN mkdir -p $HOME/log $HOME/run $HOME/tls bin etc usr/local/bin
+# we symlink busybox's 'ash' for compatibility reasons with Alpine vsn < 3.17
+RUN ln -s $(which busybox) bin/sh
 
 ARG USER
 ARG UID
@@ -131,8 +133,8 @@ RUN chown -R $UID:$UID $HOME
 FROM docker.io/erlang:${OTP_VSN}-alpine AS runtime-package
 RUN apk -U upgrade --available --no-cache \
     && apk add --no-cache \
-        busybox-binsh \
-        libcap2 \
+        busybox \
+        so:libcap.so.2 \
         tini
 
 ################################################################################
