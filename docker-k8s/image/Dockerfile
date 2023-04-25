@@ -1,5 +1,9 @@
 #' Define default build variables
+## specific ARGs for METHOD='build'
 ARG OTP_VSN='25.3.0.0'
+## specific ARGs for METHOD='package'
+ARG ALPINE_VSN='3.17'
+## general ARGs
 ARG UID='9000'
 ARG USER='eturnal'
 ARG HOME="opt/$USER"
@@ -68,7 +72,7 @@ RUN tar -xzf $BUILD_DIR/_build/$REBAR_PROFILE/rel/eturnal/eturnal-*.tar.gz
 
 ################################################################################
 #' METHOD='package' - install eturnal from binary tarball
-FROM docker.io/erlang:${OTP_VSN}-alpine AS package
+FROM docker.io/alpine:${ALPINE_VSN} AS package
 COPY eturnal-*-linux-musl-*.tar.gz /tmp/
 WORKDIR /rootfs
 ARG HOME
@@ -130,7 +134,7 @@ RUN chown -R $UID:$UID $HOME
 
 ################################################################################
 #' METHOD='package' - install runtime dependencies
-FROM docker.io/erlang:${OTP_VSN}-alpine AS runtime-package
+FROM docker.io/alpine:${ALPINE_VSN} AS runtime-package
 RUN apk -U upgrade --available --no-cache \
     && apk add --no-cache \
         busybox \
@@ -138,20 +142,24 @@ RUN apk -U upgrade --available --no-cache \
         tini
 
 ################################################################################
-#' METHOD='build' - install runtime dependencies
-FROM runtime-package AS runtime-build
+#' METHOD='build' - install runtime dependencies, remove erlang/rebar3
+FROM docker.io/erlang:${OTP_VSN}-alpine AS runtime-build
 COPY --from=eturnal /tmp/runDeps /tmp/runDeps
-RUN apk add --no-cache \
+RUN apk -U upgrade --available --no-cache \
+    && apk add --no-cache \
+        busybox \
+        so:libcap.so.2 \
+        tini \
         $(cat /tmp/runDeps)
 
-################################################################################
-#' Remove erlang/rebar3, strip Alpine to only include necessary runtime packages
-FROM runtime-${METHOD} AS runtime
 RUN apk del .erlang-rundeps \
     && rm -f $(which rebar3) \
     && find /usr -type d -name 'erlang' -exec rm -rf {} + \
     && find /usr -type l -exec test ! -e {} \; -delete
 
+################################################################################
+#' Strip Alpine to only include necessary runtime packages
+FROM runtime-${METHOD} AS runtime
 RUN apk del --repositories-file /dev/null \
         alpine-baselayout \
         alpine-keys \
