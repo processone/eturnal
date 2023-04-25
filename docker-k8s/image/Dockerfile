@@ -133,23 +133,10 @@ RUN home_root_dir=$(echo $HOME | sed 's|\(.*\)/.*|\1 |') \
 RUN chown -R $UID:$UID $HOME
 
 ################################################################################
-#' METHOD='package' - install runtime dependencies
-FROM docker.io/alpine:${ALPINE_VSN} AS runtime-package
-RUN apk -U upgrade --available --no-cache \
-    && apk add --no-cache \
-        busybox \
-        so:libcap.so.2 \
-        tini
-
-################################################################################
 #' METHOD='build' - install runtime dependencies, remove erlang/rebar3
 FROM docker.io/erlang:${OTP_VSN}-alpine AS runtime-build
 COPY --from=eturnal /tmp/runDeps /tmp/runDeps
-RUN apk -U upgrade --available --no-cache \
-    && apk add --no-cache \
-        busybox \
-        so:libcap.so.2 \
-        tini \
+RUN apk add --no-cache \
         $(cat /tmp/runDeps)
 
 RUN apk del .erlang-rundeps \
@@ -158,8 +145,18 @@ RUN apk del .erlang-rundeps \
     && find /usr -type l -exec test ! -e {} \; -delete
 
 ################################################################################
-#' Strip Alpine to only include necessary runtime packages
+#' METHOD='package' - define runtime-base image
+FROM docker.io/alpine:${ALPINE_VSN} AS runtime-package
+
+################################################################################
+#' Update, finalize & strip Alpine to only include necessary runtime packages
 FROM runtime-${METHOD} AS runtime
+RUN apk -U upgrade --available --no-cache \
+    && apk add --no-cache \
+        busybox \
+        so:libcap.so.2 \
+        tini
+
 RUN apk del --repositories-file /dev/null \
         alpine-baselayout \
         alpine-keys \
