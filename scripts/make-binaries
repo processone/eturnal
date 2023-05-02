@@ -64,6 +64,7 @@ ct_jobs=$(nproc)
 src_dir="$root_dir/src"
 platform='x86_64-pc-linux-gnu'
 targets='x86_64-linux-gnu aarch64-linux-gnu'
+erl_compiler_options='[no_debug_info, deterministic]'
 build_start=$(date '+%F %T')
 
 umask 022
@@ -276,7 +277,7 @@ build_rel()
 	export CFLAGS="-g0 -O2 -pipe -fomit-frame-pointer -static-libgcc $CPPFLAGS"
 	export CXXFLAGS="$CFLAGS -static-libstdc++"
 	export LDFLAGS="-L$prefix/lib -static-libgcc -static-libstdc++"
-	export ERL_COMPILER_OPTIONS='[no_debug_info]' # Building 25.x fails with 'deterministic'.
+	export ERL_COMPILER_OPTIONS='[no_debug_info]'
 
 	if [ "$mode" = 'cross' ]
 	then configure="./configure --host=$target --build=$platform"
@@ -363,6 +364,7 @@ build_rel()
 	    --without-javac \
 	    --disable-dynamic-ssl-lib \
 	    --enable-static-nifs \
+	    --enable-deterministic-build \
 	    CFLAGS="$CFLAGS -Wl,-L$prefix/lib" \
 	    LIBS='-lcrypto'
 	make
@@ -383,14 +385,16 @@ build_rel()
 	info "Building $rel_name $rel_vsn for $arch ..."
 	if [ "$mode" = 'native' ]
 	then
-		rebar3 as "$(rebar3_profile "$mode")" tar
+		ERL_COMPILER_OPTIONS="$erl_compiler_options" \
+		    rebar3 as "$(rebar3_profile "$mode")" tar
 	else
 		ln -s "$prefix/lib" # As expected by the 'cross' profile.
 		ei_inc="$prefix/lib/erlang/lib/erl_interface-"*'/include'
 		ei_lib="$prefix/lib/erlang/lib/erl_interface-"*'/lib'
-		LDLIBS='-lpthread' \
+		ERL_COMPILER_OPTIONS="$erl_compiler_options" \
 		    ERL_EI_INCLUDE_DIR=$(ls -1d $ei_inc) \
 		    ERL_EI_LIBDIR=$(ls -1d $ei_lib) \
+		    LDLIBS='-lpthread' \
 		    rebar3 as "$(rebar3_profile "$mode")" tar
 		rm 'lib'
 	fi
