@@ -29,14 +29,14 @@
 -include_lib("kernel/include/logger.hrl").
 -define(PEM_FILE_NAME, "cert.pem").
 -define(SIZE_BUCKETS,
-        [1024,
-         1024 * 4,
+        [1024 * 4,
          1024 * 32,
-         1024 * 128,
+         1024 * 256,
          1024 * 1024,
          1024 * 1024 * 4,
-         1024 * 1024 * 32,
-         1024 * 1024 * 128,
+         1024 * 1024 * 16,
+         1024 * 1024 * 64,
+         1024 * 1024 * 256,
          1024 * 1024 * 1024]).
 -define(TIME_BUCKETS,
         [timer:minutes(1) div 1000,
