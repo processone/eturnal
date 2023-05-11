@@ -2,7 +2,7 @@
 ## specific ARGs for METHOD='build'
 ARG OTP_VSN='25.3.0.0'
 ## specific ARGs for METHOD='package'
-ARG ALPINE_VSN='3.17'
+ARG ALPINE_VSN='3.18'
 ## general ARGs
 ARG UID='9000'
 ARG USER='eturnal'
