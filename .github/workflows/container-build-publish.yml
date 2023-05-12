@@ -64,6 +64,7 @@ jobs:
     needs: [detect-change]
     outputs:
       ci: ${{ steps.build.outputs.ci }}
+      otp: ${{ steps.build.outputs.otp }}
     steps:
       -
         name: Check out repository code
@@ -121,6 +122,7 @@ jobs:
           mkdir -p /tmp/rebar3
           tar -czf /tmp/rebar3/_build-${{ matrix.arch }}.tar.gz _build
           echo "ci=$(grep -q git, rebar.config ; echo $?)" >> $GITHUB_OUTPUT
+          echo "otp=$(awk '/^otp_vsn=/ {{gsub(/[^0-9]/, " "); print $1}}' scripts/make-binaries)" >> $GITHUB_OUTPUT
       -
         name: Start container for rebar3 test suites ...
         run: |
@@ -497,11 +499,12 @@ jobs:
 ################################################################################
   ## merge single images to only advertise one image plus tag
   publish:
-    name: ${{ matrix.registry }} - publish image manifest
+    name: ${{ matrix.registry }} - publish image manifest based on ${{ matrix.method }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         registry: [ghcr.io, docker.io]
+        method: [build, package]
       fail-fast: false
     if: github.event_name != 'pull_request' && github.event_name != 'schedule'
     needs: [detect-change, build-musl-binary-archives, build-ctr-binary-based, build-ctr]
@@ -540,14 +543,18 @@ jobs:
                          && secrets.DOCKERHUB_TOKEN)
                      || secrets.GITHUB_TOKEN }}
       -
-        name: Download digests
+        name: Download digests | ${{ matrix.method }}
         uses: actions/download-artifact@v3
         with:
-          name: digests-build
+          name: digests-${{ matrix.method }}
           path: /tmp/digests
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+      -
+        name: For ${{ matrix.method }} (binary) based images add a special suffix
+        if: matrix.method == 'package'
+        run: echo "TAG_SUFFIX=-otp${{ needs.build-musl-binary-archives.outputs.otp }}" >> $GITHUB_ENV
       -
         name: On push master | Docker meta
         id: meta
@@ -558,8 +565,7 @@ jobs:
                                         && env.DOCKERHUB_REPO)
                                         || env.IMAGE_NAME }}
           tags: |
-            edge
-            ${{ env.TAG_VERSION }}
+            edge${{ env.TAG_SUFFIX }}
       -
         name: On release | Docker meta
         id: meta-rel
@@ -570,13 +576,13 @@ jobs:
                                         && env.DOCKERHUB_REPO)
                                         || env.IMAGE_NAME }}
           tags: |
-            latest
-            ${{ env.TAG_PKGREL }}
-            ${{ env.TAG_VERSION }}
-            ${{ env.TAG_MINOR }}
-            ${{ env.TAG_MAJOR }}
+            latest${{ env.TAG_SUFFIX }}
+            ${{ env.TAG_PKGREL }}${{ env.TAG_SUFFIX }}
+            ${{ env.TAG_VERSION }}${{ env.TAG_SUFFIX }}
+            ${{ env.TAG_MINOR }}${{ env.TAG_SUFFIX }}
+            ${{ env.TAG_MAJOR }}${{ env.TAG_SUFFIX }}
       -
-        name: Create manifest list and push
+        name: Create manifest list and push | ${{ matrix.method }}
         if: |
           ( matrix.registry == 'docker.io'
             && github.repository_owner == 'sando38' )
