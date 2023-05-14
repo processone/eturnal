@@ -168,6 +168,7 @@ jobs:
           echo "PLATFORM=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|amd64|;s|aarch64|arm64|')" >> $GITHUB_ENV
           # Match our architecture names
           echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|x64|;s|aarch64|arm64|')" >> $GITHUB_ENV
+          echo "STUN_SERVICE=$(wget -O - https://raw.githubusercontent.com/pradt2/always-online-stun/master/valid_hosts.txt | awk 'END{gsub(":", " "); print}')" >> $GITHUB_ENV
       -
         name: Download artifact | ${{ matrix.arch }} musl-libc based binary tarball
         uses: actions/download-artifact@v3
@@ -196,6 +197,7 @@ jobs:
           docker run --init -d --name ci \
                 --platform linux/${{ env.PLATFORM }} \
                 --user eturnal \
+                -e STUN_SERVICE="${{ env.STUN_SERVICE }}" \
                 -v $PWD/eturnal.yml:/etc/eturnal.yml \
                 ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:musl-ci \
                 eturnalctl foreground
