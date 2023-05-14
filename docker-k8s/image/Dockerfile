@@ -1,5 +1,5 @@
 #' Define default build variables
-ARG ALPINE_VSN='3.17'
+ARG OTP_VSN='25.3.0.0'
 ARG UID='9000'
 ARG USER='eturnal'
 ARG HOME="opt/$USER"
@@ -13,10 +13,9 @@ ARG CI_MUSL_VSN='1.2.3'
 
 ################################################################################
 #' METHOD='build' - install build dependencies
-FROM alpine:${ALPINE_VSN} AS build-base
+FROM docker.io/erlang:${OTP_VSN}-alpine AS build-base
 RUN apk -U add --no-cache \
         build-base \
-        erlang-dev \
         git \
         openssl-dev \
         yaml-dev
@@ -51,16 +50,14 @@ RUN wget -O - $WEB_URL/download/eturnal-$VERSION.tar.gz | tar -xzf - \
 FROM ${SOURCE} AS build
 ARG BUILD_DIR
 WORKDIR $BUILD_DIR
-RUN if ! [ -f 'rebar3' ]; then wget https://s3.amazonaws.com/rebar3/rebar3; fi \
-    && chmod +x rebar3
 
 ARG REBAR_PROFILE=prod
-RUN ./rebar3 as $REBAR_PROFILE tar
+RUN rebar3 as $REBAR_PROFILE tar
 # run rebar3 test suites
+RUN rebar3 xref
+RUN rebar3 eunit
 ARG REBAR_CT=true
-RUN ./rebar3 xref
-RUN ./rebar3 eunit
-RUN if [ "$REBAR_CT" = 'true' ]; then ./rebar3 ct; fi
+RUN if [ "$REBAR_CT" = 'true' ]; then rebar3 ct; fi
 
 ARG HOME
 WORKDIR /rootfs/$HOME
@@ -68,7 +65,7 @@ RUN tar -xzf $BUILD_DIR/_build/$REBAR_PROFILE/rel/eturnal/eturnal-*.tar.gz
 
 ################################################################################
 #' METHOD='binary' - install eturnal from binary tarball
-FROM alpine:${ALPINE_VSN} AS binary
+FROM docker.io/erlang:${OTP_VSN}-alpine AS binary
 COPY eturnal-*-linux-musl-*.tar.gz /tmp/
 WORKDIR /rootfs
 ARG HOME
@@ -125,7 +122,7 @@ RUN chown -R $UID:$UID $HOME
 
 ################################################################################
 #' METHOD='binary' - install runtime dependencies
-FROM alpine:${ALPINE_VSN} AS runtime-binary
+FROM docker.io/erlang:${OTP_VSN}-alpine AS runtime-binary
 RUN apk -U upgrade --available --no-cache \
     && apk add --no-cache \
         busybox-binsh \
@@ -143,8 +140,13 @@ RUN apk add --no-cache \
         zlib
 
 ################################################################################
-#' Strip Alpine to only include necessary runtime packages
+#' Remove erlang/rebar3, strip Alpine to only include necessary runtime packages
 FROM runtime-${METHOD} AS runtime
+RUN apk del .erlang-rundeps \
+    && rm -f $(which rebar3) \
+    && find /usr -type d -name 'erlang' -exec rm -rf {} + \
+    && find /usr -type l -exec test ! -e {} \; -delete
+
 RUN apk del --repositories-file /dev/null \
         alpine-baselayout \
         alpine-keys \

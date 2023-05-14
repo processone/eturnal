@@ -372,7 +372,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [amd64, i386, armv7, armhf, ppc64le, s390x]
+        arch: [amd64, i386, arm64v8, armv7, ppc64le, s390x]
       fail-fast: false
     needs: [detect-change]
     steps:
@@ -418,7 +418,7 @@ jobs:
           else echo "REBAR_CT=true" >> $GITHUB_ENV
           fi
           # Match the docker platform architecture names
-          echo "PLATFORM=$(echo ${{ matrix.arch }} | sed -e 's|armv7|arm/v7|;s|armhf|arm/v6|;s|i386|386|')" >> $GITHUB_ENV
+          echo "PLATFORM=$(echo ${{ matrix.arch }} | sed -e 's|arm64v8|arm64/v8|;s|armv7|arm/v7|;s|i386|386|')" >> $GITHUB_ENV
       -
         name: Build container image
         uses: docker/build-push-action@v3
@@ -467,7 +467,7 @@ jobs:
         name: On release | extract release tags to be published/updated
         if: needs.detect-change.outputs.update == 'true'
         run: |
-          echo "ARCHS=x64 arm64 amd64 i386 armv7 armhf ppc64le s390x" >> $GITHUB_ENV
+          echo "ARCHS=x64 arm64 amd64 i386 armv7 ppc64le s390x" >> $GITHUB_ENV
           echo "TAG_PKGREL=$(awk 'END{print}' ${{ env.PKGREL_FILE }})" >> $GITHUB_ENV
           echo "TAG_VERSION=$(awk 'END{gsub("-", " "); print $1}' ${{ env.PKGREL_FILE }})" >> $GITHUB_ENV
           echo "TAG_MINOR=$(awk 'END{gsub("\\.", " "); print $1"."$2}' ${{ env.PKGREL_FILE }})" >> $GITHUB_ENV
@@ -534,7 +534,6 @@ jobs:
               ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-i386 \
               ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-arm64 \
               ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-armv7 \
-              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-armhf \
               ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-ppc64le \
               ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-s390x
 #          docker buildx imagetools create \
@@ -547,6 +546,5 @@ jobs:
 #              ${{ env.SVC_REGISTRY }}/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-i386 \
 #              ${{ env.SVC_REGISTRY }}/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-arm64 \
 #              ${{ env.SVC_REGISTRY }}/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-armv7 \
-#              ${{ env.SVC_REGISTRY }}/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-armhf \
 #              ${{ env.SVC_REGISTRY }}/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-ppc64le \
 #              ${{ env.SVC_REGISTRY }}/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }}-s390x
