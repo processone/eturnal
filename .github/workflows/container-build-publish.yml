@@ -18,7 +18,6 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   DOCKERHUB_REPO: eturnal/eturnal
   PKGREL_FILE: docker-k8s/pkgrel
-  SVC_REGISTRY: 'localhost:5000'
 
 jobs:
 ################################################################################
@@ -53,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [x86_64, aarch64]
+        arch: [x64, arm64]
       fail-fast: false
     needs: [detect-change]
     outputs:
@@ -89,7 +88,7 @@ jobs:
         if: env.TAG_VERSION <= '1.10.1'
         run: wget -O - https://raw.githubusercontent.com/${{ github.repository }}/master/.github/workflows/make-binaries-musl.patch | git apply -
       -
-        name: Install prerequisites and obtain erlang/otp version
+        name: Install prerequisites, obtain erlang/otp version & target arch ...
         run: |
           sudo apt-get -qq update
           # https://github.com/crosstool-ng/crosstool-ng/blob/master/testing/docker/ubuntu22.04/Dockerfile
@@ -99,6 +98,7 @@ jobs:
             xz-utils unzip patch libstdc++6 rsync git meson ninja-build \
             binfmt-support qemu-user-static
           echo "OTP_VSN=$(awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' scripts/make-binaries)" >> $GITHUB_ENV
+          echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x64|x86_64|;s|arm64|aarch64|')" >> $GITHUB_ENV
       -
         name: Install erlang/OTP
         uses: erlef/setup-beam@v1
@@ -109,19 +109,18 @@ jobs:
         name: Build ${{ matrix.arch }} musl-libc based binary archives
         id: build
         run: |
-          sed -i "s|targets='.*'|targets='${{ matrix.arch }}-linux-musl'|" scripts/make-binaries
-          chmod +x scripts/make-binaries
+          sed -i "s|targets='.*'|targets='${{ env.ARCH }}-linux-musl'|" scripts/make-binaries
           CHECK_DEPS=false scripts/make-binaries
-          echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|x64|;s|aarch64|arm64|')" >> $GITHUB_ENV
-          tar -czf /tmp/_build.tar.gz _build
+          mkdir -p /tmp/rebar3
+          tar -czf /tmp/rebar3/_build-${{ matrix.arch }}.tar.gz _build
           echo "ci=$(grep -q git, rebar.config ; echo $?)" >> $GITHUB_OUTPUT
       -
         name: Start container for rebar3 test suites ...
         run: |
           rebar3_path="$HOME/build/bootstrap/bin"
-          otp_path="$HOME/build/eturnal/${{ env.ARCH }}-musl/bin"
+          otp_path="$HOME/build/eturnal/${{ matrix.arch }}-musl/bin"
           alpine_path='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-          arch=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|amd64|;s|aarch64|arm64|')
+          arch=$(echo ${{ matrix.arch }} | sed -e 's|x64|amd64|')
           docker run --init -d --name test-suites \
                 --platform linux/$arch \
                 -v $HOME/build:$HOME/build \
@@ -149,24 +148,28 @@ jobs:
         name: Upload artifact | ${{ matrix.arch }} musl-libc based binary tarball
         uses: actions/upload-artifact@v3
         with:
-          name: eturnal-${{ matrix.arch }}-musl-tarballs-${{ env.TAG_VERSION }}
-          path: eturnal-*-linux-musl-${{ env.ARCH }}.tar.gz
+          name: eturnal-${{ env.TAG_VERSION }}-linux-musl-${{ matrix.arch }}.tar.gz
+          path: eturnal-*-linux-musl-${{ matrix.arch }}.tar.gz
+          if-no-files-found: error
+          retention-days: 15
       -
-        name: Upload artifact | rebar3 _build directory tarball
+        name: Upload artifact | rebar3 _build directory
         uses: actions/upload-artifact@v3
         with:
-          name: rebar3-build-${{ matrix.arch }}-musl-${{ env.TAG_VERSION }}
-          path: /tmp/_build.tar.gz
+          name: rebar3-build-musl-${{ env.TAG_VERSION }}
+          path: /tmp/rebar3/*
+          if-no-files-found: error
+          retention-days: 5
 
 ################################################################################
-  #' Test the musl-libc tarballs for incompatibilities between musl-libc versions
+  #' Test musl-libc tarballs for incompatibilities between musl-libc versions
   ci-musl-libc:
     name: CI - musl-libc v${{ matrix.musl }} compatibality test on ${{ matrix.arch }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         musl: [1.1.16, 1.1.17, 1.1.18, 1.1.19, 1.1.20, 1.1.21, 1.1.22, 1.1.23, 1.1.24, 1.2.0, 1.2.1, 1.2.2, 1.2.3, 1.2.4]
-        arch: [aarch64, x86_64]
+        arch: [arm64, x64]
       fail-fast: false
     needs: [detect-change, build-musl-binary-archives]
     steps:
@@ -195,16 +198,13 @@ jobs:
           cp $(find . -name eturnal-new-otp.yml) $PWD/eturnal.yml
           echo "  log_dir: stdout" >> $PWD/eturnal.yml
           echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
-          # Match the docker platform names
-          echo "PLATFORM=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|amd64|;s|aarch64|arm64|')" >> $GITHUB_ENV
-          # Match our architecture names
-          echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|x64|;s|aarch64|arm64|')" >> $GITHUB_ENV
+          echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x64|amd64|')" >> $GITHUB_ENV
           echo "STUN_SERVICE=$(wget -O - https://raw.githubusercontent.com/pradt2/always-online-stun/master/valid_hosts.txt | awk 'END{gsub(":", " "); print}')" >> $GITHUB_ENV
       -
         name: Download artifact | ${{ matrix.arch }} musl-libc based binary tarball
         uses: actions/download-artifact@v3
         with:
-          name: eturnal-${{ matrix.arch }}-musl-tarballs-${{ env.TAG_VERSION }}
+          name: eturnal-${{ env.TAG_VERSION }}-linux-musl-${{ matrix.arch }}.tar.gz
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -215,22 +215,22 @@ jobs:
         name: Build CI image ...
         run: |
           docker buildx build --load \
-                --platform linux/${{ env.PLATFORM }} \
+                --platform linux/${{ env.ARCH }} \
                 -f ${{ env.DOCKERFILE_PATH }}/Dockerfile \
                 --build-arg CI_MUSL_VSN=${{ matrix.musl }} \
                 --build-arg METHOD=package \
                 --target musl-ci \
-                -t ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:musl-ci \
+                -t localhost/${{ env.IMAGE_NAME }}:musl-ci \
                 .
       -
         name: Start CI container ...
         run: |
           docker run --init -d --name ci \
-                --platform linux/${{ env.PLATFORM }} \
+                --platform linux/${{ env.ARCH }} \
                 --user eturnal \
                 -e STUN_SERVICE="${{ env.STUN_SERVICE }}" \
                 -v $PWD/eturnal.yml:/etc/eturnal.yml \
-                ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:musl-ci \
+                localhost/${{ env.IMAGE_NAME }}:musl-ci \
                 eturnalctl foreground
           echo ">> sleep shortly to have the service up ..." && sleep 15s
       -
@@ -262,15 +262,15 @@ jobs:
         uses: actions/download-artifact@v3
         if: ( success() || failure() ) && needs.build-musl-binary-archives.outputs.ci != '0'
         with:
-          name: rebar3-build-${{ matrix.arch }}-musl-${{ env.TAG_VERSION }}
-          path: /tmp
+          name: rebar3-build-musl-${{ env.TAG_VERSION }}
+          path: /tmp/rebar3
       -
         name: Prepare environment for rebar3 test suites ...
         if: ( success() || failure() ) && needs.build-musl-binary-archives.outputs.ci != '0'
         run: |
-          tar -xzf /tmp/_build.tar.gz
+          tar -xzf /tmp/rebar3/_build-${{ matrix.arch }}.tar.gz
           rebar3_path="$HOME/build/bootstrap/bin"
-          otp_path="$HOME/build/eturnal/${{ env.ARCH }}-musl/bin"
+          otp_path="$HOME/build/eturnal/${{ matrix.arch }}-musl/bin"
           alpine_path='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
           echo "REBAR3=$rebar3_path:$otp_path:$alpine_path" >> $GITHUB_ENV
       -
@@ -278,7 +278,7 @@ jobs:
         if: ( success() || failure() ) && needs.build-musl-binary-archives.outputs.ci != '0'
         run: |
           docker run --init -d --name ci-2 \
-                --platform linux/${{ env.PLATFORM }} \
+                --platform linux/${{ env.ARCH }} \
                 -v $HOME/build:$HOME/build \
                 -v $PWD:/eturnal \
                 --workdir /eturnal \
@@ -309,7 +309,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [x86_64, aarch64]
+        arch: [x64, arm64]
       fail-fast: false
     needs: [detect-change, build-musl-binary-archives]
     steps:
@@ -336,17 +336,28 @@ jobs:
         name: Extract build & environment variables
         run: |
           echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
-          # Match our architecture names
-          echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|x64|;s|aarch64|arm64|')" >> $GITHUB_ENV
-          # Match the docker platform architecture names
-          echo "PLATFORM=$(echo ${{ matrix.arch }} | sed -e 's|x86_64|amd64|;s|aarch64|arm64|')" >> $GITHUB_ENV
+          echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x64|amd64|')" >> $GITHUB_ENV
       -
         name: Download artifact | ${{ matrix.arch }} musl-libc based binary tarball
         uses: actions/download-artifact@v3
         with:
-          name: eturnal-${{ matrix.arch }}-musl-tarballs-${{ env.TAG_VERSION }}
+          name: eturnal-${{ env.TAG_VERSION }}-linux-musl-${{ matrix.arch }}.tar.gz
       -
-        name: Build container image
+        name: Log in to ${{ env.REGISTRY }}
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      -
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      -
+        name: Build and push by digest
+        id: build
         uses: docker/build-push-action@v3
         with:
           build-args: |
@@ -355,24 +366,32 @@ jobs:
             REPOSITORY=https://github.com/${{ github.repository }}.git
           context: .
           file: ${{ env.DOCKERFILE_PATH }}/Dockerfile
-          platforms: linux/${{ env.PLATFORM }}
-          tags: ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-${{ env.ARCH }}
-          outputs: type=docker,dest=/tmp/eturnal-${{ env.ARCH }}.tar
+          platforms: linux/${{ env.ARCH }}
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
       -
-        name: Upload image artifact | eturnal-${{ env.ARCH }}.tar
+        name: Export digest | ${{ matrix.arch }}
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+      -
+        name: Upload digest | ${{ matrix.arch }}
         uses: actions/upload-artifact@v3
         with:
-          name: eturnal-${{ env.ARCH }}-${{ env.TAG_VERSION }}
-          path: /tmp/eturnal-${{ env.ARCH }}.tar
+          name: digests-package
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
 
 ################################################################################
-  #' build container images for remaining architectures with standard Dockerfile
+  #' build container images with local source files
   build-ctr:
     name: ${{ matrix.arch }} - build & publish container image (non-binary-based)
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [amd64, i386, arm64v8, armv7, ppc64le, s390x]
+        arch: [amd64, 386, arm64/v8, arm/v7, ppc64le, s390x]
       fail-fast: false
     needs: [detect-change]
     steps:
@@ -424,10 +443,22 @@ jobs:
           then echo "REBAR_CT=false" >> $GITHUB_ENV
           else echo "REBAR_CT=true" >> $GITHUB_ENV
           fi
-          # Match the docker platform architecture names
-          echo "PLATFORM=$(echo ${{ matrix.arch }} | sed -e 's|arm64v8|arm64/v8|;s|armv7|arm/v7|;s|i386|386|')" >> $GITHUB_ENV
       -
-        name: Build container image
+        name: Log in to ${{ env.REGISTRY }}
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      -
+        name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      -
+        name: Build and push by digest
+        id: build
         uses: docker/build-push-action@v3
         with:
           build-args: |
@@ -438,27 +469,35 @@ jobs:
             REBAR_CT=${{ env.REBAR_CT }}
           context: .
           file: ${{ env.DOCKERFILE_PATH }}/Dockerfile
-          platforms: linux/${{ env.PLATFORM }}
-          tags: ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-${{ matrix.arch }}
-          outputs: type=docker,dest=/tmp/eturnal-${{ matrix.arch }}.tar
+          platforms: linux/${{ matrix.arch }}
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
       -
-        name: Upload image artifact | eturnal-${{ matrix.arch }}.tar
+        name: Export digest | ${{ matrix.arch }}
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+      -
+        name: Upload digest | ${{ matrix.arch }}
         uses: actions/upload-artifact@v3
         with:
-          name: eturnal-${{ matrix.arch }}-${{ env.TAG_VERSION }}
-          path: /tmp/eturnal-${{ matrix.arch }}.tar
+          name: digests-build
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1
 
 ################################################################################
   ## merge single images to only advertise one image plus tag
   publish:
-    name: Publish image manifest
+    name: ${{ matrix.registry }} - publish image manifest
     runs-on: ubuntu-latest
-    needs: [detect-change, build-ctr-binary-based, build-ctr]
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
+    strategy:
+      matrix:
+        registry: [ghcr.io, docker.io]
+      fail-fast: false
+    if: github.event_name != 'pull_request' && github.event_name != 'schedule'
+    needs: [detect-change, build-musl-binary-archives, build-ctr-binary-based, build-ctr]
     steps:
       -
         name: Check out repository code
@@ -469,112 +508,79 @@ jobs:
         name: On push master | extract git version and define build variants
         if: needs.detect-change.outputs.update == 'false'
         run: |
-          echo "ARCHS=x64 arm64" >> $GITHUB_ENV
           echo "TAG_VERSION=$(echo "$(./scripts/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
       -
         name: On release | extract release tags to be published/updated
         if: needs.detect-change.outputs.update == 'true'
         run: |
-          echo "ARCHS=x64 arm64 amd64 i386 armv7 ppc64le s390x" >> $GITHUB_ENV
           echo "TAG_PKGREL=$(awk 'END{print}' ${{ env.PKGREL_FILE }})" >> $GITHUB_ENV
           echo "TAG_VERSION=$(awk 'END{gsub("-", " "); print $1}' ${{ env.PKGREL_FILE }})" >> $GITHUB_ENV
           echo "TAG_MINOR=$(awk 'END{gsub("\\.", " "); print $1"."$2}' ${{ env.PKGREL_FILE }})" >> $GITHUB_ENV
           echo "TAG_MAJOR=$(awk 'END{gsub("\\.", " "); print $1}' ${{ env.PKGREL_FILE }})" >> $GITHUB_ENV
       -
-        name: Log in to GHCR
-        if: github.event_name != 'pull_request'
+        name: Log in to ${{ matrix.registry }}
         uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      -
-        name: Log in to DockerHub
         if: |
-          github.event_name != 'pull_request'
-          && github.repository_owner == 'sando38'
-        uses: docker/login-action@v2
+          ( matrix.registry == 'docker.io'
+            && github.repository_owner == 'sando38' )
+          || matrix.registry == 'ghcr.io'
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ${{ matrix.registry }}
+          username: ${{ (matrix.registry == 'docker.io'
+                         && secrets.DOCKERHUB_USERNAME)
+                     || github.repository_owner }}
+          password: ${{ (matrix.registry == 'docker.io'
+                         && secrets.DOCKERHUB_TOKEN)
+                     || secrets.GITHUB_TOKEN }}
       -
-        name: Download image artifacts from previous jobs
+        name: Download digests
         uses: actions/download-artifact@v3
         with:
-          path: /tmp
+          name: digests-build
+          path: /tmp/digests
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+      -
+        name: On push master | Docker meta
+        id: meta
+        if: needs.detect-change.outputs.update == 'false'
+        uses: docker/metadata-action@v4
         with:
-          driver-opts: network=host
+          images: ${{ matrix.registry }}/${{ (matrix.registry == 'docker.io'
+                                        && env.DOCKERHUB_REPO)
+                                        || env.IMAGE_NAME }}
+          tags: |
+            edge
+            ${{ env.TAG_VERSION }}
       -
-        name: Load images and push to service registry
-        run: |
-          for arch in ${{ env.ARCHS }}
-          do
-            docker load --input /tmp/eturnal-$arch-${{ env.TAG_VERSION }}/eturnal-$arch.tar
-            docker push ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-$arch
-          done
-          docker image ls -a
+        name: On release | Docker meta
+        id: meta-rel
+        if: needs.detect-change.outputs.update == 'true'
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ matrix.registry }}//${{ (matrix.registry == 'docker.io'
+                                        && env.DOCKERHUB_REPO)
+                                        || env.IMAGE_NAME }}
+          tags: |
+            latest
+            ${{ env.TAG_PKGREL }}
+            ${{ env.TAG_VERSION }}
+            ${{ env.TAG_MINOR }}
+            ${{ env.TAG_MAJOR }}
       -
-        name: On push master | merge and publish to ghcr.io
+        name: Create manifest list and push
         if: |
-          github.event_name != 'pull_request'
-          && github.event_name != 'schedule'
-          && needs.detect-change.outputs.update == 'false'
+          ( matrix.registry == 'docker.io'
+            && github.repository_owner == 'sando38' )
+          || matrix.registry == 'ghcr.io'
+        working-directory: /tmp/digests
         run: |
-          docker buildx imagetools create \
-            --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:edge \
-            --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }} \
-              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-x64 \
-              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-arm64
+          docker buildx imagetools create $(jq -r '"-t " + (.tags | join(" -t "))' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@sha256:%s ' *)
       -
-        name: On push master | merge and publish to docker.io
-        if: |
-          github.event_name != 'pull_request'
-          && github.event_name != 'schedule'
-          && needs.detect-change.outputs.update == 'false'
-          && github.repository_owner == 'sando38'
+        name: Inspect image
+        if: matrix.registry == 'ghcr.io'
         run: |
-          docker buildx imagetools create \
-            --tag docker.io/${{ env.DOCKERHUB_REPO }}:edge \
-            --tag docker.io/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }} \
-              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-x64 \
-              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-arm64
-      -
-        name: On release | merge and publish to ghcr.io
-        if: |
-          github.event_name != 'pull_request'
-          && needs.detect-change.outputs.update == 'true'
-        run: |
-          docker buildx imagetools create \
-            --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-            --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_PKGREL }} \
-            --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }} \
-            --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_MINOR }} \
-            --tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_MAJOR }} \
-              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-x64 \
-              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-i386 \
-              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-arm64 \
-              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-armv7 \
-              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-ppc64le \
-              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-s390x
-      -
-        name: On release | merge and publish to docker.io
-        if: |
-          github.event_name != 'pull_request'
-          && needs.detect-change.outputs.update == 'true'
-          && github.repository_owner == 'sando38'
-        run: |
-          docker buildx imagetools create \
-            --tag docker.io/${{ env.DOCKERHUB_REPO }}:latest \
-            --tag docker.io/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_PKGREL }} \
-            --tag docker.io/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_VERSION }} \
-            --tag docker.io/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_MINOR }} \
-            --tag docker.io/${{ env.DOCKERHUB_REPO }}:${{ env.TAG_MAJOR }} \
-              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-x64 \
-              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-i386 \
-              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-arm64 \
-              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-armv7 \
-              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-ppc64le \
-              ${{ env.SVC_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.TAG_VERSION }}-s390x
+          docker buildx imagetools inspect ${{ matrix.registry }}/${{ env.IMAGE_NAME }}:${{ steps.meta-rel.outputs.version }} ||
+          docker buildx imagetools inspect ${{ matrix.registry }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
