@@ -127,18 +127,17 @@ RUN home_root_dir=$(echo $HOME | sed 's|\(.*\)/.*|\1 |') \
     && chmod +x usr/local/bin/run.sh usr/local/bin/eturnalctl \
     && ln -s /$(find $home_root_dir -name stun) usr/local/bin/stun \
     && scanelf --needed --nobanner --format '%n#p' --recursive $home_root_dir \
-        | tr ',' '\n' | sort -u | awk 'system("[ -e $home_root_dir" $1 " ]") == 0 { next } \
-        { print "so:" $1 }' > /tmp/runDeps
+        | tr ',' '\n' \
+        | sort -u \
+        | awk 'system("[ -e $home_root_dir" $1 " ]") == 0 { next } { print "so:" $1 }' \
+        | sed -e "s|so:libc.so|so:libc.musl-$(uname -m).so.1|" \
+            > /tmp/runDeps
 
 RUN chown -R $UID:$UID $HOME
 
 ################################################################################
-#' METHOD='build' - install runtime dependencies, remove erlang/rebar3
+#' METHOD='build' - Remove erlang/rebar3
 FROM docker.io/erlang:${OTP_VSN}-alpine AS runtime-build
-COPY --from=eturnal /tmp/runDeps /tmp/runDeps
-RUN apk add --no-cache \
-        $(cat /tmp/runDeps)
-
 RUN apk del .erlang-rundeps \
     && rm -f $(which rebar3) \
     && find /usr -type d -name 'erlang' -exec rm -rf {} + \
@@ -151,8 +150,10 @@ FROM docker.io/alpine:${ALPINE_VSN} AS runtime-package
 ################################################################################
 #' Update, finalize & strip Alpine to only include necessary runtime packages
 FROM runtime-${METHOD} AS runtime
-RUN apk -U upgrade --available --no-cache \
-    && apk add --no-cache \
+RUN apk -U upgrade --available --no-cache
+COPY --from=eturnal /tmp/runDeps /tmp/runDeps
+RUN apk add --no-cache -t .runtime-deps \
+        $(cat /tmp/runDeps) \
         busybox \
         so:libcap.so.2 \
         tini
@@ -162,7 +163,7 @@ RUN apk del --repositories-file /dev/null \
         alpine-keys \
         apk-tools \
         libc-utils \
-    && rm -rf /var/cache/apk /etc/apk /tmp \
+    && rm -rf /var/cache/apk /etc/apk \
     && find /lib/apk/db -type f -not -name 'installed' -delete
 
 ################################################################################
