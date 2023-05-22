@@ -12,6 +12,13 @@ on:
       - '**.md'
   schedule:
     - cron: '22 2 */6 * *' # every 6 days to avoid gha cache being evicted
+  pull_request:
+    paths-ignore:
+      - 'doc/**'
+      - 'docker-k8s/examples/**'
+      - 'scripts/get-version'
+      - 'windows/**'
+      - '**.md'
 
 env:
   REGISTRY: ghcr.io
