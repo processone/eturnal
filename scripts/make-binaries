@@ -38,7 +38,6 @@ rel_name='eturnal'
 rel_vsn=$(scripts/get-version)
 rebar_vsn='3.20.0'
 crosstool_vsn='1.25.0'
-termcap_vsn='1.3.1'
 zlib_vsn='1.2.13'
 yaml_vsn='0.2.5'
 ssl_vsn='3.1.0'
@@ -48,13 +47,11 @@ bootstrap_dir="$root_dir/bootstrap"
 ct_prefix_dir="$root_dir/x-tools"
 build_dir="$root_dir/$rel_name"
 crosstool_dir="crosstool-ng-$crosstool_vsn"
-termcap_dir="termcap-$termcap_vsn"
 zlib_dir="zlib-$zlib_vsn"
 yaml_dir="yaml-$yaml_vsn"
 ssl_dir="openssl-$ssl_vsn"
 otp_dir="otp_src_$otp_vsn"
 crosstool_tar="$crosstool_dir.tar.xz"
-termcap_tar="$termcap_dir.tar.gz"
 zlib_tar="$zlib_dir.tar.gz"
 yaml_tar="$yaml_dir.tar.gz"
 ssl_tar="$ssl_dir.tar.gz"
@@ -115,9 +112,6 @@ check_deps()
 	check_vsn 'zlib' "$zlib_vsn" \
 	          'https://zlib.net/' \
 	          'zlib-\([1-9][0-9.]*\)\.tar\.gz'
-	check_vsn 'Termcap' "$termcap_vsn" \
-	          'https://ftp.gnu.org/gnu/termcap/' \
-	          'termcap-\([1-9][0-9.]*\)\.tar\.gz'
 	check_vsn 'Rebar3' "$rebar_vsn" \
 	          'https://github.com/erlang/rebar3/tags' \
 	          '\(3\.[0-9][0-9.]*\)\.tar\.gz'
@@ -289,39 +283,10 @@ build_rel()
 	info 'Extracting dependencies ...'
 	mkdir "$target_src_dir"
 	cd "$target_src_dir"
-	tar -xzf "$src_dir/$termcap_tar"
 	tar -xzf "$src_dir/$zlib_tar"
 	tar -xzf "$src_dir/$yaml_tar"
 	tar -xzf "$src_dir/$ssl_tar"
 	tar -xzf "$src_dir/$otp_tar"
-	cd "$OLDPWD"
-
-	info "Building Termcap $termcap_vsn for $arch ..."
-	cd "$target_src_dir/$termcap_dir"
-	$configure --prefix="$prefix"
-	cat >'config.h' <<-'EOF'
-		#ifndef CONFIG_H
-		#define CONFIG_H
-		#define INTERNAL_TERMINAL "internal:\\\n" \
-			"\t:am:bs:ms:xn:xo:\\\n" \
-			"\t:co#80:it#8:li#24:vt#3:\\\n" \
-			"\t:@8=\\EOM:DO=\\E[%dB:K1=\\EOq:K2=\\EOr:K3=\\EOs:K4=\\EOp:K5=\\EOn:\\\n" \
-			"\t:LE=\\E[%dD:RA=\\E[?7l:RI=\\E[%dC:SA=\\E[?7h:UP=\\E[%dA:\\\n" \
-			"\t:ac=``aaffggjjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~:\\\n" \
-			"\t:ae=^O:as=^N:bl=^G:cb=\\E[1K:cd=\\E[J:ce=\\E[K:cl=\\E[H\\E[J:\\\n" \
-			"\t:cm=\\E[%i%d;%dH:cr=^M:cs=\\E[%i%d;%dr:ct=\\E[3g:do=^J:\\\n" \
-			"\t:eA=\\E(B\\E)0:ho=\\E[H:k0=\\EOy:k1=\\EOP:k2=\\EOQ:k3=\\EOR:\\\n" \
-			"\t:k4=\\EOS:k5=\\EOt:k6=\\EOu:k7=\\EOv:k8=\\EOl:k9=\\EOw:k;=\\EOx:\\\n" \
-			"\t:kb=^H:kd=\\EOB:ke=\\E[?1l\\E>:kl=\\EOD:kr=\\EOC:ks=\\E[?1h\\E=:\\\n" \
-			"\t:ku=\\EOA:le=^H:mb=\\E[5m:md=\\E[1m:me=\\E[m\\017:mr=\\E[7m:\\\n" \
-			"\t:nd=\\E[C:rc=\\E8:rs=\\E>\\E[?3l\\E[?4l\\E[?5l\\E[?7h\\E[?8h:\\\n" \
-			"\t:..sa=\\E[0%?%p1%p6%|%t;1%;%?%p2%t;4%;%?%p1%p3%|%t;7%;%?%p4%t;5%;m%?%p9%t\\016%e\\017%;:\\\n" \
-			"\t:sc=\\E7:se=\\E[m:sf=^J:so=\\E[7m:sr=\\EM:st=\\EH:ta=^I:ue=\\E[m:\\\n" \
-			"\t:up=\\E[A:us=\\E[4m:"
-		#endif
-	EOF
-	make CPPFLAGS="$CPPFLAGS -DHAVE_CONFIG_H=1"
-	make install
 	cd "$OLDPWD"
 
 	info "Building zlib $zlib_vsn for $arch ..."
@@ -361,6 +326,7 @@ build_rel()
 	$configure \
 	    --prefix="$prefix" \
 	    --with-ssl="$prefix" \
+	    --without-termcap \
 	    --without-javac \
 	    --disable-dynamic-ssl-lib \
 	    --enable-static-nifs \
@@ -471,7 +437,6 @@ mkdir "$src_dir"
 info 'Downloading dependencies ...'
 cd "$src_dir"
 curl -LO "http://crosstool-ng.org/download/crosstool-ng/$crosstool_tar"
-curl -LO "https://ftp.gnu.org/gnu/termcap/$termcap_tar"
 curl -LO "https://zlib.net/fossils/$zlib_tar"
 curl -LO "https://pyyaml.org/download/libyaml/$yaml_tar"
 curl -LO "https://www.openssl.org/source/$ssl_tar"
