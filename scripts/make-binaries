@@ -36,7 +36,7 @@ fi
 
 rel_name='eturnal'
 rel_vsn=$(scripts/get-version)
-rebar_vsn='3.21.0'
+rebar_vsn='3.22.0'
 crosstool_vsn='1.25.0'
 zlib_vsn='1.2.13'
 yaml_vsn='0.2.5'
