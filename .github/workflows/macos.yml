@@ -1,0 +1,72 @@
+name: CI | macOS
+
+on:
+  push:
+    paths-ignore:
+      - '*.md'
+      - 'doc/**'
+      - 'docker-k8s/**'
+      - 'windows/**'
+  pull_request:
+    paths-ignore:
+      - '*.md'
+      - 'doc/**'
+      - 'docker-k8s/**'
+      - 'windows/**'
+
+jobs:
+  installer:
+    name: macOS-${{ matrix.macos_vsn }} with homebrew
+    runs-on: macos-${{ matrix.macos_vsn }}
+    strategy:
+      matrix:
+        macos_vsn: [11, 12, 13]
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+        with: # For scripts/get-version:
+          fetch-depth: 0
+      - name: Install dependencies
+        run: |
+            brew update
+            brew install \
+                erlang \
+                openssl \
+                libyaml \
+                rebar3
+      - name: Cache Rebar data
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/rebar3
+          key: ${{ runner.os }}-${{ hashFiles('rebar.config') }}
+      # Until https://github.com/erlware/relx/issues/905 is fixed:
+      - name: Create Erlang cookie
+        run: erl -noinput -sname cookie -eval 'halt()'
+      - name: Download dependencies
+        run: rebar3 get-deps
+      - name: Compile code
+        env:
+            LDFLAGS: -L/usr/local/opt/openssl/lib -L/usr/local/lib
+            CFLAGS: -I/usr/local/opt/openssl/include/ -I/usr/local/include
+            CPPFLAGS: -I/usr/local/opt/openssl/include/ -I/usr/local/include
+        run: rebar3 compile
+      - name: Build release
+        run: rebar3 release
+      - name: Start release
+        run: _build/default/rel/eturnal/bin/eturnal daemon
+      - name: Ping release
+        run: _build/default/rel/eturnal/bin/eturnal ping
+      - name: Stop release
+        run: _build/default/rel/eturnal/bin/eturnal stop
+      - name: Analyze cross references
+        run: rebar3 xref
+      - name: Perform static code analysis
+        run: rebar3 dialyzer
+      - name: Run black-box tests (CT)
+        run: rebar3 ct || rebar3 ct
+        shell: bash
+      - name: Run white-box tests (EUnit)
+        run: rebar3 eunit
+      - name: Check test coverage
+        run: rebar3 cover
