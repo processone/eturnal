@@ -15,12 +15,10 @@ on:
       - 'windows/**'
 
 jobs:
-  installer:
-    name: macOS-${{ matrix.macos_vsn }} with homebrew
-    runs-on: macos-${{ matrix.macos_vsn }}
-    strategy:
-      matrix:
-        macos_vsn: [11, 12, 13]
+
+  ci:
+    name: CI | macOS with homebrew
+    runs-on: macos-latest
 
     steps:
       - name: Check out repository code
@@ -28,6 +26,10 @@ jobs:
         with: # For scripts/get-version:
           fetch-depth: 0
       - name: Install dependencies
+        env:
+            HOMEBREW_NO_AUTO_UPDATE: 1
+            HOMEBREW_NO_INSTALL_CLEANUP: 1
+            HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
         run: |
             brew update
             brew install \
@@ -70,3 +72,64 @@ jobs:
         run: rebar3 eunit
       - name: Check test coverage
         run: rebar3 cover
+
+  formula:
+    name: On ${{ matrix.os }} | install & test ${{ matrix.vsn }} Formula
+    runs-on: ${{ matrix.os }}-latest
+    strategy:
+      matrix:
+        os: [macos, ubuntu]
+        vsn: [head, stable]
+      fail-fast: false
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+      - name: Cache Homebrew Bundler RubyGems
+        id: cache
+        uses: actions/cache@v3
+        with:
+            path: ${{ steps.set-up-homebrew.outputs.gems-path }}
+            key: ${{ runner.os }}-rubygems-${{ steps.set-up-homebrew.outputs.gems-hash }}
+            restore-keys: ${{ runner.os }}-rubygems-
+      - name: Install Homebrew Bundler RubyGems
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: brew install-bundler-gems
+
+      - name: Install eturnal with homebrew formula
+        env:
+            HOMEBREW_NO_AUTO_UPDATE: 1
+            HOMEBREW_NO_INSTALL_CLEANUP: 1
+            HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
+        run: |
+            if [ ${{ matrix.vsn }} = 'head' ]; then export vsn='--head'; fi
+            # Download eturnal.rb instead of `brew tap` to avoid failures when
+            # running on branches or pull requests -> requires actions/checkout
+            curl -O https://raw.githubusercontent.com/${{ github.repository }}/$(git rev-parse HEAD)/Formula/eturnal.rb
+            brew install --build-from-source ${vsn:-} --verbose ./eturnal.rb
+      - name: Homebrew autoremove unused packages
+        if: matrix.os != 'ubuntu'
+        run: |
+            brew uninstall erlang rebar3
+            brew autoremove
+      - name: Set erlang cookie, because we build from HEAD
+        if: matrix.vsn == 'head'
+        run: echo "-setcookie eturnal" >> $(find $(brew --prefix)/Cellar/eturnal -name vm.args)
+      - name: Run eturnal Formula test
+        run: brew test --verbose eturnal
+      - name: Start eturnal service
+        run: brew services start eturnal
+      - name: Wait shortly
+        run: sleep 10
+      - name: Create test credentials
+        run: $(brew --prefix)/opt/eturnal/bin/eturnalctl credentials
+      - name: Test eturnalctl on $PATH
+        run: eturnalctl info
+      - name: Stop eturnal service
+        run: brew services stop eturnal
+ #     - name: Lint formula
+ #       run: brew audit --strict eturnal
+

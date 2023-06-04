@@ -37,8 +37,14 @@ On **YUM-based** Linux distributions, run:
 On SUSE Linux Enterprise and openSUSE systems, [distribution repositories][7]
 can be used instead. There's also an official [Alpine package][8]. On other
 Linux systems, the binary release can be installed as [described][9] in the
-reference documentation. For Windows, an installer is [available][10]. On other
-platforms, eturnal is [built from source][11].
+reference documentation. For Windows, an installer is [available][10].
+
+On **macOS** using homebrew's
+
+    brew tap processone/eturnal https://github.com/processone/eturnal
+    brew install processone/eturnal/eturnal
+
+On other platforms, eturnal is [built from source][11].
 
 ## Configuration
 

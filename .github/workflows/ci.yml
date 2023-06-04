@@ -5,10 +5,12 @@ on:
     paths-ignore:
       - '*.md'
       - 'docker-k8s/**'
+      - 'Formula/**'
   pull_request:
     paths-ignore:
       - '*.md'
       - 'docker-k8s/**'
+      - 'Formula/**'
 
 jobs:
   test:
