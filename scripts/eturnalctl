@@ -89,7 +89,7 @@ get_option()
     printf '%s' "$_val"
 }
 
-myself="$(readlink "$0" || printf '%s' "$0")"
+myself="$(readlink -f "$0" || printf '%s' "$0")"
 release_dir="$(cd "$(dirname "$myself")/.." && pwd -P)"
 eturnal_yml="$(find_eturnal_yml "$@")"
 log_dir="$(get_option 'log_dir')"
