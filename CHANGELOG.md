@@ -16,6 +16,7 @@ project adheres to [Semantic Versioning][SemVer].
 - Docker: Switch to binary releases for `linux/amd64` and `linux/arm64`. This
   brings support to the newly added features for eturnal with this version for
   these two architectures.
+- Windows: Update Erlang/OTP to 26.x.
 
 ### Fixed
 - Include the `ssl` library with non-distro builds, as it's required for
