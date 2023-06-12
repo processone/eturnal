@@ -59,14 +59,6 @@ sed -i 's/$ETURNAL_ETC_PREFIX/@INSTALL_DIR@/' 'config/sys.config'
 echo "$myself: Cleaning $rel_name repository ..."
 rm -rf '_build'
 
-echo "$myself: Switching to Windows branches of $rel_name dependencies ..."
-grep -q 'fast_yaml' 'rebar.config' ||
-  sed -i '/{conf,/a\
-  {fast_tls, {git, "https://github.com/processone/fast_tls.git", {branch, "master"}}},\
-  {fast_yaml, {git, "https://github.com/processone/fast_yaml.git", {branch, "master"}}},' \
-    'rebar.config'
-rebar3 upgrade 'fast_tls','fast_yaml'
-
 echo "$myself: Building $rel_name release ..."
 REBAR_COLOR='none' rebar3 as prod release
 
