@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Added
+- Add a prometheus grafana dashboard template into the repository.
+
 ### Changed
 - `mod_stats_prometheus`: Fine tune bucket sizes for TURN sessions, e.g., drop
   the 1 KiB bucket, as the 4 KiB bucket size should be sufficient to identify
