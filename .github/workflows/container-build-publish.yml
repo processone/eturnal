@@ -436,6 +436,12 @@ jobs:
           then echo "SRC=web" >> $GITHUB_ENV
           else echo "SRC=local" >> $GITHUB_ENV
           fi
+      - # We want to use erlang/otp >= 25.3 for the build to avoid segfaults
+        name: Patch make-binaries script
+        if: env.TAG_VERSION <= '1.10.1'
+        run: |
+            echo "OTP_VSN=$(wget -O - https://raw.githubusercontent.com/${{ github.repository }}/master/.github/workflows/make-binaries-musl.patch \
+            | awk '/^+otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}')" >> $GITHUB_ENV
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -572,7 +578,7 @@ jobs:
         if: needs.detect-change.outputs.update == 'true'
         uses: docker/metadata-action@v4
         with:
-          images: ${{ matrix.registry }}//${{ (matrix.registry == 'docker.io'
+          images: ${{ matrix.registry }}/${{ (matrix.registry == 'docker.io'
                                         && env.DOCKERHUB_REPO)
                                         || env.IMAGE_NAME }}
           tags: |
