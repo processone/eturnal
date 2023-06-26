@@ -249,7 +249,7 @@ eturnal (e.g., by sending a `HUP' signal) after log rotation.
 === max_bps ===
 
 <div class="spec">Type: `positive integer' | `unlimited'<br/>
-Default: `10'</div>
+Default: `unlimited'</div>
 
 This option limits the bandwidth of TCP and TLS connections to the specified
 number of bytes per second. If the option isn't specified (or set to
