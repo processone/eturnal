@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Added
+- Docker: Add a build variant with a tag-suffix `-otpXX`, which packages the
+  binary release into the container. "XX" indicates the Erlang/OTP version of
+  the packaged binary release.
+
 ### Changed
 - `mod_stats_prometheus`: Fine tune bucket sizes for TURN sessions, e.g., drop
   the 1 KiB bucket, as the 4 KiB bucket size should be sufficient to identify
@@ -13,6 +18,7 @@ project adheres to [Semantic Versioning][SemVer].
 - Binary release: Update OpenSSL from 1.1.1q to 3.1.1.
 - Binary release: Update zlib from 1.2.12 to 1.2.13.
 - Binary release: Build Erlang/OTP without Termcap support.
+- Docker: Always use the same Erlang/OTP vsn as the binary release.
 - Windows: Update Erlang/OTP to 26.x.
 
 ### Fixed
