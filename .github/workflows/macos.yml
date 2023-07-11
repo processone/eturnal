@@ -130,6 +130,9 @@ jobs:
         run: eturnalctl info
       - name: Stop eturnal service
         run: brew services stop eturnal
- #     - name: Lint formula
- #       run: brew audit --strict eturnal
+      - name: Lint formula
+        ## we know, it fails due to non-executables in the /bin directory, but
+        ## we want to see if anything else needs further investigation
+        continue-on-error: true
+        run: brew audit --strict eturnal
 
