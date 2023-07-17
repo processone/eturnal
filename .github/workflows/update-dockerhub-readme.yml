@@ -19,13 +19,9 @@ jobs:
       - name: Prepare ${{ env.README }}
         run: |
           sed -i 's|ghcr.io/processone/eturnal|docker.io/${{ env.DOCKERHUB_REPO }}|g' ${{ env.README }}
-          sed -i 's|GitHub Packages|DockerHub|g' ${{ env.README }}
-          sed -i 's|https://github.com/processone/eturnal/pkgs/container/eturnal|https://hub.docker.com/r/${{ env.DOCKERHUB_REPO }}|g' ${{ env.README }}
       - name: Docker Hub Description
         uses: peter-evans/dockerhub-description@v3
-        if: |
-          github.event_name != 'pull_request'
-          && github.repository_owner == 'sando38'
+        if: github.event_name != 'pull_request'
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}

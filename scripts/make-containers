@@ -160,10 +160,6 @@ do
 			cp "$readme" "$readme-docker"
 			sed -i "s|ghcr.io/processone/eturnal|docker.io/$repo_name|g" \
 				"$readme-docker"
-			sed -i 's|GitHub Packages|DockerHub|g' \
-				"$readme-docker"
-			sed -i "s|https://github.com/processone/eturnal/pkgs/container/eturnal|https://hub.docker.com/r/$repo_name|g" \
-				"$readme-docker"
 			"$docker" run --rm -v $PWD:/workspace \
 				-e DOCKERHUB_USERNAME="$user" \
 				-e DOCKERHUB_PASSWORD="$(cat "$registry_credentials_dir/token_$registry")" \

@@ -536,10 +536,6 @@ jobs:
       -
         name: Log in to ${{ matrix.registry }}
         uses: docker/login-action@v2
-        if: |
-          ( matrix.registry == 'docker.io'
-            && github.repository_owner == 'sando38' )
-          || matrix.registry == 'ghcr.io'
         with:
           registry: ${{ matrix.registry }}
           username: ${{ (matrix.registry == 'docker.io'
@@ -589,10 +585,6 @@ jobs:
             ${{ env.TAG_MAJOR }}${{ env.TAG_SUFFIX }}
       -
         name: Create manifest list and push | ${{ matrix.method }}
-        if: |
-          ( matrix.registry == 'docker.io'
-            && github.repository_owner == 'sando38' )
-          || matrix.registry == 'ghcr.io'
         working-directory: /tmp/digests
         run: |
           docker buildx imagetools create $(jq -r '"-t " + (.tags | join(" -t "))' <<< "$DOCKER_METADATA_OUTPUT_JSON") \

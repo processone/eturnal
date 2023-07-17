@@ -1,8 +1,9 @@
 # Container image for eturnal STUN/TURN Server
 
 [eturnal](https://eturnal.net/) container images are available for multiple 
-architectures as `ghcr.io/processone/eturnal` from [GitHub Packages](https://github.com/processone/eturnal/pkgs/container/eturnal). 
-The images are based on [Alpine Linux](https://alpinelinux.org).
+architectures as `ghcr.io/processone/eturnal` from [GitHub Packages](https://github.com/processone/eturnal/pkgs/container/eturnal)
+or [DockerHub](https://hub.docker.com/r/eturnal/eturnal). The images are based
+on [Alpine Linux](https://alpinelinux.org).
 
 ## Tags
 
