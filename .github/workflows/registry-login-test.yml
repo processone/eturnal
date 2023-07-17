@@ -1,0 +1,27 @@
+name: 'Test login to docker.io & ghcr.io'
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  login:
+    name: ${{ matrix.registry }} - login test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        registry: [ghcr.io, docker.io]
+      fail-fast: false
+    steps:
+      -
+        name: Log in to ${{ matrix.registry }}
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ matrix.registry }}
+          username: ${{ (matrix.registry == 'docker.io'
+                         && secrets.DOCKERHUB_USERNAME)
+                     || github.repository_owner }}
+          password: ${{ (matrix.registry == 'docker.io'
+                         && secrets.DOCKERHUB_TOKEN)
+                     || secrets.GITHUB_TOKEN }}
