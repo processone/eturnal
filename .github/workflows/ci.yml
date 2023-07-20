@@ -49,9 +49,6 @@ jobs:
           otp-version: ${{ matrix.otp }}
           rebar3-version: ${{ matrix.rebar }}
           version-type: strict
-      # Until https://github.com/erlware/relx/issues/905 is fixed:
-      - name: Create Erlang cookie
-        run: erl -noinput -sname cookie -eval 'halt()'
       - name: Download previous test results
         run: |
           mkdir -p _build/test
