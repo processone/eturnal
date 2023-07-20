@@ -12,4 +12,9 @@ then
         -sname 'cookie' \
         -eval 'halt()' \
         2>'/dev/null' || :
+
+    if [ -r "$DEFAULT_COOKIE_FILE" ]
+    then
+        COOKIE="$(cat "$DEFAULT_COOKIE_FILE")"
+    fi
 fi
