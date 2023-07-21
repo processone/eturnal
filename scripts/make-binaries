@@ -59,8 +59,7 @@ otp_tar="$otp_dir.tar.gz"
 rel_tar="$rel_name-$rel_vsn.tar.gz"
 ct_jobs=$(nproc)
 src_dir="$root_dir/src"
-platform='x86_64-pc-linux-gnu'
-platform_libc="${platform##*-}"
+platform=$(gcc -dumpmachine)
 targets='x86_64-linux-gnu aarch64-linux-gnu x86_64-linux-musl aarch64-linux-musl'
 erl_compiler_options='[no_debug_info, deterministic]'
 build_start=$(date '+%F %T')
@@ -489,7 +488,7 @@ do
 	prefix="$build_dir/$target"
 	toolchain_dir="$ct_prefix_dir/$target"
 
-	if [ "$(uname -m)-linux-$platform_libc" = "$target" ]
+	if [ "$platform" = "$target" ]
 	then mode='native'
 	else mode='cross'
 	fi
