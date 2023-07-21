@@ -151,7 +151,7 @@ create_setup_script()
 
 for arch in $architectures
 do
-	tar_name="$rel_name-$rel_vsn-linux-$arch.tar"
+	tar_name="$rel_name-$rel_vsn-linux-gnu-$arch.tar"
 	tgz_name="$tar_name.gz"
 	installer_name="$rel_name-$rel_vsn-linux-$arch.run"
 

@@ -60,7 +60,8 @@ rel_tar="$rel_name-$rel_vsn.tar.gz"
 ct_jobs=$(nproc)
 src_dir="$root_dir/src"
 platform='x86_64-pc-linux-gnu'
-targets='x86_64-linux-gnu aarch64-linux-gnu'
+platform_libc="${platform##*-}"
+targets='x86_64-linux-gnu aarch64-linux-gnu x86_64-linux-musl aarch64-linux-musl'
 erl_compiler_options='[no_debug_info, deterministic]'
 build_start=$(date '+%F %T')
 
@@ -131,8 +132,34 @@ create_common_config()
 		CT_ARCH_64=y
 		CT_KERNEL_LINUX=y
 		CT_LINUX_V_3_16=y
+	EOF
+}
+#.
+
+#' Create Crosstool-NG configuration file for glibc.
+create_gnu_config()
+{
+	local file="$1"
+
+	create_common_config "$file"
+
+	cat >>"$file" <<-'EOF'
 		CT_GLIBC_V_2_19=y
 		CT_GLIBC_KERNEL_VERSION_NONE=y
+	EOF
+}
+#.
+
+#' Create Crosstool-NG configuration file for musl.
+create_musl_config()
+{
+	local file="$1"
+
+	create_common_config "$file"
+
+	cat >>"$file" <<-'EOF'
+		CT_EXPERIMENTAL=y
+		CT_LIBC_MUSL=y
 	EOF
 }
 #.
@@ -141,8 +168,9 @@ create_common_config()
 create_x64_config()
 {
 	local file="$1"
+	local libc="$2"
 
-	create_common_config "$file"
+	create_${libc}_config "$file"
 
 	cat >>"$file" <<-'EOF'
 		CT_ARCH_X86=y
@@ -154,8 +182,9 @@ create_x64_config()
 create_arm64_config()
 {
 	local file="$1"
+	local libc="$2"
 
-	create_common_config "$file"
+	create_${libc}_config "$file"
 
 	cat >>"$file" <<-'EOF'
 		CT_ARCH_ARM=y
@@ -200,6 +229,7 @@ build_toolchain()
 {
 	local target="$1"
 	local prefix="$2"
+	local libc="$3"
 	local arch=$(arch_name "$target")
 
 	if [ -d "$prefix" ]
@@ -221,9 +251,9 @@ build_toolchain()
 			cd "$OLDPWD"
 		fi
 
-		info "Building toolchain for $arch ..."
+		info "Building toolchain for $arch-$libc ..."
 		cd "$root_dir"
-		create_${arch}_config 'defconfig'
+		create_${arch}_config 'defconfig' "$libc"
 		ct-ng defconfig
 		sed -i 's|^CT_ZLIB_MIRRORS=.*|CT_ZLIB_MIRRORS="https://github.com/madler/zlib/releases/download/v${CT_ZLIB_VERSION} https://www.zlib.net/ https://www.zlib.net/fossils/"|' '.config'
 		ct-ng build CT_PREFIX="$ct_prefix_dir" CT_JOBS="$ct_jobs"
@@ -239,12 +269,13 @@ build_rel()
 	local mode="$1"
 	local target="$2"
 	local prefix="$3"
+	local libc="$4"
 	local arch="$(arch_name "$target")"
 	local profile="$(rebar3_profile "$mode")"
 	local rel_dir="$PWD/_build/$profile/rel/$rel_name"
 	local target_src_dir="$prefix/src"
 	local target_dst_dir="$prefix/$rel_name"
-	local target_dst_tar="$rel_name-$rel_vsn-linux-$arch.tar.gz"
+	local target_dst_tar="$rel_name-$rel_vsn-linux-$libc-$arch.tar.gz"
 	local saved_path="$PATH"
 
 	#
@@ -289,33 +320,33 @@ build_rel()
 	tar -xzf "$src_dir/$otp_tar"
 	cd "$OLDPWD"
 
-	info "Building zlib $zlib_vsn for $arch ..."
+	info "Building zlib $zlib_vsn for $arch-$libc ..."
 	cd "$target_src_dir/$zlib_dir"
 	CFLAGS="$CFLAGS -O3 -fPIC" ./configure --prefix="$prefix" --static
 	make
 	make install
 	cd "$OLDPWD"
 
-	info "Building LibYAML $yaml_vsn for $arch ..."
+	info "Building LibYAML $yaml_vsn for $arch-$libc ..."
 	cd "$target_src_dir/$yaml_dir"
 	$configure --prefix="$prefix" --disable-shared CFLAGS="$CFLAGS -fPIC"
 	make
 	make install
 	cd "$OLDPWD"
 
-	info "Building OpenSSL $ssl_vsn for $arch ..."
+	info "Building OpenSSL $ssl_vsn for $arch-$libc ..."
 	cd "$target_src_dir/$ssl_dir"
 	CFLAGS="$CFLAGS -O3 -fPIC" \
 	    ./Configure no-shared no-module no-ui-console \
 	    --prefix="$prefix" \
 	    --openssldir="$prefix" \
 	    --libdir='lib' \
-	    "linux-${target%-linux-gnu}"
+	    "linux-${target%-linux-*}"
 	make build_libs
 	make install_dev
 	cd "$OLDPWD"
 
-	info "Building Erlang/OTP $otp_vsn for $arch ..."
+	info "Building Erlang/OTP $otp_vsn for $arch-$libc ..."
 	if [ "$mode" = 'cross' ]
 	then
 		export PATH="$native_otp_bin:$PATH" # For bootstrapping/Rebar3.
@@ -348,7 +379,7 @@ build_rel()
 	rm -rf "$HOME/.cache/rebar3" '_build'
 	rebar3 clean -a
 
-	info "Building $rel_name $rel_vsn for $arch ..."
+	info "Building $rel_name $rel_vsn for $arch-$libc ..."
 	if [ "$mode" = 'native' ]
 	then
 		ERL_COMPILER_OPTIONS="$erl_compiler_options" \
@@ -365,7 +396,7 @@ build_rel()
 		rm 'lib'
 	fi
 
-	info "Editing $rel_name $rel_vsn for $arch ..."
+	info "Editing $rel_name $rel_vsn for $arch-$libc ..."
 	mkdir "$target_dst_dir"
 	tar -C "$target_dst_dir" -xzf "$rel_dir/$rel_tar"
 	sed -i "2iexport TERM='internal'" \
@@ -454,15 +485,16 @@ export PATH="$bootstrap_dir/bin:$PATH" # For Rebar3 and possibly ct-ng.
 
 for target in $targets
 do
-	prefix="$build_dir/$(arch_name "$target")"
+	libc="${target##*-}"
+	prefix="$build_dir/$target"
 	toolchain_dir="$ct_prefix_dir/$target"
 
-	if [ "$(uname -m)-linux-gnu" = "$target" ]
+	if [ "$(uname -m)-linux-$platform_libc" = "$target" ]
 	then mode='native'
 	else mode='cross'
 	fi
-	build_toolchain "$target" "$toolchain_dir"
-	build_rel "$mode" "$target" "$prefix"
+	build_toolchain "$target" "$toolchain_dir" "$libc"
+	build_rel "$mode" "$target" "$prefix" "$libc"
 done
 
 info "Build started: $build_start"
