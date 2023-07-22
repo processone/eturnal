@@ -106,7 +106,7 @@ check_deps()
 {
 	check_vsn 'OpenSSL' "$ssl_vsn" \
 	          'https://www.openssl.org/source/' \
-	          'openssl-\([0-9][0-9.]*\)\.tar\.gz'
+	          'openssl-\(3\.1\.[0-9.]*\)\.tar\.gz'
 	check_vsn 'LibYAML' "$yaml_vsn" \
 	          'https://pyyaml.org/wiki/LibYAML' \
 	          'yaml-\([0-9][0-9.]*\)\.tar\.gz'
