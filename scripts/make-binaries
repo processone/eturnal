@@ -21,7 +21,7 @@ error()
 
 usage()
 {
-	echo >&2 "Usage: $myself"
+	echo >&2 "Usage: $myself [<target> ...]"
 	exit 2
 }
 
@@ -29,9 +29,6 @@ if ! [ -e 'rebar.config' ] || ! [ -e "scripts/$myself" ]
 then
 	error "Please call this script from the repository's root directory."
 	exit 2
-elif [ $# -ne 0 ]
-then
-	usage
 fi
 
 rel_name='eturnal'
@@ -60,9 +57,13 @@ rel_tar="$rel_name-$rel_vsn.tar.gz"
 ct_jobs=$(nproc)
 src_dir="$root_dir/src"
 platform=$(gcc -dumpmachine)
-targets='x86_64-linux-gnu aarch64-linux-gnu x86_64-linux-musl aarch64-linux-musl'
 erl_compiler_options='[no_debug_info, deterministic]'
 build_start=$(date '+%F %T')
+supported_targets='
+    x86_64-linux-gnu
+    aarch64-linux-gnu
+    x86_64-linux-musl
+    aarch64-linux-musl'
 
 umask 022
 
@@ -428,6 +429,36 @@ build_rel()
 	export PATH="$saved_path"
 }
 #.
+
+if [ $# -eq 1 ] && [ "$1" = '-h' ]
+then
+	usage
+elif [ $# -eq 0 ]
+then
+	targets="$supported_targets"
+else
+	for target in "$@"
+	do
+		is_supported='false'
+		for supported_target in $supported_targets
+		do
+			if [ "$target" = "$supported_target" ]
+			then
+				is_supported='true'
+				break
+			fi
+		done
+		if [ "$is_supported" = 'false' ]
+		then
+			error "Target not supported: $target"
+			echo >&2
+			echo >&2 "Supported targets:"
+			echo >&2 "$supported_targets"
+			exit 2
+		fi
+	done
+	targets="$*"
+fi
 
 if [ "${CHECK_DEPS:-true}" = 'true' ]
 then
