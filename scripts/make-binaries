@@ -137,7 +137,7 @@ create_common_config()
 #.
 
 #' Create Crosstool-NG configuration file for glibc.
-create_gnu_config()
+create_glibc_config()
 {
 	local file="$1"
 
@@ -211,6 +211,26 @@ arch_name()
 }
 #.
 
+#' Return our name for the given libc.
+libc_name()
+{
+	local target="$1"
+
+	case $target in
+	*gnu)
+		printf 'glibc'
+		;;
+	*musl)
+		printf 'musl'
+		;;
+	*)
+		error "Unsupported target platform: $target"
+		exit 1
+		;;
+	esac
+}
+#.
+
 #' Return Rebar3 profile depending on compilation mode.
 rebar3_profile()
 {
@@ -226,9 +246,9 @@ rebar3_profile()
 #' Build toochain for a given target.
 build_toolchain()
 {
-	local target="$1"
-	local prefix="$2"
-	local libc="$3"
+	local prefix="$1"
+	local target="$2"
+	local libc=$(libc_name "$target")
 	local arch=$(arch_name "$target")
 
 	if [ -d "$prefix" ]
@@ -265,11 +285,11 @@ build_toolchain()
 #' Build target dependencies and the actual release.
 build_rel()
 {
-	local mode="$1"
+	local prefix="$1"
 	local target="$2"
-	local prefix="$3"
-	local libc="$4"
+	local mode="$3"
 	local arch="$(arch_name "$target")"
+	local libc=$(libc_name "$target")
 	local profile="$(rebar3_profile "$mode")"
 	local rel_dir="$PWD/_build/$profile/rel/$rel_name"
 	local target_src_dir="$prefix/src"
@@ -521,7 +541,6 @@ export PATH="$bootstrap_dir/bin:$PATH" # For Rebar3 and possibly ct-ng.
 
 for target in $targets
 do
-	libc="${target##*-}"
 	prefix="$build_dir/$target"
 	toolchain_dir="$ct_prefix_dir/$target"
 
@@ -529,8 +548,8 @@ do
 	then mode='native'
 	else mode='cross'
 	fi
-	build_toolchain "$target" "$toolchain_dir" "$libc"
-	build_rel "$mode" "$target" "$prefix" "$libc"
+	build_toolchain "$toolchain_dir" "$target"
+	build_rel "$prefix" "$target" "$mode"
 done
 
 info "Build started: $build_start"
