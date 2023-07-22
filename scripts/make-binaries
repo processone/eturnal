@@ -347,8 +347,15 @@ build_rel()
 
 	info "Building Erlang/OTP $otp_vsn for $arch-$libc ..."
 	if [ "$mode" = 'cross' ]
-	then
-		export PATH="$native_otp_bin:$PATH" # For bootstrapping/Rebar3.
+	then	# Set path for bootstrapping/Rebar3.
+		if [ ! -z "${INSTALL_DIR_FOR_OTP:+x}" ]
+		then
+			# Let GitHub runners build for non-native systems:
+			# https://github.com/erlef/setup-beam#environment-variables
+			export PATH="$INSTALL_DIR_FOR_OTP/bin:$PATH"
+		else
+			export PATH="$native_otp_bin:$PATH"
+		fi
 		export erl_xcomp_sysroot="$prefix"
 	fi
 	cd "$target_src_dir/$otp_dir"
