@@ -59,6 +59,15 @@ src_dir="$root_dir/src"
 platform=$(gcc -dumpmachine)
 erl_compiler_options='[no_debug_info, deterministic]'
 build_start=$(date '+%F %T')
+have_current_deps='false'
+dep_vsns_file="$build_dir/.dep_vsns"
+dep_vsns=''
+deps='
+    crosstool
+    zlib
+    yaml
+    ssl
+    otp'
 supported_targets='
     x86_64-linux-gnu
     aarch64-linux-gnu
@@ -102,7 +111,7 @@ check_vsn()
 #.
 
 #' Check whether our dependency versions are up-to-date.
-check_deps()
+check_configured_dep_vsns()
 {
 	check_vsn 'OpenSSL' "$ssl_vsn" \
 	          'https://www.openssl.org/source/' \
@@ -116,6 +125,33 @@ check_deps()
 	check_vsn 'Rebar3' "$rebar_vsn" \
 	          'https://github.com/erlang/rebar3/tags' \
 	          '\(3\.[0-9][0-9.]*\)\.tar\.gz'
+}
+#.
+
+#' Check whether existing dependencies are up-to-date.
+check_built_dep_vsns()
+{
+	for dep in $deps
+	do
+		eval dep_vsns=\"\$dep_vsns\$${dep}_vsn\"
+	done
+
+	dep_vsns="$dep_vsns-$targets"
+
+	if [ -e "$dep_vsns_file" ]
+	then
+		if [ "$dep_vsns" = "$(cat "$dep_vsns_file")" ]
+		then have_current_deps='true'
+		fi
+		rm "$dep_vsns_file"
+	fi
+}
+#.
+
+#' Save built dependency versions.
+save_built_dep_vsns()
+{
+	echo "$dep_vsns" >"$dep_vsns_file"
 }
 #.
 
@@ -232,6 +268,25 @@ libc_name()
 }
 #.
 
+#' Add native Erlang/OTP "bin" directory to PATH (for bootstrapping and Rebar3).
+add_otp_path()
+{
+	local prefix="$1"
+	local mode="$2"
+
+	if [ "$mode" = 'native' ]
+	then
+		native_otp_bin="$prefix/bin"
+	elif [ -n "${INSTALL_DIR_FOR_OTP:+x}" ]
+	then
+		# Let GitHub runners build for non-native systems:
+		# https://github.com/erlef/setup-beam#environment-variables
+		native_otp_bin="$INSTALL_DIR_FOR_OTP/bin"
+	fi
+	export PATH="$native_otp_bin:$PATH"
+}
+#.
+
 #' Return Rebar3 profile depending on compilation mode.
 rebar3_profile()
 {
@@ -283,8 +338,8 @@ build_toolchain()
 }
 #.
 
-#' Build target dependencies and the actual release.
-build_rel()
+#' Build target dependencies.
+build_deps()
 {
 	local prefix="$1"
 	local target="$2"
@@ -294,35 +349,7 @@ build_rel()
 	local profile="$(rebar3_profile "$mode")"
 	local rel_dir="$PWD/_build/$profile/rel/$rel_name"
 	local target_src_dir="$prefix/src"
-	local target_dst_dir="$prefix/$rel_name"
-	local target_dst_tar="$rel_name-$rel_vsn-linux-$libc-$arch.tar.gz"
 	local saved_path="$PATH"
-
-	#
-	# The "$ct_prefix_dir/$target/$target/bin" directory contains
-	# cross-compilation tools without "$target-" prefix. We add it to the
-	# PATH, just in case tools are called without prefix somewhere. However,
-	# we try to use the prefixed tools everywhere, so it should be possible
-	# to omit this directory from the path if desired. See also:
-	#
-	# https://stackoverflow.com/a/24243789
-	#
-	export PATH="$ct_prefix_dir/$target/bin:$ct_prefix_dir/$target/$target/bin:$PATH"
-	export CC="$target-gcc"
-	export CXX="$target-g++"
-	export CPP="$target-cpp"
-	export LD="$target-ld"
-	export AS="$target-as"
-	export AR="$target-ar"
-	export NM="$target-nm"
-	export RANLIB="$target-ranlib"
-	export OBJCOPY="$target-objcopy"
-	export STRIP="$target-strip"
-	export CPPFLAGS="-I$prefix/include"
-	export CFLAGS="-g0 -O2 -pipe -fomit-frame-pointer -static-libgcc $CPPFLAGS"
-	export CXXFLAGS="$CFLAGS -static-libstdc++"
-	export LDFLAGS="-L$prefix/lib -static-libgcc -static-libstdc++"
-	export ERL_COMPILER_OPTIONS='[no_debug_info]'
 
 	if [ "$mode" = 'cross' ]
 	then configure="./configure --host=$target --build=$platform"
@@ -368,15 +395,8 @@ build_rel()
 
 	info "Building Erlang/OTP $otp_vsn for $arch-$libc ..."
 	if [ "$mode" = 'cross' ]
-	then	# Set path for bootstrapping/Rebar3.
-		if [ -n "${INSTALL_DIR_FOR_OTP:+x}" ]
-		then
-			# Let GitHub runners build for non-native systems:
-			# https://github.com/erlef/setup-beam#environment-variables
-			export PATH="$INSTALL_DIR_FOR_OTP/bin:$PATH"
-		else
-			export PATH="$native_otp_bin:$PATH"
-		fi
+	then
+		add_otp_path "$prefix" "$mode" # For bootstrapping/Rebar3.
 		export erl_xcomp_sysroot="$prefix"
 	fi
 	cd "$target_src_dir/$otp_dir"
@@ -394,13 +414,61 @@ build_rel()
 	make
 	make install
 	if [ "$mode" = 'native' ]
-	then
-		native_otp_bin="$prefix/bin"
-		export PATH="$native_otp_bin:$PATH" # For Rebar3.
-	else
-		unset erl_xcomp_sysroot
+	then add_otp_path "$prefix" "$mode" # For bootstrapping/Rebar3.
+	else unset erl_xcomp_sysroot
 	fi
 	cd "$OLDPWD"
+
+	export PATH="$saved_path"
+}
+#.
+
+#' Build the actual release.
+build_rel()
+{
+	local prefix="$1"
+	local target="$2"
+	local mode="$3"
+	local arch="$(arch_name "$target")"
+	local libc=$(libc_name "$target")
+	local profile="$(rebar3_profile "$mode")"
+	local rel_dir="$PWD/_build/$profile/rel/$rel_name"
+	local target_src_dir="$prefix/src"
+	local target_dst_dir="$prefix/$rel_name"
+	local target_dst_tar="$rel_name-$rel_vsn-linux-$libc-$arch.tar.gz"
+	local saved_path="$PATH"
+
+	#
+	# The "$ct_prefix_dir/$target/$target/bin" directory contains
+	# cross-compilation tools without "$target-" prefix. We add it to the
+	# PATH, just in case tools are called without prefix somewhere. However,
+	# we try to use the prefixed tools everywhere, so it should be possible
+	# to omit this directory from the path if desired. See also:
+	#
+	# https://stackoverflow.com/a/24243789
+	#
+	export PATH="$ct_prefix_dir/$target/bin:$ct_prefix_dir/$target/$target/bin:$PATH"
+	export CC="$target-gcc"
+	export CXX="$target-g++"
+	export CPP="$target-cpp"
+	export LD="$target-ld"
+	export AS="$target-as"
+	export AR="$target-ar"
+	export NM="$target-nm"
+	export RANLIB="$target-ranlib"
+	export OBJCOPY="$target-objcopy"
+	export STRIP="$target-strip"
+	export CPPFLAGS="-I$prefix/include"
+	export CFLAGS="-g0 -O2 -pipe -fomit-frame-pointer -static-libgcc $CPPFLAGS"
+	export CXXFLAGS="$CFLAGS -static-libstdc++"
+	export LDFLAGS="-L$prefix/lib -static-libgcc -static-libstdc++"
+	export ERL_COMPILER_OPTIONS='[no_debug_info]'
+
+	if [ $have_current_deps = false ]
+	then build_deps "$prefix" "$target" "$mode"
+	fi
+
+	add_otp_path "$prefix" "$mode"
 
 	info "Removing Rebar3 cache and old $rel_name builds"
 	rm -rf "$HOME/.cache/rebar3" '_build'
@@ -505,7 +573,7 @@ if [ "${CHECK_DEPS:-true}" = 'true' ]
 then
 	if have_browser
 	then
-		check_deps
+		check_configured_dep_vsns
 	else
 		error 'Cannot check dependency versions.'
 		error 'Install a browser or set CHECK_DEPS=false'
@@ -521,28 +589,34 @@ then
 	exit 1
 fi
 
-# Keep existing toolchains but rebuild everything else.
+check_built_dep_vsns "$deps" "$targets"
 
 info 'Removing old bootstrap tools ...'
 rm -rf "$bootstrap_dir"
 mkdir "$bootstrap_dir"
 
-info 'Removing old builds ...'
-rm -rf "$build_dir"
-mkdir "$build_dir"
+if [ $have_current_deps = true ]
+then
+	info 'Dependencies are up-to-date ...'
+else
+	# Keep existing toolchains but rebuild everything else.
+	info 'Removing old builds ...'
+	rm -rf "$build_dir"
+	mkdir "$build_dir"
 
-info 'Removing old source ...'
-rm -rf "$src_dir"
-mkdir "$src_dir"
+	info 'Removing old source ...'
+	rm -rf "$src_dir"
+	mkdir "$src_dir"
 
-info 'Downloading dependencies ...'
-cd "$src_dir"
-curl -sSLO "http://crosstool-ng.org/download/crosstool-ng/$crosstool_tar"
-curl -sSLO "https://zlib.net/fossils/$zlib_tar"
-curl -sSLO "https://pyyaml.org/download/libyaml/$yaml_tar"
-curl -sSLO "https://www.openssl.org/source/$ssl_tar"
-curl -sSLO "https://github.com/erlang/otp/releases/download/OTP-$otp_vsn/$otp_tar"
-cd "$OLDPWD"
+	info 'Downloading dependencies ...'
+	cd "$src_dir"
+	curl -sSLO "http://crosstool-ng.org/download/crosstool-ng/$crosstool_tar"
+	curl -sSLO "https://zlib.net/fossils/$zlib_tar"
+	curl -sSLO "https://pyyaml.org/download/libyaml/$yaml_tar"
+	curl -sSLO "https://www.openssl.org/source/$ssl_tar"
+	curl -sSLO "https://github.com/erlang/otp/releases/download/OTP-$otp_vsn/$otp_tar"
+	cd "$OLDPWD"
+fi
 
 info "Downloading Rebar3 $rebar_vsn ..."
 install -d "$bootstrap_dir/bin"
@@ -565,6 +639,8 @@ do
 	build_toolchain "$toolchain_dir" "$target"
 	build_rel "$prefix" "$target" "$mode"
 done
+
+save_built_dep_vsns
 
 info "Build started: $build_start"
 info "Build ended: $(date '+%F %T')"
