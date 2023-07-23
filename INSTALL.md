@@ -20,7 +20,7 @@ and `openssl-devel`.
 > (`chmod +x rebar3`), first. On Erlang/OTP 21.x and 22.x, you need an [older
 > Rebar3][6] version.
 
-    curl https://eturnal.net/download/eturnal-1.10.1.tar.gz | tar -C /tmp -xzf -
+    curl https://eturnal.net/eturnal-1.10.1.tar.gz | tar -C /tmp -xzf -
     cd /tmp/eturnal-1.10.1
     ./rebar3 as prod tar
 
