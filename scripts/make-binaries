@@ -517,6 +517,7 @@ build_rel()
 	        "{ok, _} = beam_lib:strip_release('$target_dst_dir', [\"Attr\"]), halt()"
 	tar -C "$prefix" --owner="$rel_name" --group="$rel_name" -cf - \
 	    "$rel_name" | gzip -9 >"$target_dst_tar"
+	rm -rf "$target_dst_dir"
 
 	info "Created $target_dst_tar successfully."
 
