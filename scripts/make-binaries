@@ -368,7 +368,7 @@ build_rel()
 	info "Building Erlang/OTP $otp_vsn for $arch-$libc ..."
 	if [ "$mode" = 'cross' ]
 	then	# Set path for bootstrapping/Rebar3.
-		if [ ! -z "${INSTALL_DIR_FOR_OTP:+x}" ]
+		if [ -n "${INSTALL_DIR_FOR_OTP:+x}" ]
 		then
 			# Let GitHub runners build for non-native systems:
 			# https://github.com/erlef/setup-beam#environment-variables
@@ -493,7 +493,7 @@ else
 	targets="$*"
 fi
 
-if [ "$build_native" = 'false' ] && [ ! -z "${INSTALL_DIR_FOR_OTP:+x}" ]
+if [ "$build_native" = 'false' ] && [ -n "${INSTALL_DIR_FOR_OTP:+x}" ]
 then
 	error 'Native Erlang/OTP installation not found.'
 	error "Set INSTALL_DIR_FOR_OTP or add the '$platform' target."
