@@ -590,7 +590,7 @@ then
 	exit 1
 fi
 
-check_built_dep_vsns "$deps" "$targets"
+check_built_dep_vsns
 
 info 'Removing old bootstrap tools ...'
 rm -rf "$bootstrap_dir"
