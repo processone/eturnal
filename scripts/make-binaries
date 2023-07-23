@@ -132,6 +132,7 @@ create_common_config()
 		CT_ARCH_64=y
 		CT_KERNEL_LINUX=y
 		CT_LINUX_V_3_16=y
+		CT_LOG_PROGRESS_BAR=n
 	EOF
 }
 #.
@@ -265,7 +266,7 @@ build_toolchain()
 			info "Building Crosstool-NG $crosstool_vsn ..."
 			cd "$src_dir/$crosstool_dir"
 			./configure --prefix="$bootstrap_dir"
-			make
+			make V=0
 			make install
 			cd "$OLDPWD"
 		fi
@@ -536,17 +537,17 @@ mkdir "$src_dir"
 
 info 'Downloading dependencies ...'
 cd "$src_dir"
-curl -LO "http://crosstool-ng.org/download/crosstool-ng/$crosstool_tar"
-curl -LO "https://zlib.net/fossils/$zlib_tar"
-curl -LO "https://pyyaml.org/download/libyaml/$yaml_tar"
-curl -LO "https://www.openssl.org/source/$ssl_tar"
-curl -LO "https://github.com/erlang/otp/releases/download/OTP-$otp_vsn/$otp_tar"
+curl -sSLO "http://crosstool-ng.org/download/crosstool-ng/$crosstool_tar"
+curl -sSLO "https://zlib.net/fossils/$zlib_tar"
+curl -sSLO "https://pyyaml.org/download/libyaml/$yaml_tar"
+curl -sSLO "https://www.openssl.org/source/$ssl_tar"
+curl -sSLO "https://github.com/erlang/otp/releases/download/OTP-$otp_vsn/$otp_tar"
 cd "$OLDPWD"
 
 info "Downloading Rebar3 $rebar_vsn ..."
 install -d "$bootstrap_dir/bin"
 cd "$bootstrap_dir/bin"
-curl -LO "https://github.com/erlang/rebar3/releases/download/$rebar_vsn/rebar3"
+curl -sSLO "https://github.com/erlang/rebar3/releases/download/$rebar_vsn/rebar3"
 chmod +x 'rebar3'
 cd "$OLDPWD"
 
