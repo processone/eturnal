@@ -63,7 +63,6 @@ jobs:
       fail-fast: false
     needs: [detect-change]
     outputs:
-      ci: ${{ steps.build.outputs.ci }}
       otp: ${{ steps.build.outputs.otp }}
     steps:
       -
@@ -118,9 +117,6 @@ jobs:
         id: build
         run: |
           CHECK_DEPS=false scripts/make-binaries ${{ env.ARCH }}-linux-musl
-          mkdir -p /tmp/rebar3
-          tar -czf /tmp/rebar3/_build-${{ matrix.arch }}.tar.gz _build
-          echo "ci=$(grep -q git, rebar.config ; echo $?)" >> $GITHUB_OUTPUT
           echo "otp=$(awk '/^otp_vsn=/ {{gsub(/[^0-9]/, " "); print $1}}' scripts/make-binaries)" >> $GITHUB_OUTPUT
       -
         name: Start container for rebar3 test suites ...
@@ -160,14 +156,6 @@ jobs:
           path: eturnal-*-linux-musl-${{ matrix.arch }}.tar.gz
           if-no-files-found: error
           retention-days: 15
-      -
-        name: Upload artifact | rebar3 _build directory
-        uses: actions/upload-artifact@v3
-        with:
-          name: rebar3-build-musl-${{ env.TAG_VERSION }}
-          path: /tmp/rebar3/*
-          if-no-files-found: error
-          retention-days: 5
 
 ################################################################################
   #' Test musl-libc tarballs for incompatibilities between musl-libc versions
@@ -254,61 +242,6 @@ jobs:
         name: Stop CI container ...
         if: success() || failure()
         run: docker stop ci
-      - #' checkout release for a correct rebar3 test suite file
-        ## Don't run rebar3 tests, if rebar.config contains files to be compiled
-        ## e.g. stun from github, because test ctr do not contain build tools
-        name: On release | check out release to be published/updated
-        uses: actions/checkout@v3
-        if: |
-          ( needs.detect-change.outputs.update == 'true'
-          && ( success() || failure() ) )
-          && needs.build-musl-binary-archives.outputs.ci != '0'
-        with:
-          ref: ${{ env.TAG_VERSION }}
-      -
-        name: Download artifact | rebar3 _build directory tarball
-        uses: actions/download-artifact@v3
-        if: ( success() || failure() ) && needs.build-musl-binary-archives.outputs.ci != '0'
-        with:
-          name: rebar3-build-musl-${{ env.TAG_VERSION }}
-          path: /tmp/rebar3
-      -
-        name: Prepare environment for rebar3 test suites ...
-        if: ( success() || failure() ) && needs.build-musl-binary-archives.outputs.ci != '0'
-        run: |
-          tar -xzf /tmp/rebar3/_build-${{ matrix.arch }}.tar.gz
-          rebar3_path="$HOME/build/bootstrap/bin"
-          otp_path="$HOME/build/eturnal/${{ matrix.arch }}-musl/bin"
-          alpine_path='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
-          echo "REBAR3=$rebar3_path:$otp_path:$alpine_path" >> $GITHUB_ENV
-      -
-        name: Start container for rebar3 test suites ...
-        if: ( success() || failure() ) && needs.build-musl-binary-archives.outputs.ci != '0'
-        run: |
-          docker run --init -d --name ci-2 \
-                --platform linux/${{ env.ARCH }} \
-                -v $HOME/build:$HOME/build \
-                -v $PWD:/eturnal \
-                --workdir /eturnal \
-                -e PATH=${{ env.REBAR3 }} \
-                docker.io/sando38/musl-ctr:${{ matrix.musl }} \
-                sleep 600
-      -
-        name: CI | rebar3 xref ...
-        if: ( success() || failure() ) && needs.build-musl-binary-archives.outputs.ci != '0'
-        run: docker exec ci-2 rebar3 xref
-      -
-        name: CI | rebar3 eunit ...
-        if: ( success() || failure() ) && needs.build-musl-binary-archives.outputs.ci != '0'
-        run: docker exec ci-2 rebar3 eunit
-      -
-        name: CI | rebar3 ct ...
-        if: ( success() || failure() ) && needs.build-musl-binary-archives.outputs.ci != '0'
-        run: docker exec ci-2 rebar3 ct
-      -
-        name: Stop rebar3 test container ...
-        if: ( success() || failure() ) && needs.build-musl-binary-archives.outputs.ci != '0'
-        run: docker stop ci-2
 
 ################################################################################
   #' build actual images for x64/arm64 with built binary tarballs
