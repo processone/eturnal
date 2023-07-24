@@ -62,8 +62,6 @@ jobs:
         arch: [x64, arm64]
       fail-fast: false
     needs: [detect-change]
-    outputs:
-      otp: ${{ steps.build.outputs.otp }}
     steps:
       -
         name: Check out repository code
@@ -114,10 +112,7 @@ jobs:
           version-type: strict
       -
         name: Build ${{ matrix.arch }} musl-libc based binary archives
-        id: build
-        run: |
-          CHECK_DEPS=false scripts/make-binaries ${{ env.ARCH }}-linux-musl
-          echo "otp=$(awk '/^otp_vsn=/ {{gsub(/[^0-9]/, " "); print $1}}' scripts/make-binaries)" >> $GITHUB_OUTPUT
+        run: CHECK_DEPS=false scripts/make-binaries ${{ env.ARCH }}-linux-musl
       -
         name: Start container for rebar3 test suites ...
         run: |
@@ -320,7 +315,7 @@ jobs:
         name: Upload digest | ${{ matrix.arch }}
         uses: actions/upload-artifact@v3
         with:
-          name: digests-package
+          name: digests
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1
@@ -332,7 +327,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [amd64, 386, arm64/v8, arm/v7, ppc64le, s390x]
+        arch: [386, arm/v7, ppc64le, s390x]
       fail-fast: false
     needs: [detect-change]
     steps:
@@ -429,7 +424,7 @@ jobs:
         name: Upload digest | ${{ matrix.arch }}
         uses: actions/upload-artifact@v3
         with:
-          name: digests-build
+          name: digests
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1
@@ -437,12 +432,11 @@ jobs:
 ################################################################################
   ## merge single images to only advertise one image plus tag
   publish:
-    name: ${{ matrix.registry }} - publish image manifest based on ${{ matrix.method }}
+    name: ${{ matrix.registry }} - publish image manifest
     runs-on: ubuntu-latest
     strategy:
       matrix:
         registry: [ghcr.io, docker.io]
-        method: [build, package]
       fail-fast: false
     if: github.event_name != 'pull_request' && github.event_name != 'schedule'
     needs: [detect-change, build-musl-binary-archives, build-ctr-binary-based, build-ctr]
@@ -477,18 +471,14 @@ jobs:
                          && secrets.DOCKERHUB_TOKEN)
                      || secrets.GITHUB_TOKEN }}
       -
-        name: Download digests | ${{ matrix.method }}
+        name: Download digests
         uses: actions/download-artifact@v3
         with:
-          name: digests-${{ matrix.method }}
+          name: digests
           path: /tmp/digests
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      -
-        name: For ${{ matrix.method }} (binary) based images add a special suffix
-        if: matrix.method == 'package'
-        run: echo "TAG_SUFFIX=-otp${{ needs.build-musl-binary-archives.outputs.otp }}" >> $GITHUB_ENV
       -
         name: On push master | Docker meta
         id: meta
@@ -499,7 +489,7 @@ jobs:
                                         && env.DOCKERHUB_REPO)
                                         || env.IMAGE_NAME }}
           tags: |
-            edge${{ env.TAG_SUFFIX }}
+            edge
       -
         name: On release | Docker meta
         id: meta-rel
@@ -510,13 +500,13 @@ jobs:
                                         && env.DOCKERHUB_REPO)
                                         || env.IMAGE_NAME }}
           tags: |
-            latest${{ env.TAG_SUFFIX }}
-            ${{ env.TAG_PKGREL }}${{ env.TAG_SUFFIX }}
-            ${{ env.TAG_VERSION }}${{ env.TAG_SUFFIX }}
-            ${{ env.TAG_MINOR }}${{ env.TAG_SUFFIX }}
-            ${{ env.TAG_MAJOR }}${{ env.TAG_SUFFIX }}
+            latest
+            ${{ env.TAG_PKGREL }}
+            ${{ env.TAG_VERSION }}
+            ${{ env.TAG_MINOR }}
+            ${{ env.TAG_MAJOR }}
       -
-        name: Create manifest list and push | ${{ matrix.method }}
+        name: Create manifest list and push
         working-directory: /tmp/digests
         run: |
           docker buildx imagetools create $(jq -r '"-t " + (.tags | join(" -t "))' <<< "$DOCKER_METADATA_OUTPUT_JSON") \

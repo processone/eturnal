@@ -5,9 +5,6 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 ### Added
-- Docker: Add a build variant with a tag-suffix `-otpXX`, which packages the
-  binary release into the container. "XX" indicates the Erlang/OTP version of
-  the packaged binary release.
 - Docker: Container images can now be pulled from Dockerhub as well. The name
   is `docker.io/eturnal/eturnal:latest`. When pulling with `Docker`, `docker.io`
   may be omitted.

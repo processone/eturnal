@@ -12,7 +12,7 @@ version of a particular release in case of any bug fix etc. of the image.
 
 | Tags  | Description  | Additional notes  |
 | ------------ | ------------ | ------------ |
-| `edge`  | Built from `master` branch, see [changelog](https://github.com/processone/eturnal/blob/master/CHANGELOG.md)  | For testing purposes. Only built for x64 and arm64. |
+| `edge`  | Built from `master` branch, see [changelog](https://github.com/processone/eturnal/blob/master/CHANGELOG.md)  | For testing purposes. |
 | `1.10.1`, `latest`  | [Release changelog](https://github.com/processone/eturnal/releases/tag/1.10.1)  |   |
 
 Images are scanned daily by [Trivy](https://www.aquasec.com/products/trivy) and,
