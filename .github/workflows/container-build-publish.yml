@@ -117,8 +117,7 @@ jobs:
         name: Build ${{ matrix.arch }} musl-libc based binary archives
         id: build
         run: |
-          sed -i "s|targets='.*'|targets='${{ env.ARCH }}-linux-musl'|" scripts/make-binaries
-          CHECK_DEPS=false scripts/make-binaries
+          CHECK_DEPS=false scripts/make-binaries ${{ env.ARCH }}-linux-musl
           mkdir -p /tmp/rebar3
           tar -czf /tmp/rebar3/_build-${{ matrix.arch }}.tar.gz _build
           echo "ci=$(grep -q git, rebar.config ; echo $?)" >> $GITHUB_OUTPUT
@@ -127,7 +126,7 @@ jobs:
         name: Start container for rebar3 test suites ...
         run: |
           rebar3_path="$HOME/build/bootstrap/bin"
-          otp_path="$HOME/build/eturnal/${{ matrix.arch }}-musl/bin"
+          otp_path="$HOME/build/eturnal/${{ env.ARCH }}-linux-musl/bin"
           alpine_path='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
           arch=$(echo ${{ matrix.arch }} | sed -e 's|x64|amd64|')
           docker run --init -d --name test-suites \
