@@ -23,7 +23,6 @@ class Eturnal < Formula
     ## change default install dir, epmd address
     inreplace "build.config" do |s|
       s.gsub! "/opt/#{name}", opt_prefix.to_s
-      s.gsub! 'erl_epmd_address, "127.0.0.1"', 'erl_epmd_address, ""'
     end
     ## change default default config dir
     inreplace "config/sys.config" do |s|
