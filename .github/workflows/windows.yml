@@ -5,6 +5,7 @@ on:
     paths-ignore:
       - '*.md'
       - 'docker-k8s/**'
+      - 'Formula/**'
 
 jobs:
   installer:
