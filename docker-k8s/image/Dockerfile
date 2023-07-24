@@ -61,10 +61,10 @@ RUN rebar3 as $REBAR_PROFILE tar
 RUN rebar3 xref
 RUN rebar3 eunit
 # On slow architectures (e.g. QEMU builds), Common Tests (CT) may fail due to
-# timeouts, therefore, retry once on failure. On versions <= '1.10.1' CTs have
+# timeouts, therefore, retry twice on failure. On versions <= '1.10.1' CTs have
 # even shorter timeouts, hence consider to set `--build-arg REBAR_CT=false`.
 ARG REBAR_CT=true
-RUN if [ "$REBAR_CT" = 'true' ]; then rebar3 ct || rebar3 ct; fi
+RUN if [ "$REBAR_CT" = 'true' ]; then rebar3 ct || rebar3 ct || rebar3 ct; fi
 
 ARG HOME
 WORKDIR /rootfs/$HOME
