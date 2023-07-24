@@ -42,9 +42,6 @@ jobs:
         with:
           path: ~/.cache/rebar3
           key: ${{ runner.os }}-${{ hashFiles('rebar.config') }}
-      # Until https://github.com/erlware/relx/issues/905 is fixed:
-      - name: Create Erlang cookie
-        run: erl -noinput -sname cookie -eval 'halt()'
       - name: Download dependencies
         run: rebar3 get-deps
       - name: Compile code
@@ -115,9 +112,6 @@ jobs:
         run: |
             brew uninstall erlang rebar3
             brew autoremove
-      - name: Set erlang cookie, because we build from HEAD
-        if: matrix.vsn == 'head'
-        run: echo "-setcookie eturnal" >> $(find $(brew --prefix)/Cellar/eturnal -name vm.args)
       - name: Run eturnal Formula test
         run: brew test --verbose eturnal
       - name: Start eturnal service
