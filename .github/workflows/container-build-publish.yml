@@ -7,6 +7,7 @@ on:
     paths-ignore:
       - 'doc/**'
       - 'docker-k8s/examples/**'
+      - 'Formula/**'
       - 'scripts/get-version'
       - 'windows/**'
       - '**.md'
@@ -16,6 +17,7 @@ on:
     paths-ignore:
       - 'doc/**'
       - 'docker-k8s/examples/**'
+      - 'Formula/**'
       - 'scripts/get-version'
       - 'windows/**'
       - '**.md'
