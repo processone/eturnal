@@ -8,6 +8,8 @@ project adheres to [Semantic Versioning][SemVer].
 - Docker: Container images can now be pulled from Dockerhub as well. The name
   is `docker.io/eturnal/eturnal:latest`. When pulling with `Docker`, `docker.io`
   may be omitted.
+- Provide a [homebrew](https://brew.sh/) [Formula](https://github.com/processone/eturnal/blob/master/Formula/eturnal.rb)
+  for macOS.
 
 ### Changed
 - `mod_stats_prometheus`: Fine tune bucket sizes for TURN sessions, e.g., drop
