@@ -65,7 +65,6 @@ class Eturnal < Formula
     (var/"log/#{name}").install_symlink opt_prefix/"log"
     (var/"run/#{name}").mkpath
     (var/"run/#{name}").install_symlink opt_prefix/"run"
-    (var/"lib/#{name}").mkpath
 
     # put a random secure cookie
     # cannot use this with HEAD currently
@@ -98,15 +97,9 @@ class Eturnal < Formula
 
   service do
     run [opt_bin/"eturnalctl", "foreground"]
-    environment_variables HOME: var/"lib/eturnal"
-    working_dir var/"lib/eturnal"
-    # log_path var/"log/eturnal"
-    # error_log_path var/"log/eturnal"
-    # process_type :background
   end
 
   test do
-    ENV["HOME"] = var/"lib/eturnal"
     ENV["LOGS_DIRECTORY"] = var/"log/eturnal"
     ENV["RUNTIME_DIRECTORY"] = var/"run/eturnal"
     system opt_prefix/"bin/#{name}ctl", "daemon"
