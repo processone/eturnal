@@ -27,8 +27,9 @@ and `openssl-devel`.
 This generates the archive file `_build/prod/rel/eturnal/eturnal-1.10.1.tar.gz`.
 The default installation prefix is set to `/opt/eturnal`, and it's assumed the
 server will be executed by a user named `eturnal`. To change these defaults,
-edit the [build.config][7] file, re-run `./rebar3 as prod tar`, and adapt the
-following installation instructions accordingly.
+edit the [build.config][7] file or override the settings using environment
+variables (of the same name, but upper-case), re-run `./rebar3 as prod tar`, and
+adapt the following installation instructions accordingly.
 
 ## Quick Test
 

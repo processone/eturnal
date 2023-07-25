@@ -1,10 +1,20 @@
-% For each profile with a 'relx' configuration specified in the rebar.config
-% file, generate three additional profiles. E.g., for the 'prod' profile:
-%
-% - The 'prod_minimal' excludes non-essential dependencies.
-% - The 'prod_cross' profile includes ERTS and system libraries from the
-%   "lib/erlang" directory (for cross compilation).
-% - The 'prod_cross_minimal' does both.
+%%% eturnal STUN/TURN server.
+%%%
+%%% Copyright (c) 2020-2023 Holger Weiss <holger@zedat.fu-berlin.de>.
+%%% Copyright (c) 2020-2023 ProcessOne, SARL.
+%%% All rights reserved.
+%%%
+%%% Licensed under the Apache License, Version 2.0 (the "License");
+%%% you may not use this file except in compliance with the License.
+%%% You may obtain a copy of the License at
+%%%
+%%%     http://www.apache.org/licenses/LICENSE-2.0
+%%%
+%%% Unless required by applicable law or agreed to in writing, software
+%%% distributed under the License is distributed on an "AS IS" BASIS,
+%%% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+%%% See the License for the specific language governing permissions and
+%%% limitations under the License.
 
 Find =
     fun(K, L) ->
@@ -26,9 +36,61 @@ AddSuffix =
             list_to_atom(atom_to_list(N) ++ [$_ | atom_to_list(S)])
     end,
 
+%% If any of the build.conf settings are overridden via environment variables,
+%% create a .build.config file and point Relx to that one.
+
+{ok, OldSettings} = file:consult("build.config"),
+
+NewSettings =
+    lists:map(
+      fun({K, V}) ->
+              EnvKey = string:uppercase(atom_to_list(K)),
+              case os:getenv(EnvKey) of
+                  EnvVal when is_list(EnvVal) ->
+                      {K, EnvVal};
+                  false ->
+                      {K, V}
+              end
+      end, OldSettings),
+
+OldOverlayVars = "build.config",
+NewOverlayVars = ".build.config",
+
+OverlayVars =
+    case {lists:sort(OldSettings), lists:sort(NewSettings)} of
+        {Settings, Settings} ->
+            _ = file:delete(NewOverlayVars),
+            OldOverlayVars;
+        {_, _} ->
+            NewData = [io_lib:format("~p.~n", [S]) || S <- NewSettings],
+            ok = file:write_file(NewOverlayVars, NewData),
+            NewOverlayVars
+    end,
+
 {profiles, Profiles} = Find(profiles, CONFIG),
 
 Profiles1 =
+    lists:map(
+      fun({ProfName, ProfOpts} = Profile) ->
+              case Find(relx, ProfOpts) of
+                  {relx, RelxOpts} ->
+                      RelxOpts1 = Store(overlay_vars, OverlayVars, RelxOpts),
+                      ProfOpts1 = Store(relx, RelxOpts1, ProfOpts),
+                      {ProfName, ProfOpts1};
+                  false ->
+                      Profile
+              end
+      end, Profiles),
+
+%% For each profile with a 'relx' configuration specified in the rebar.config
+%% file, generate three additional profiles. E.g., for the 'prod' profile:
+%%
+%% - The 'prod_minimal' excludes non-essential dependencies.
+%% - The 'prod_cross' profile includes ERTS and system libraries from the
+%%   "lib/erlang" directory (for cross compilation).
+%% - The 'prod_cross_minimal' does both.
+
+Profiles2 =
     lists:flatmap(
       fun({ProfName, ProfOpts} = Profile) ->
               case Find(relx, ProfOpts) of
@@ -58,11 +120,12 @@ Profiles1 =
                   false ->
                       [Profile]
               end
-      end, Profiles),
+      end, Profiles1),
 
-Config1 = Store(profiles, Profiles1, CONFIG),
+Config1 = Store(profiles, Profiles2, CONFIG),
 
-% Remove the rebar.lock file and set SKIP_DEPS=true to skip dependency handling.
+%% Remove the rebar.lock file and set SKIP_DEPS=true to skip dependency
+%% handling.
 
 case os:getenv("SKIP_DEPS") of
     "true" ->

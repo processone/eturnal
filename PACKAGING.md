@@ -67,7 +67,9 @@ The `eturnal_prefix` option in the [build.config][7] file must be set to that
 location before building eturnal. The user for running eturnal can be adjusted
 in that file as well. Apart from that, you might want to set the `code_loading`
 option to `"dynamic"`, as that avoids hard-coding of Erlang dependency versions
-at build time.
+at build time. If patching that file is not desirable, the settings may be
+overridden using environment variables (of the same name, but upper-case)
+instead.
 
 The `bin` directory contains, among other things, the [eturnalctl][8] script,
 which can be moved (or symlinked) elsewhere (e.g., into `/usr/sbin`). If it's
