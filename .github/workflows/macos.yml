@@ -116,12 +116,30 @@ jobs:
         run: brew test --verbose eturnal
       - name: Start eturnal service
         run: brew services start eturnal
-      - name: Wait shortly
-        run: sleep 10
+      - name: Check if eturnal is up & running ...
+        run: |
+          max_iterations=60
+          iterations=0
+          while true
+          do
+            iterations="$(expr $iterations + 1)"
+            echo ">> Attempt $iterations from $max_iterations"
+            sleep 1
+
+            if [ "$(eturnalctl ping)" = 'pong' ]; then
+                echo '>> eturnal is running! ...'
+                break
+            fi
+
+            if [ "$iterations" -ge "$max_iterations" ]; then
+                echo '>> Loop Timeout!'
+                exit 1
+            fi
+          done
+      - name: Print eturnal info
+        run: eturnalctl info
       - name: Create test credentials
         run: $(brew --prefix)/opt/eturnal/bin/eturnalctl credentials
-      - name: Test eturnalctl on $PATH
-        run: eturnalctl info
       - name: Stop eturnal service
         run: brew services stop eturnal
       - name: Lint formula
