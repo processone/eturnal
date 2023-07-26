@@ -168,12 +168,6 @@ jobs:
         with:
           fetch-depth: 0
       -
-        name: Cache toolchain directory
-        uses: actions/cache@v3
-        with:
-          path: ~/build/
-          key: ${{runner.os}}-ct-ng-1.25.0-${{ matrix.arch }}-musl
-      -
         name: On push master | extract git version
         if: needs.detect-change.outputs.update == 'false'
         run: echo "TAG_VERSION=$(echo "$(./scripts/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
