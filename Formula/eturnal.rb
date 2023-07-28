@@ -26,7 +26,7 @@ class Eturnal < Formula
     end
     ## change default default config dir
     inreplace "config/sys.config" do |s|
-      s.gsub! "$ETURNAL_ETC_PREFIX/etc/#{name}.yml", "#{etc}/#{name}.yml"
+      s.gsub! "$ETURNAL_ETC_DIR/#{name}.yml", "#{etc}/#{name}.yml"
     end
     ## !!! patch eturnalctl script, !!!
     ## !!! remove before updating to newer version than 1.10.1 !!!

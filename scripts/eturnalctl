@@ -24,10 +24,11 @@ set -u
 
 user="${ETURNAL_USER:-{{eturnal_user}}}"
 prefix="${ETURNAL_PREFIX:-{{eturnal_prefix}}}"
+etc_dir="${ETURNAL_ETC_DIR:-{{eturnal_etc_dir}}}"
 epmd_address="${ERL_EPMD_ADDRESS:-{{erl_epmd_address}}}"
 dist_port="${ERL_DIST_PORT:-{{erl_dist_port}}}"
 code_loading="${CODE_LOADING_MODE:-{{code_loading}}}"
-config_file="${ETURNAL_ETC_PREFIX-}/etc/eturnalctl.cfg"
+config_file="${etc_dir:-/etc}/eturnalctl.cfg"
 
 # END OF CONFIGURATION SECTION.
 
@@ -65,7 +66,7 @@ find_eturnal_yml()
 {
     set -- \
         "$(printf '%s' "$*" | sed -n 's/.*-conf file "\([^"][^"]*\)".*/\1/p')" \
-        "${ETURNAL_ETC_PREFIX-}/etc/eturnal.yml" \
+        "${etc_dir:-/etc}/eturnal.yml" \
         "$release_dir/etc/eturnal.yml" \
         '/dev/null'
 

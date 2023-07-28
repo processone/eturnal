@@ -1,6 +1,20 @@
-if ! [ -e "$ETURNAL_ETC_PREFIX/etc/eturnal.yml" ]
+if [ -n "${ETURNAL_ETC_PREFIX+x}" ]
 then
-    export ETURNAL_ETC_PREFIX="$RELEASE_ROOT_DIR"
+    echo "Warning: ETURNAL_ETC_PREFIX is deprecated." >&2
+    echo "Warning: Set ETURNAL_ETC_DIR=$ETURNAL_ETC_PREFIX/etc instead." >&2
+    export ETURNAL_ETC_DIR="$ETURNAL_ETC_PREFIX/etc"
+fi
+
+if ! [ -e "$ETURNAL_ETC_DIR/eturnal.yml" ]
+then
+    for dir in '/etc' "$RELEASE_ROOT_DIR/etc"
+    do
+        if [ -e "$dir/eturnal.yml" ]
+        then
+            export ETURNAL_ETC_DIR="$dir"
+            break
+        fi
+    done
 fi
 
 # Until https://github.com/erlware/relx/issues/905 is fixed:

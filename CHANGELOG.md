@@ -14,6 +14,9 @@ project adheres to [Semantic Versioning][SemVer].
   for macOS.
 
 ### Changed
+- The environment variable `ETURNAL_ETC_PREFIX` has been deprecated in favor of
+  `ETURNAL_ETC_DIR`. If the former was used with previous releases,
+  `ETURNAL_ETC_DIR` should now be set to `$ETURNAL_ETC_PREFIX/etc`.
 - `mod_stats_prometheus`: Fine tune bucket sizes for TURN sessions, e.g., drop
   the 1 KiB bucket, as the 4 KiB bucket size should be sufficient to identify
   "inactive" sessions. Also, slightly alter the other bucket sizes.

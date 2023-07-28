@@ -93,9 +93,9 @@ The eturnal server is configured by editing the `eturnal.yml' file (and
 optionally setting one or more {@section Environment Variables}). If
 `/etc/eturnal.yml' doesn't exist, eturnal will (by default) search for
 `etc/eturnal.yml' within the installation directory. In order to use a different
-path, the environment variable {@section ETURNAL_ETC_PREFIX} can be specified.
-As an alternative, the arguments ``-conf file '"/path/to/eturnal.yml"''' (note
-the double quoting) can be appended to the `eturnalctl' command line used for <a
+path, the environment variable {@section ETURNAL_ETC_DIR} can be specified. As
+an alternative, the arguments ``-conf file '"/path/to/eturnal.yml"''' (note the
+double quoting) can be appended to the `eturnalctl' command line used for <a
 href="#daemon">starting up</a> eturnal.
 
 The `eturnal.yml' file uses the <a
@@ -626,12 +626,11 @@ Setting this environment variable tells EPMD to listen on the specified port. By
 default, EPMD listens on port 4369. `ERL_EPMD_PORT' must be set to the same port
 number during eturnal startup and when calling `eturnalctl'.
 
-=== ETURNAL_ETC_PREFIX ===
+=== ETURNAL_ETC_DIR ===
 
-This environment variable specifies the path to the `etc' directory containing
-the `eturnal.yml' configuration file. If, for example, `ETURNAL_ETC_PREFIX' is
-set to `/usr/local/opt/eturnal', the file
-`/usr/local/opt/eturnal/etc/eturnal.yml' will be used.
+This environment variable specifies the directory containing the `eturnal.yml'
+configuration file. If, for example, `ETURNAL_ETC_DIR' is set to
+`/usr/local/etc', the file `/usr/local/etc/eturnal.yml' will be used.
 
 === ETURNAL_RELAY_IPV4_ADDR ===
 

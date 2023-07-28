@@ -54,7 +54,7 @@ grep -q 'mkdir, "log"' 'rebar.config' ||
 sed -i -e '/TLS certificate/,+3d' \
        -e 's|#log_dir.*|log_dir: "@INSTALL_DIR@/log"\
   run_dir: "@INSTALL_DIR@/run"|' 'config/eturnal.yml'
-sed -i 's/$ETURNAL_ETC_PREFIX/@INSTALL_DIR@/' 'config/sys.config'
+sed -i 's|$ETURNAL_ETC_DIR|@INSTALL_DIR@/etc|' 'config/sys.config'
 
 echo "$myself: Cleaning $rel_name repository ..."
 rm -rf '_build'
