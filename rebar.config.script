@@ -36,7 +36,7 @@ AddSuffix =
             list_to_atom(atom_to_list(N) ++ [$_ | atom_to_list(S)])
     end,
 
-%% If any of the build.conf settings are overridden via environment variables,
+%% If any of the build.config settings are overridden via environment variables,
 %% create a .build.config file and point Relx to that one.
 
 {ok, OldSettings} = file:consult("build.config"),
@@ -85,7 +85,7 @@ Profiles1 =
 %% For each profile with a 'relx' configuration specified in the rebar.config
 %% file, generate three additional profiles. E.g., for the 'prod' profile:
 %%
-%% - The 'prod_minimal' excludes non-essential dependencies.
+%% - The 'prod_minimal' profile excludes non-essential dependencies.
 %% - The 'prod_cross' profile includes ERTS and system libraries from the
 %%   "lib/erlang" directory (for cross compilation).
 %% - The 'prod_cross_minimal' does both.
