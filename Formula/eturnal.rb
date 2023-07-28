@@ -19,24 +19,25 @@ class Eturnal < Formula
   conflicts_with "ejabberd", because: "both install e.g. `p1_utils-x.x.x` lib"
 
   def install
-    # Patches
-    ## change default install dir, epmd address
-    inreplace "build.config" do |s|
-      s.gsub! "/opt/#{name}", opt_prefix.to_s
-    end
-    ## change default default config dir
-    inreplace "config/sys.config" do |s|
-      s.gsub! "$ETURNAL_ETC_DIR/#{name}.yml", "#{etc}/#{name}.yml"
-    end
-    ## !!! patch eturnalctl script, !!!
-    ## !!! remove before updating to newer version than 1.10.1 !!!
+    # Patches, remove if release newer than 1.10.1
     unless build.head?
+      ## change default install dir
+      inreplace "build.config" do |s|
+        s.gsub! "/opt/#{name}", opt_prefix.to_s
+      end
+      ## change default default config dir
+      inreplace "config/sys.config" do |s|
+        s.gsub! "$ETURNAL_ETC_PREFIX/etc/#{name}.yml", "#{etc}/#{name}.yml"
+      end
+      ## fix eturnalctl
       inreplace "scripts/eturnalctl" do |s|
         s.gsub! "(readlink ", "(readlink -f "
       end
     end
 
     # build release
+    ENV["ETURNAL_PREFIX"] = opt_prefix.to_s
+    ENV["ETURNAL_ETC_DIR"] = etc.to_s
     system "rebar3", "as", "prod", "release"
     # conduct rebar3 test suites
     system "rebar3", "xref"
@@ -97,11 +98,13 @@ class Eturnal < Formula
 
   service do
     run [opt_bin/"eturnalctl", "foreground"]
+    environment_variables ETURNAL_ETC_DIR: etc
   end
 
   test do
     ENV["LOGS_DIRECTORY"] = var/"log/eturnal"
     ENV["RUNTIME_DIRECTORY"] = var/"run/eturnal"
+    ENV["ETURNAL_ETC_DIR"] = etc
     system opt_prefix/"bin/#{name}ctl", "daemon"
     system opt_prefix/"bin/#{name}ctl", "ping"
     system opt_prefix/"bin/#{name}ctl", "info"
