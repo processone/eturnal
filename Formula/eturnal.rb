@@ -98,13 +98,11 @@ class Eturnal < Formula
 
   service do
     run [opt_bin/"eturnalctl", "foreground"]
-    environment_variables ETURNAL_ETC_DIR: etc
   end
 
   test do
     ENV["LOGS_DIRECTORY"] = var/"log/eturnal"
     ENV["RUNTIME_DIRECTORY"] = var/"run/eturnal"
-    ENV["ETURNAL_ETC_DIR"] = etc
     system opt_prefix/"bin/#{name}ctl", "daemon"
     system opt_prefix/"bin/#{name}ctl", "ping"
     system opt_prefix/"bin/#{name}ctl", "info"
