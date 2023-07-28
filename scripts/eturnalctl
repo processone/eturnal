@@ -100,6 +100,11 @@ then
     . "$config_file"
 fi
 
+if [ -z "${ETURNAL_ETC_DIR+x}" ] && [ -n "$etc_dir" ]
+then
+    ETURNAL_ETC_DIR="$etc_dir"
+    export ETURNAL_ETC_DIR
+fi
 if [ -z "${ERL_EPMD_ADDRESS+x}" ] && [ -n "$epmd_address" ]
 then
     ERL_EPMD_ADDRESS="$epmd_address"
