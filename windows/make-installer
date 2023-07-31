@@ -37,7 +37,7 @@ then
 fi
 
 rel_name='eturnal'
-rel_vsn=$(scripts/get-version)
+rel_vsn=$(tools/get-version)
 inno_dep_installer_url='https://github.com/DomGries/InnoDependencyInstaller.git'
 
 echo "$myself: Creating Windows installer for $rel_name $rel_vsn."
@@ -45,7 +45,7 @@ echo "$myself: Creating Windows installer for $rel_name $rel_vsn."
 echo "$myself: Editing $rel_name repository files ..."
 sed -i "s|@VERSION@|$rel_vsn|" \
     "windows/$rel_name.iss" 'windows/delay-start.cmd'
-sed -i "s|{cmd, *\"scripts/get-version\"}|\"$rel_vsn\"|" \
+sed -i "s|{cmd, *\"tools/get-version\"}|\"$rel_vsn\"|" \
     'rebar.config' "src/$rel_name.app.src"
 grep -q 'mkdir, "log"' 'rebar.config' ||
   sed -i '/copy.*README/a\

@@ -99,19 +99,19 @@ As an alternative, there's an `#eturnal` channel [on Slack][23].
  [1]: https://github.com/processone/eturnal/actions/workflows/ci.yml
  [2]: https://eturnal.net/
  [3]: https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00
- [4]: https://github.com/processone/eturnal/blob/master/QUICK-TEST.md
+ [4]: https://github.com/processone/eturnal/blob/master/doc/QUICK-TEST.md
  [5]: https://github.com/processone/eturnal/blob/master/docker-k8s/QUICK-TEST.md
  [6]: https://eturnal.net/documentation/code/docker.html
  [7]: https://software.opensuse.org/download/?package=eturnal&project=devel:languages:erlang
  [8]: https://pkgs.alpinelinux.org/packages?name=eturnal
  [9]: https://eturnal.net/documentation/#Installation
 [10]: https://eturnal.net/windows/
-[11]: https://github.com/processone/eturnal/blob/1.10.1/INSTALL.md
+[11]: https://github.com/processone/eturnal/blob/1.10.1/doc/INSTALL.md
 [12]: https://en.wikipedia.org/wiki/YAML
 [13]: https://github.com/processone/eturnal/blob/1.10.1/config/eturnal.yml
 [14]: https://www.freedesktop.org/software/systemd/man/systemctl.html
-[15]: https://github.com/processone/eturnal/blob/1.10.1/scripts/eturnal.init
-[16]: https://github.com/processone/eturnal/blob/1.10.1/scripts/eturnal.openrc
+[15]: https://github.com/processone/eturnal/blob/1.10.1/overlay/init/sysv/eturnal
+[16]: https://github.com/processone/eturnal/blob/1.10.1/overlay/init/openrc/eturnal.initd
 [17]: https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html
 [18]: https://eturnal.net/documentation/
 [19]: https://github.com/processone/eturnal/blob/1.10.1/CHANGELOG.md

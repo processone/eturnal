@@ -70,7 +70,7 @@ buildah_push_manifest()
 		docker://"$registry/$repo_name:$tag"
 }
 
-if ! [ -e 'rebar.config' ] || ! [ -e "scripts/$myself" ]
+if ! [ -e 'rebar.config' ] || ! [ -e "tools/$myself" ]
 then
 	echo >&2 "Please call this script from the repository's root directory."
 	exit 2
@@ -94,7 +94,7 @@ fi
 
 # set build variables
 rel_name='eturnal'
-rel_vsn="$(scripts/get-version)"
+rel_vsn="$(tools/get-version)"
 tag_vsn="$(echo $rel_vsn | sed -e 's|+|-|')"
 tag_minor="$(echo $tag_vsn | sed -e 's|\.| |2' | awk '{{print $1}}')"
 tag_major="$(echo $tag_vsn | sed -e 's|\.| |1' | awk '{{print $1}}')"
@@ -116,7 +116,7 @@ then
 		if [ ! -f "$PWD/$rel_tarball" ]
 		then
 			echo >&2 'This script requires tarballs built for musl-libc with make-binaries script ...'
-			echo >&2 'Please execute "scripts/make-binaries" with targets "x86_64-linux-musl" and "aarch64-linux-musl" ...'
+			echo >&2 'Please execute "tools/make-binaries" with targets "x86_64-linux-musl" and "aarch64-linux-musl" ...'
 			exit 1
 		fi
 	done

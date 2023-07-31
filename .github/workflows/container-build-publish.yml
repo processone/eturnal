@@ -8,7 +8,7 @@ on:
       - 'doc/**'
       - 'docker-k8s/examples/**'
       - 'Formula/**'
-      - 'scripts/get-version'
+      - 'tools/get-version'
       - 'windows/**'
       - '**.md'
   schedule:
@@ -18,7 +18,7 @@ on:
       - 'doc/**'
       - 'docker-k8s/examples/**'
       - 'Formula/**'
-      - 'scripts/get-version'
+      - 'tools/get-version'
       - 'windows/**'
       - '**.md'
 
@@ -79,7 +79,7 @@ jobs:
       -
         name: On push master | extract git version
         if: needs.detect-change.outputs.update == 'false'
-        run: echo "TAG_VERSION=$(echo "$(./scripts/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
+        run: echo "TAG_VERSION=$(echo "$(./tools/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
       -
         name: On release | extract release tag
         if: needs.detect-change.outputs.update == 'true'
@@ -100,7 +100,7 @@ jobs:
             python3-dev autoconf automake libtool libtool-bin gawk wget bzip2 \
             xz-utils unzip patch libstdc++6 rsync git meson ninja-build \
             binfmt-support qemu-user-static
-          echo "OTP_VSN=$(awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' scripts/make-binaries)" >> $GITHUB_ENV
+          echo "OTP_VSN=$(awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' tools/make-binaries)" >> $GITHUB_ENV
           echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x64|x86_64|;s|arm64|aarch64|')" >> $GITHUB_ENV
       -
         name: Install erlang/OTP
@@ -110,7 +110,7 @@ jobs:
           version-type: strict
       -
         name: Build ${{ matrix.arch }} musl-libc based binary archives
-        run: CHECK_DEPS=false scripts/make-binaries ${{ env.ARCH }}-linux-musl
+        run: CHECK_DEPS=false tools/make-binaries ${{ env.ARCH }}-linux-musl
       -
         name: Start container for rebar3 test suites ...
         run: |
@@ -170,7 +170,7 @@ jobs:
       -
         name: On push master | extract git version
         if: needs.detect-change.outputs.update == 'false'
-        run: echo "TAG_VERSION=$(echo "$(./scripts/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
+        run: echo "TAG_VERSION=$(echo "$(./tools/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
       -
         name: On release | extract release tag
         if: needs.detect-change.outputs.update == 'true'
@@ -249,7 +249,7 @@ jobs:
       -
         name: On push master | extract git version
         if: needs.detect-change.outputs.update == 'false'
-        run: echo "TAG_VERSION=$(echo "$(./scripts/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
+        run: echo "TAG_VERSION=$(echo "$(./tools/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
       -
         name: On release | extract release tag
         if: needs.detect-change.outputs.update == 'true'
@@ -337,9 +337,9 @@ jobs:
         if: needs.detect-change.outputs.update == 'false'
         run: |
           echo "VSN=$(git describe --tag)" >> $GITHUB_ENV
-          echo "TAG_VERSION=$(echo "$(./scripts/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
+          echo "TAG_VERSION=$(echo "$(./tools/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
           echo "SRC=local" >> $GITHUB_ENV
-          echo "OTP_VSN=$(awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' scripts/make-binaries)" >> $GITHUB_ENV
+          echo "OTP_VSN=$(awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' tools/make-binaries)" >> $GITHUB_ENV
       -
         name: On release | extract git version and define build mode
         if: needs.detect-change.outputs.update == 'true'
@@ -349,7 +349,7 @@ jobs:
           echo "TAG_VERSION=$(awk 'END{gsub("-", " "); print $1}' ${{ env.PKGREL_FILE }})" >> $GITHUB_ENV
 
           # define erlang/OTP version
-          echo "OTP_VSN=$(wget -O - https://raw.githubusercontent.com/${{ github.repository }}/$eturnal_vsn/scripts/make-binaries \
+          echo "OTP_VSN=$(wget -O - https://raw.githubusercontent.com/${{ github.repository }}/$eturnal_vsn/tools/make-binaries \
             | awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}')" >> $GITHUB_ENV
 
           # check whether to build from archive or git, because git repo is HEAD here
@@ -444,7 +444,7 @@ jobs:
         name: On push master | extract git version and define build variants
         if: needs.detect-change.outputs.update == 'false'
         run: |
-          echo "TAG_VERSION=$(echo "$(./scripts/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
+          echo "TAG_VERSION=$(echo "$(./tools/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
       -
         name: On release | extract release tags to be published/updated
         if: needs.detect-change.outputs.update == 'true'

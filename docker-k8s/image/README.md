@@ -16,7 +16,7 @@ default build process defined by the build arguments in the `Dockerfile`.
     C(web) -. SOURCE='web'<br/>VERSION='x.x.x' .-> D;
     end
     subgraph install from binary tarball
-    K[(output from:<br/>scripts/make-binaries)] -. eturnal-*musl*.tar.gz .-> E;
+    K[(output from:<br/>tools/make-binaries)] -. eturnal-*musl*.tar.gz .-> E;
     end
     D(build) == METHOD='build' ==> F;
     E(package) -. METHOD='package' .-> F;
@@ -75,7 +75,7 @@ docker buildx build --load \
 ```
 
 Building with `METHOD='package'` requires eturnal binary tarballs built with the
-[make-binaries](../../scripts/make-binaries) script from this repository. The
+[make-binaries](../../tools/make-binaries) script from this repository. The
 respective targets must be `x86_64-linux-musl` or `aarch64-linux-musl`. This
 depends of course on the image variant you want to build. The tarballs must be
 located in the root of the repository.
@@ -108,7 +108,7 @@ hence, `$(uname -m)-linux-gnu` in the targets below.
 
 ```shell
 targets="$(uname -m)-linux-gnu $(uname -m)-linux-musl"
-sed -i "s|targets='.*'|targets='$targets'|" $PWD/scripts/make-binaries
+sed -i "s|targets='.*'|targets='$targets'|" $PWD/tools/make-binaries
 docker run --rm -d  \
     --name ctng-eturnal \
     --user $(id -u $(whoami)) \

@@ -10,7 +10,7 @@ PATH="$HOME/.cache/rebar3/bin:$HOME/.mix/escripts:$PATH"
 export PATH
 
 rel_name='eturnal'
-rel_vsn="$(scripts/get-version | sed 's/+.*//')"
+rel_vsn="$(tools/get-version | sed 's/+.*//')"
 prefix="/home/$rel_name"
 web_root_dir="$prefix/web"
 deb_repo_dir="/repositories/$rel_name/deb"

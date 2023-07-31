@@ -19,7 +19,7 @@ if ! git rev-parse >'/dev/null' 2>&1
 then
 	echo >&2 'This script can only be executed within the Git repository.'
 	exit 2
-elif ! [ -e 'rebar.config' ] || ! [ -e "scripts/$myself" ]
+elif ! [ -e 'rebar.config' ] || ! [ -e "tools/$myself" ]
 then
 	echo >&2 "Please call this script from the repository's root directory."
 	exit 2
@@ -29,7 +29,7 @@ then
 fi
 
 rel_name='eturnal'
-rel_vsn="$(scripts/get-version)"
+rel_vsn="$(tools/get-version)"
 rebar_vsn='3.22.0'
 rel_dir="$rel_name-$rel_vsn"
 rel_tar="$rel_dir.tar"

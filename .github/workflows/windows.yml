@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-        with: # For scripts/get-version:
+        with: # For tools/get-version:
           fetch-depth: 0
       - name: Set up MSVC environment
         uses: ilammy/msvc-dev-cmd@v1
@@ -44,7 +44,7 @@ jobs:
         run: windows/make-installer
         shell: bash
       - name: Install and start eturnal
-        run: ./eturnal-$(scripts/get-version)-x64 //SP- //VERYSILENT //SUPPRESSMSGBOXES
+        run: ./eturnal-$(tools/get-version)-x64 //SP- //VERYSILENT //SUPPRESSMSGBOXES
         shell: bash
         timeout-minutes: 10
       - name: Restart eturnal

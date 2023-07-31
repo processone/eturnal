@@ -1,6 +1,6 @@
 {application, eturnal,
  [{description, "STUN/TURN server"},
-  {vsn, {cmd, "scripts/get-version"}},
+  {vsn, {cmd, "tools/get-version"}},
   {mod, {eturnal_app, []}},
   {applications,
    [kernel,

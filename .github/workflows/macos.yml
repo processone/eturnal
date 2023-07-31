@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
-        with: # For scripts/get-version:
+        with: # For tools/get-version:
           fetch-depth: 0
       - name: Install dependencies
         env:

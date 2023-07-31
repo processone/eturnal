@@ -13,4 +13,4 @@ RUN apt-get update \
 WORKDIR /eturnal
 
 ENTRYPOINT ["/usr/bin/tini","--"]
-CMD ["/eturnal/scripts/make-binaries"]
+CMD ["/eturnal/tools/make-binaries"]

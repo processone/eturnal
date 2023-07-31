@@ -25,14 +25,14 @@ usage()
 	exit 2
 }
 
-if ! [ -e 'rebar.config' ] || ! [ -e "scripts/$myself" ]
+if ! [ -e 'rebar.config' ] || ! [ -e "tools/$myself" ]
 then
 	error "Please call this script from the repository's root directory."
 	exit 2
 fi
 
 rel_name='eturnal'
-rel_vsn=$(scripts/get-version)
+rel_vsn=$(tools/get-version)
 rebar_vsn='3.22.0'
 crosstool_vsn='1.25.0'
 zlib_vsn='1.2.13'

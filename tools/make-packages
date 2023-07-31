@@ -28,7 +28,7 @@ do
 done
 shift $((OPTIND - 1))
 
-if ! [ -e 'rebar.config' ] || ! [ -e "scripts/$myself" ]
+if ! [ -e 'rebar.config' ] || ! [ -e "tools/$myself" ]
 then
 	echo >&2 "Please call this script from the repository's root directory."
 	exit 2
@@ -43,7 +43,7 @@ then
 fi
 
 rel_name='eturnal'
-rel_vsn="$(scripts/get-version)"
+rel_vsn="$(tools/get-version)"
 tmp_dir=$(mktemp -d "/tmp/.$myself.XXXXXX")
 
 trap 'rm -rf "$tmp_dir"' INT TERM EXIT
