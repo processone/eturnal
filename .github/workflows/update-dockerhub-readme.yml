@@ -21,7 +21,9 @@ jobs:
           sed -i 's|ghcr.io/processone/eturnal|docker.io/${{ env.DOCKERHUB_REPO }}|g' ${{ env.README }}
       - name: Docker Hub Description
         uses: peter-evans/dockerhub-description@v3
-        if: github.event_name != 'pull_request'
+        if: |
+          github.event_name != 'pull_request'
+          && github.repository_owner == 'processone'
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
