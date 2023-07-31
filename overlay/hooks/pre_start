@@ -18,7 +18,7 @@ then
 fi
 
 # Until https://github.com/erlware/relx/issues/905 is fixed:
-if [ -z "$COOKIE" ]
+if [ -z "${COOKIE:+x}" ]
 then
     "$ERTS_DIR/bin/erl" \
         -noinput \

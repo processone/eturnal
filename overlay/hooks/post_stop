@@ -1,4 +1,4 @@
-if [ -z "$ERL_DIST_PORT" ]
+if [ -z "${ERL_DIST_PORT:+x}" ]
 then
     "$ERTS_DIR/bin/epmd" -kill >'/dev/null' 2>&1 || :
 fi
