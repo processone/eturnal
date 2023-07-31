@@ -1,6 +1,6 @@
 # eturnal STUN/TURN Server
 
-<p align="left"><img src="hello-eturnal.png" height="180"></p>
+<p align="left"><img src="https://eturnal.net/hello.png" height="180"></p>
 
 [![CI](https://github.com/processone/eturnal/actions/workflows/ci.yml/badge.svg)][1]
 
