@@ -167,9 +167,9 @@ podman unshare chmod 640 /path/to/eturnal.yml
 
 This repository also contains configuration examples for:
 
-* [Docker Compose](https://github.com/processone/eturnal/tree/master/docker-k8s/examples/docker-compose)
-* [Kubernetes (Kustomize)](https://github.com/processone/eturnal/tree/master/docker-k8s/examples/kubernetes-kustomize)
+* [Docker Compose](https://github.com/processone/eturnal/tree/master/examples/docker-compose)
+* [Kubernetes (Kustomize)](https://github.com/processone/eturnal/tree/master/examples/kubernetes-kustomize)
 
 ## Building the images yourself
 
-Instructions can be found [here](https://github.com/processone/eturnal/tree/master/docker-k8s/image).
+Instructions can be found [here](https://github.com/processone/eturnal/tree/master/doc/CONTAINER-BUILD.md).

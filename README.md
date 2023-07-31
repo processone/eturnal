@@ -100,7 +100,7 @@ As an alternative, there's an `#eturnal` channel [on Slack][23].
  [2]: https://eturnal.net/
  [3]: https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00
  [4]: https://github.com/processone/eturnal/blob/master/doc/QUICK-TEST.md
- [5]: https://github.com/processone/eturnal/blob/master/docker-k8s/QUICK-TEST.md
+ [5]: https://github.com/processone/eturnal/blob/master/doc/CONTAINER-QUICK-TEST.md
  [6]: https://eturnal.net/documentation/code/docker.html
  [7]: https://software.opensuse.org/download/?package=eturnal&project=devel:languages:erlang
  [8]: https://pkgs.alpinelinux.org/packages?name=eturnal

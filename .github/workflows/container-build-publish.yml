@@ -6,7 +6,7 @@ on:
       - master
     paths-ignore:
       - 'doc/**'
-      - 'docker-k8s/examples/**'
+      - 'examples/**'
       - 'Formula/**'
       - 'tools/get-version'
       - 'windows/**'
@@ -16,7 +16,7 @@ on:
   pull_request:
     paths-ignore:
       - 'doc/**'
-      - 'docker-k8s/examples/**'
+      - 'examples/**'
       - 'Formula/**'
       - 'tools/get-version'
       - 'windows/**'
@@ -26,7 +26,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   DOCKERHUB_REPO: eturnal/eturnal
-  PKGREL_FILE: docker-k8s/pkgrel
+  PKGREL_FILE: tools/ctrrel
 
 jobs:
 ################################################################################

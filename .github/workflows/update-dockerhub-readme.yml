@@ -3,10 +3,10 @@ name: Update DockerHub README
 on:
   push:
     paths:
-      - docker-k8s/README.md
+      - doc/CONTAINER.md
       - .github/workflows/update-dockerhub-readme.yml
 env:
-  README: docker-k8s/README.md
+  README: doc/CONTAINER.md
   DOCKERHUB_REPO: eturnal/eturnal
 
 jobs:

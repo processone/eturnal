@@ -4,9 +4,10 @@ Please have a look through the following information to build eturnal images.
 
 ## Dockerfile multi-stage diagram
 
-The `Dockerfile` is a multi-stage Dockerfile. The nodes in the flowchart below
-illustrate the different stages. Thick links between the nodes describe the
-default build process defined by the build arguments in the `Dockerfile`.
+The [Dockerfile](../Dockerfile) is a multi-stage Dockerfile. The nodes in the
+flowchart below illustrate the different stages. Thick links between the nodes
+describe the default build process defined by the build arguments in the
+`Dockerfile`.
 
 ```mermaid
  flowchart LR
@@ -35,7 +36,7 @@ From the root of the repository, to build with `local` source files the
 
 ```shell
 docker buildx build --load \
-    -f docker-k8s/image/Dockerfile \
+    -f Dockerfile \
     -t myname/eturnal:mytag \
     --build-arg METHOD='build' \
     --build-arg SOURCE='local' \
@@ -51,7 +52,7 @@ be:
 
 ```shell
 docker buildx build --load \
-    -f docker-k8s/image/Dockerfile \
+    -f Dockerfile \
     -t myname/eturnal:mytag \
     --build-arg METHOD='build' \
     --build-arg SOURCE='git' \
@@ -66,7 +67,7 @@ the [official archive](https://eturnal.net/download/).
 
 ```shell
 docker buildx build --load \
-    -f docker-k8s/image/Dockerfile \
+    -f Dockerfile \
     -t myname/eturnal:mytag \
     --build-arg METHOD='build' \
     --build-arg SOURCE='web' \
@@ -75,14 +76,14 @@ docker buildx build --load \
 ```
 
 Building with `METHOD='package'` requires eturnal binary tarballs built with the
-[make-binaries](../../tools/make-binaries) script from this repository. The
+[make-binaries](../tools/make-binaries) script from this repository. The
 respective targets must be `x86_64-linux-musl` or `aarch64-linux-musl`. This
 depends of course on the image variant you want to build. The tarballs must be
 located in the root of the repository.
 
 ```shell
 docker buildx build --load \
-    -f docker-k8s/image/Dockerfile \
+    -f Dockerfile \
     -t myname/eturnal:mytag \
     --build-arg METHOD='package' \
     .
@@ -97,7 +98,7 @@ From the root of the eturnal repository, do:
 
 ```shell
 docker build \
-    -f docker-k8s/image/Dockerfile.ctng \
+    -f tools/Dockerfile.ctng \
     -t localhost/myname/ctng:eturnal \
     .
 ```

@@ -60,10 +60,10 @@ fi
 
 echo "$myself: Editing repository files ..."
 sed -i -e "s|^rel_vsn=.*|rel_vsn='$new_vsn'|" 'tools/get-version'
-sed -i -e "s|^$old_vsn-r.*|$new_vsn-r0|" 'docker-k8s/pkgrel'
+sed -i -e "s|^$old_vsn-r.*|$new_vsn-r0|" 'tools/ctrrel'
 sed -i -e "s|$(echo "$old_vsn" | sed 's/\./\\./g')|$new_vsn|g" \
     'README.md' 'doc/INSTALL.md' 'doc/QUICK-TEST.md' 'doc/overview.edoc' \
-    'docker-k8s/README.md'
+    'doc/CONTAINER.md'
 sed -i -e "s|^rebar_vsn=.*|rebar_vsn='$rebar_vsn'|" \
     'tools/make-source' 'tools/make-binaries'
 sed -i -e "s|compare/$old_vsn|compare/$new_vsn|" \
@@ -75,8 +75,8 @@ sed -i -e "s|compare/$old_vsn|compare/$new_vsn|" \
 
 echo "$myself: Committing result ..."
 git add 'rebar.config' 'CHANGELOG.md' 'README.md' 'doc/INSTALL.md' \
-    'doc/QUICK-TEST.md' 'doc/overview.edoc' 'docker-k8s/README.md' \
-    'docker-k8s/pkgrel' 'tools/get-version' 'tools/make-source' \
+    'doc/QUICK-TEST.md' 'doc/overview.edoc' 'doc/CONTAINER.md' \
+    'tools/ctrrel' 'tools/get-version' 'tools/make-source' \
     'tools/make-binaries'
 git commit -m "Release $new_vsn"
 git -P show

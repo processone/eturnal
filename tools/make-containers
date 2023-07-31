@@ -104,7 +104,7 @@ registries='docker.io'
 repo_name='eturnal/eturnal'
 dockerfile="$(find -name Dockerfile)"
 install="${METHOD:-build}"
-readme='docker-k8s/README.md'
+readme='doc/CONTAINER.md'
 
 if [ "$install" = 'package' ]
 then
