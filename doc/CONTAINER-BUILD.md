@@ -11,17 +11,15 @@ describe the default build process defined by the build arguments in the
 
 ```mermaid
  flowchart LR
-    subgraph build & install from source
+    subgraph build, install and prepare eturnal
     A(local) == SOURCE='local' ==> D;
     B(git) -. SOURCE='git'<br/>VERSION='x.x.x' .-> D;
     C(web) -. SOURCE='web'<br/>VERSION='x.x.x' .-> D;
-    end
-    subgraph install from binary tarball
     K[(output from:<br/>tools/make-binaries)] -. eturnal-*musl*.tar.gz .-> E;
-    end
     D(build) == METHOD='build' ==> F;
     E(package) -. METHOD='package' .-> F;
-    subgraph prepare runtime image
+    end
+    subgraph prepare runtime base image
     G(runtime-package) == METHOD='build' ==> H(runtime-build) ==> I;
     G(runtime-package) -. METHOD='package' .-> I;
     end
