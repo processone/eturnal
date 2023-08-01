@@ -138,12 +138,17 @@ handle_call({set_loglevel, Level}, _From, State) ->
         {reply, Err, State}
     end;
 handle_call({get_password, Username}, _From, State) ->
-    case get_opt(secret) of
-        [Secret | _Secrets] ->
+    case {get_opt(secret), is_dynamic_username(Username)} of
+        {[Secret | _Secrets], true} ->
             Password = derive_password(Username, [Secret]),
             {reply, {ok, Password}, State};
-        undefined ->
-            {reply, {error, no_secret}, State}
+        {_, _} ->
+            case maps:get(Username, get_opt(credentials), undefined) of
+                Password when is_binary(Password) ->
+                    {reply, {ok, Password}, State};
+                undefined ->
+                    {reply, {error, no_credentials}, State}
+            end
     end;
 handle_call(Request, From, State) ->
     ?LOG_ERROR("Got unexpected request from ~p: ~p", [From, Request]),
@@ -235,7 +240,7 @@ get_password(Username, _Realm) ->
         ExpireTime ->
             case erlang:system_time(second) of
                 Now when Now < ExpireTime ->
-                    ?LOG_DEBUG("Looking up password for: ~ts", [Username]),
+                    ?LOG_DEBUG("Deriving password for: ~ts", [Username]),
                     derive_password(Username, get_opt(secret));
                 Now when Now >= ExpireTime ->
                     case get_opt(strict_expiry) of
@@ -249,8 +254,14 @@ get_password(Username, _Realm) ->
                     end
             end
     catch _:badarg ->
-            ?LOG_INFO("Non-numeric expiration field: ~ts", [Username]),
-            <<>>
+            ?LOG_DEBUG("Looking up password for: ~ts", [Username]),
+            case maps:get(Username, get_opt(credentials), undefined) of
+                Password when is_binary(Password) ->
+                    Password;
+                undefined ->
+                    ?LOG_INFO("Have no password for: ~ts", [Username]),
+                    <<>>
+            end
     end.
 
 %% API: retrieve option value.
@@ -300,6 +311,17 @@ reload_config() ->
     ok = gen_server:cast(?MODULE, reload).
 
 %% Internal functions: authentication.
+
+-spec is_dynamic_username(binary()) -> boolean().
+is_dynamic_username(Username) ->
+    case string:to_integer(Username) of
+        {N, <<":", _Rest/binary>>} when is_integer(N), N > 0 ->
+            true;
+        {N, <<>>} when is_integer(N), N > 0 ->
+            true;
+        {_, _} ->
+            false
+    end.
 
 -spec derive_password(binary(), [binary()]) -> binary() | [binary()].
 -ifdef(old_crypto).
@@ -451,7 +473,7 @@ opt_filter(Opt) ->
 
 -spec turn_opts(boolean()) -> proplists:proplist().
 turn_opts(EnableTURN) ->
-    case {EnableTURN, got_secret(), got_relay_addr()} of
+    case {EnableTURN, got_credentials(), got_relay_addr()} of
         {true, true, true} ->
             [{use_turn, true},
              {auth_type, user}];
@@ -509,8 +531,8 @@ turn_enabled() ->
                       EnableTURN =:= true
               end, get_opt(listen)).
 
--spec got_secret() -> boolean().
-got_secret() ->
+-spec got_credentials() -> boolean().
+got_credentials() ->
     case get_opt(secret) of
         Secrets when is_list(Secrets) ->
             lists:all(fun(Secret) ->
@@ -519,7 +541,7 @@ got_secret() ->
         Secret when is_binary(Secret), byte_size(Secret) > 0 ->
             true;
         undefined ->
-            false
+            map_size(get_opt(credentials)) > 0
     end.
 
 -spec got_relay_addr() -> boolean().

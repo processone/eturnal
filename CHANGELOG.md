@@ -5,12 +5,14 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 ### Added
+- Allow for specifying static `credentials` in the `eturnal.yml` configuration
+  file. They can be used instead of (or in addition to) a shared `secret`.
 - Allow for overriding the `build.config` settings using environment variables
   (of the same name, but upper-case).
 - Docker: Container images can now be pulled from Dockerhub as well. The name
   is `docker.io/eturnal/eturnal:latest`. When pulling with `Docker`, `docker.io`
   may be omitted.
-- Provide a [homebrew](https://brew.sh/) [Formula](https://github.com/processone/eturnal/blob/master/Formula/eturnal.rb)
+- Provide a [homebrew](https://brew.sh) [Formula](https://github.com/processone/eturnal/blob/master/Formula/eturnal.rb)
   for macOS.
 
 ### Changed

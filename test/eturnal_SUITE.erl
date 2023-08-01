@@ -160,7 +160,9 @@ check_credentials(_Config) ->
               {error, _Reason2} = eturnal_ctl:get_credentials(Invalid, [])
       end, ["Invalid", invalid, [invalid]]),
     ct:pal("Checking invalid suffix"),
-    {error, _Reason} = eturnal_ctl:get_credentials(Username, invalid).
+    {error, _Reason} = eturnal_ctl:get_credentials(Username, invalid),
+    ct:pal("Checking static credentials"),
+    {ok, "l0vesBob"} = eturnal_ctl:get_password("alice").
 
 -spec check_loglevel(config()) -> any().
 check_loglevel(_Config) ->
@@ -214,12 +216,15 @@ connect_tls(_Config) ->
 -spec turn_udp(config()) -> any().
 turn_udp(_Config) ->
     Port = 34780,
-    Username = <<"2145913200">>,
-    Password = <<"cLwpKS2/9bWHf+agUImD47PIXNE=">>,
+    Username1 = <<"alice">>,
+    Password1 = <<"l0vesBob">>,
+    Username2 = <<"2145913200">>,
+    Password2 = <<"cLwpKS2/9bWHf+agUImD47PIXNE=">>,
     Realm = <<"eturnal.net">>,
     ct:pal("Allocating TURN relay on 127.0.0.1:~B (UDP)", [Port]),
     {ok, Addr} = inet:parse_address("127.0.0.1"),
-    ok = stun_test:allocate_udp(Addr, Port, Username, Realm, Password).
+    ok = stun_test:allocate_udp(Addr, Port, Username1, Realm, Password1),
+    ok = stun_test:allocate_udp(Addr, Port, Username2, Realm, Password2).
 
 -spec stun_udp(config()) -> any().
 stun_udp(_Config) ->

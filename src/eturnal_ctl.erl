@@ -63,8 +63,8 @@ get_credentials(Expiry, Suffix) ->
                 {ok, Password} ->
                     Credentials = format_credentials(Username, Password),
                     {ok, unicode:characters_to_list(Credentials)};
-                {error, no_secret} ->
-                    {error, "No shared secret"};
+                {error, no_credentials} ->
+                    {error, "No shared secret and no credentials"};
                 {error, timeout} ->
                     {error, "Querying eturnal timed out"}
             end
@@ -78,19 +78,13 @@ get_password(Username0) ->
     ?LOG_DEBUG("Handling API call: get_password(~p)", [Username0]),
     try unicode:characters_to_binary(Username0) of
         Username when is_binary(Username) ->
-            case is_valid_username(Username) of
-                true ->
-                    case call({get_password, Username}) of
-                        {ok, Password} ->
-                            {ok, unicode:characters_to_list(Password)};
-                        {error, no_secret} ->
-                            {error, "No shared secret"};
-                        {error, timeout} ->
-                            {error, "Querying eturnal timed out"}
-                    end;
-                false ->
-                    ?LOG_DEBUG("Invalid user name: ~s", [Username]),
-                    {error, "Invalid user name: " ++ Username0}
+            case call({get_password, Username}) of
+                {ok, Password} ->
+                    {ok, unicode:characters_to_list(Password)};
+                {error, no_credentials} ->
+                    {error, "No shared secret and no credentials"};
+                {error, timeout} ->
+                    {error, "Querying eturnal timed out"}
             end;
         {_, _, _} ->
             ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
@@ -207,17 +201,6 @@ reload() ->
     end.
 
 %% Internal functions.
-
--spec is_valid_username(binary()) -> boolean().
-is_valid_username(Username) ->
-    case string:to_integer(Username) of
-        {N, <<":", _Rest/binary>>} when is_integer(N), N > 0 ->
-            true;
-        {N, <<>>} when is_integer(N), N > 0 ->
-            true;
-        {_, _} ->
-            false
-    end.
 
 -spec make_username(string(), string()) -> binary().
 make_username(Expiry0, Suffix) ->

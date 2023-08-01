@@ -21,6 +21,8 @@ eturnal:
       enable_turn: false
   relay_ipv4_addr: "127.0.0.1"
   secret: "crypt1c"
+  credentials:
+    alice: l0vesBob
   log_level: debug
   tls_options:
     - no_tlsv1
