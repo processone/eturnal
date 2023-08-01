@@ -34,12 +34,13 @@ On **YUM-based** Linux distributions, run:
     sudo yum install eturnal
     sudo systemctl --now enable eturnal
 
-On SUSE Linux Enterprise and openSUSE systems, [distribution repositories][7]
-can be used instead. There's also an official [Alpine package][8]. On other
-Linux systems, the binary release can be installed as [described][9] in the
-reference documentation. For Windows, an installer is [available][10].
+On **SUSE** Linux Enterprise and openSUSE systems, [distribution
+repositories][7] can be used instead. There's also an official **Alpine**
+[package][8]. On **other Linux systems**, the binary release can be installed as
+[described][9] in the reference documentation. For **Windows**, an installer is
+[available][10].
 
-On **macOS** using homebrew's
+On **macOS**, homebrew can be used like this:
 
     brew tap processone/eturnal https://github.com/processone/eturnal
     brew install processone/eturnal/eturnal
