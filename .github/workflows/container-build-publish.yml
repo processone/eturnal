@@ -153,7 +153,7 @@ jobs:
 ################################################################################
   #' Test musl-libc tarballs for incompatibilities between musl-libc versions
   ci-musl-libc:
-    name: CI - musl-libc v${{ matrix.musl }} compatibality test on ${{ matrix.arch }}
+    name: CI - musl-libc v${{ matrix.musl }} compatibility test on ${{ matrix.arch }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
