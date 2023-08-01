@@ -23,7 +23,7 @@ project adheres to [Semantic Versioning][SemVer].
   the 1 KiB bucket, as the 4 KiB bucket size should be sufficient to identify
   "inactive" sessions. Also, slightly alter the other bucket sizes.
 - Binary release: Update Erlang/OTP from 25.0.3 to 26.0.2.
-- Binary release: Update Rebar3 from 3.19.0 to 3.22.0.
+- Binary release: Update Rebar3 from 3.19.0 to 3.22.1.
 - Binary release: Update OpenSSL from 1.1.1q to 3.1.1.
 - Binary release: Update zlib from 1.2.12 to 1.2.13.
 - Binary release: Build Erlang/OTP without Termcap support.
