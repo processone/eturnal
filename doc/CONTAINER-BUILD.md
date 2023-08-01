@@ -34,17 +34,10 @@ describe the default build process defined by the build arguments in the
 From the root of the repository, to build with `local` source files the
 `docker buildx build` or `podman build` command is:
 
-```shell
-docker buildx build --load \
-    -f Dockerfile \
-    -t myname/eturnal:mytag \
-    --build-arg METHOD='build' \
-    --build-arg SOURCE='local' \
-    .
-```
+    docker buildx build --load -t myname/eturnal:mytag .
 
-Omitting `--build-arg METHOD='build'` and `--build-arg SOURCE='local'` in the
-example above would lead to the same result, because they are the default.
+No need to set `--build-arg METHOD='build'` and `--build-arg SOURCE='local'` in
+the example above as those are the default values.
 
 Instead, if the source files should be downloaded from github and a specific
 version should be built (`VERSION=master` is default), the build command would
@@ -52,9 +45,7 @@ be:
 
 ```shell
 docker buildx build --load \
-    -f Dockerfile \
     -t myname/eturnal:mytag \
-    --build-arg METHOD='build' \
     --build-arg SOURCE='git' \
     --build-arg REPOSITORY='https://github.com/processone/eturnal' \
     --build-arg VERSION='1.10.1' \
@@ -67,9 +58,7 @@ the [official archive](https://eturnal.net/download/).
 
 ```shell
 docker buildx build --load \
-    -f Dockerfile \
     -t myname/eturnal:mytag \
-    --build-arg METHOD='build' \
     --build-arg SOURCE='web' \
     --build-arg VERSION='1.10.1' \
     .
@@ -83,7 +72,6 @@ located in the root of the repository.
 
 ```shell
 docker buildx build --load \
-    -f Dockerfile \
     -t myname/eturnal:mytag \
     --build-arg METHOD='package' \
     .
@@ -92,16 +80,11 @@ docker buildx build --load \
 ## Building eturnal tarballs for musl-libc with Docker or Podman
 
 You can use the `Dockerfile.ctng` in this directory to build eturnal tarballs
-with the `make-binaries` script.
+with our `make-binaries` script.
 
 From the root of the eturnal repository, do:
 
-```shell
-docker build \
-    -f tools/Dockerfile.ctng \
-    -t localhost/myname/ctng:eturnal \
-    .
-```
+    docker build -f tools/Dockerfile.ctng -t localhost/myname/ctng:eturnal .
 
 Building tarballs for `musl-libc` with the Debian-based `Dockerfile.ctng` image
 requires a bootstrapped erlang based on the docker host machine's architecture,
@@ -109,13 +92,13 @@ hence, `$(uname -m)-linux-gnu` in the targets below.
 
 ```shell
 targets="$(uname -m)-linux-gnu $(uname -m)-linux-musl"
-sed -i "s|targets='.*'|targets='$targets'|" $PWD/tools/make-binaries
-docker run --rm -d  \
+docker run --rm -d \
     --name ctng-eturnal \
     --user $(id -u $(whoami)) \
     -v ctng:/ctng \
     -v $PWD:/eturnal \
-    localhost/myname/ctng:eturnal
+    localhost/myname/ctng:eturnal \
+    $targets
 docker logs -f ctng-eturnal
 ```
 
