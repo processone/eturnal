@@ -222,6 +222,19 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,${{ env.MODE }}=true
       -
+        name: Simple smoke test
+        run: |
+          set -x
+          docker run -d --name eturnal \
+            --platform linux/${{ env.ARCH }} \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }} \
+            sleep 600
+          docker exec eturnal eturnalctl daemon
+          docker exec eturnal eturnalctl ping
+          docker exec eturnal eturnalctl info
+          docker logs eturnal
+          docker stop eturnal
+      -
         name: Export digest | ${{ matrix.arch }}
         run: |
           mkdir -p /tmp/digests
@@ -328,6 +341,19 @@ jobs:
           platforms: linux/${{ matrix.arch }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,${{ env.MODE }}=true
+      -
+        name: Simple smoke test
+        run: |
+          set -x
+          docker run -d --name eturnal \
+            --platform linux/${{ matrix.ARCH }} \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }} \
+            sleep 600
+          docker exec eturnal eturnalctl daemon
+          docker exec eturnal eturnalctl ping
+          docker exec eturnal eturnalctl info
+          docker logs eturnal
+          docker stop eturnal
       -
         name: Export digest | ${{ matrix.arch }}
         run: |
