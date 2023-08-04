@@ -4,27 +4,38 @@ Please have a look through the following information to build eturnal images.
 
 ## Dockerfile multi-stage diagram
 
-The [Dockerfile](../Dockerfile) is a multi-stage Dockerfile. The nodes in the
-flowchart below illustrate the different stages. Thick links between the nodes
-describe the default build process defined by the build arguments in the
-`Dockerfile`.
+The [Dockerfile](https://github.com/processone/eturnal/blob/master/Dockerfile)
+is a multi-stage Dockerfile. The left side of the flowchart below shows the
+build arguments. The nodes illustrate the different stages. Thick links between
+the nodes describe the default build process defined by the build arguments in
+the `Dockerfile`.
 
 ```mermaid
  flowchart LR
-    subgraph build, install and prepare eturnal
-    A(local) == SOURCE='local' ==> D;
-    B(git) -. SOURCE='git'<br/>VERSION='x.x.x' .-> D;
-    C(web) -. SOURCE='web'<br/>VERSION='x.x.x' .-> D;
-    K[(output from:<br/>tools/make-binaries)] -. eturnal-*musl*.tar.gz .-> E;
-    D(build) == METHOD='build' ==> F;
-    E(package) -. METHOD='package' .-> F;
+    L[METHOD='build'] == SOURCE='local' ==> A;
+    L[METHOD='build'] -. SOURCE='git'<br/>VERSION='x.x.x' .-> B;
+    L[METHOD='build'] -. SOURCE='web'<br/>VERSION='x.x.x' .-> C;
+    L[METHOD='build'] ==> G;
+    M[METHOD='package'] .-> K;
+    M[METHOD='package'] .-> H;
+    subgraph prepare eturnal
+    subgraph build & install eturnal
+    A(local) ==> D;
+    B(git) .-> D;
+    C(web) .-> D;
+    end
+    subgraph install eturnal package
+    K[(output from:<br/>tools/make-binaries)] .-> E;
+    end
+    D(build) ==> F;
+    E(package) ==> F;
     end
     subgraph prepare runtime base image
-    G(runtime-package) == METHOD='build' ==> H(runtime-build) ==> I;
-    G(runtime-package) -. METHOD='package' .-> I;
+    G(base-build) ==> I;
+    H(base-package) .-> I;
     end
-    F(eturnal) ==> J(prod);
-    I(runtime) ==> J(prod);
+    F(eturnal) ==> J(release);
+    I(runtime) ==> J(release);
 ```
 
 ## Build container images
@@ -35,7 +46,7 @@ From the root of the repository, to build with `local` source files the
     docker buildx build --load -t myname/eturnal:mytag .
 
 No need to set `--build-arg METHOD='build'` and `--build-arg SOURCE='local'` in
-the example above as those are the default values.
+the example above as those are the default values (see diagram above).
 
 Instead, if the source files should be downloaded from github and a specific
 version should be built (`VERSION=master` is default), the build command would
@@ -63,10 +74,10 @@ docker buildx build --load \
 ```
 
 Building with `METHOD='package'` requires eturnal binary tarballs built with the
-[make-binaries](../tools/make-binaries) script from this repository. The
-respective targets must be `x86_64-linux-musl` or `aarch64-linux-musl`. This
-depends of course on the image variant you want to build. The tarballs must be
-located in the root of the repository.
+[make-binaries](https://github.com/processone/eturnal/blob/master/tools/make-binaries)
+script from this repository. The respective targets must be `x86_64-linux-musl`
+or `aarch64-linux-musl`. This depends of course on the image variant you want to
+build. The tarballs must be located in the root of the repository.
 
 ```shell
 docker buildx build --load \
@@ -75,10 +86,10 @@ docker buildx build --load \
     .
 ```
 
-## Building eturnal tarballs for musl-libc with Docker or Podman
+## Building eturnal tarballs for musl-libc
 
-You can use the `Dockerfile.ctng` in this directory to build eturnal tarballs
-with our `make-binaries` script.
+You can use the provided [Dockerfile.ctng](https://github.com/processone/eturnal/blob/master/tools/Dockerfile.ctng)
+to build eturnal tarballs with our `make-binaries` script.
 
 From the root of the eturnal repository, do:
 

@@ -5,7 +5,7 @@ architectures as `ghcr.io/processone/eturnal` from [GitHub Packages](https://git
 or [DockerHub](https://hub.docker.com/r/eturnal/eturnal). The images are based
 on [Alpine Linux](https://alpinelinux.org).
 
-## Tags
+## Tags and variants
 
 `XX.YY.ZZ` represents the official eturnal release, a `-AA` suffix the image 
 version of a particular release in case of any bug fix etc. of the image.
@@ -18,7 +18,7 @@ version of a particular release in case of any bug fix etc. of the image.
 Images are scanned daily by [Trivy](https://www.aquasec.com/products/trivy) and,
 if necessary, the `latest` release will be rebuilt and updated.
 
-## Usage with [Docker](https://www.docker.com) or [Podman](https://podman.io/)
+## Getting started
 
 > _Note:_ the below commands can be run with podman as well, just use podman as 
 > an equivalent: **alias docker=podman**
@@ -163,13 +163,13 @@ podman unshare chown 9000:9000 /path/to/eturnal.yml
 podman unshare chmod 640 /path/to/eturnal.yml
 ```
 
-## Examples for Docker Compose and Kubernetes
+## Deployment examples
 
 This repository also contains configuration examples for:
 
 * [Docker Compose](https://github.com/processone/eturnal/tree/master/examples/docker-compose)
 * [Kubernetes (Kustomize)](https://github.com/processone/eturnal/tree/master/examples/kubernetes-kustomize)
 
-## Building the images yourself
+## Building yourself
 
-Instructions can be found [here](https://github.com/processone/eturnal/tree/master/doc/CONTAINER-BUILD.md).
+Instructions can be found [here](https://eturnal.net/documentation/code/container-build.html).
