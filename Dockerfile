@@ -1,8 +1,10 @@
 #' Define default build variables
 ## specific ARGs for METHOD='build'
 ARG OTP_VSN='25.3.0.0'
+ARG BUILD_IMAGE="docker.io/erlang:${OTP_VSN}-alpine"
 ## specific ARGs for METHOD='package'
 ARG ALPINE_VSN='3.18'
+ARG PACKAGE_IMAGE="docker.io/alpine:${ALPINE_VSN}"
 ## general ARGs
 ARG UID='9000'
 ARG USER='eturnal'
@@ -17,7 +19,7 @@ ARG CI_MUSL_VSN='1.2.3'
 
 ################################################################################
 #' METHOD='build' - install build dependencies
-FROM docker.io/erlang:${OTP_VSN}-alpine AS build-base
+FROM ${BUILD_IMAGE} AS base
 RUN apk -U add --no-cache \
         build-base \
         git \
@@ -26,13 +28,13 @@ RUN apk -U add --no-cache \
 
 ################################################################################
 #' METHOD='build', SOURCE='local' - source files from 'local' machine
-FROM build-base AS local
+FROM base AS local
 ARG BUILD_DIR
 COPY / $BUILD_DIR/
 
 ################################################################################
 #' METHOD='build', SOURCE='git' - source files from 'git' repository
-FROM build-base AS git
+FROM base AS git
 ARG REPOSITORY
 ARG VERSION
 ARG BUILD_DIR
@@ -42,7 +44,7 @@ RUN git clone $REPOSITORY . \
 
 ################################################################################
 #' METHOD='build', SOURCE='web' - source files from 'web': https://eturnal.net/
-FROM build-base AS web
+FROM base AS web
 ARG WEB_URL
 ARG VERSION
 ARG BUILD_DIR
@@ -72,7 +74,7 @@ RUN tar -xzf $BUILD_DIR/_build/$REBAR_PROFILE/rel/eturnal/eturnal-*.tar.gz
 
 ################################################################################
 #' METHOD='package' - install eturnal from binary tarball
-FROM docker.io/alpine:${ALPINE_VSN} AS package
+FROM ${PACKAGE_IMAGE} AS package
 COPY eturnal-*-linux-musl-*.tar.gz /tmp/
 WORKDIR /rootfs
 ARG HOME
@@ -137,7 +139,7 @@ RUN chown -R $UID:$UID $HOME
 
 ################################################################################
 #' METHOD='build' - Remove erlang/rebar3
-FROM docker.io/erlang:${OTP_VSN}-alpine AS runtime-build
+FROM ${BUILD_IMAGE} AS base-build
 RUN apk del .erlang-rundeps \
     && rm -f $(which rebar3) \
     && find /usr -type d -name 'erlang' -exec rm -rf {} + \
@@ -145,11 +147,11 @@ RUN apk del .erlang-rundeps \
 
 ################################################################################
 #' METHOD='package' - define runtime-base image
-FROM docker.io/alpine:${ALPINE_VSN} AS runtime-package
+FROM ${PACKAGE_IMAGE} AS base-package
 
 ################################################################################
 #' Update, finalize & strip Alpine to only include necessary runtime packages
-FROM runtime-${METHOD} AS runtime
+FROM base-${METHOD} AS runtime
 RUN apk -U upgrade --available --no-cache
 COPY --from=eturnal /tmp/runDeps /tmp/runDeps
 RUN apk add --no-cache -t .runtime-deps \
@@ -174,7 +176,7 @@ COPY --from=eturnal /rootfs /
 
 ################################################################################
 #' Build together production image
-FROM scratch AS prod
+FROM scratch AS release
 ARG REPOSITORY
 ARG VERSION
 ARG WEB_URL
