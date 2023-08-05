@@ -31,6 +31,7 @@ project adheres to [Semantic Versioning][SemVer].
 - Windows: Update Erlang/OTP to 26.x.
 
 ### Fixed
+- Fix a small memory leak (about 200 KiB per TURN session).
 - Include the `ssl` library with non-distro builds, as it's required for
   enabling TLS for the `mod_stats_prometheus` endpoint.
 - Docker: Include libcap libraries into the image to enable binding to
