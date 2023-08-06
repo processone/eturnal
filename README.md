@@ -45,7 +45,7 @@ On **macOS**, homebrew can be used like this:
     brew tap processone/eturnal https://github.com/processone/eturnal
     brew install processone/eturnal/eturnal
 
-On other platforms, eturnal is [built from source][11].
+On **other platforms**, eturnal is [built from source][11].
 
 ## Configuration
 
