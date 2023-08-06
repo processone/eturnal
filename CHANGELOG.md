@@ -5,6 +5,10 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 
+## [1.11.1] - 2023-08-06
+### Fixed
+- Don't fail to build with `SKIP_DEPS` set to `true`.
+
 ## [1.11.0] - 2023-08-06
 ### Added
 - Allow for specifying static `credentials` in the `eturnal.yml` configuration
@@ -444,7 +448,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/1.11.0...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.11.1...HEAD
+[1.11.1]: https://github.com/processone/eturnal/releases/tag/1.11.1
 [1.11.0]: https://github.com/processone/eturnal/releases/tag/1.11.0
 [1.10.1]: https://github.com/processone/eturnal/releases/tag/1.10.1
 [1.10.0]: https://github.com/processone/eturnal/releases/tag/1.10.0
