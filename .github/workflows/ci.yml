@@ -81,6 +81,10 @@ jobs:
       - name: Check code style
         run: rebar3 lint # Requires Erlang/OTP 23 or newer:
         if: matrix.otp != 21.0 && matrix.otp != 21.3 && matrix.otp != 22.0
+      - name: Build production release
+        run: rebar3 as prod release
+      - name: Build distribution release
+        run: rebar3 as distro release
       - name: Upload test and coverage results
         uses: actions/upload-artifact@v3
         if: always()
