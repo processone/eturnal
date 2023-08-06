@@ -85,6 +85,8 @@ jobs:
         run: rebar3 as prod release
       - name: Build distribution release
         run: rebar3 as distro release
+        env:
+          SKIP_DEPS: true
       - name: Upload test and coverage results
         uses: actions/upload-artifact@v3
         if: always()

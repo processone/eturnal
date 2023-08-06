@@ -131,7 +131,7 @@ case os:getenv("SKIP_DEPS") of
     "true" ->
         SkipOpts = [deps, plugins],
         lists:foldl(fun(Opt, Acc) ->
-                            Delete(Opt, 1, Acc)
+                            Delete(Opt, Acc)
                     end, Config1, SkipOpts);
     _ ->
         Config1
