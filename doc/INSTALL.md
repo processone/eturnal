@@ -20,9 +20,11 @@ and `openssl-devel`.
 > (`chmod +x rebar3`), first. On Erlang/OTP 21.x and 22.x, you need an [older
 > Rebar3][6] version.
 
-    curl https://eturnal.net/eturnal-1.11.1.tar.gz | tar -C /tmp -xzf -
-    cd /tmp/eturnal-1.11.1
-    ./rebar3 as prod tar
+```shell
+curl https://eturnal.net/eturnal-1.11.1.tar.gz | tar -C /tmp -xzf -
+cd /tmp/eturnal-1.11.1
+./rebar3 as prod tar
+```
 
 This generates the archive file `_build/prod/rel/eturnal/eturnal-1.11.1.tar.gz`.
 The default installation prefix is set to `/opt/eturnal`, and it's assumed the
@@ -36,7 +38,9 @@ adapt the following installation instructions accordingly.
 The following command starts the server in an Erlang shell, [using][8] the
 configuration in [config/eturnal.yml][9]:
 
-    $ ./rebar3 shell
+```shell
+./rebar3 shell
+```
 
 To stop the server, enter `q().` (including the trailing dot).
 
@@ -48,27 +52,37 @@ or `sudo -i`, first.
 1.  Create a user for running eturnal. This step is of course only required if
     you're installing eturnal for the first time:
 
-        useradd -r -m -d /opt/eturnal eturnal
+    ```shell
+    useradd -r -m -d /opt/eturnal eturnal
+    ```
 
     Otherwise, **create a backup** of the old installation, first:
 
-        tar -czf /opt/eturnal-$(date '+%F').tar.gz /opt/eturnal
+    ```shell
+    tar -czf /opt/eturnal-$(date '+%F').tar.gz /opt/eturnal
+    ```
 
 2.  Extract the archive generated [above](#compilation):
 
-        cd /opt/eturnal
-        tar -xzf /tmp/eturnal-1.11.1/_build/prod/rel/eturnal/eturnal-1.11.1.tar.gz
-        chown eturnal /opt/eturnal/etc/eturnal.yml
+    ```shell
+    cd /opt/eturnal
+    tar -xzf /tmp/eturnal-1.11.1/_build/prod/rel/eturnal/eturnal-1.11.1.tar.gz
+    chown eturnal /opt/eturnal/etc/eturnal.yml
+    ```
 
 3.  Copy the `eturnal.yml` file to `/etc` (optional):
 
-        cp -p -i /opt/eturnal/etc/eturnal.yml /etc/
+    ```shell
+    cp -p -i /opt/eturnal/etc/eturnal.yml /etc/
+    ```
 
 4.  Start the systemd service:
 
-        cp /opt/eturnal/etc/systemd/system/eturnal.service /etc/systemd/system/
-        systemctl daemon-reload
-        systemctl --now enable eturnal
+    ```shell
+    cp /opt/eturnal/etc/systemd/system/eturnal.service /etc/systemd/system/
+    systemctl daemon-reload
+    systemctl --now enable eturnal
+    ```
 
 ## Configuration and Usage
 

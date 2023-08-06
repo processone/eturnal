@@ -6,10 +6,14 @@ The example provides a reverse proxy example with `traefik` and TLS certificate 
 
 To deploy eturnal use the following command:
 
-    kubectl apply -k ./overlay/dev
+```shell
+kubectl apply -k ./overlay/dev
+```
 
 To remove eturnal use:
 
-    kubectl delete -k ./overlay/dev
+```shell
+kubectl delete -k ./overlay/dev
+```
 
 Adjust the parameters to your needs in `./bases` and `./overlay/dev`. Especially also consider blacklisting Kubernetes' networks to prevent attacks into your cluster.

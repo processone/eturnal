@@ -43,7 +43,9 @@ the `Dockerfile`.
 From the root of the repository, to build with `local` source files the
 `docker buildx build` or `podman build` command is:
 
-    docker buildx build --load -t myname/eturnal:mytag .
+```shell
+docker buildx build --load -t myname/eturnal:mytag .
+```
 
 No need to set `--build-arg METHOD='build'` and `--build-arg SOURCE='local'` in
 the example above as those are the default values (see diagram above).
@@ -93,7 +95,9 @@ to build eturnal tarballs with our `make-binaries` script.
 
 From the root of the eturnal repository, do:
 
-    docker build -f tools/Dockerfile.ctng -t localhost/myname/ctng:eturnal .
+```shell
+docker build -f tools/Dockerfile.ctng -t localhost/myname/ctng:eturnal .
+```
 
 Building tarballs for `musl-libc` with the Debian-based `Dockerfile.ctng` image
 requires a bootstrapped erlang based on the docker host machine's architecture,
@@ -118,4 +122,6 @@ significantly faster.
 Building e.g. with `Podman rootless` requires to have the correct permissions of
 the eturnal repository:
 
-    podman unshare chown -R $(id -u $(whoami)) $PWD
+```shell
+podman unshare chown -R $(id -u $(whoami)) $PWD
+```

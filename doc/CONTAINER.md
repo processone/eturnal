@@ -25,7 +25,9 @@ if necessary, the `latest` release will be rebuilt and updated.
 
 To pull the image:
 
-    docker pull ghcr.io/processone/eturnal:latest
+```shell
+docker pull ghcr.io/processone/eturnal:latest
+```
 
 This will run a container named `eturnal` with the default, unprivileged user 
 `eturnal` (`uid=9000`) in `foreground` mode with default ports published, if 
@@ -93,16 +95,22 @@ when using this option.
 
 Inspect the running container with:
 
-    docker logs eturnal
+```shell
+docker logs eturnal
+```
 
 To use the `eturnalctl` [command](https://eturnal.net/documentation/#Operation),
- e.g. just run:
+e.g. just run:
 
-    docker exec eturnal eturnalctl info
+```shell
+docker exec eturnal eturnalctl info
+```
 
 Stop the running container with:
 
-    docker stop eturnal
+```shell
+docker stop eturnal
+```
 
 ## Configuration
 
@@ -111,7 +119,9 @@ the [example configuration file](https://github.com/processone/eturnal/blob/mast
 The file must be readable by the eturnal user (e.g. `chown 9000:9000` and 
 `chmod 640`). **Mountpath**, e.g. with `docker run` add:
 
-    -v /path/to/eturnal.yml:/etc/eturnal.yml:ro
+```shell
+-v /path/to/eturnal.yml:/etc/eturnal.yml:ro
+```
 
 eturnal may also be configured by specifying certain environment variables, see 
 the [documentation](https://eturnal.net/documentation/#Environment_Variables). 
@@ -148,7 +158,9 @@ in the `eturnal.yml` file. TLS certificates and the dh-parameter file shall be
 have world-readable access rights (e.g. `chown 9000:9000` and `chmod 440`). 
 **Mountpath**, e.g. with `docker run` add:
 
-    -v /path/to/tls-files:/opt/eturnal/tls:ro
+```shell
+-v /path/to/tls-files:/opt/eturnal/tls:ro
+```
 
 ### Rootless environments:
 
@@ -158,7 +170,7 @@ have world-readable access rights (e.g. `chown 9000:9000` and `chmod 440`).
 * The "magic" command in e.g. `podman rootless` is called [podman unshare](https://docs.podman.io/en/latest/markdown/podman-unshare.1.html).
 * To change e.g. the file permissions for `eturnal.yml` use:
 
-```
+```shell
 podman unshare chown 9000:9000 /path/to/eturnal.yml
 podman unshare chmod 640 /path/to/eturnal.yml
 ```

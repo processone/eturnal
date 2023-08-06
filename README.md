@@ -17,22 +17,28 @@ following section.
 
 On **APT-based** Linux distributions, run:
 
-    sudo apt install extrepo
-    sudo extrepo enable eturnal
-    sudo apt update
-    sudo apt install eturnal
+```shell
+sudo apt install extrepo
+sudo extrepo enable eturnal
+sudo apt update
+sudo apt install eturnal
+```
 
 On **DNF-based** Linux distributions, run:
 
-    sudo dnf config-manager --add-repo https://eturnal.net/eturnal.repo
-    sudo dnf install eturnal
-    sudo systemctl --now enable eturnal
+```shell
+sudo dnf config-manager --add-repo https://eturnal.net/eturnal.repo
+sudo dnf install eturnal
+sudo systemctl --now enable eturnal
+```
 
 On **YUM-based** Linux distributions, run:
 
-    sudo yum-config-manager --add-repo https://eturnal.net/eturnal.repo
-    sudo yum install eturnal
-    sudo systemctl --now enable eturnal
+```shell
+sudo yum-config-manager --add-repo https://eturnal.net/eturnal.repo
+sudo yum install eturnal
+sudo systemctl --now enable eturnal
+```
 
 On **SUSE** Linux Enterprise and openSUSE systems, [distribution
 repositories][7] can be used instead. There's also an official **Alpine**
@@ -42,8 +48,10 @@ repositories][7] can be used instead. There's also an official **Alpine**
 
 On **macOS**, homebrew can be used like this:
 
-    brew tap processone/eturnal https://github.com/processone/eturnal
-    brew install processone/eturnal/eturnal
+```shell
+brew tap processone/eturnal https://github.com/processone/eturnal
+brew install processone/eturnal/eturnal
+```
 
 On **other platforms**, eturnal is [built from source][11].
 
@@ -75,7 +83,9 @@ below the `etc` directory.
 
 For controlling eturnal, the `eturnalctl` command can be used; see:
 
-    eturnalctl help
+```shell
+eturnalctl help
+```
 
 ## Logging
 
