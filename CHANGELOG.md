@@ -15,7 +15,7 @@ project adheres to [Semantic Versioning][SemVer].
   file. They can be used instead of (or in addition to) a shared `secret`.
 - Allow for overriding the `build.config` settings using environment variables
   (of the same name, but upper-case).
-- Docker: Container images can now be pulled from Dockerhub as well. The name
+- Docker: Container images can now be pulled from Docker Hub as well. The name
   is `docker.io/eturnal/eturnal:latest`. When pulling with `Docker`, `docker.io`
   may be omitted.
 - Provide a [homebrew](https://brew.sh) [Formula](https://github.com/processone/eturnal/blob/master/Formula/eturnal.rb)
@@ -33,7 +33,7 @@ project adheres to [Semantic Versioning][SemVer].
 - Binary release: Update OpenSSL from 1.1.1q to 3.1.2.
 - Binary release: Update zlib from 1.2.12 to 1.2.13.
 - Binary release: Build Erlang/OTP without Termcap support.
-- Docker: Always use the same Erlang/OTP vsn as the binary release.
+- Docker: Always use the same Erlang/OTP version as the binary release.
 - Windows: Update Erlang/OTP to 26.x.
 
 ### Fixed
@@ -41,7 +41,7 @@ project adheres to [Semantic Versioning][SemVer].
 - Include the `ssl` library with non-distro builds, as it's required for
   enabling TLS for the `mod_stats_prometheus` endpoint.
 - Docker: Include libcap libraries into the image to enable binding to
-  privileged ports (<1024) directly.
+  privileged ports (<1024) directly.  
   Hint: Depending on the container runtime in use, if the `docker run` option
   `--cap-drop=ALL` is used, `CAP_NET_BIND_SERVICE` may be included again to make
   the container work (see examples).
