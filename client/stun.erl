@@ -1,7 +1,7 @@
 %%% Simple STUN client (UDP-only).
 %%%
-%%% Copyright (c) 2022 Holger Weiss <holger@zedat.fu-berlin.de>.
-%%% Copyright (c) 2022 ProcessOne, SARL.
+%%% Copyright (c) 2022-2023 Holger Weiss <holger@zedat.fu-berlin.de>.
+%%% Copyright (c) 2022-2023 ProcessOne, SARL.
 %%% All rights reserved.
 %%%
 %%% Licensed under the Apache License, Version 2.0 (the "License");
