@@ -155,9 +155,9 @@ Example:
 
 ```
 credentials:
-  - alice: l0vesBob
-  - bob: l0vesAlice
-  - eve: stalksTh3m
+  alice: l0vesBob
+  bob: l0vesAlice
+  eve: stalksTh3m
 '''
 
 === listen ===
