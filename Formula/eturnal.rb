@@ -1,8 +1,8 @@
 class Eturnal < Formula
   desc "STUN/TURN server"
   homepage "https://eturnal.net"
-  url "https://eturnal.net/download/eturnal-1.11.0.tar.gz"
-  sha256 "0bff160c3225f37ddaf198dfdada17a052f37c83ffcff144d1a2df691c950b95"
+  url "https://eturnal.net/download/eturnal-1.11.1.tar.gz"
+  sha256 "c7c93642bf6fcf3bf457ba632d9adfb4aab800235b8c0955abf82d22b1c5a36b"
   license "Apache-2.0"
   head "https://github.com/processone/eturnal.git", branch: "master"
 
