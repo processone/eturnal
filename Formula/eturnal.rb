@@ -1,8 +1,8 @@
 class Eturnal < Formula
   desc "STUN/TURN server"
   homepage "https://eturnal.net"
-  url "https://eturnal.net/download/eturnal-1.10.1.tar.gz"
-  sha256 "a8f999a2a4b84cbe690bc762bb6b6bd67ebc70becb2f68c65b92e15edf132524"
+  url "https://eturnal.net/download/eturnal-1.11.0.tar.gz"
+  sha256 "0bff160c3225f37ddaf198dfdada17a052f37c83ffcff144d1a2df691c950b95"
   license "Apache-2.0"
   head "https://github.com/processone/eturnal.git", branch: "master"
 
@@ -19,22 +19,6 @@ class Eturnal < Formula
   conflicts_with "ejabberd", because: "both install e.g. `p1_utils-x.x.x` lib"
 
   def install
-    # Patches, remove if release newer than 1.10.1
-    unless build.head?
-      ## change default install dir
-      inreplace "build.config" do |s|
-        s.gsub! "/opt/#{name}", opt_prefix.to_s
-      end
-      ## change default default config dir
-      inreplace "config/sys.config" do |s|
-        s.gsub! "$ETURNAL_ETC_PREFIX/etc/#{name}.yml", "#{etc}/#{name}.yml"
-      end
-      ## fix eturnalctl
-      inreplace "scripts/eturnalctl" do |s|
-        s.gsub! "(readlink ", "(readlink -f "
-      end
-    end
-
     # build release
     ENV["ETURNAL_PREFIX"] = opt_prefix.to_s
     ENV["ETURNAL_ETC_DIR"] = etc.to_s
@@ -66,27 +50,10 @@ class Eturnal < Formula
     (var/"log/#{name}").install_symlink opt_prefix/"log"
     (var/"run/#{name}").mkpath
     (var/"run/#{name}").install_symlink opt_prefix/"run"
-
-    # put a random secure cookie
-    # cannot use this with HEAD currently
-    unless build.head?
-      vm_args_file = opt_prefix/"releases/#{version}/vm.args"
-      require "securerandom"
-      cookie = SecureRandom.hex
-      File.open(vm_args_file.to_s, "a") { |f| f << "-setcookie #{cookie}\n" }
-    end
   end
 
   def caveats
     <<~EOS
-      For convenience the erlang cookie is currently randomly hard-coded in
-      `$(brew --prefix)/opt/#{name}/releases/#{version}/vm.args`. To harden your
-      #{name} you should delete the last line '-setcookie r4nd0mstr1n6' and
-      afterwards start your service. Make sure, that all users calling #{name}
-      e.g. with $(brew --prefix)/opt/#{name}/bin/#{name}ctl have the same
-      `.erlang.cookie` file in their `$HOME` directory. This does currently not
-      apply to installations from HEAD.
-
       With macOS > 12.3 `#{name}ctl` can be invoked directly without specifying
       the path `$(brew --prefix)/opt/#{name}/bin/#{name}ctl`.
 
