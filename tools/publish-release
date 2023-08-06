@@ -75,5 +75,5 @@ do
 	cp -p "$dl_linux_pkg_dir/$rpm" "$rpm_repo_dir"
 	rpm --addsign "$rpm_repo_dir/$rpm"
 done
-createrepo "$rpm_repo_dir"
+createrepo_c "$rpm_repo_dir"
 gpg --detach-sign --armor "$rpm_repo_dir/repodata/repomd.xml"
