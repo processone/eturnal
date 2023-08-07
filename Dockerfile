@@ -93,7 +93,7 @@ WORKDIR /rootfs
 ARG HOME
 RUN mkdir -p $HOME/log $HOME/run $HOME/tls bin etc usr/local/bin
 # we symlink busybox's 'ash' for compatibility reasons with Alpine vsn < 3.17
-RUN ln -s $(which busybox) bin/sh
+RUN ln -s $(command -v busybox) bin/sh
 
 ARG USER
 ARG UID
@@ -141,7 +141,7 @@ RUN chown -R $UID:$UID $HOME
 #' METHOD='build' - Remove erlang/rebar3
 FROM ${BUILD_IMAGE} AS base-build
 RUN apk del .erlang-rundeps \
-    && rm -f $(which rebar3) \
+    && rm -f $(command -v rebar3) \
     && find /usr -type d -name 'erlang' -exec rm -rf {} + \
     && find /usr -type l -exec test ! -e {} \; -delete
 
