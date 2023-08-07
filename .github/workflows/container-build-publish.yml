@@ -185,10 +185,6 @@ jobs:
         run: |
           echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
           echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x64|amd64|')" >> $GITHUB_ENV
-          if [ ${{ github.event_name }} = 'push' ]
-          then echo "MODE=push" >> $GITHUB_ENV
-          else echo "MODE=load" >> $GITHUB_ENV
-          fi
       -
         name: Download artifact | ${{ matrix.arch }} musl-libc based binary tarball
         uses: actions/download-artifact@v3
@@ -220,7 +216,7 @@ jobs:
           file: ${{ env.DOCKERFILE_PATH }}/Dockerfile
           platforms: linux/${{ env.ARCH }}
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,${{ env.MODE }}=true
+          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
       -
         name: Simple smoke test
         run: |
@@ -308,10 +304,6 @@ jobs:
           then echo "REBAR_CT=false" >> $GITHUB_ENV
           else echo "REBAR_CT=true" >> $GITHUB_ENV
           fi
-          if [ ${{ github.event_name }} = 'push' ]
-          then echo "MODE=push" >> $GITHUB_ENV
-          else echo "MODE=load" >> $GITHUB_ENV
-          fi
       -
         name: Log in to ${{ env.REGISTRY }}
         uses: docker/login-action@v2
@@ -340,7 +332,7 @@ jobs:
           file: ${{ env.DOCKERFILE_PATH }}/Dockerfile
           platforms: linux/${{ matrix.arch }}
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,${{ env.MODE }}=true
+          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
       -
         name: Simple smoke test
         run: |
