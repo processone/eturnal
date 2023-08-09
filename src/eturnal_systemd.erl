@@ -28,8 +28,7 @@
          handle_info/2,
          terminate/2,
          code_change/3]).
--export_type([state/0,
-              watchdog_timeout/0]).
+-export_type([state/0]).
 
 -include_lib("kernel/include/logger.hrl").
 
@@ -37,10 +36,9 @@
         {socket :: gen_udp:socket() | undefined,
          destination :: inet:local_address() | undefined,
          interval :: pos_integer() | undefined,
-         last_ping :: integer() | undefined}).
+         timer :: reference() | undefined}).
 
 -opaque state() :: #systemd_state{}.
--opaque watchdog_timeout() :: pos_integer() | hibernate.
 
 %% API: send systemd notifications.
 
@@ -64,8 +62,7 @@ start_link() ->
 
 %% API: gen_server callbacks.
 
--spec init(any())
-      -> {ok, state()} | {ok, state(), watchdog_timeout()} | {stop, term()}.
+-spec init(any()) -> {ok, state()} | {stop, term()}.
 init(_Opts) ->
     process_flag(trap_exit, true),
     case os:getenv("NOTIFY_SOCKET") of
@@ -77,17 +74,10 @@ init(_Opts) ->
             Destination = {local, Path},
             case gen_udp:open(0, [local]) of
                 {ok, Socket} ->
-                    Interval = get_watchdog_interval(),
                     State = #systemd_state{socket = Socket,
                                            destination = Destination,
-                                           interval = Interval},
-                    if is_integer(Interval), Interval > 0 ->
-                            ?LOG_INFO("Watchdog notifications enabled"),
-                            {ok, set_last_ping(State), Interval};
-                       true ->
-                            ?LOG_INFO("Watchdog notifications disabled"),
-                            {ok, State}
-                    end;
+                                           interval = get_watchdog_interval()},
+                    {ok, maybe_start_timer(State)};
                 {error, Reason} ->
                     ?LOG_CRITICAL("Cannot open IPC socket: ~p", [Reason]),
                     {stop, Reason}
@@ -98,47 +88,43 @@ init(_Opts) ->
     end.
 
 -spec handle_call(term(), {pid(), term()}, state())
-      -> {reply, {error, badarg}, state(), watchdog_timeout()}.
+      -> {reply, {error, badarg}, state()}.
 handle_call(Request, From, State) ->
     ?LOG_ERROR("Got unexpected request from ~p: ~p", [From, Request]),
-    {reply, {error, badarg}, State, get_timeout(State)}.
+    {reply, {error, badarg}, State}.
 
--spec handle_cast({notify, binary()} | term(), state())
-      -> {noreply, state(), watchdog_timeout()}.
+-spec handle_cast({notify, binary()} | term(), state()) -> {noreply, state()}.
 handle_cast({notify, Notification},
             #systemd_state{destination = undefined} = State) ->
     ?LOG_DEBUG("No NOTIFY_SOCKET, dropping ~s notification", [Notification]),
-    {noreply, State, get_timeout(State)};
+    {noreply, State};
 handle_cast({notify, Notification}, State) ->
     try notify(State, Notification)
     catch _:Err ->
             ?LOG_ERROR("Cannot send ~s notification: ~p", [Notification, Err])
     end,
-    {noreply, State, get_timeout(State)};
+    {noreply, State};
 handle_cast(Msg, State) ->
     ?LOG_ERROR("Got unexpected message: ~p", [Msg]),
-    {noreply, State, get_timeout(State)}.
+    {noreply, State}.
 
--spec handle_info(timeout | term(), state())
-      -> {noreply, state(), watchdog_timeout()}.
-handle_info(timeout, #systemd_state{interval = Interval} = State)
+-spec handle_info(ping_watchdog | term(), state()) -> {noreply, state()}.
+handle_info(ping_watchdog, #systemd_state{interval = Interval} = State)
   when is_integer(Interval), Interval > 0 ->
     try notify(State, <<"WATCHDOG=1">>)
     catch _:Err ->
             ?LOG_ERROR("Cannot ping watchdog: ~p", [Err])
     end,
-    {noreply, set_last_ping(State), Interval};
+    {noreply, start_timer(State)};
 handle_info(Info, State) ->
     ?LOG_ERROR("Got unexpected info: ~p", [Info]),
-    {noreply, State, get_timeout(State)}.
+    {noreply, State}.
 
 -spec terminate(normal | shutdown | {shutdown, term()} | term(), state()) -> ok.
-terminate(Reason, #systemd_state{socket = undefined}) ->
+terminate(Reason, State) ->
     ?LOG_DEBUG("Terminating ~s (~p)", [?MODULE, Reason]),
-    ok;
-terminate(Reason, #systemd_state{socket = Socket}) ->
-    ?LOG_DEBUG("Closing socket and terminating ~s (~p)", [?MODULE, Reason]),
-    ok = gen_udp:close(Socket).
+    cancel_timer(State),
+    close_socket(State).
 
 -spec code_change({down, term()} | term(), state(), term()) -> {ok, state()}.
 code_change(_OldVsn, State, _Extra) ->
@@ -158,24 +144,27 @@ get_watchdog_interval() ->
             undefined
     end.
 
--spec get_timeout(state()) -> watchdog_timeout().
-get_timeout(#systemd_state{interval = undefined}) ->
-    ?LOG_DEBUG("Watchdog interval is undefined, hibernating"),
-    hibernate;
-get_timeout(#systemd_state{interval = Interval, last_ping = LastPing}) ->
-    case Interval - (erlang:monotonic_time(millisecond) - LastPing) of
-        Timeout when Timeout > 0 ->
-            ?LOG_DEBUG("Calculated new timeout value: ~B", [Timeout]),
-            Timeout;
-        _ ->
-            ?LOG_DEBUG("Calculated new timeout value: 1"),
-            1
-    end.
+-spec maybe_start_timer(state()) -> state().
+maybe_start_timer(#systemd_state{interval = Interval} = State)
+  when is_integer(Interval), Interval > 0 ->
+    ?LOG_INFO("Watchdog notifications enabled"),
+    start_timer(State);
+maybe_start_timer(State) ->
+    ?LOG_INFO("Watchdog notifications disabled"),
+    State.
 
--spec set_last_ping(state()) -> state().
-set_last_ping(State) ->
-    LastPing = erlang:monotonic_time(millisecond),
-    State#systemd_state{last_ping = LastPing}.
+-spec start_timer(state()) -> state().
+start_timer(#systemd_state{interval = Interval} = State) ->
+    ?LOG_DEBUG("Pinging watchdog in ~B milliseconds", [Interval]),
+    Timer = erlang:send_after(Interval, self(), ping_watchdog),
+    State#systemd_state{timer = Timer}.
+
+-spec cancel_timer(state()) -> ok.
+cancel_timer(#systemd_state{timer = undefined}) ->
+    ok;
+cancel_timer(#systemd_state{timer = Timer}) ->
+    ?LOG_DEBUG("Cancelling watchdog timer"),
+    ok = erlang:cancel_timer(Timer, [{info, false}]).
 
 -spec notify(state(), binary()) -> ok.
 notify(#systemd_state{socket = Socket, destination = Destination},
@@ -186,3 +175,10 @@ notify(#systemd_state{socket = Socket, destination = Destination},
 -spec cast_notification(binary()) -> ok.
 cast_notification(Notification) ->
     ok = gen_server:cast(?MODULE, {notify, Notification}).
+
+-spec close_socket(state()) -> ok.
+close_socket(#systemd_state{socket = undefined}) ->
+    ok;
+close_socket(#systemd_state{socket = Socket}) ->
+    ?LOG_DEBUG("Closing NOTIFY_SOCKET"),
+    ok = gen_udp:close(Socket).

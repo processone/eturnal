@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Fixed
+- Don't fail to ping the systemd watchdog under certain conditions.
 
 ## [1.11.1] - 2023-08-06
 ### Fixed
