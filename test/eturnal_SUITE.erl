@@ -31,11 +31,22 @@
 
 -spec suite() -> [info()].
 suite() ->
-    [{timetrap, {seconds, 120}}].
+    [{require, {server, [address, udp_port, tcp_port, tls_port, auto_port]}},
+     {timetrap, {seconds, 120}}].
 
 -spec init_per_suite(config()) -> config().
 init_per_suite(Config) ->
-    Config.
+    Server = ct:get_config(server),
+    Address = proplists:get_value(address, Server),
+    UdpPort = proplists:get_value(udp_port, Server),
+    TcpPort = proplists:get_value(tcp_port, Server),
+    TlsPort = proplists:get_value(tls_port, Server),
+    AutoPort = proplists:get_value(auto_port, Server),
+    [{address, Address},
+     {udp_port, UdpPort},
+     {tcp_port, TcpPort},
+     {tls_port, TlsPort},
+     {auto_port, AutoPort} | Config].
 
 -spec end_per_suite(config()) -> ok.
 end_per_suite(_Config) ->
@@ -197,80 +208,80 @@ reload(_Config) ->
     ok = eturnal_ctl:reload().
 
 -spec connect_tcp(config()) -> any().
-connect_tcp(_Config) ->
-    Port = 34780,
+connect_tcp(Config) ->
+    Addr = ?config(address, Config),
+    Port = ?config(tcp_port, Config),
     ct:pal("Connecting to 127.0.0.1:~B (TCP)", [Port]),
-    {ok, Addr} = inet:parse_address("127.0.0.1"),
     {ok, Sock} = gen_tcp:connect(Addr, Port, []),
     ok = gen_tcp:close(Sock).
 
 -spec connect_tls(config()) -> any().
-connect_tls(_Config) ->
-    Port = 53490,
+connect_tls(Config) ->
+    Addr = ?config(address, Config),
+    Port = ?config(tls_port, Config),
     ct:pal("Connecting to 127.0.0.1:~B (TLS)", [Port]),
-    {ok, Addr} = inet:parse_address("127.0.0.1"),
     {ok, TCPSock} = gen_tcp:connect(Addr, Port, []),
     {ok, TLSSock} = fast_tls:tcp_to_tls(TCPSock, [connect]),
     ok = fast_tls:close(TLSSock).
 
 -spec turn_udp(config()) -> any().
-turn_udp(_Config) ->
-    Port = 34780,
+turn_udp(Config) ->
+    Addr = ?config(address, Config),
+    Port = ?config(udp_port, Config),
     Username1 = <<"alice">>,
     Password1 = <<"l0vesBob">>,
     Username2 = <<"2145913200">>,
     Password2 = <<"cLwpKS2/9bWHf+agUImD47PIXNE=">>,
     Realm = <<"eturnal.net">>,
     ct:pal("Allocating TURN relay on 127.0.0.1:~B (UDP)", [Port]),
-    {ok, Addr} = inet:parse_address("127.0.0.1"),
     ok = stun_test:allocate_udp(Addr, Port, Username1, Realm, Password1),
     ok = stun_test:allocate_udp(Addr, Port, Username2, Realm, Password2).
 
 -spec stun_udp(config()) -> any().
-stun_udp(_Config) ->
-    Port = 34780,
+stun_udp(Config) ->
+    Addr = ?config(address, Config),
+    Port = ?config(udp_port, Config),
     ct:pal("Performing STUN query against 127.0.0.1:~B (UDP)", [Port]),
-    {ok, Addr} = inet:parse_address("127.0.0.1"),
     Result = stun_test:bind_udp(Addr, Port),
     ct:pal("Got query result: ~p", [Result]),
     true = is_tuple(Result),
     true = element(1, Result) =:= stun.
 
 -spec stun_tcp(config()) -> any().
-stun_tcp(_Config) ->
-    Port = 34780,
+stun_tcp(Config) ->
+    Addr = ?config(address, Config),
+    Port = ?config(tcp_port, Config),
     ct:pal("Performing STUN query against 127.0.0.1:~B (TCP)", [Port]),
-    {ok, Addr} = inet:parse_address("127.0.0.1"),
     Result = stun_test:bind_tcp(Addr, Port),
     ct:pal("Got query result: ~p", [Result]),
     true = is_tuple(Result),
     true = element(1, Result) =:= stun.
 
 -spec stun_tls(config()) -> any().
-stun_tls(_Config) ->
-    Port = 53490,
+stun_tls(Config) ->
+    Addr = ?config(address, Config),
+    Port = ?config(tls_port, Config),
     ct:pal("Performing STUN query against 127.0.0.1:~B (TLS)", [Port]),
-    {ok, Addr} = inet:parse_address("127.0.0.1"),
     Result = stun_test:bind_tls(Addr, Port),
     ct:pal("Got query result: ~p", [Result]),
     true = is_tuple(Result),
     true = element(1, Result) =:= stun.
 
 -spec stun_tcp_auto(config()) -> any().
-stun_tcp_auto(_Config) ->
-    Port = 34781,
+stun_tcp_auto(Config) ->
+    Addr = ?config(address, Config),
+    Port = ?config(auto_port, Config),
     ct:pal("Performing STUN query against 127.0.0.1:~B (TCP)", [Port]),
-    {ok, Addr} = inet:parse_address("127.0.0.1"),
     Result = stun_test:bind_tcp(Addr, Port),
     ct:pal("Got query result: ~p", [Result]),
     true = is_tuple(Result),
     true = element(1, Result) =:= stun.
 
 -spec stun_tls_auto(config()) -> any().
-stun_tls_auto(_Config) ->
-    Port = 34781,
+stun_tls_auto(Config) ->
+    Addr = ?config(address, Config),
+    Port = ?config(auto_port, Config),
     ct:pal("Performing STUN query against 127.0.0.1:~B (TLS)", [Port]),
-    {ok, Addr} = inet:parse_address("127.0.0.1"),
     Result = stun_test:bind_tls(Addr, Port),
     ct:pal("Got query result: ~p", [Result]),
     true = is_tuple(Result),
