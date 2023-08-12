@@ -73,15 +73,27 @@ WORKDIR /rootfs/$HOME
 RUN tar -xzf $BUILD_DIR/_build/$REBAR_PROFILE/rel/eturnal/eturnal-*.tar.gz
 
 ################################################################################
-#' METHOD='package' - install eturnal from binary tarball
-FROM ${PACKAGE_IMAGE} AS package
+#' METHOD='package', SOURCE='local' - copy eturnal tarball from local repository
+FROM ${PACKAGE_IMAGE} AS package-local
 COPY eturnal-*-linux-musl-*.tar.gz /tmp/
+
+################################################################################
+#' METHOD='package', SOURCE='web' - download eturnal binary tarballs from web
+FROM ${PACKAGE_IMAGE} AS package-web
+ARG WEB_URL
+ARG VERSION
+RUN arch=$(uname -m | sed -e 's/x86_64/x64/;s/aarch64/arm64/') \
+    && wget -P /tmp $WEB_URL/download/linux/eturnal-$VERSION-linux-musl-$arch.tar.gz
+
+################################################################################
+#' METHOD='package' - install eturnal from binary tarball
+FROM package-${SOURCE} AS package
 WORKDIR /rootfs
 ARG HOME
 RUN home_root_dir=$(echo $HOME | sed 's|\(.*\)/.*|\1 |') \
     && mkdir -p $home_root_dir \
-    && ARCH=$(uname -m | sed -e 's/x86_64/x64/;s/aarch64/arm64/') \
-    && tar -xzf /tmp/eturnal-*-linux-musl-$ARCH.tar.gz -C $home_root_dir
+    && arch=$(uname -m | sed -e 's/x86_64/x64/;s/aarch64/arm64/') \
+    && tar -xzf /tmp/eturnal-*-linux-musl-$arch.tar.gz -C $home_root_dir
 
 ################################################################################
 #' Prepare eturnal for runtime
