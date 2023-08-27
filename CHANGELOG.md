@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Changed
+- Binary release: Update zlib from 1.2.13 to 1.3.
+
 ### Fixed
 - Don't fail to ping the systemd watchdog under certain conditions.
 
