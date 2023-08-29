@@ -143,11 +143,19 @@ set to `stdout` in `eturnal.yml`.
   to enable the TURN service. Note: the **IPv6 address is optional**.
   * If the external STUN lookup is not desired, define the environment variable 
   `STUN_SERVICE=false` in the `docker run` command.
-* Depending on the container runtime in use, if eturnal shall bind to privileged
-ports (<1024) directly, the option `--security-opt no-new-privileges` must not
-be used, since the unprivileged container user `eturnal` needs to escalate
-`CAP_NET_BIND_SERVICE`. Newer [Docker](https://github.com/moby/moby/pull/41030)
-versions for example are not affected.
+* If eturnal shall bind to privileged ports (<1024) directly, there are two ways
+  to accomplish that:
+  * The eturnal container has the capability `NET_BIND_SERVICE` included and the
+  option `--security-opt no-new-privileges` is not set, since the unprivileged
+  container user `eturnal` needs to escalate `NET_BIND_SERVICE`.
+  * You enable binding to privileged ports [system-wide](https://github.com/containers/podman/blob/main/rootless.md#shortcomings-of-rootless-podman) through defining the lowest port:
+
+        sysctl net.ipv4.ip_unprivileged_port_start=80
+
+    This also works in [kubernetes](https://kubernetes.io/docs/tasks/administer-cluster/sysctl-cluster/#setting-sysctls-for-a-pod).
+
+  Hint: Newer [Docker](https://github.com/moby/moby/pull/41030) versions set
+  this option during install already.
 
 ### Custom TLS certificates and dh-parameter file
 
