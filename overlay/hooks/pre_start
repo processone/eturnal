@@ -23,6 +23,7 @@ then
     "$ERTS_DIR/bin/erl" \
         -noinput \
         -boot 'no_dot_erlang' \
+        -start_epmd 'false' \
         -sname 'cookie' \
         -eval 'halt()' \
         2>'/dev/null' || :
