@@ -57,13 +57,10 @@ file shipped with eturnal's <a
 href="https://eturnal.net/download/eturnal-1.11.1.tar.gz">source code
 archive</a>.
 
-The binary release is installed using the following commands (on AArch64
-systems, `x64' must be replaced with `arm64'):
+The binary release is installed using the following command line:
 
 ```
-curl -O https://eturnal.net/eturnal-1.11.1-linux-x64.run
-chmod +x eturnal-1.11.1-linux-x64.run
-sudo ./eturnal-1.11.1-linux-x64.run
+curl -fsS https://eturnal.net/install | sudo sh
 '''
 
 The installer extracts the release archive into `/opt/eturnal' and creates a
@@ -71,7 +68,7 @@ system user called `eturnal'. An example configuration is installed as
 `/etc/eturnal.yml' if that file doesn't exist yet. On systemd-managed systems,
 a service unit is created and eturnal is started.
 
-If the above commands were used to upgrade eturnal from an earlier version, the
+If the above command was used to upgrade eturnal from an earlier version, the
 service must be restarted afterwards. On systemd-managed systems:
 
 ```
@@ -82,9 +79,7 @@ For uninstalling eturnal and removing the configuration, run the following
 commands:
 
 ```
-sudo systemctl --now disable eturnal
-sudo rm -rf /opt/eturnal
-sudo rm /etc/systemd/system/eturnal.service
+curl -fsS https://eturnal.net/uninstall | sudo sh
 sudo rm /etc/eturnal.yml
 '''
 

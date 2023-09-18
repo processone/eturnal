@@ -77,3 +77,55 @@ do
 done
 createrepo_c "$rpm_repo_dir"
 gpg --detach-sign --armor "$rpm_repo_dir/repodata/repomd.xml"
+
+cat >"$web_root_dir/install" <<-EOF
+	#!/bin/sh
+	set -e
+	set -u
+	rel_name='$rel_name'
+	rel_vsn='$rel_vsn'
+	os='linux'
+	platform="\$(uname -s)/\$(uname -m)"
+	domain="\$rel_name.net"
+	tmp_dir=\$(mktemp -d "\$rel_name.XXXXXX")
+	trap 'rm -rf "\$tmp_dir"' INT TERM EXIT
+	unsupported()
+	{
+	    echo >&2 "No \$rel_name binaries available for \$1 systems."
+	    echo >&2
+	    echo >&2 "For building \$rel_name from source, see:"
+	    echo >&2
+	    echo >&2 "https://\$domain/documentation/code/install.html"
+	    exit 1
+	}
+	case \$platform in
+	Linux/aarch64) arch='arm64' ;;
+	Linux/x86_64) arch='x64' ;;
+	*) unsupported "\$platform" ;;
+	esac
+	if ! ldd --version 2>'/dev/null' | grep -qiE '(GNU libc|GLIBC)'
+	then unsupported 'non-glibc'
+	fi
+	installer="\$rel_name-\$rel_vsn-\$os-\$arch.run"
+	url="https://\$domain/\$installer"
+	cd "\$tmp_dir"
+	if type curl >'/dev/null'
+	then curl -fsSLO "\$url"
+	else wget --quiet "\$url"
+	fi
+	chmod +x "\$installer"
+	./\$installer
+	cd "\$OLDPWD"
+EOF
+cat >"$web_root_dir/uninstall" <<-'EOF'
+	#!/bin/sh
+	set -e
+	set -u
+	if [ -e '/run/systemd/system' ]
+	then
+	    systemctl --now disable eturnal
+	    rm -f /etc/systemd/system/eturnal.service
+	fi
+	rm -rf /opt/eturnal
+	echo 'eturnal has been uninstalled successfully.'
+EOF
