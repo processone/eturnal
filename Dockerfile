@@ -61,7 +61,7 @@ ARG REBAR_PROFILE=prod
 RUN rebar3 as $REBAR_PROFILE tar
 # run rebar3 test suites
 RUN rebar3 xref
-RUN rebar3 eunit
+RUN rebar3 eunit -v
 # On slow architectures (e.g. QEMU builds), Common Tests (CT) may fail due to
 # timeouts, therefore, retry twice on failure. On versions <= '1.10.1' CTs have
 # even shorter timeouts, hence consider to set `--build-arg REBAR_CT=false`.
