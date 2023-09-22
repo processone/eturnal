@@ -117,15 +117,17 @@ cat >"$web_root_dir/install" <<-EOF
 	./\$installer
 	cd "\$OLDPWD"
 EOF
-cat >"$web_root_dir/uninstall" <<-'EOF'
+cat >"$web_root_dir/uninstall" <<-EOF
 	#!/bin/sh
 	set -e
 	set -u
-	if [ -e '/run/systemd/system' ]
+	rel_name='$rel_name'
+	if [ -e '/run/systemd/system' ] &&
+	    systemctl list-unit-files \$rel_name.service >'/dev/null' 2>&1
 	then
-	    systemctl --now disable eturnal
-	    rm -f /etc/systemd/system/eturnal.service
+	    systemctl --now disable \$rel_name
+	    rm -f /etc/systemd/system/\$rel_name.service
 	fi
-	rm -rf /opt/eturnal
-	echo 'eturnal has been uninstalled successfully.'
+	rm -rf "/opt/\$rel_name"
+	echo "\$rel_name has been uninstalled successfully."
 EOF
