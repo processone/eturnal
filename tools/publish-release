@@ -114,7 +114,7 @@ cat >"$web_root_dir/install" <<-EOF
 	else wget --quiet "\$url"
 	fi
 	chmod +x "\$installer"
-	./\$installer
+	./\$installer --nox11
 	cd "\$OLDPWD"
 EOF
 cat >"$web_root_dir/uninstall" <<-EOF
@@ -125,7 +125,7 @@ cat >"$web_root_dir/uninstall" <<-EOF
 	if [ -e '/run/systemd/system' ] &&
 	    systemctl list-unit-files \$rel_name.service >'/dev/null' 2>&1
 	then
-	    systemctl --now disable \$rel_name
+	    systemctl --quiet --now disable \$rel_name
 	    rm -f /etc/systemd/system/\$rel_name.service
 	fi
 	rm -rf "/opt/\$rel_name"
