@@ -117,7 +117,7 @@ cat >"$web_root_dir/install" <<-EOF
 	else wget --quiet "\$url"
 	fi
 	chmod +x "\$installer"
-	./\$installer --nox11
+	./\$installer --quiet --nox11
 	cd "\$OLDPWD"
 EOF
 cat >"$web_root_dir/uninstall" <<-EOF
