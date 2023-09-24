@@ -142,9 +142,9 @@ blacklist:
 Default: `{}'</div>
 
 Static (non-ephemeral) credentials may be configured instead of (or in addition
-to) shared <a href="#secret">secret</a>s by adding them to the `credentials'
-map, where each user name is specified as the key and the corresponding password
-is specified as the value.
+to) shared {@section secret}s by adding them to the `credentials' map, where
+each user name is specified as the key and the corresponding password is
+specified as the value.
 
 Example:
 
