@@ -6,7 +6,7 @@ set -e
 set -u
 
 myself=${0##*/}
-architectures='x64 arm64'
+platforms='glibc-x64 glibc-arm64 musl-x64 musl-arm64'
 
 usage()
 {
@@ -149,13 +149,13 @@ create_setup_script()
 	chmod +x "$dir/setup"
 }
 
-for arch in $architectures
+for platform in $platforms
 do
-	tar_name="$rel_name-$rel_vsn-linux-glibc-$arch.tar"
+	tar_name="$rel_name-$rel_vsn-linux-$platform.tar"
 	tgz_name="$tar_name.gz"
-	installer_name="$rel_name-$rel_vsn-linux-$arch.run"
+	installer_name="$rel_name-$rel_vsn-linux-$platform.run"
 
-	echo "$myself: Putting together installer for $arch ..."
+	echo "$myself: Putting together installer for $platform ..."
 	gzip -c -d <"$tgz_name" >"$tmp_dir/$tar_name"
 	create_setup_script "$tmp_dir" "$tar_name"
 	"$makeself" "$tmp_dir" "$installer_name" "$rel_name $rel_vsn" './setup'

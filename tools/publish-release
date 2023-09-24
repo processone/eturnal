@@ -103,10 +103,13 @@ cat >"$web_root_dir/install" <<-EOF
 	Linux/x86_64) arch='x64' ;;
 	*) unsupported "\$platform" ;;
 	esac
-	if ! ldd --version 2>'/dev/null' | grep -qiE '(GNU libc|GLIBC)'
-	then unsupported 'non-glibc'
-	fi
-	installer="\$rel_name-\$rel_vsn-\$os-\$arch.run"
+	ldd_output=\$(ldd --version 2>&1 || :)
+	case \$ldd_output in
+	*GNU\ libc*|*[Gg][Ll][Ii][Bb][Cc]*) libc='glibc' ;;
+	*musl*) libc='musl' ;;
+	*) unsupported 'non-glibc/musl' ;;
+	esac
+	installer="\$rel_name-\$rel_vsn-\$os-\$libc-\$arch.run"
 	url="https://\$domain/\$installer"
 	cd "\$tmp_dir"
 	if type curl >'/dev/null'
