@@ -1,4 +1,4 @@
-# eturnal STUN/TURN Server
+# eturnal TURN Server
 
 <p align="left"><img src="https://eturnal.net/hello.png" height="180"></p>
 
