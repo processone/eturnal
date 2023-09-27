@@ -4,10 +4,21 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Added
+- The new `blacklist_clients` and `blacklist_peers` options may be used to
+  specify blocklists for TURN clients and TURN peers separately. The old
+  `blacklist` option that affected both clients and peers has been deprecated.
+  The same applies to the `whitelist` option, which has been deprecated in favor
+  of the new `whitelist_clients` and `whitelist_peers` options. By default, the
+  `blacklist_peers` option is set to a list of networks
+  [recommended](https://rtcsec.com/article/cve-2020-26262-bypass-of-coturns-access-control-protection/#further-concerns-what-else)
+  to be blocked. The other three lists are empty by default.
+
 ### Changed
 - Binary release: Update Erlang/OTP from 26.0.2 to 26.1.
 - Binary release: Update OpenSSL from 3.1.2 to 3.1.3.
 - Binary release: Update zlib from 1.2.13 to 1.3.
+- Binary release: Use new (GCC-13.2-based) version of build toolchain.
 
 ### Fixed
 - Don't fail to ping the systemd watchdog under certain conditions.

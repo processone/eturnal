@@ -37,14 +37,10 @@ eturnal:
   relay_min_port: 49152     # This is the default.
   relay_max_port: 65535     # This is the default.
 
-  ## Reject TURN relaying from/to the following addresses/networks:
-  blacklist:                # This is the default blacklist.
-    - "127.0.0.0/8"         # IPv4 loopback.
-    - "::1"                 # IPv6 loopback.
-    #- recommended          # Expands to a number of networks recommended to be
-                            # blocked, but includes private networks. Those
-                            # would have to be 'whitelist'ed if eturnal serves
-                            # local clients/peers within such networks.
+  ## Reject TURN relaying to the following addresses/networks:
+  blacklist_peers:
+    - recommended           # Expands to various addresses/networks recommended
+                            # to be blocked. This is the default.
 
   ## If 'true', close established calls on expiry of temporary TURN credentials:
   strict_expiry: false      # This is the default.

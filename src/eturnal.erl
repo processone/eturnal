@@ -407,7 +407,9 @@ start_listeners() ->
              fun({InKey, OutKey}) ->
                      opt_filter({OutKey, get_opt(InKey)})
              end, opt_map()) ++ [{auth_fun, fun ?MODULE:get_password/2},
-                                 {hook_fun, fun ?MODULE:run_hook/2}],
+                                 {hook_fun, fun ?MODULE:run_hook/2}]
+                             ++ blacklist_opts()
+                             ++ whitelist_opts(),
     lists:map(
       fun({IP, Port, Transport, ProxyProtocol, EnableTURN}) ->
               Opts1 = tls_opts(Transport) ++ Opts,
@@ -460,8 +462,6 @@ opt_map() ->
      {max_allocations, turn_max_allocations},
      {max_permissions, turn_max_permissions},
      {max_bps, shaper},
-     {blacklist, turn_blacklist},
-     {whitelist, turn_whitelist},
      {realm, auth_realm},
      {software_name, server_name}].
 
@@ -487,6 +487,40 @@ proxy_opts(true = _ProxyProtocol) ->
     [proxy_protocol];
 proxy_opts(false = _ProxyProtocol) ->
     [].
+
+%% This function can be removed in favor of opt_map/0 entries once the
+%% 'blacklist' option is removed.
+-spec blacklist_opts() -> proplists:proplist().
+blacklist_opts() ->
+    case {eturnal:get_opt(blacklist),
+          eturnal:get_opt(blacklist_clients),
+          eturnal:get_opt(blacklist_peers)} of
+        {[], Clients, Peers} ->
+            [{turn_blacklist_clients, Clients},
+             {turn_blacklist_peers, Peers}];
+        {Blacklist, Clients, Peers} ->
+            ?LOG_WARNING("The 'blacklist' option is deprecated"),
+            ?LOG_WARNING("Use 'blacklist_clients' and/or 'blacklist_peers'"),
+            [{turn_blacklist_clients, lists:usort(Clients ++ Blacklist)},
+             {turn_blacklist_peers, lists:usort(Peers ++ Blacklist)}]
+    end.
+
+%% This function can be removed in favor of opt_map/0 entries once the
+%% 'whitelist' option is removed.
+-spec whitelist_opts() -> proplists:proplist().
+whitelist_opts() ->
+    case {eturnal:get_opt(whitelist),
+          eturnal:get_opt(whitelist_clients),
+          eturnal:get_opt(whitelist_peers)} of
+        {[], Clients, Peers} ->
+            [{turn_whitelist_clients, Clients},
+             {turn_whitelist_peers, Peers}];
+        {Whitelist, Clients, Peers} ->
+            ?LOG_WARNING("The 'whitelist' option is deprecated"),
+            ?LOG_WARNING("Use 'whitelist_clients' and/or 'whitelist_peers'"),
+            [{turn_whitelist_clients, lists:usort(Clients ++ Whitelist)},
+             {turn_whitelist_peers, lists:usort(Peers ++ Whitelist)}]
+    end.
 
 -spec tls_opts(transport()) -> proplists:proplist().
 -ifdef(old_inet_backend).
@@ -737,6 +771,10 @@ listener_config_changed({Changed, New, Removed} = ConfigChanges) ->
                             max_bps,
                             blacklist,
                             whitelist,
+                            blacklist_clients,
+                            whitelist_clients,
+                            blacklist_peers,
+                            whitelist_peers,
                             realm,
                             software_name,
                             tls_options,

@@ -26,11 +26,9 @@
 
 -include_lib("kernel/include/logger.hrl").
 
--define(DEFAULT_BLACKLIST,
-        [{{127, 0, 0, 0}, 8},               % IPv4 loopback.
-         {{0, 0, 0, 0, 0, 0, 0, 1}, 128}]). % IPv6 loopback.
 -define(RECOMMENDED_BLACKLIST,
-        [{{10, 0, 0, 0}, 8},
+        [{{127, 0, 0, 0}, 8},
+         {{10, 0, 0, 0}, 8},
          {{100, 64, 0, 0}, 10},
          {{169, 254, 0, 0}, 16},
          {{172, 16, 0, 0}, 12},
@@ -43,11 +41,12 @@
          {{203, 0, 113, 0}, 24},
          {{224, 0, 0, 0}, 4},
          {{240, 0, 0, 0}, 4},
+         {{0, 0, 0, 0, 0, 0, 0, 1}, 128},
          {{100, 65435, 0, 0, 0, 0, 0, 0}, 96},
          {{256, 0, 0, 0, 0, 0, 0, 0}, 64},
          {{64512, 0, 0, 0, 0, 0, 0, 0}, 7},
          {{65152, 0, 0, 0, 0, 0, 0, 0}, 10},
-         {{65280, 0, 0, 0, 0, 0, 0, 0}, 8} | ?DEFAULT_BLACKLIST]).
+         {{65280, 0, 0, 0, 0, 0, 0, 0}, 8}]).
 
 -type listener() :: {inet:ip_address(), inet:port_number(), eturnal:transport(),
                      boolean(), boolean()}.
@@ -78,6 +77,10 @@ validator() ->
                             end),
         blacklist => blacklist_validator(),
         whitelist => list_or_single(ip_mask()),
+        blacklist_clients => list_or_single(ip_mask()),
+        whitelist_clients => list_or_single(ip_mask()),
+        blacklist_peers => blacklist_validator(),
+        whitelist_peers => list_or_single(ip_mask()),
         strict_expiry => bool(),
         credentials => map(binary(), binary(), [unique, {return, map}]),
         realm => non_empty(binary()),
@@ -105,8 +108,12 @@ validator() ->
           max_allocations => 10,
           max_permissions => 10,
           max_bps => none,
-          blacklist => ?DEFAULT_BLACKLIST,
+          blacklist => [],
           whitelist => [],
+          blacklist_clients => [],
+          whitelist_clients => [],
+          blacklist_peers => ?RECOMMENDED_BLACKLIST,
+          whitelist_peers => [],
           strict_expiry => false,
           credentials => #{},
           realm => <<"eturnal.net">>,
@@ -124,13 +131,11 @@ validator() ->
 -spec blacklist_validator() -> yval:validator().
 blacklist_validator() ->
     and_then(
-      list_or_single(either(enum([default, recommended]), ip_mask())),
+      list_or_single(either(recommended, ip_mask())),
       fun(L) ->
               lists:usort(
                 lists:flatmap(
-                  fun(default) ->
-                          ?DEFAULT_BLACKLIST;
-                     (recommended) ->
+                  fun(recommended) ->
                           ?RECOMMENDED_BLACKLIST;
                      (Network) ->
                           [Network]

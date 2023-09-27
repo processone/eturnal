@@ -270,11 +270,11 @@ filter_sessions(Pred) ->
                                    relay_addr = element(18, State),
                                    perm_addrs = maps:keys(element(12, State)),
                                    peer_addrs = maps:keys(element(10, State)),
-                                   sent_bytes = element(30, State),
-                                   sent_pkts = element(31, State),
-                                   rcvd_bytes = element(28, State),
-                                   rcvd_pkts = element(29, State),
-                                   start_time = element(32, State)},
+                                   sent_bytes = element(32, State),
+                                   sent_pkts = element(33, State),
+                                   rcvd_bytes = element(30, State),
+                                   rcvd_pkts = element(31, State),
+                                   start_time = element(34, State)},
                       case Pred(Session) of
                           true ->
                               {true, Session};

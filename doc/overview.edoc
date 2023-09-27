@@ -112,33 +112,44 @@ behavior of the underlying virtual machine by adding other sections.)
 The eturnal server recognizes the following global configuration options.
 {@section Module Configuration} options are described below.
 
-=== blacklist ===
+=== blacklist_clients ===
 
-<div class="spec">Type: `list of IP addresses/CIDRs' | `default' | `recommended'<br/>
-Default: Loopback addresses</div>
+<div class="spec">Type: `list of IP addresses/CIDRs'<br/>
+Default: `[]'</div>
 
-The `blacklist' option specifies a list of one or more IPv4 and/or IPv6
-addresses and/or CIDR blocks. TURN relaying from or to any of the listed
-addresses is refused, unless the address is also matched by a {@section
-whitelist} entry. The `blacklist' may also contain the special keyword
-`default', which expands to the addresses blocked by default, or the special
-keyword `recommended', which expands to the addresses <a
-href="https://rtcsec.com/article/cve-2020-26262-bypass-of-coturns-access-control-protection/#further-concerns-what-else">suggested</a>
-by <a href="https://www.enablesecurity.com">Enable Security</a>. (As the latter
-is a superset of the former, there's no point in listing both.) Note that the
-`recommended' addresses include private networks. Therefore, if eturnal is
-supposed to serve clients within a local, private network, that network must be
-exempted from the `recommended' addresses by adding it to the {@section
-whitelist}.
+The `blacklist_clients' option specifies a list of one or more IPv4 and/or IPv6
+addresses and/or CIDR blocks. TURN relaying from any of the listed addresses is
+refused, unless the address is also matched by a {@section whitelist_clients}
+entry.
 
 Example:
 
 ```
-blacklist:
-  - "::1"
-  - "127.0.0.0/8"
-  - "192.0.2.0/24"
-  - "98.51.100.0/24"
+blacklist_clients:
+  - "192.0.2.2"
+  - "203.0.113.0/24"
+  - "2001:db8::/32"
+'''
+
+=== blacklist_peers ===
+
+<div class="spec">Type: `list of IP addresses/CIDRs' | `recommended'<br/>
+Default: `recommended'</div>
+
+The `blacklist_peers' option specifies a list of one or more IPv4 and/or IPv6
+addresses and/or CIDR blocks. TURN relaying to any of the listed addresses is
+refused, unless the address is also matched by a {@section whitelist_peers}
+entry. The list may also contain the special keyword `recommended', which
+expands to the addresses <a
+href="https://rtcsec.com/article/cve-2020-26262-bypass-of-coturns-access-control-protection/#further-concerns-what-else">suggested</a>
+by <a href="https://www.enablesecurity.com">Enable Security</a>.
+
+Example:
+
+```
+blacklist_peers:
+  - recommended
+  - "192.0.2.2"
   - "203.0.113.0/24"
   - "2001:db8::/32"
 '''
@@ -490,19 +501,41 @@ tls_options:
   - cipher_server_preference
 '''
 
-=== whitelist ===
+=== whitelist_clients ===
 
 <div class="spec">Type: `list of IP addresses/CIDRs'<br/>
 Default: `[]'</div>
 
-The `whitelist' option specifies a list of one or more IPv4 and/or IPv6
-addresses and/or CIDR blocks. TURN relaying from or to any of the listed
-addresses is permitted even if the address would otherwise be rejected due to
-being matched by a {@section blacklist} entry.
+The `whitelist_clients' option specifies a list of one or more IPv4 and/or IPv6
+addresses and/or CIDR blocks. TURN relaying from any of the listed addresses is
+permitted even if the address would otherwise be rejected due to being matched
+by a {@section blacklist_clients} entry. Note that `0.0.0.0/8', `::/128',
+`2001::/32', and `2002::/16' are <em>always</em> blocked and cannot be
+whitelisted.
 
 ```
-whitelist:
+whitelist_clients:
   - "203.0.113.113"
+  - "203.0.113.0/26"
+  - "2001:db8::/64"
+'''
+
+=== whitelist_peers ===
+
+<div class="spec">Type: `list of IP addresses/CIDRs'<br/>
+Default: `[]'</div>
+
+The `whitelist_peers' option specifies a list of one or more IPv4 and/or IPv6
+addresses and/or CIDR blocks. TURN relaying to any of the listed addresses is
+permitted even if the address would otherwise be rejected due to being matched
+by a {@section blacklist_peers} entry. Note that `0.0.0.0/8', `::/128',
+`2001::/32', and `2002::/16' are <em>always</em> blocked and cannot be
+whitelisted.
+
+```
+whitelist_peers:
+  - "203.0.113.113"
+  - "203.0.113.0/26"
   - "2001:db8::/64"
 '''
 
