@@ -17,8 +17,8 @@ and `openssl-devel`.
 
 > _Note:_ If you build directly from the Git repository rather than using the
 > official source tarball, you must [download Rebar3][5] and make it executable
-> (`chmod +x rebar3`), first. On Erlang/OTP 21.x and 22.x, you need an [older
-> Rebar3][6] version.
+> (`chmod +x rebar3`), first. On Erlang/OTP versions prior to 24.x, you need an
+> [older Rebar3][6] version.
 
 ```shell
 curl https://eturnal.net/eturnal-1.12.0.tar.gz | tar -C /tmp -xzf -
