@@ -44,7 +44,7 @@ reference documentation below.
 
 == Deployment ==
 
-Docker <a href="https://eturnal.net/documentation/docker.html">images</a>
+Docker <a href="https://eturnal.net/documentation/container.html">images</a>
 are available on GitHub. Linux/x64 and Linux/arm64 packages for DEB- and
 RPM-based distributions can be retrieved <a
 href="https://eturnal.net/repositories/">from eturnal.net</a>. On other

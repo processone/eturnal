@@ -112,7 +112,7 @@ As an alternative, there's an `#eturnal` channel [on Slack][23].
  [3]: https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00
  [4]: https://eturnal.net/documentation/quick-test.html
  [5]: https://eturnal.net/documentation/container-quick-test.html
- [6]: https://eturnal.net/documentation/docker.html
+ [6]: https://eturnal.net/documentation/container.html
  [7]: https://software.opensuse.org/download/?package=eturnal&project=devel:languages:erlang
  [8]: https://pkgs.alpinelinux.org/packages?name=eturnal
  [9]: https://eturnal.net/documentation/#Installation
