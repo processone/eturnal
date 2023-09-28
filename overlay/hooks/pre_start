@@ -26,7 +26,7 @@ then
         -start_epmd 'false' \
         -sname 'cookie' \
         -eval 'halt()' \
-        2>'/dev/null' || :
+        >'/dev/null' 2>&1 || :
 
     if [ -r "$DEFAULT_COOKIE_FILE" ]
     then
