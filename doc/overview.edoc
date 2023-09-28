@@ -73,7 +73,7 @@ a service unit is created and eturnal is started.
 === Upgrade ===
 
 The above <a href="#Installation">installation command</a> can also be used to
-upgrade eturnal from an earlier version. In that case the service must be
+upgrade eturnal from an earlier version. In that case, the service must be
 restarted afterwards. On systemd-managed systems:
 
 ```
