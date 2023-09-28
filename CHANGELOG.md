@@ -15,7 +15,6 @@ project adheres to [Semantic Versioning][SemVer].
   to be blocked. The other three lists are empty by default.
 
 ### Changed
-- Binary release: Update Erlang/OTP from 26.0.2 to 26.1.
 - Binary release: Update OpenSSL from 3.1.2 to 3.1.3.
 - Binary release: Update zlib from 1.2.13 to 1.3.
 - Binary release: Use new (GCC-13.2-based) version of build toolchain.
