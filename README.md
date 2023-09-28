@@ -117,7 +117,7 @@ As an alternative, there's an `#eturnal` channel [on Slack][23].
  [8]: https://pkgs.alpinelinux.org/packages?name=eturnal
  [9]: https://eturnal.net/documentation/#Installation
 [10]: https://eturnal.net/windows/
-[11]: https://github.com/processone/eturnal/blob/1.12.0/doc/INSTALL.md
+[11]: https://eturnal.net/documentation/code/install.html
 [12]: https://en.wikipedia.org/wiki/YAML
 [13]: https://github.com/processone/eturnal/blob/1.12.0/config/eturnal.yml
 [14]: https://www.freedesktop.org/software/systemd/man/systemctl.html
