@@ -252,7 +252,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [386, arm/v7, ppc64le, s390x]
+        arch: [386, arm/v7, ppc64le]
       fail-fast: false
     needs: [detect-change]
     steps:

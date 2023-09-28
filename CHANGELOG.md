@@ -23,6 +23,10 @@ project adheres to [Semantic Versioning][SemVer].
 ### Fixed
 - Don't fail to ping the systemd watchdog under certain conditions.
 
+### Removed
+- Drop support for container image for architecture `s390x`. If you need it,
+  please contact us.
+
 ## [1.11.1] - 2023-08-06
 ### Fixed
 - Don't fail to build with `SKIP_DEPS` set to `true`.
