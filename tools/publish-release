@@ -95,7 +95,7 @@ cat >"$web_root_dir/install" <<-EOF
 	    echo >&2
 	    echo >&2 "For building \$rel_name from source, see:"
 	    echo >&2
-	    echo >&2 "https://\$domain/documentation/code/install.html"
+	    echo >&2 "https://\$domain/documentation/install.html"
 	    exit 1
 	}
 	case \$platform in

@@ -192,4 +192,4 @@ This repository also contains configuration examples for:
 
 ## Building yourself
 
-Instructions can be found [here](https://eturnal.net/documentation/code/container-build.html).
+Instructions can be found [here](https://eturnal.net/documentation/container-build.html).
