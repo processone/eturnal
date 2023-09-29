@@ -110,21 +110,21 @@ As an alternative, there's an `#eturnal` channel [on Slack][23].
  [1]: https://github.com/processone/eturnal/actions/workflows/ci.yml
  [2]: https://eturnal.net/
  [3]: https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00
- [4]: https://eturnal.net/documentation/quick-test.html
- [5]: https://eturnal.net/documentation/container-quick-test.html
- [6]: https://eturnal.net/documentation/container.html
+ [4]: https://eturnal.net/doc/quick-test.html
+ [5]: https://eturnal.net/doc/container-quick-test.html
+ [6]: https://eturnal.net/doc/container.html
  [7]: https://software.opensuse.org/download/?package=eturnal&project=devel:languages:erlang
  [8]: https://pkgs.alpinelinux.org/packages?name=eturnal
- [9]: https://eturnal.net/documentation/#Installation
+ [9]: https://eturnal.net/doc/#Installation
 [10]: https://eturnal.net/windows/
-[11]: https://eturnal.net/documentation/install.html
+[11]: https://eturnal.net/doc/install.html
 [12]: https://en.wikipedia.org/wiki/YAML
 [13]: https://github.com/processone/eturnal/blob/1.12.0/config/eturnal.yml
 [14]: https://www.freedesktop.org/software/systemd/man/systemctl.html
 [15]: https://github.com/processone/eturnal/blob/1.12.0/overlay/init/sysv/eturnal
 [16]: https://github.com/processone/eturnal/blob/1.12.0/overlay/init/openrc/eturnal.initd
 [17]: https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html
-[18]: https://eturnal.net/documentation/
+[18]: https://eturnal.net/doc/
 [19]: https://github.com/processone/eturnal/blob/1.12.0/CHANGELOG.md
 [20]: https://github.com/processone/eturnal/issues
 [21]: https://xmpp.org

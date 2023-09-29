@@ -26,7 +26,7 @@ services:
       # - 49152-65535:49152-65535/udp # TURN relay range
     # network_mode: "host"
 
-    ### Environment variables - information on https://eturnal.net/documentation/#Environment_Variables
+    ### Environment variables - information on https://eturnal.net/doc/#Environment_Variables
     # environment:
     #   - ETURNAL_RELAY_IPV4_ADDR="203.0.113.4"
     #   - ETURNAL_RELAY_IPV6_ADDR="2001:db8::4"

@@ -99,4 +99,4 @@ configuration and usage instructions.
  [8]: https://github.com/processone/eturnal/blob/1.12.0/config/shell.config
  [9]: https://github.com/processone/eturnal/blob/1.12.0/config/eturnal.yml
 [10]: https://github.com/processone/eturnal/blob/1.12.0/README.md
-[11]: https://eturnal.net/documentation/
+[11]: https://eturnal.net/doc/

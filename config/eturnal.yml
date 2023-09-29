@@ -3,7 +3,7 @@
 # This file is written in YAML. The YAML format is indentation-sensitive, please
 # MAKE SURE YOU INDENT CORRECTLY.
 #
-# See: https://eturnal.net/documentation/#Global_Configuration
+# See: https://eturnal.net/doc/#Global_Configuration
 
 eturnal:
 
@@ -51,7 +51,7 @@ eturnal:
   log_rotate_count: 10      # Keep 10 rotated log files.
   #log_dir: stdout          # Enable for logging to the terminal/journal.
 
-  ## See: https://eturnal.net/documentation/#Module_Configuration
+  ## See: https://eturnal.net/doc/#Module_Configuration
   modules:
     mod_log_stun: {}        # Log STUN queries (in addition to TURN sessions).
     #mod_stats_influx: {}   # Log STUN/TURN events into InfluxDB.

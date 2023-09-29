@@ -109,8 +109,8 @@ Deleted: sha256:734fe7cad7d71f2862e4b3ffd84456e1247970aa76fbdca16e9f3cc0fc9d3b4b
 Deleted: sha256:7963eafc331350c84d8631682cbe79da6f1108c5c067b60a4191582ecc132ba5
 ```
 
-[1]: https://eturnal.net/documentation/#relay_min_port
-[2]: https://eturnal.net/documentation/#relay_max_port
-[3]: https://eturnal.net/documentation/#listen
+[1]: https://eturnal.net/doc/#relay_min_port
+[2]: https://eturnal.net/doc/#relay_max_port
+[3]: https://eturnal.net/doc/#listen
 [4]: https://icetest.info/
 [5]: https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/

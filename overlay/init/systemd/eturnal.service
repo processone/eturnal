@@ -2,7 +2,7 @@
 Description=eturnal STUN/TURN server
 Wants=epmd.service
 After=epmd.service network.target
-Documentation=https://eturnal.net/documentation/
+Documentation=https://eturnal.net/doc/
 Documentation=https://github.com/processone/eturnal/blob/{{release_version}}/README.md
 Documentation=https://github.com/processone/eturnal/blob/{{release_version}}/CHANGELOG.md
 

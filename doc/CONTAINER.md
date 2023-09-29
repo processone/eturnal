@@ -1,13 +1,13 @@
 # Container image for eturnal STUN/TURN Server
 
-[eturnal](https://eturnal.net/) container images are available for multiple 
+[eturnal](https://eturnal.net/) container images are available for multiple
 architectures as `ghcr.io/processone/eturnal` from [GitHub Packages](https://github.com/processone/eturnal/pkgs/container/eturnal)
 or [DockerHub](https://hub.docker.com/r/eturnal/eturnal). The images are based
 on [Alpine Linux](https://alpinelinux.org).
 
 ## Tags and variants
 
-`XX.YY.ZZ` represents the official eturnal release, a `-AA` suffix the image 
+`XX.YY.ZZ` represents the official eturnal release, a `-AA` suffix the image
 version of a particular release in case of any bug fix etc. of the image.
 
 | Tags  | Description  | Additional notes  |
@@ -20,7 +20,7 @@ if necessary, the `latest` release will be rebuilt and updated.
 
 ## Getting started
 
-> _Note:_ the below commands can be run with podman as well, just use podman as 
+> _Note:_ the below commands can be run with podman as well, just use podman as
 > an equivalent: **alias docker=podman**
 
 To pull the image:
@@ -29,8 +29,8 @@ To pull the image:
 docker pull ghcr.io/processone/eturnal:latest
 ```
 
-This will run a container named `eturnal` with the default, unprivileged user 
-`eturnal` (`uid=9000`) in `foreground` mode with default ports published, if 
+This will run a container named `eturnal` with the default, unprivileged user
+`eturnal` (`uid=9000`) in `foreground` mode with default ports published, if
 started this way:
 
 ```shell
@@ -59,9 +59,9 @@ docker run -d --rm \
 > _Note:_ Stating `--cap-add=NET_BIND_SERVICE` may be needed here depending
 > on the container runtime, see e.g. [Docker](https://github.com/moby/moby/pull/41030)
 
-**Only relevant for Docker, not Podman**: Since Docker 
-[does not perform well with large port ranges](https://github.com/instrumentisto/coturn-docker-image/issues/3), 
-consider decreasing the TURN default port range, e.g. through [environment variables](https://eturnal.net/documentation/#Environment_Variables):
+**Only relevant for Docker, not Podman**: Since Docker
+[does not perform well with large port ranges](https://github.com/instrumentisto/coturn-docker-image/issues/3),
+consider decreasing the TURN default port range, e.g. through [environment variables](https://eturnal.net/doc/#Environment_Variables):
 
 ```shell
 docker run -d --rm \
@@ -77,7 +77,7 @@ docker run -d --rm \
   ghcr.io/processone/eturnal:latest
 ```
 
-Or use the [host network](https://docs.docker.com/network/host/) by adding 
+Or use the [host network](https://docs.docker.com/network/host/) by adding
 `--network=host` to the command line:
 
 ```shell
@@ -90,7 +90,7 @@ docker run -d --rm \
   ghcr.io/processone/eturnal:latest
 ```
 
-**Note:** The container is no longer isolated from the [host network](https://docs.docker.com/network/host/) 
+**Note:** The container is no longer isolated from the [host network](https://docs.docker.com/network/host/)
 when using this option.
 
 Inspect the running container with:
@@ -99,8 +99,8 @@ Inspect the running container with:
 docker logs eturnal
 ```
 
-To use the `eturnalctl` [command](https://eturnal.net/documentation/#Operation),
-e.g. just run:
+To use the `eturnalctl` [command](https://eturnal.net/doc/#Operation), e.g. just
+run:
 
 ```shell
 docker exec eturnal eturnalctl info
@@ -114,34 +114,34 @@ docker stop eturnal
 
 ## Configuration
 
-Configuration is mainly done by a mounted `eturnal.yml` file (recommended), see 
-the [example configuration file](https://github.com/processone/eturnal/blob/master/config/eturnal.yml). 
-The file must be readable by the eturnal user (e.g. `chown 9000:9000` and 
+Configuration is mainly done by a mounted `eturnal.yml` file (recommended), see
+the [example configuration file](https://github.com/processone/eturnal/blob/master/config/eturnal.yml).
+The file must be readable by the eturnal user (e.g. `chown 9000:9000` and
 `chmod 640`). **Mountpath**, e.g. with `docker run` add:
 
 ```shell
 -v /path/to/eturnal.yml:/etc/eturnal.yml:ro
 ```
 
-eturnal may also be configured by specifying certain environment variables, see 
-the [documentation](https://eturnal.net/documentation/#Environment_Variables). 
-Here are some more hints [how to configure eturnal](https://eturnal.net/documentation/#Global_Configuration).
+eturnal may also be configured by specifying certain environment variables, see
+the [documentation](https://eturnal.net/doc/#Environment_Variables). Here are
+some more hints [how to configure eturnal](https://eturnal.net/doc/#Global_Configuration).
 
 ### General hints:
 
-* For logs to be printed with the `docker logs` command, `log_dir:` should be 
+* For logs to be printed with the `docker logs` command, `log_dir:` should be
 set to `stdout` in `eturnal.yml`.
-* The container attempts to autodetect the `relay_ipv4_address` and 
-`relay_ipv6_address` using an external STUN service. 
-  * This STUN service may be exchanged by defining a different external STUN 
-  service with the `STUN_SERVICE` environment variable, which defaults to: 
-  `STUN_SERVICE="stun.conversations.im 3478"`. Note: the stun client 
-  **only supports UDP** queries. 
-  * If that fails, consider defining the `relay_ipv4_address` (and 
-  `relay_ipv6_address`) either within a mounted `eturnal.yml` file or with the 
-  `ETURNAL_RELAY_IPV4_ADDR` (and `ETURNAL_RELAY_IPV6_ADDR`) environment variable 
+* The container attempts to autodetect the `relay_ipv4_address` and
+`relay_ipv6_address` using an external STUN service.
+  * This STUN service may be exchanged by defining a different external STUN
+  service with the `STUN_SERVICE` environment variable, which defaults to:
+  `STUN_SERVICE="stun.conversations.im 3478"`. Note: the stun client
+  **only supports UDP** queries.
+  * If that fails, consider defining the `relay_ipv4_address` (and
+  `relay_ipv6_address`) either within a mounted `eturnal.yml` file or with the
+  `ETURNAL_RELAY_IPV4_ADDR` (and `ETURNAL_RELAY_IPV6_ADDR`) environment variable
   to enable the TURN service. Note: the **IPv6 address is optional**.
-  * If the external STUN lookup is not desired, define the environment variable 
+  * If the external STUN lookup is not desired, define the environment variable
   `STUN_SERVICE=false` in the `docker run` command.
 * If eturnal shall bind to privileged ports (<1024) directly, there are two ways
   to accomplish that:
@@ -159,11 +159,11 @@ set to `stdout` in `eturnal.yml`.
 
 ### Custom TLS certificates and dh-parameter file
 
-To use eturnal's TLS listener with cutsom TLS certificates/dh-parameter files 
-they must be mounted into the container and [referenced](https://eturnal.net/documentation/#tls_crt_file) 
-in the `eturnal.yml` file. TLS certificates and the dh-parameter file shall be 
-`.pem` files. They must be readable by the eturnal user/group and should not 
-have world-readable access rights (e.g. `chown 9000:9000` and `chmod 440`). 
+To use eturnal's TLS listener with cutsom TLS certificates/dh-parameter files
+they must be mounted into the container and [referenced](https://eturnal.net/doc/#tls_crt_file)
+in the `eturnal.yml` file. TLS certificates and the dh-parameter file shall be
+`.pem` files. They must be readable by the eturnal user/group and should not
+have world-readable access rights (e.g. `chown 9000:9000` and `chmod 440`).
 **Mountpath**, e.g. with `docker run` add:
 
 ```shell
@@ -192,4 +192,4 @@ This repository also contains configuration examples for:
 
 ## Building yourself
 
-Instructions can be found [here](https://eturnal.net/documentation/container-build.html).
+Instructions can be found [here](https://eturnal.net/doc/container-build.html).

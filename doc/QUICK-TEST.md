@@ -22,6 +22,6 @@ directory.
 - Those credentials are invalidated on eturnal restart unless a `secret` was
   specified in `eturnal/etc/eturnal.yml` before generating them.
 
-[1]: https://eturnal.net/documentation/#relay_min_port
-[2]: https://eturnal.net/documentation/#relay_max_port
-[3]: https://eturnal.net/documentation/#listen
+[1]: https://eturnal.net/doc/#relay_min_port
+[2]: https://eturnal.net/doc/#relay_max_port
+[3]: https://eturnal.net/doc/#listen

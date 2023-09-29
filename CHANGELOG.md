@@ -133,8 +133,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Changed
 - If an EPMD process is spawned during eturnal startup, let it listen on
   `localhost` only (#9). (Note that our Linux packages and container images are
-  [configured](https://eturnal.net/documentation/#ERL_DIST_PORT) to _not_ start
-  an EPMD process.)
+  [configured](https://eturnal.net/doc/#ERL_DIST_PORT) to _not_ start an EPMD
+  process.)
 - Omit the code location from log messages, except when debug logging is
   enabled.
 - Apply other minor logging improvements.
