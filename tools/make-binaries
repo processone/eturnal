@@ -607,18 +607,18 @@ else
 
 	info 'Downloading dependencies ...'
 	cd "$src_dir"
-	curl -sSLO "http://crosstool-ng.org/download/crosstool-ng/$crosstool_tar"
-	curl -sSLO "https://zlib.net/fossils/$zlib_tar"
-	curl -sSLO "https://pyyaml.org/download/libyaml/$yaml_tar"
-	curl -sSLO "https://www.openssl.org/source/$ssl_tar"
-	curl -sSLO "https://github.com/erlang/otp/releases/download/OTP-$otp_vsn/$otp_tar"
+	curl -fsSLO "http://crosstool-ng.org/download/crosstool-ng/$crosstool_tar"
+	curl -fsSLO "https://zlib.net/fossils/$zlib_tar"
+	curl -fsSLO "https://pyyaml.org/download/libyaml/$yaml_tar"
+	curl -fsSLO "https://www.openssl.org/source/$ssl_tar"
+	curl -fsSLO "https://github.com/erlang/otp/releases/download/OTP-$otp_vsn/$otp_tar"
 	cd "$OLDPWD"
 fi
 
 info "Downloading Rebar3 $rebar_vsn ..."
 install -d "$bootstrap_dir/bin"
 cd "$bootstrap_dir/bin"
-curl -sSLO "https://github.com/erlang/rebar3/releases/download/$rebar_vsn/rebar3"
+curl -fsSLO "https://github.com/erlang/rebar3/releases/download/$rebar_vsn/rebar3"
 chmod +x 'rebar3'
 cd "$OLDPWD"
 
