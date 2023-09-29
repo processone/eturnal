@@ -493,9 +493,6 @@ build_rel()
 	info "Editing $rel_name $rel_vsn for $arch-$libc ..."
 	mkdir "$target_dst_dir"
 	tar -C "$target_dst_dir" -xzf "$rel_dir/$rel_tar"
-	sed -i "2iexport TERM='internal'" \
-	    "$target_dst_dir/bin/$rel_name" \
-	    "$target_dst_dir/bin/$rel_name-$rel_vsn"
 	sed -i 's/^dist_port="${ERL_DIST_PORT:-}"/dist_port="${ERL_DIST_PORT:-3470}"/' \
 	    "$target_dst_dir/bin/${rel_name}ctl"
 	find "$target_dst_dir/lib" -type f -name 'otp_test_engine.so' \
