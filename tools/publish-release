@@ -132,5 +132,7 @@ cat >"$web_root_dir/uninstall" <<-EOF
 	    rm -f /etc/systemd/system/\$rel_name.service
 	fi
 	rm -rf "/opt/\$rel_name"
+	userdel "\$rel_name"
+	groupdel "\$rel_name" 2>'/dev/null' || :
 	echo "\$rel_name has been uninstalled successfully."
 EOF
