@@ -103,12 +103,10 @@ cat >"$web_root_dir/install" <<-EOF
 	Linux/x86_64) arch='x64' ;;
 	*) unsupported "\$platform" ;;
 	esac
-	ldd_output=\$(ldd '/bin/ls' | grep 'libc')
-	case \$ldd_output in
-	*musl*) libc='musl' ;;
-	*gnu*) libc='glibc' ;;
-	*) unsupported 'non-glibc/musl' ;;
-	esac
+	if ldd '/bin/ls' | grep 'libc' | grep -q 'musl'
+	then libc='musl'
+	else libc='glibc'
+	fi
 	installer="\$rel_name-\$rel_vsn-\$os-\$libc-\$arch.run"
 	url="https://\$domain/\$installer"
 	cd "\$tmp_dir"
