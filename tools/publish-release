@@ -130,6 +130,9 @@ cat >"$web_root_dir/uninstall" <<-EOF
 	    rm -f /etc/systemd/system/\$rel_name.service
 	fi
 	rm -rf "/opt/\$rel_name"
-	userdel "\$rel_name"
+	if type 'userdel' >'/dev/null'
+	then userdel "\$rel_name"
+	else deluser "\$rel_name"
+	fi
 	echo "\$rel_name has been uninstalled successfully."
 EOF

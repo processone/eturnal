@@ -117,7 +117,11 @@ create_setup_script()
 	fi
 
 	if [ \$user_exists = false ]
-	then useradd -r -d '$rel_dir' '$rel_name'
+	then
+		if type 'useradd' >'/dev/null'
+		then useradd -r -d '$rel_dir' '$rel_name'
+		else adduser -S -h '$rel_dir' '$rel_name'
+		fi
 	fi
 
 	tar -C "\$(dirname '$rel_dir')" -xf '$tarball'
