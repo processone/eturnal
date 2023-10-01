@@ -151,7 +151,7 @@ then
     else
         usage "$cmd"
     fi
-elif [ "$(id -u)" = '0' ]
+elif [ "$(id -u)" = '0' ] && [ "$user" != 'root' ]
 then
     cd '/'
     arg="$(printf '%s' "$*" | sed 's/[^[:alnum:][:space:]]/\\&/g')"
