@@ -1,0 +1,40 @@
+#!/bin/sh
+
+# Update the Homebrew Formula.
+
+set -e
+set -u
+
+rel_name='eturnal'
+rel_vsn=$(tools/get-version)
+rel_tar="$rel_name-$rel_vsn.tar.gz"
+rel_dir='/home/eturnal/web/download'
+formula="Formula/$rel_name.rb"
+url="https://$rel_name.net/download"
+myself=${0##*/}
+
+usage()
+{
+	echo >&2 "Usage: $myself"
+	exit 2
+}
+
+if ! [ -e 'rebar.config' ] || ! [ -e "tools/$myself" ]
+then
+	echo >&2 "Please call this script from the repository's root directory."
+	exit 2
+elif ! [ -e "$rel_dir/$rel_tar" ]
+then
+	echo >&2 "Cannot find $rel_tar in $rel_dir"
+	exit 1
+elif [ $# -ne 0 ]
+then
+	usage
+fi
+
+sum=$(sha256sum "$rel_dir/$rel_tar" | cut -d ' ' -f 1)
+
+sed -i -e "s|^\( *\)url.*|\\1url \"$url/$rel_tar\"|" \
+       -e "s|^\( *\)sha256.*|\\1sha256 \"$sum\"|" "$formula"
+git add "$formula"
+git commit -m "Formula: update to $rel_vsn"

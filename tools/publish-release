@@ -78,6 +78,9 @@ done
 createrepo_c "$rpm_repo_dir"
 gpg --detach-sign --armor "$rpm_repo_dir/repodata/repomd.xml"
 
+# Update Homebrew Formula.
+tools/update-formula
+
 cat >"$web_root_dir/install" <<-EOF
 	#!/bin/sh
 	set -e
