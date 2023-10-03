@@ -17,7 +17,7 @@ and `openssl-devel`.
 
 > _Note:_ If you build directly from the Git repository rather than using the
 > official source tarball, you must [download Rebar3][5] and make it executable
-> (`chmod +x rebar3`), first. On Erlang/OTP versions prior to 24.x, you need an
+> (`chmod +x rebar3`), first. On Erlang/OTP versions prior to 25.x, you need an
 > [older Rebar3][6] version (3.15.x on Erlang/OTP 21.x, otherwise 3.16.x).
 
 ```shell
