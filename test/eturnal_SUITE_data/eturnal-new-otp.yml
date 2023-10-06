@@ -33,12 +33,13 @@ eturnal:
     - "!aNULL"
     - "@STRENGTH"
   max_bps: 100000
-  blacklist:
+  blacklist_clients: "127.0.0.1/8"
+  whitelist_clients: "127.0.0.1"
+  blacklist_peers:
     - recommended
-    - "::ffff:0.0.0.0/96"
     - "203.0.113.0/24"
     - "2001:db8::/32"
-  whitelist:
+  whitelist_peers:
     - "127.0.0.1"
     - "203.0.113.113"
     - "2001:db8::/64"
