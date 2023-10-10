@@ -85,7 +85,7 @@ get_option()
     _key="$1"
     _val=$(sed -n \
         "s/^[[:blank:]]\\{1,\\}$_key:[[:blank:]]*\"\\?\\([[:alnum:][:blank:]\\/._+-]*[[:alnum:]\\/._+-]\\)\"\\?.*/\\1/p" \
-        "$eturnal_yml")
+        "$eturnal_yml" 2>'/dev/null' || :)
 
     printf '%s' "$_val"
 }
