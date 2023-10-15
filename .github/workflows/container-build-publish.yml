@@ -277,6 +277,61 @@ jobs:
           retention-days: 5
 
 ################################################################################
+  #' build Erlang/OTP and rebar3 for directly compilation.
+  build-erlang-rebar:
+    name: Build Erlang/OTP and Rebar3
+    runs-on: ubuntu-latest
+    needs: [detect-change]
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+    steps:
+      -
+        name: Check out repository code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      -
+        name: On push master | extract git version and define build mode
+        if: needs.detect-change.outputs.update == 'false'
+        run: |
+          echo "OTP_VSN=$(awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' tools/make-binaries)" >> $GITHUB_ENV
+          echo "REBAR_VSN=$(awk '/^rebar_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' tools/make-binaries)" >> $GITHUB_ENV
+      -
+        name: On release | extract git version and define build mode
+        if: needs.detect-change.outputs.update == 'true'
+        run: |
+          echo "OTP_VSN=$(wget -O - https://raw.githubusercontent.com/${{ github.repository }}/$eturnal_vsn/tools/make-binaries \
+            | awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}')" >> $GITHUB_ENV
+          echo "REBAR_VSN=$(wget -O - https://raw.githubusercontent.com/${{ github.repository }}/$eturnal_vsn/tools/make-binaries \
+            | awk '/^rebar_vsn=/ {{gsub(/[^0-9.]/, ""); print}}')" >> $GITHUB_ENV
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: network=host
+      -
+        name: Build Erlang/OTP ${{ env.OTP_VSN }} base image
+        uses: docker/build-push-action@v4
+        with:
+          build-args: |
+            OTP_VSN=${{ env.OTP_VSN }}
+            REBAR_VSN=${{ env.REBAR_VSN }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: .
+          file: tools/Dockerfile.erlang
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/386,linux/arm/v7,linux/ppc64le
+          push: true
+          tags: localhost:5000/erlang:otp-${{ env.OTP_VSN }}
+
+################################################################################
   #' build container images with local source files
   build-ctr:
     name: ${{ matrix.arch }} - ${{ matrix.method }}-based variant
@@ -286,7 +341,12 @@ jobs:
         arch: [386, arm/v7, ppc64le]
         method: [build]
       fail-fast: false
-    needs: [detect-change]
+    needs: [detect-change, build-erlang-rebar]
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
     steps:
       -
         name: Check out repository code
@@ -301,6 +361,7 @@ jobs:
           echo "TAG_VERSION=$(echo "$(./tools/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
           echo "SRC=local" >> $GITHUB_ENV
           echo "OTP_VSN=$(awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' tools/make-binaries)" >> $GITHUB_ENV
+          echo "REBAR_VSN=$(awk '/^rebar_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' tools/make-binaries)" >> $GITHUB_ENV
       -
         name: On release | extract git version and define build mode
         if: needs.detect-change.outputs.update == 'true'
@@ -312,6 +373,8 @@ jobs:
           # define erlang/OTP version
           echo "OTP_VSN=$(wget -O - https://raw.githubusercontent.com/${{ github.repository }}/$eturnal_vsn/tools/make-binaries \
             | awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}')" >> $GITHUB_ENV
+          echo "REBAR_VSN=$(wget -O - https://raw.githubusercontent.com/${{ github.repository }}/$eturnal_vsn/tools/make-binaries \
+            | awk '/^rebar_vsn=/ {{gsub(/[^0-9.]/, ""); print}}')" >> $GITHUB_ENV
 
           # check whether to build from archive or git, because git repo is HEAD here
           # hence, we would not build the specifc release when updating the ctr image
@@ -326,6 +389,23 @@ jobs:
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+        with:
+          driver-opts: network=host
+      -
+        name: Build Erlang/OTP ${{ env.OTP_VSN }} base image
+        uses: docker/build-push-action@v4
+        with:
+          build-args: |
+            OTP_VSN=${{ env.OTP_VSN }}
+            REBAR_VSN=${{ env.REBAR_VSN }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: .
+          file: tools/Dockerfile.erlang
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/386,linux/arm/v7,linux/ppc64le
+          push: true
+          tags: localhost:5000/erlang:otp-${{ env.OTP_VSN }}
       -
         name: Extract build & environment variables
         run: |
@@ -357,7 +437,7 @@ jobs:
           build-args: |
             SOURCE=${{ env.SRC }}
             VERSION=${{ env.VSN }}
-            OTP_VSN=${{ env.OTP_VSN }}
+            BUILD_IMAGE=localhost:5000/erlang:otp-${{ env.OTP_VSN }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
             REBAR_CT=${{ env.REBAR_CT }}
             VARIANT=standalone
@@ -401,7 +481,7 @@ jobs:
           build-args: |
             SOURCE=${{ env.SRC }}
             VERSION=${{ env.VSN }}
-            OTP_VSN=${{ env.OTP_VSN }}
+            BUILD_IMAGE=localhost:5000/erlang:otp-${{ env.OTP_VSN }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
             REBAR_CT=${{ env.REBAR_CT }}
             VARIANT=acme
