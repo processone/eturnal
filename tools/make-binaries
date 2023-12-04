@@ -468,12 +468,14 @@ build_rel()
 	if [ "$mode" = 'native' ]
 	then
 		ERL_COMPILER_OPTIONS="$erl_compiler_options" \
+		    ERL_DIST_PORT='3470' \
 		    rebar3 as "$(rebar3_profile "$mode")" tar
 	else
 		ln -s "$prefix/lib" # As expected by the 'cross' profile.
 		ei_inc="$prefix/lib/erlang/lib/erl_interface-"*'/include'
 		ei_lib="$prefix/lib/erlang/lib/erl_interface-"*'/lib'
 		ERL_COMPILER_OPTIONS="$erl_compiler_options" \
+		    ERL_DIST_PORT='3470' \
 		    ERL_EI_INCLUDE_DIR=$(ls -1d $ei_inc) \
 		    ERL_EI_LIBDIR=$(ls -1d $ei_lib) \
 		    LDLIBS='-lpthread' \
@@ -484,8 +486,6 @@ build_rel()
 	info "Editing $rel_name $rel_vsn for $arch-$libc ..."
 	mkdir "$target_dst_dir"
 	tar -C "$target_dst_dir" -xzf "$rel_dir/$rel_tar"
-	sed -i 's/^dist_port="${ERL_DIST_PORT:-}"/dist_port="${ERL_DIST_PORT:-3470}"/' \
-	    "$target_dst_dir/bin/${rel_name}ctl"
 	find "$target_dst_dir/lib" -type f -name 'otp_test_engine.so' \
 	    -delete # Remove shared object file used only in test suite.
 	find "$target_dst_dir/lib/crypto-"* "$target_dst_dir/lib/asn1-"* \
