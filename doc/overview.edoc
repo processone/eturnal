@@ -654,14 +654,16 @@ The eturnal server recognizes the following environment variables.
 === ERL_DIST_PORT ===
 
 The environment variable `ERL_DIST_PORT' specifies the TCP port number used by
-the `eturnalctl' command for communicating with eturnal. By default, a random
-port is chosen. If this variable is specified, the Erlang Port Mapper Daemon
-(EPMD) service is <em>not</em> spawned during eturnal startup, and the {@section
-ERL_EPMD_ADDRESS} and {@section ERL_EPMD_PORT} variables are ignored.
-`ERL_DIST_PORT' must be set to the same port number during eturnal startup and
-when calling `eturnalctl'. Therefore, it's usually most convenient to specify
-the `dist_port' variable at the top of the `eturnalctl' script itself. <em>This
-feature requires at least Erlang/OTP 23.1 and Rebar3 3.18.0.</em>
+the `eturnalctl' command for communicating with eturnal. If this variable is
+specified, the Erlang Port Mapper Daemon (EPMD) service is <em>not</em> spawned
+during eturnal startup, and the {@section ERL_EPMD_ADDRESS} and {@section
+ERL_EPMD_PORT} variables are ignored. `ERL_DIST_PORT' must be set to the same
+port number during eturnal startup and when calling `eturnalctl'. Therefore,
+it's usually most convenient to specify the `dist_port' variable at the top of
+the `eturnalctl' script itself. For the binary release, the default value is
+`3470'. Otherwise (or if `ERL_DIST_PORT' is set to an empty value), a random
+port number is chosen. <em>This feature requires at least Erlang/OTP 23.1 and
+Rebar3 3.18.0.</em>
 
 === ERL_EPMD_ADDRESS ===
 
