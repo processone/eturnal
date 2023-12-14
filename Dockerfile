@@ -3,7 +3,7 @@
 ARG OTP_VSN='26.1.1'
 ARG BUILD_IMAGE="docker.io/erlang:${OTP_VSN}-alpine"
 ## specific ARGs for METHOD='package'
-ARG ALPINE_VSN='3.18.4'
+ARG ALPINE_VSN='3.19'
 ARG PACKAGE_IMAGE="docker.io/alpine:${ALPINE_VSN}"
 ## specific ARGs for VARIANT='acme'
 ARG ACMESH_VSN='3.0.6'
