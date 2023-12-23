@@ -15,7 +15,13 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "9.2.7"
+      "version": "10.1.2"
+    },
+    {
+      "type": "panel",
+      "id": "graph",
+      "name": "Graph (old)",
+      "version": ""
     },
     {
       "type": "panel",
@@ -69,20 +75,7 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": null,
-  "links": [
-    {
-      "asDropdown": false,
-      "icon": "external link",
-      "includeVars": false,
-      "keepTime": false,
-      "tags": [],
-      "targetBlank": false,
-      "title": "New link",
-      "tooltip": "",
-      "type": "dashboards",
-      "url": ""
-    }
-  ],
+  "links": [],
   "liveNow": false,
   "panels": [
     {
@@ -115,15 +108,19 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "bars",
-            "fillOpacity": 0,
-            "gradientMode": "none",
+            "drawStyle": "line",
+            "fillOpacity": 34,
+            "gradientMode": "opacity",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "linear",
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
@@ -212,7 +209,7 @@
             "uid": "${DS_VICTORIAMETRICS}"
           },
           "editorMode": "code",
-          "expr": "erlang_vm_memory_bytes_total{instance=~\"$instance\"}",
+          "expr": "erlang_vm_memory_bytes_total{unit=~\"$unit\"}",
           "hide": false,
           "legendFormat": "{{kind}}",
           "range": true,
@@ -269,6 +266,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
@@ -453,491 +451,111 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum without (transport) (increase(eturnal_protocol_error_total{instance=~\"$instance\",reason=~\"$protocol_errors\",transport=~\"$transport\"}[$__rate_interval]))>0",
+          "expr": "sum without (transport) (increase(eturnal_protocol_error_total{unit=~\"$unit\"}[$__rate_interval]))>0",
           "format": "time_series",
           "hide": false,
           "instant": false,
-          "legendFormat": "{{reason}} {{transport}}",
+          "legendFormat": "{{reason}}",
           "range": true,
           "refId": "B"
         }
       ],
-      "title": "Protocol errors | transports $transport",
+      "title": "Protocol errors",
       "transformations": [],
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "datasource",
-        "uid": "-- Dashboard --"
+      "aliasColors": {
+        "Busy": "#EAB839",
+        "Busy Iowait": "#890F02",
+        "Busy other": "#1F78C1",
+        "Idle": "#052B51",
+        "Idle - Waiting for something to happen": "#052B51",
+        "guest": "#9AC48A",
+        "idle": "#052B51",
+        "iowait": "#EAB839",
+        "irq": "#BF1B00",
+        "nice": "#C15C17",
+        "softirq": "#E24D42",
+        "steal": "#FCE2DE",
+        "system": "#508642",
+        "user": "#5195CE"
       },
-      "description": "*Calculated with historical data from all past sessions for all current open sessions",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "binBps"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "↑ VM_Output"
-            },
-            "properties": [
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "yellow",
-                      "value": null
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 2,
-        "x": 16,
-        "y": 1
-      },
-      "id": 67,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "max"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "name"
-      },
-      "pluginVersion": "9.2.7",
-      "targets": [
-        {
-          "datasource": {
-            "type": "datasource",
-            "uid": "-- Dashboard --"
-          },
-          "panelId": 37,
-          "refId": "A"
-        }
-      ],
-      "title": "Relay data I/O",
-      "transformations": [
-        {
-          "id": "filterByRefId",
-          "options": {
-            "include": "G|F"
-          }
-        }
-      ],
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "datasource",
-        "uid": "-- Dashboard --"
-      },
-      "description": "*Calculated with historical data from all past sessions for all current open sessions",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "binBps"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "↑ VM_Output"
-            },
-            "properties": [
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "yellow",
-                      "value": null
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 3,
-        "x": 18,
-        "y": 1
-      },
-      "id": 39,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "max"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value"
-      },
-      "pluginVersion": "9.2.7",
-      "targets": [
-        {
-          "datasource": {
-            "type": "datasource",
-            "uid": "-- Dashboard --"
-          },
-          "panelId": 37,
-          "refId": "A"
-        }
-      ],
-      "title": "Peak rate | transports $transport",
-      "transformations": [
-        {
-          "id": "filterByRefId",
-          "options": {
-            "include": "F|G"
-          }
-        }
-      ],
-      "type": "stat"
-    },
-    {
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_VICTORIAMETRICS}"
       },
+      "decimals": 2,
+      "description": "Basic CPU info",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "yellow",
-                "value": null
-              }
-            ]
-          },
-          "unit": "bytes"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "VM_Input"
-            },
-            "properties": [
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 3,
-        "x": 21,
-        "y": 1
-      },
-      "id": 65,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "sum"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value"
-      },
-      "pluginVersion": "9.2.7",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_VICTORIAMETRICS}"
-          },
-          "editorMode": "code",
-          "expr": "sum without(instance,job,transport) (increase(erlang_vm_statistics_bytes_received_total{instance=\"$instance\"}[$__rate_interval])) / 2",
-          "hide": false,
-          "legendFormat": "VM_Input",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_VICTORIAMETRICS}"
-          },
-          "editorMode": "code",
-          "expr": "sum without(instance,job,transport) (increase(erlang_vm_statistics_bytes_output_total{instance=\"$instance\"}[$__rate_interval])) / 2",
-          "hide": false,
-          "legendFormat": "VM_Output",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_VICTORIAMETRICS}"
-          },
-          "editorMode": "code",
-          "expr": "sum without(instance,job,transport) (increase(eturnal_turn_relay_rcvd_bytes_sum{instance=\"$instance\"}[$__rate_interval]))",
-          "hide": true,
-          "legendFormat": "VM_Input",
-          "range": true,
-          "refId": "C"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_VICTORIAMETRICS}"
-          },
-          "editorMode": "code",
-          "expr": "sum without(instance,job,transport) (increase(eturnal_turn_relay_sent_bytes_sum{instance=\"$instance\"}[$__rate_interval]))",
-          "hide": true,
-          "legendFormat": "VM_Output",
-          "range": true,
-          "refId": "D"
-        }
-      ],
-      "title": "Traffic overall",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "datasource",
-        "uid": "-- Dashboard --"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          }
+          "links": []
         },
         "overrides": []
       },
+      "fill": 4,
+      "fillGradient": 0,
       "gridPos": {
-        "h": 3,
-        "w": 5,
-        "x": 16,
-        "y": 5
-      },
-      "id": 62,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "max"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value_and_name"
-      },
-      "pluginVersion": "9.2.7",
-      "targets": [
-        {
-          "datasource": {
-            "type": "datasource",
-            "uid": "-- Dashboard --"
-          },
-          "panelId": 22,
-          "refId": "A"
-        }
-      ],
-      "title": "Peak STUN queries | transports $transport",
-      "transformations": [],
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "datasource",
-        "uid": "-- Dashboard --"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "dthms"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 3,
-        "x": 21,
-        "y": 5
-      },
-      "id": 63,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.2.7",
-      "targets": [
-        {
-          "datasource": {
-            "type": "datasource",
-            "uid": "-- Dashboard --"
-          },
-          "panelId": 44,
-          "refId": "A"
-        }
-      ],
-      "title": "Avg. duration / session [in hh:mm:ss]",
-      "transformations": [
-        {
-          "id": "filterByRefId",
-          "options": {
-            "include": "C"
-          }
-        }
-      ],
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_VICTORIAMETRICS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
+        "h": 5,
         "w": 8,
         "x": 16,
-        "y": 8
+        "y": 1
       },
-      "id": 56,
+      "hiddenSeries": false,
+      "id": 71,
+      "legend": {
+        "alignAsTable": false,
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "sideWidth": 250,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "maxPerRow": 6,
+      "nullPointMode": "null",
       "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "max"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "value_and_name"
+        "alertThreshold": true
       },
-      "pluginVersion": "9.2.7",
+      "percentage": true,
+      "pluginVersion": "10.1.2",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "Busy Iowait",
+          "color": "#890F02"
+        },
+        {
+          "alias": "Idle",
+          "color": "#7EB26D"
+        },
+        {
+          "alias": "Busy System",
+          "color": "#EAB839"
+        },
+        {
+          "alias": "Busy User",
+          "color": "#0A437C"
+        },
+        {
+          "alias": "Busy Other",
+          "color": "#6D1F62"
+        }
+      ],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
       "targets": [
         {
           "datasource": {
@@ -945,21 +563,322 @@
             "uid": "${DS_VICTORIAMETRICS}"
           },
           "editorMode": "code",
-          "expr": "sum without(instance,job) (eturnal_turn_open_sessions{instance=~\"$instance\"})",
+          "expr": "sum by (unit)(irate(node_cpu_seconds_total{mode=\"system\",unit=\"$unit\",job=\"eturnal.turn\"}[5m])) * 100",
+          "format": "time_series",
           "hide": false,
-          "legendFormat": "{{transport}}",
+          "intervalFactor": 2,
+          "legendFormat": "Busy System",
           "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Peak # of concurrent open TURN sessions",
-      "transformations": [
+          "refId": "A",
+          "step": 240
+        },
         {
-          "id": "calculateField",
-          "options": {}
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIAMETRICS}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (unit)(irate(node_cpu_seconds_total{mode='user',instaunit=\"$unit\",job=\"eturnal.turn\"}[5m])) * 100",
+          "format": "time_series",
+          "hide": false,
+          "intervalFactor": 2,
+          "legendFormat": "Busy User",
+          "range": true,
+          "refId": "B",
+          "step": 240
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIAMETRICS}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (unit)(irate(node_cpu_seconds_total{mode='iowait',unit=\"$unit\",job=\"eturnal.turn\"}[5m])) * 100",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "Busy Iowait",
+          "range": true,
+          "refId": "C",
+          "step": 240
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIAMETRICS}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (unit)(irate(node_cpu_seconds_total{mode=~\".*irq\",unit=\"$unit\",job=\"eturnal.turn\"}[5m])) * 100",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "Busy IRQs",
+          "range": true,
+          "refId": "D",
+          "step": 240
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIAMETRICS}"
+          },
+          "editorMode": "code",
+          "expr": "sum (irate(node_cpu_seconds_total{mode!='idle',mode!='user',mode!='system',mode!='iowait',mode!='irq',mode!='softirq',unit=\"$unit\",job=\"eturnal.turn\"}[5m])) * 100",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "Busy Other",
+          "range": true,
+          "refId": "E",
+          "step": 240
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIAMETRICS}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (mode)(irate(node_cpu_seconds_total{mode='idle',unit=\"$unit\",job=\"eturnal.turn\"}[5m])) * 100",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "Idle",
+          "range": true,
+          "refId": "F",
+          "step": 240
         }
       ],
-      "type": "stat"
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "CPU Basic",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "logBase": 1,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
+    },
+    {
+      "aliasColors": {
+        "Apps": "#629E51",
+        "Buffers": "#614D93",
+        "Cache": "#6D1F62",
+        "Cached": "#511749",
+        "Committed": "#508642",
+        "Free": "#0A437C",
+        "Hardware Corrupted - Amount of RAM that the kernel identified as corrupted / not working": "#CFFAFF",
+        "Inactive": "#584477",
+        "PageTables": "#0A50A1",
+        "Page_Tables": "#0A50A1",
+        "RAM_Free": "#E0F9D7",
+        "SWAP Used": "#BF1B00",
+        "Slab": "#806EB7",
+        "Slab_Cache": "#E0752D",
+        "Swap": "#BF1B00",
+        "Swap Used": "#BF1B00",
+        "Swap_Cache": "#C15C17",
+        "Swap_Free": "#2F575E",
+        "Unused": "#EAB839"
+      },
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_VICTORIAMETRICS}"
+      },
+      "decimals": 2,
+      "description": "Basic memory usage",
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 4,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 6
+      },
+      "hiddenSeries": false,
+      "id": 72,
+      "legend": {
+        "alignAsTable": false,
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "sideWidth": 350,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "maxPerRow": 6,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "10.1.2",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "RAM Total",
+          "color": "#E0F9D7",
+          "fill": 0,
+          "stack": false
+        },
+        {
+          "alias": "RAM Cache + Buffer",
+          "color": "#052B51"
+        },
+        {
+          "alias": "RAM Free",
+          "color": "#7EB26D"
+        },
+        {
+          "alias": "Avaliable",
+          "color": "#DEDAF7",
+          "fill": 0,
+          "stack": false
+        }
+      ],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIAMETRICS}"
+          },
+          "editorMode": "code",
+          "expr": "node_memory_MemTotal_bytes{unit=\"$unit\",job=\"eturnal.turn\"}",
+          "format": "time_series",
+          "hide": false,
+          "intervalFactor": 2,
+          "legendFormat": "RAM Total",
+          "range": true,
+          "refId": "A",
+          "step": 240
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIAMETRICS}"
+          },
+          "editorMode": "code",
+          "expr": "node_memory_MemTotal_bytes{unit=\"$unit\",job=\"eturnal.turn\"} - node_memory_MemFree_bytes{unit=\"$unit\",job=\"eturnal.turn\"} - (node_memory_Cached_bytes{unit=\"$unit\",job=\"eturnal.turn\"} + node_memory_Buffers_bytes{unit=\"$unit\",job=\"eturnal.turn\"})",
+          "format": "time_series",
+          "hide": false,
+          "intervalFactor": 2,
+          "legendFormat": "RAM Used",
+          "range": true,
+          "refId": "B",
+          "step": 240
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIAMETRICS}"
+          },
+          "editorMode": "code",
+          "expr": "node_memory_Cached_bytes{unit=\"$unit\",job=\"eturnal.turn\"} + node_memory_Buffers_bytes{unit=\"$unit\",job=\"eturnal.turn\"}",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "RAM Cache + Buffer",
+          "range": true,
+          "refId": "C",
+          "step": 240
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIAMETRICS}"
+          },
+          "editorMode": "code",
+          "expr": "node_memory_MemFree_bytes{unit=\"$unit\",job=\"eturnal.turn\"}",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "RAM Free",
+          "range": true,
+          "refId": "D",
+          "step": 240
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_VICTORIAMETRICS}"
+          },
+          "editorMode": "code",
+          "expr": "(node_memory_SwapTotal_bytes{unit=\"$unit\",job=\"eturnal.turn\"} - node_memory_SwapFree_bytes{unit=\"$unit\",job=\"eturnal.turn\"})",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "SWAP Used",
+          "range": true,
+          "refId": "E",
+          "step": 240
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "Memory Basic",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "bytes",
+          "label": "",
+          "logBase": 1,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "logBase": 1,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
     },
     {
       "collapsed": false,
@@ -999,6 +918,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1059,7 +979,7 @@
             "uid": "${DS_VICTORIAMETRICS}"
           },
           "editorMode": "code",
-          "expr": "irate(sum(eturnal_stun_requests_total{instance=~\"$instance\",transport=~\"$transport\"}[$__rate_interval]))*$__interval",
+          "expr": "irate(sum(eturnal_stun_requests_total{unit=~\"$unit\"}[$__rate_interval]))*$__interval",
           "format": "time_series",
           "legendFormat": "STUN queries",
           "range": true,
@@ -1109,6 +1029,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1166,7 +1087,7 @@
             "uid": "${DS_VICTORIAMETRICS}"
           },
           "editorMode": "code",
-          "expr": "eturnal_turn_open_sessions{instance=~\"$instance\"}",
+          "expr": "eturnal_turn_open_sessions{unit=~\"$unit\"}",
           "hide": false,
           "legendFormat": "{{transport}}",
           "range": true,
@@ -1178,149 +1099,91 @@
       "type": "timeseries"
     },
     {
+      "aliasColors": {
+        "Recv_bytes_eth2": "#7EB26D",
+        "Recv_bytes_lo": "#0A50A1",
+        "Recv_drop_eth2": "#6ED0E0",
+        "Recv_drop_lo": "#E0F9D7",
+        "Recv_errs_eth2": "#BF1B00",
+        "Recv_errs_lo": "#CCA300",
+        "Trans_bytes_eth2": "#7EB26D",
+        "Trans_bytes_lo": "#0A50A1",
+        "Trans_drop_eth2": "#6ED0E0",
+        "Trans_drop_lo": "#E0F9D7",
+        "Trans_errs_eth2": "#BF1B00",
+        "Trans_errs_lo": "#CCA300",
+        "recv_bytes_lo": "#0A50A1",
+        "recv_drop_eth0": "#99440A",
+        "recv_drop_lo": "#967302",
+        "recv_errs_eth0": "#BF1B00",
+        "recv_errs_lo": "#890F02",
+        "trans_bytes_eth0": "#7EB26D",
+        "trans_bytes_lo": "#0A50A1",
+        "trans_drop_eth0": "#99440A",
+        "trans_drop_lo": "#967302",
+        "trans_errs_eth0": "#BF1B00",
+        "trans_errs_lo": "#890F02"
+      },
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_VICTORIAMETRICS}"
       },
-      "description": "*Calculated with historical data from all past sessions for all current open sessions.",
+      "description": "Basic network info per interface",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 4,
-            "gradientMode": "hue",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "stepAfter",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "dashed"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "percentage",
-            "steps": [
-              {
-                "color": "purple",
-                "value": null
-              }
-            ]
-          },
-          "unit": "binBps"
+          "links": []
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "↑ VM_Output"
-            },
-            "properties": [
-              {
-                "id": "custom.transform",
-                "value": "negative-Y"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "↓ VM_Input avg past 7d"
-            },
-            "properties": [
-              {
-                "id": "custom.fillOpacity",
-                "value": 40
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 0
-              },
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": true,
-                  "tooltip": false,
-                  "viz": false
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "↑ VM_Output avg past 7d"
-            },
-            "properties": [
-              {
-                "id": "custom.transform",
-                "value": "negative-Y"
-              },
-              {
-                "id": "custom.fillOpacity",
-                "value": 40
-              },
-              {
-                "id": "custom.lineWidth",
-                "value": 0
-              },
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": true,
-                  "tooltip": false,
-                  "viz": false
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
+      "fill": 4,
+      "fillGradient": 0,
       "gridPos": {
         "h": 12,
         "w": 8,
         "x": 16,
         "y": 12
       },
-      "id": 37,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "stdDev",
-            "last"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
+      "hiddenSeries": false,
+      "id": 70,
+      "legend": {
+        "alignAsTable": false,
+        "avg": false,
+        "current": false,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": false,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "sort": "current",
+        "sortDesc": true,
+        "total": false,
+        "values": false
       },
-      "pluginVersion": "9.2.7",
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "10.1.2",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "/.*trans.*/",
+          "transform": "negative-Y"
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
       "targets": [
         {
           "datasource": {
@@ -1328,11 +1191,13 @@
             "uid": "${DS_VICTORIAMETRICS}"
           },
           "editorMode": "code",
-          "expr": "irate(erlang_vm_statistics_bytes_received_total{instance=\"$instance\"}[$__rate_interval]) / 2 ",
-          "hide": false,
-          "legendFormat": "↓ VM_Input",
+          "expr": "irate(node_network_receive_bytes_total{unit=\"$unit\",job=\"eturnal.turn\"}[5m])*8",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "recv {{device}}",
           "range": true,
-          "refId": "G"
+          "refId": "A",
+          "step": 240
         },
         {
           "datasource": {
@@ -1340,40 +1205,45 @@
             "uid": "${DS_VICTORIAMETRICS}"
           },
           "editorMode": "code",
-          "expr": "irate(erlang_vm_statistics_bytes_output_total{instance=\"$instance\"}[$__rate_interval]) / 2 ",
-          "hide": false,
-          "legendFormat": "↑ VM_Output",
+          "expr": "irate(node_network_transmit_bytes_total{unit=\"$unit\",job=\"eturnal.turn\"}[5m])*8",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "trans {{device}} ",
           "range": true,
-          "refId": "F"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_VICTORIAMETRICS}"
-          },
-          "editorMode": "code",
-          "expr": "(\n    irate(erlang_vm_statistics_bytes_received_total{instance=\"$instance\"}[$__rate_interval] offset 1d) +\n    irate(erlang_vm_statistics_bytes_received_total{instance=\"$instance\"}[$__rate_interval] offset 2d) +\n    irate(erlang_vm_statistics_bytes_received_total{instance=\"$instance\"}[$__rate_interval] offset 3d) +\n    irate(erlang_vm_statistics_bytes_received_total{instance=\"$instance\"}[$__rate_interval] offset 4d) +\n    irate(erlang_vm_statistics_bytes_received_total{instance=\"$instance\"}[$__rate_interval] offset 5d) +\n    irate(erlang_vm_statistics_bytes_received_total{instance=\"$instance\"}[$__rate_interval] offset 6d) +\n    irate(erlang_vm_statistics_bytes_received_total{instance=\"$instance\"}[$__rate_interval] offset 7d)\n) / 7 / 2 ",
-          "hide": false,
-          "legendFormat": "↓ VM_Input avg past 7d",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_VICTORIAMETRICS}"
-          },
-          "editorMode": "code",
-          "expr": "(\n    irate(erlang_vm_statistics_bytes_output_total{instance=\"$instance\"}[$__rate_interval] offset 1d) +\n    irate(erlang_vm_statistics_bytes_output_total{instance=\"$instance\"}[$__rate_interval] offset 2d) +\n    irate(erlang_vm_statistics_bytes_output_total{instance=\"$instance\"}[$__rate_interval] offset 3d) +\n    irate(erlang_vm_statistics_bytes_output_total{instance=\"$instance\"}[$__rate_interval] offset 4d) +\n    irate(erlang_vm_statistics_bytes_output_total{instance=\"$instance\"}[$__rate_interval] offset 5d) +\n    irate(erlang_vm_statistics_bytes_output_total{instance=\"$instance\"}[$__rate_interval] offset 6d) +\n    irate(erlang_vm_statistics_bytes_output_total{instance=\"$instance\"}[$__rate_interval] offset 7d)\n) / 7 / 2 ",
-          "hide": false,
-          "legendFormat": "↑ VM_Output avg past 7d",
-          "range": true,
-          "refId": "B"
+          "refId": "B",
+          "step": 240
         }
       ],
-      "title": "Relay data rate | transports $transport",
-      "transformations": [],
-      "type": "timeseries"
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "Network Traffic Basic",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "bps",
+          "logBase": 1,
+          "show": true
+        },
+        {
+          "format": "pps",
+          "label": "",
+          "logBase": 1,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
     },
     {
       "datasource": {
@@ -1400,6 +1270,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -1461,7 +1332,7 @@
             "uid": "${DS_VICTORIAMETRICS}"
           },
           "editorMode": "code",
-          "expr": "irate(sum(eturnal_turn_sessions_total{instance=~\"$instance\",transport=~\"$transport\"}[$__rate_interval]))*$__interval",
+          "expr": "irate(sum(eturnal_turn_sessions_total{unit=~\"$unit\"}[$__rate_interval]))*$__interval",
           "hide": false,
           "legendFormat": "newly opened TURN Sessions",
           "range": true,
@@ -1532,7 +1403,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.7",
+      "pluginVersion": "10.1.2",
       "targets": [
         {
           "datasource": {
@@ -1540,7 +1411,7 @@
             "uid": "${DS_VICTORIAMETRICS}"
           },
           "editorMode": "code",
-          "expr": "( 1 - \n\n  ( sum without (le,instance,job) ( (eturnal_turn_relay_rcvd_bytes_bucket{instance=~\"$instance\",le=~\"$threshold_size\"} + eturnal_turn_relay_sent_bytes_bucket{instance=~\"$instance\",le=~\"$threshold_size\"}) / 2 ) \n  / ( sum without (le,instance,job) (eturnal_turn_sessions_total{instance=~\"$instance\"}) ) ) )\n\n* ( sum without (le,instance,job) (eturnal_turn_open_sessions{instance=~\"$instance\"}) )",
+          "expr": "( 1 - \n\n  ( sum without (le,unit,job) ( (eturnal_turn_relay_rcvd_bytes_bucket{unit=~\"$unit\",le=~\"$threshold_size\"} + eturnal_turn_relay_sent_bytes_bucket{unit=~\"$unit\",le=~\"$threshold_size\"}) / 2 ) \n  / ( sum without (le,unit,job) (eturnal_turn_sessions_total{unit=~\"$unit\"}) ) ) )\n\n* ( sum without (le,unit,job) (eturnal_turn_open_sessions{unit=~\"$unit\"}) )",
           "hide": false,
           "legendFormat": "__auto",
           "range": true,
@@ -1602,7 +1473,7 @@
         },
         "textMode": "auto"
       },
-      "pluginVersion": "9.2.7",
+      "pluginVersion": "10.1.2",
       "targets": [
         {
           "datasource": {
@@ -1610,7 +1481,7 @@
             "uid": "${DS_VICTORIAMETRICS}"
           },
           "editorMode": "code",
-          "expr": "( sum without (le,instance,job) ( (eturnal_turn_relay_rcvd_bytes_bucket{instance=~\"$instance\",le=~\"$threshold_size\"} + eturnal_turn_relay_sent_bytes_bucket{instance=~\"$instance\",le=~\"$threshold_size\"}) / 2 ) \n/ ( sum without (le,instance,job) (eturnal_turn_sessions_total{instance=~\"$instance\"}) ) )\n\n* ( sum without (le,instance,job) (eturnal_turn_open_sessions{instance=~\"$instance\"}) )",
+          "expr": "( sum without (le,unit,job) ( (eturnal_turn_relay_rcvd_bytes_bucket{unit=~\"$unit\",le=~\"$threshold_size\"} + eturnal_turn_relay_sent_bytes_bucket{unit=~\"$unit\",le=~\"$threshold_size\"}) / 2 ) \n/ ( sum without (le,unit,job) (eturnal_turn_sessions_total{unit=~\"$unit\"}) ) )\n\n* ( sum without (le,unit,job) (eturnal_turn_open_sessions{unit=~\"$unit\"}) )",
           "hide": false,
           "legendFormat": "__auto",
           "range": true,
@@ -1704,7 +1575,7 @@
           "unit": "s"
         }
       },
-      "pluginVersion": "9.2.7",
+      "pluginVersion": "10.1.2",
       "targets": [
         {
           "datasource": {
@@ -1713,7 +1584,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum without (job,instance,transport) (irate(eturnal_turn_session_duration_seconds_bucket{instance=~\"$instance\",transport=~\"$transport\"}[$__rate_interval]))*15",
+          "expr": "sum without (job,unit,transport) (irate(eturnal_turn_session_duration_seconds_bucket{unit=~\"$unit\"}[$__rate_interval]))*15",
           "format": "heatmap",
           "instant": false,
           "legendFormat": "__auto",
@@ -1790,7 +1661,7 @@
           "unit": "bytes"
         }
       },
-      "pluginVersion": "9.2.7",
+      "pluginVersion": "10.1.2",
       "targets": [
         {
           "datasource": {
@@ -1799,7 +1670,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum without (job,instance,transport) ( (irate(eturnal_turn_relay_rcvd_bytes_bucket{instance=~\"$instance\",transport=~\"$transport\"}[$__rate_interval]))*$__interval)",
+          "expr": "sum without (job,unit,transport) ( (irate(eturnal_turn_relay_rcvd_bytes_bucket{unit=~\"$unit\"}[$__rate_interval]))*$__interval)",
           "format": "heatmap",
           "instant": false,
           "legendFormat": "__auto",
@@ -1857,7 +1728,7 @@
         },
         "textMode": "name"
       },
-      "pluginVersion": "9.2.7",
+      "pluginVersion": "10.1.2",
       "targets": [
         {
           "datasource": {
@@ -1865,7 +1736,7 @@
             "uid": "${DS_VICTORIAMETRICS}"
           },
           "editorMode": "code",
-          "expr": "(sum without (instance,job) (eturnal_turn_relay_rcvd_bytes_sum{instance=~\"$instance\"})) / (sum without (instance,job) ( (eturnal_turn_sessions_total{instance=~\"$instance\"}) - ignoring(le) eturnal_turn_relay_rcvd_bytes_bucket{instance=~\"$instance\",le=~\"$threshold_size\"} ))",
+          "expr": "(sum without (unit,job) (eturnal_turn_relay_rcvd_bytes_sum{unit=~\"$unit\"})) / (sum without (unit,job) ( (eturnal_turn_sessions_total{unit=~\"$unit\"}) - ignoring(le) eturnal_turn_relay_rcvd_bytes_bucket{unit=~\"$unit\",le=~\"$threshold_size\"} ))",
           "hide": false,
           "legendFormat": "{{transport}}",
           "range": true,
@@ -1934,7 +1805,7 @@
         },
         "textMode": "value"
       },
-      "pluginVersion": "9.2.7",
+      "pluginVersion": "10.1.2",
       "targets": [
         {
           "datasource": {
@@ -1942,7 +1813,7 @@
             "uid": "${DS_VICTORIAMETRICS}"
           },
           "editorMode": "code",
-          "expr": "(sum without (instance,job) (eturnal_turn_relay_rcvd_bytes_sum{instance=~\"$instance\"})) / (sum without (instance,job) ( (eturnal_turn_sessions_total{instance=~\"$instance\"}) - ignoring(le) eturnal_turn_relay_rcvd_bytes_bucket{instance=~\"$instance\",le=~\"$threshold_size\"} ))",
+          "expr": "(sum without (unit,job) (eturnal_turn_relay_rcvd_bytes_sum{unit=~\"$unit\"})) / (sum without (unit,job) ( (eturnal_turn_sessions_total{unit=~\"$unit\"}) - ignoring(le) eturnal_turn_relay_rcvd_bytes_bucket{unit=~\"$unit\",le=~\"$threshold_size\"} ))",
           "hide": false,
           "legendFormat": "{{transport}}",
           "range": true,
@@ -1954,7 +1825,7 @@
             "uid": "${DS_VICTORIAMETRICS}"
           },
           "editorMode": "code",
-          "expr": "(sum without (instance,job,transport) (eturnal_turn_relay_rcvd_bytes_sum{instance=~\"$instance\"})) / (sum without (instance,job,transport) ( (eturnal_turn_sessions_total{instance=~\"$instance\"}) - ignoring(le) eturnal_turn_relay_rcvd_bytes_bucket{instance=~\"$instance\",le=~\"$threshold_size\"} ))",
+          "expr": "(sum without (unit,job,transport) (eturnal_turn_relay_rcvd_bytes_sum{unit=~\"$unit\"})) / (sum without (unit,job,transport) ( (eturnal_turn_sessions_total{unit=~\"$unit\"}) - ignoring(le) eturnal_turn_relay_rcvd_bytes_bucket{unit=~\"$unit\",le=~\"$threshold_size\"} ))",
           "hide": false,
           "legendFormat": "Overall",
           "range": true,
@@ -2011,7 +1882,7 @@
         },
         "textMode": "value"
       },
-      "pluginVersion": "9.2.7",
+      "pluginVersion": "10.1.2",
       "targets": [
         {
           "datasource": {
@@ -2019,7 +1890,7 @@
             "uid": "${DS_VICTORIAMETRICS}"
           },
           "editorMode": "code",
-          "expr": "(sum without (instance,job) (eturnal_turn_relay_sent_bytes_sum{instance=~\"$instance\"})) / (sum without (instance,job) ( (eturnal_turn_sessions_total{instance=~\"$instance\"}) - ignoring(le) eturnal_turn_relay_sent_bytes_bucket{instance=~\"$instance\",le=~\"$threshold_size\"} ))",
+          "expr": "(sum without (unit,job) (eturnal_turn_relay_sent_bytes_sum{unit=~\"$unit\"})) / (sum without (unit,job) ( (eturnal_turn_sessions_total{unit=~\"$unit\"}) - ignoring(le) eturnal_turn_relay_sent_bytes_bucket{unit=~\"$unit\",le=~\"$threshold_size\"} ))",
           "hide": false,
           "legendFormat": "{{transport}}",
           "range": true,
@@ -2031,7 +1902,7 @@
             "uid": "${DS_VICTORIAMETRICS}"
           },
           "editorMode": "code",
-          "expr": "(sum without (instance,job,transport) (eturnal_turn_relay_sent_bytes_sum{instance=~\"$instance\"})) / (sum without (instance,job,transport) ( (eturnal_turn_sessions_total{instance=~\"$instance\"}) - ignoring(le) eturnal_turn_relay_sent_bytes_bucket{instance=~\"$instance\",le=~\"$threshold_size\"} ))",
+          "expr": "(sum without (unit,job,transport) (eturnal_turn_relay_sent_bytes_sum{unit=~\"$unit\"})) / (sum without (unit,job,transport) ( (eturnal_turn_sessions_total{unit=~\"$unit\"}) - ignoring(le) eturnal_turn_relay_sent_bytes_bucket{unit=~\"$unit\",le=~\"$threshold_size\"} ))",
           "hide": false,
           "legendFormat": "Overall",
           "range": true,
@@ -2088,7 +1959,7 @@
         },
         "textMode": "value"
       },
-      "pluginVersion": "9.2.7",
+      "pluginVersion": "10.1.2",
       "targets": [
         {
           "datasource": {
@@ -2096,7 +1967,7 @@
             "uid": "${DS_VICTORIAMETRICS}"
           },
           "editorMode": "code",
-          "expr": "(sum without (instance,job) (eturnal_turn_session_duration_seconds_sum{instance=~\"$instance\"})) / (sum without (instance,job) ( (eturnal_turn_sessions_total{instance=~\"$instance\"})))",
+          "expr": "(sum without (unit,job) (eturnal_turn_session_duration_seconds_sum{unit=~\"$unit\"})) / (sum without (unit,job) ( (eturnal_turn_sessions_total{unit=~\"$unit\"})))",
           "hide": false,
           "legendFormat": "{{transport}}",
           "range": true,
@@ -2108,7 +1979,7 @@
             "uid": "${DS_VICTORIAMETRICS}"
           },
           "editorMode": "code",
-          "expr": "(sum without (instance,job,transport) (eturnal_turn_session_duration_seconds_sum{instance=~\"$instance\"})) / (sum without (instance,job,transport) ( (eturnal_turn_sessions_total{instance=~\"$instance\"})))",
+          "expr": "(sum without (unit,job,transport) (eturnal_turn_session_duration_seconds_sum{unit=~\"$unit\"})) / (sum without (unit,job,transport) ( (eturnal_turn_sessions_total{unit=~\"$unit\"})))",
           "hide": false,
           "legendFormat": "Overall",
           "range": true,
@@ -2184,7 +2055,7 @@
           "unit": "bytes"
         }
       },
-      "pluginVersion": "9.2.7",
+      "pluginVersion": "10.1.2",
       "targets": [
         {
           "datasource": {
@@ -2193,7 +2064,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum without (job,instance,transport) ((irate(eturnal_turn_relay_sent_bytes_bucket{instance=~\"$instance\",transport=~\"$transport\"}[$__rate_interval]))*$__interval)",
+          "expr": "sum without (job,unit,transport) ((irate(eturnal_turn_relay_sent_bytes_bucket{unit=~\"$unit\"}[$__rate_interval]))*$__interval)",
           "format": "heatmap",
           "instant": false,
           "legendFormat": "__auto",
@@ -2208,7 +2079,7 @@
   ],
   "refresh": "30s",
   "revision": 1,
-  "schemaVersion": 37,
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [
     "STUN",
@@ -2218,56 +2089,46 @@
   "templating": {
     "list": [
       {
-        "current": {},
-        "datasource": {
-          "type": "prometheus",
-          "uid": "${DS_VICTORIAMETRICS}"
+        "current": {
+          "selected": false,
+          "text": "VictoriaMetrics",
+          "value": "P4169E866C3094E38"
         },
-        "definition": "label_values(instance) ",
-        "description": "Please provide the targeted server 'domain:port' which is targeted with your Prometheus server.",
         "hide": 0,
         "includeAll": false,
-        "label": "Target server",
+        "label": "Datasource",
         "multi": false,
-        "name": "instance",
+        "name": "DS_PROMETHEUS",
         "options": [],
-        "query": {
-          "query": "label_values(instance) ",
-          "refId": "StandardVariableQuery"
-        },
+        "query": "prometheus",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
+        "type": "datasource"
       },
       {
         "current": {},
-        "datasource": {
-          "type": "prometheus",
-          "uid": "${DS_VICTORIAMETRICS}"
-        },
-        "definition": "label_values(transport) ",
-        "description": "Display STUN/TURN transports.",
+        "definition": "query_result(eturnal_stun_requests_total)",
+        "description": "Target TURN server unit",
         "hide": 0,
         "includeAll": true,
-        "label": "Transport",
+        "label": "Target server",
         "multi": true,
-        "name": "transport",
+        "name": "unit",
         "options": [],
         "query": {
-          "query": "label_values(transport) ",
-          "refId": "StandardVariableQuery"
+          "query": "query_result(eturnal_stun_requests_total)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
-        "regex": "",
+        "regex": "/unit=\"(?<text>[^\"]+)/g",
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
       },
       {
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "4096",
           "value": "4096"
         },
@@ -2298,30 +2159,6 @@
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"
-      },
-      {
-        "current": {},
-        "datasource": {
-          "type": "prometheus",
-          "uid": "${DS_VICTORIAMETRICS}"
-        },
-        "definition": "label_values(reason) ",
-        "description": "Selection of protocol errors displayed in the dashboard.",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Protocol errors",
-        "multi": true,
-        "name": "protocol_errors",
-        "options": [],
-        "query": {
-          "query": "label_values(reason) ",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
       }
     ]
   },
@@ -2333,7 +2170,6 @@
   "timezone": "",
   "title": "eturnal STUN/TURN server official dashboard",
   "uid": "0uBAM6E4k",
-  "version": 81,
+  "version": 5,
   "weekStart": ""
 }
-
