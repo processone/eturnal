@@ -520,7 +520,19 @@
             "uid": "P4169E866C3094E38"
           },
           "editorMode": "code",
-          "expr": "erlang_vm_memory_bytes_total{unit=~\"$unit\"}",
+          "expr": "erlang_vm_memory_bytes_total{unit=~\"$unit\",kind=\"system\"}",
+          "hide": false,
+          "legendFormat": "{{kind}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "editorMode": "code",
+          "expr": "erlang_vm_memory_bytes_total{unit=~\"$unit\",kind=\"processes\"}",
           "hide": false,
           "legendFormat": "{{kind}}",
           "range": true,
@@ -529,23 +541,6 @@
       ],
       "title": "Allocated memory by $unit eturnal",
       "transformations": [
-        {
-          "id": "concatenate",
-          "options": {}
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "indexByName": {
-              "processes": 3,
-              "processes · Time": 2,
-              "system": 1,
-              "system · Time": 0
-            },
-            "renameByName": {}
-          }
-        },
         {
           "id": "calculateField",
           "options": {}
@@ -2133,6 +2128,6 @@
   "timezone": "",
   "title": "eturnal STUN/TURN server official dashboard",
   "uid": "0uBAM6E4k",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }
