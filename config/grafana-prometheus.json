@@ -25,7 +25,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 24,
+  "id": 23,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -1222,7 +1222,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
+        "h": 12,
         "w": 2,
         "x": 16,
         "y": 14
@@ -1262,7 +1262,7 @@
             "uid": "P4169E866C3094E38"
           },
           "editorMode": "code",
-          "expr": "(sum without (instance,job,transport) (eturnal_turn_relay_rcvd_bytes_sum{instance=~\"$instance\"})) / (sum without (instance,job,transport) ( (eturnal_turn_sessions_total{instance=~\"$instance\"}) - ignoring(le) eturnal_turn_relay_rcvd_bytes_bucket{instance=~\"$instance\",le=~\"$threshold_size\"} ))",
+          "expr": "(sum without (unit,job,transport) (eturnal_turn_relay_rcvd_bytes_sum{unit=~\"$unit\"})) / (sum without (unit,job,transport) ( (eturnal_turn_sessions_total{unit=~\"$unit\"}) - ignoring(le) eturnal_turn_relay_rcvd_bytes_bucket{unit=~\"$unit\",le=~\"$threshold_size\"} ))",
           "hide": false,
           "legendFormat": "Overall",
           "range": true,
@@ -2067,6 +2067,10 @@
             "$__all"
           ]
         },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P4169E866C3094E38"
+        },
         "definition": "query_result(eturnal_stun_requests_total)",
         "description": "Target TURN server unit",
         "hide": 0,
@@ -2122,13 +2126,13 @@
     ]
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-6h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "eturnal STUN/TURN server official dashboard",
   "uid": "0uBAM6E4k",
-  "version": 7,
+  "version": 2,
   "weekStart": ""
 }
