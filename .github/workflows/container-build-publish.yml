@@ -143,7 +143,7 @@ jobs:
         run: docker stop test-suites
       -
         name: Upload artifact | ${{ matrix.arch }} musl-libc based binary tarball
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: eturnal-${{ env.TAG_VERSION }}-linux-musl-${{ matrix.arch }}.tar.gz
           path: eturnal-*-linux-musl-${{ matrix.arch }}.tar.gz
@@ -188,7 +188,7 @@ jobs:
           echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x64|amd64|')" >> $GITHUB_ENV
       -
         name: Download artifact | ${{ matrix.arch }} musl-libc based binary tarball
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: eturnal-${{ env.TAG_VERSION }}-linux-musl-${{ matrix.arch }}.tar.gz
       -
@@ -240,7 +240,7 @@ jobs:
           touch "/tmp/digests-so/${digest#sha256:}"
       -
         name: Standalone | upload digest | ${{ matrix.arch }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: digests-standalone
           path: /tmp/digests-so/*
@@ -269,7 +269,7 @@ jobs:
           touch "/tmp/digests-as/${digest#sha256:}"
       -
         name: ACME | upload digest | ${{ matrix.arch }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: digests-acme
           path: /tmp/digests-as/*
@@ -467,7 +467,7 @@ jobs:
           touch "/tmp/digests-so/${digest#sha256:}"
       -
         name: Standalone | upload digest | ${{ matrix.arch }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: digests-standalone
           path: /tmp/digests-so/*
@@ -498,7 +498,7 @@ jobs:
           touch "/tmp/digests-as/${digest#sha256:}"
       -
         name: ACME | upload digest | ${{ matrix.arch }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: digests-acme
           path: /tmp/digests-as/*
@@ -553,7 +553,7 @@ jobs:
                      || secrets.GITHUB_TOKEN }}
       -
         name: Download digests | ${{ matrix.variant }}
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: digests-${{ matrix.variant }}
           path: /tmp/digests
