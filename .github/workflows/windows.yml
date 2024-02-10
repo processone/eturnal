@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with: # For tools/get-version:
           fetch-depth: 0
       - name: Set up MSVC environment
@@ -22,7 +22,7 @@ jobs:
         run: rm /usr/bin/link.exe
         shell: bash
       - name: Cache Rebar data
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/rebar3
           key: ${{ runner.os }}-${{ hashFiles('rebar.config') }}
@@ -70,7 +70,7 @@ jobs:
       - name: Check test coverage
         run: rebar3 cover
       - name: Upload installer
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: eturnal-installer
           path: eturnal-*.exe

@@ -39,7 +39,7 @@ jobs:
     steps:
       -
         name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 2
       -
@@ -67,12 +67,12 @@ jobs:
     steps:
       -
         name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       -
         name: Cache toolchain directory
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/build/
           key: ${{runner.os}}-ct-ng-1.25.0-${{ matrix.arch }}-musl
@@ -86,7 +86,7 @@ jobs:
         run: echo "TAG_VERSION=$(awk 'END{gsub("-", " "); print $1}' ${{ env.PKGREL_FILE }})" >> $GITHUB_ENV
       -
         name: On release | check out release to be published/updated
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         if: needs.detect-change.outputs.update == 'true'
         with:
           ref: ${{ env.TAG_VERSION }}
@@ -143,7 +143,7 @@ jobs:
         run: docker stop test-suites
       -
         name: Upload artifact | ${{ matrix.arch }} musl-libc based binary tarball
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: eturnal-${{ env.TAG_VERSION }}-linux-musl-${{ matrix.arch }}.tar.gz
           path: eturnal-*-linux-musl-${{ matrix.arch }}.tar.gz
@@ -164,7 +164,7 @@ jobs:
     steps:
       -
         name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       -
@@ -177,10 +177,10 @@ jobs:
         run: echo "TAG_VERSION=$(awk 'END{gsub("-", " "); print $1}' ${{ env.PKGREL_FILE }})" >> $GITHUB_ENV
       -
         name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       -
         name: Extract build & environment variables
         run: |
@@ -188,12 +188,12 @@ jobs:
           echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x64|amd64|')" >> $GITHUB_ENV
       -
         name: Download artifact | ${{ matrix.arch }} musl-libc based binary tarball
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: eturnal-${{ env.TAG_VERSION }}-linux-musl-${{ matrix.arch }}.tar.gz
       -
         name: Log in to ${{ env.REGISTRY }}
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.repository_owner }}
@@ -201,13 +201,13 @@ jobs:
       -
         name: Docker meta
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       -
         name: Standalone | build & push by digest
         id: build-so
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           build-args: |
             METHOD=${{ matrix.method }}
@@ -240,7 +240,7 @@ jobs:
           touch "/tmp/digests-so/${digest#sha256:}"
       -
         name: Standalone | upload digest | ${{ matrix.arch }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: digests-standalone
           path: /tmp/digests-so/*
@@ -249,7 +249,7 @@ jobs:
       -
         name: ACME | build & push by digest
         id: build-as
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           build-args: |
             METHOD=${{ matrix.method }}
@@ -269,7 +269,7 @@ jobs:
           touch "/tmp/digests-as/${digest#sha256:}"
       -
         name: ACME | upload digest | ${{ matrix.arch }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: digests-acme
           path: /tmp/digests-as/*
@@ -290,7 +290,7 @@ jobs:
     steps:
       -
         name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       -
@@ -309,15 +309,15 @@ jobs:
             | awk '/^rebar_vsn=/ {{gsub(/[^0-9.]/, ""); print}}')" >> $GITHUB_ENV
       -
         name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         with:
           driver-opts: network=host
       -
         name: Build Erlang/OTP ${{ env.OTP_VSN }} base image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           build-args: |
             OTP_VSN=${{ env.OTP_VSN }}
@@ -350,7 +350,7 @@ jobs:
     steps:
       -
         name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       -
@@ -385,15 +385,15 @@ jobs:
           fi
       -
         name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         with:
           driver-opts: network=host
       -
         name: Build Erlang/OTP ${{ env.OTP_VSN }} base image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           build-args: |
             OTP_VSN=${{ env.OTP_VSN }}
@@ -418,7 +418,7 @@ jobs:
           fi
       -
         name: Log in to ${{ env.REGISTRY }}
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.repository_owner }}
@@ -426,13 +426,13 @@ jobs:
       -
         name: Docker meta
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       -
         name: Standalone | build & push by digest
         id: build-so
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           build-args: |
             SOURCE=${{ env.SRC }}
@@ -467,7 +467,7 @@ jobs:
           touch "/tmp/digests-so/${digest#sha256:}"
       -
         name: Standalone | upload digest | ${{ matrix.arch }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: digests-standalone
           path: /tmp/digests-so/*
@@ -476,7 +476,7 @@ jobs:
       -
         name: ACME | build & push by digest
         id: build-as
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           build-args: |
             SOURCE=${{ env.SRC }}
@@ -498,7 +498,7 @@ jobs:
           touch "/tmp/digests-as/${digest#sha256:}"
       -
         name: ACME | upload digest | ${{ matrix.arch }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: digests-acme
           path: /tmp/digests-as/*
@@ -520,7 +520,7 @@ jobs:
     steps:
       -
         name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       -
@@ -538,7 +538,7 @@ jobs:
           echo "TAG_MAJOR=$(awk 'END{gsub("\\.", " "); print $1}' ${{ env.PKGREL_FILE }})" >> $GITHUB_ENV
       -
         name: Log in to ${{ matrix.registry }}
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         if: |
           ( matrix.registry == 'docker.io'
             && github.repository_owner == 'processone' )
@@ -553,13 +553,13 @@ jobs:
                      || secrets.GITHUB_TOKEN }}
       -
         name: Download digests | ${{ matrix.variant }}
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: digests-${{ matrix.variant }}
           path: /tmp/digests
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       -
         name: Define tag for latest ...
         run: |
@@ -575,7 +575,7 @@ jobs:
         name: On push master | Docker meta
         id: meta
         if: needs.detect-change.outputs.update == 'false'
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ matrix.registry }}/${{ (matrix.registry == 'docker.io'
                                         && env.DOCKERHUB_REPO)
@@ -586,7 +586,7 @@ jobs:
         name: On release | Docker meta
         id: meta-rel
         if: needs.detect-change.outputs.update == 'true'
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ matrix.registry }}/${{ (matrix.registry == 'docker.io'
                                         && env.DOCKERHUB_REPO)

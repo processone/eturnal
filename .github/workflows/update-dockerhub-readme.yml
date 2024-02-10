@@ -15,12 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Prepare ${{ env.README }}
         run: |
           sed -i 's|ghcr.io/processone/eturnal|docker.io/${{ env.DOCKERHUB_REPO }}|g' ${{ env.README }}
       - name: Docker Hub Description
-        uses: peter-evans/dockerhub-description@v3
+        uses: peter-evans/dockerhub-description@v4
         if: |
           github.event_name != 'pull_request'
           && github.repository_owner == 'processone'
