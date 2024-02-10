@@ -10,8 +10,8 @@ project adheres to [Semantic Versioning][SemVer].
   synonym and can be configured with environment variables.
 
 ### Changed
-- Binary release: Update Erlang/OTP from 26.0.2 to 26.1.2.
-- Binary release: Update OpenSSL from 3.1.3 to 3.1.4.
+- Binary release: Update Erlang/OTP from 26.0.2 to 26.2.2.
+- Binary release: Update OpenSSL from 3.1.3 to 3.1.5.
 
 ## [1.12.0] - 2023-09-28
 ### Added
