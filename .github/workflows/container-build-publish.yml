@@ -143,7 +143,7 @@ jobs:
         run: docker stop test-suites
       -
         name: Upload artifact | ${{ matrix.arch }} musl-libc based binary tarball
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: eturnal-${{ env.TAG_VERSION }}-linux-musl-${{ matrix.arch }}.tar.gz
           path: eturnal-*-linux-musl-${{ matrix.arch }}.tar.gz
@@ -188,7 +188,7 @@ jobs:
           echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x64|amd64|')" >> $GITHUB_ENV
       -
         name: Download artifact | ${{ matrix.arch }} musl-libc based binary tarball
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: eturnal-${{ env.TAG_VERSION }}-linux-musl-${{ matrix.arch }}.tar.gz
       -
@@ -240,9 +240,9 @@ jobs:
           touch "/tmp/digests-so/${digest#sha256:}"
       -
         name: Standalone | upload digest | ${{ matrix.arch }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: digests-standalone
+          name: digests-standalone-${{ matrix.arch }}
           path: /tmp/digests-so/*
           if-no-files-found: error
           retention-days: 5
@@ -269,9 +269,9 @@ jobs:
           touch "/tmp/digests-as/${digest#sha256:}"
       -
         name: ACME | upload digest | ${{ matrix.arch }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: digests-acme
+          name: digests-acme-${{ matrix.arch }}
           path: /tmp/digests-as/*
           if-no-files-found: error
           retention-days: 5
@@ -362,6 +362,7 @@ jobs:
           echo "SRC=local" >> $GITHUB_ENV
           echo "OTP_VSN=$(awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' tools/make-binaries)" >> $GITHUB_ENV
           echo "REBAR_VSN=$(awk '/^rebar_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' tools/make-binaries)" >> $GITHUB_ENV
+          echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|/|-|')" >> $GITHUB_ENV
       -
         name: On release | extract git version and define build mode
         if: needs.detect-change.outputs.update == 'true'
@@ -467,9 +468,9 @@ jobs:
           touch "/tmp/digests-so/${digest#sha256:}"
       -
         name: Standalone | upload digest | ${{ matrix.arch }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: digests-standalone
+          name: digests-standalone-${{ env.ARCH }}
           path: /tmp/digests-so/*
           if-no-files-found: error
           retention-days: 5
@@ -498,9 +499,9 @@ jobs:
           touch "/tmp/digests-as/${digest#sha256:}"
       -
         name: ACME | upload digest | ${{ matrix.arch }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: digests-acme
+          name: digests-acme-${{ env.ARCH }}
           path: /tmp/digests-as/*
           if-no-files-found: error
           retention-days: 5
@@ -553,10 +554,11 @@ jobs:
                      || secrets.GITHUB_TOKEN }}
       -
         name: Download digests | ${{ matrix.variant }}
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: digests-${{ matrix.variant }}
           path: /tmp/digests
+          pattern: digests-${{ matrix.variant }}-*
+          merge-multiple: true
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
