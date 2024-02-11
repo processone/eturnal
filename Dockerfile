@@ -125,10 +125,6 @@ RUN home_root_dir=$(echo $HOME | sed 's|\(.*\)/.*|\1 |') \
     && setcap 'cap_net_bind_service=+ep' $(find $home_root_dir -name beam.smp) \
     && echo -e \
         "#!/bin/sh \
-        \n \
-        \nexec eturnalctl foreground" > usr/local/bin/run.sh \
-    && echo -e \
-        "#!/bin/sh \
         \nif [ \"\$STUN_SERVICE\" != 'false' ] \
         \nthen \
         \n  case \"\$@\" in foreground|daemon*|console*|reload|restart|reboot) \
@@ -137,7 +133,7 @@ RUN home_root_dir=$(echo $HOME | sed 's|\(.*\)/.*|\1 |') \
         \n  esac \
         \nfi \
         \nexec /$(find $home_root_dir -name eturnalctl) \"\$@\"" > usr/local/bin/eturnalctl \
-    && chmod +x usr/local/bin/run.sh usr/local/bin/eturnalctl \
+    && chmod +x usr/local/bin/* \
     && ln -s /$(find $home_root_dir -name stun) usr/local/bin/stun \
     && scanelf --needed --nobanner --format '%n#p' --recursive $home_root_dir \
         | tr ',' '\n' \
@@ -148,6 +144,7 @@ RUN home_root_dir=$(echo $HOME | sed 's|\(.*\)/.*|\1 |') \
 
 ARG UID
 RUN chown -R $UID:$UID $HOME
+COPY --chmod=555 overlay/container/standalone/usr/local/bin/run.sh /rootfs/$HOME/usr/local/bin/run.sh
 
 ################################################################################
 #' VARIANT='acme' - copy s6 entrypoint/ runtime scripts
