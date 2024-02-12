@@ -144,7 +144,7 @@ RUN home_root_dir=$(echo $HOME | sed 's|\(.*\)/.*|\1 |') \
 
 ARG UID
 RUN chown -R $UID:$UID $HOME
-COPY --chmod=555 overlay/container/standalone/usr/local/bin/run.sh /rootfs/$HOME/usr/local/bin/run.sh
+COPY --chmod=555 overlay/container/standalone/usr/local/bin/run.sh /rootfs/usr/local/bin/run.sh
 
 ################################################################################
 #' VARIANT='acme' - copy s6 entrypoint/ runtime scripts
