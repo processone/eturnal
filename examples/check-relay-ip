@@ -10,8 +10,8 @@ eturnal_yml='/etc/eturnal.yml'
 url='https://ifconfig.co/ip'
 old_ipv4_addr=$(sed -n 's/^[[:blank:]]\{1,\}relay_ipv4_addr:[[:blank:]]*"\?\([[:digit:].]*\)"\?.*$/\1/p' "$eturnal_yml")
 old_ipv6_addr=$(sed -n 's/^[[:blank:]]\{1,\}relay_ipv6_addr:[[:blank:]]*"\?\([[:xdigit:]:]*\)"\?.*$/\1/p' "$eturnal_yml")
-new_ipv4_addr=$(curl -s -4 "$url" || :)
-new_ipv6_addr=$(curl -s -6 "$url" || :)
+new_ipv4_addr=$(curl -fsS -4 "$url" || :)
+new_ipv6_addr=$(curl -fsS -6 "$url" || :)
 modified_config='false'
 myself=${0##*/}
 
