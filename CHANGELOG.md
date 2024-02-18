@@ -8,6 +8,8 @@ project adheres to [Semantic Versioning][SemVer].
 - Docker: Offer a container `VARIANT` which includes the `acme.sh` cert creation
   script. The variant has a tag suffix `-acme` or just `acme` as `latest`
   synonym and can be configured with environment variables.
+- Docker: Add Docker secrets support. Any environment variable with a `__FILE`
+  suffix is treated as a Docker secret. (#64)
 
 ### Changed
 - Binary release: Update Erlang/OTP from 26.0.2 to 26.2.2.
@@ -72,7 +74,7 @@ project adheres to [Semantic Versioning][SemVer].
 - Include the `ssl` library with non-distro builds, as it's required for
   enabling TLS for the `mod_stats_prometheus` endpoint.
 - Docker: Include libcap libraries into the image to enable binding to
-  privileged ports (<1024) directly.  
+  privileged ports (<1024) directly.
   Hint: Depending on the container runtime in use, if the `docker run` option
   `--cap-drop=ALL` is used, `CAP_NET_BIND_SERVICE` may be included again to make
   the container work (see examples).

@@ -158,6 +158,17 @@ set to `stdout` in `eturnal.yml`.
   Hint: Newer [Docker](https://github.com/moby/moby/pull/41030) versions set
   this option during install already.
 
+**Note:** All variables can be defined as secrets with a `__FILE` suffix:
+
+```shell
+printf "secret" | podman secret create eturnal_secret -
+podman run \
+    ... \
+    --secret eturnal_secret \
+    -e ETURNAL_SECRET__FILE='/run/secrets/eturnal_secret' \
+  ghcr.io/processone/eturnal:latest
+```
+
 ### Custom TLS certificates and dh-parameter file
 
 To use eturnal's TLS listener with cutsom TLS certificates/dh-parameter files

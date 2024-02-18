@@ -23,17 +23,6 @@ or by simply mounting an `eturnal.yml` configuration file (recommended).
 All [usage and configuration aspects](https://github.com/processone/eturnal/tree/master/doc/CONTAINER.md)
 from the standalone variant apply to this version.
 
-**Note:** All variables can be defined as secrets with a `__FILE` suffix:
-
-```shell
-printf "secret" | podman secret create cf_token -
-podman run \
-    ... \
-    --secret cf_token \
-    -e CF_Token__FILE='/run/secrets/cf_token' \
-  ghcr.io/processone/eturnal:acme
-```
-
 ### ACME options
 
 | Name  | Description  |  Default value | Additional notes  |
