@@ -281,7 +281,7 @@ add_otp_path()
 	then
 		# Let GitHub runners build for non-native systems:
 		# https://github.com/erlef/setup-beam#environment-variables
-		native_otp_bin="$INSTALL_DIR_FOR_OTP"
+		native_otp_bin="$INSTALL_DIR_FOR_OTP/bin"
 	fi
 	export PATH="$native_otp_bin:$PATH"
 }
