@@ -1,10 +1,9 @@
 #' Define default build variables
 ## specific ARGs for METHOD='build'
-ARG OTP_VSN='26.1.1'
-ARG BUILD_IMAGE="docker.io/erlang:${OTP_VSN}-alpine"
+ARG OTP_VSN='27'
+ARG BUILD_IMAGE="cgr.dev/chainguard/wolfi-base"
 ## specific ARGs for METHOD='package'
-ARG ALPINE_VSN='3.19'
-ARG PACKAGE_IMAGE="docker.io/alpine:${ALPINE_VSN}"
+ARG PACKAGE_IMAGE="cgr.dev/chainguard/wolfi-base"
 ## specific ARGs for VARIANT='acme'
 ARG ACMESH_VSN='3.0.7'
 ARG ACMESH_SHA512='83d080b461662bf2c5cfa9cb51aaf41d7f873f54908e2e5f94d7e3fe8e3f6953d73aafb66adc97455aa958f37c72ef77ba475c7d7cbb3ca3c5bbffb4937c4bae'
@@ -19,15 +18,17 @@ ARG BUILD_DIR="/$USER"
 ARG REPOSITORY='https://github.com/processone/eturnal'
 ARG VERSION='master'
 ARG WEB_URL='https://eturnal.net'
-ARG CI_MUSL_VSN='1.2.3'
 
 ################################################################################
 #' METHOD='build' - install build dependencies
 FROM ${BUILD_IMAGE} AS base
+ARG OTP_VSN
 RUN apk -U add --no-cache \
         build-base \
+        erlang-$OTP_VSN-dev \
         git \
         openssl-dev \
+        wget \
         yaml-dev
 
 ################################################################################
@@ -61,6 +62,9 @@ FROM ${SOURCE} AS build
 ARG BUILD_DIR
 WORKDIR $BUILD_DIR
 
+RUN wget -O /usr/bin/rebar3 https://s3.amazonaws.com/rebar3/rebar3 \
+    && chmod +x /usr/bin/rebar3
+
 ARG REBAR_PROFILE=prod
 RUN rebar3 as $REBAR_PROFILE tar
 # run rebar3 test suites
@@ -79,15 +83,17 @@ RUN tar -xzf $BUILD_DIR/_build/$REBAR_PROFILE/rel/eturnal/eturnal-*.tar.gz
 ################################################################################
 #' METHOD='package', SOURCE='local' - copy eturnal tarball from local repository
 FROM ${PACKAGE_IMAGE} AS package-local
-COPY eturnal-*-linux-musl-*.tar.gz /tmp/
+COPY eturnal-*-linux-glibc-*.tar.gz /tmp/
 
 ################################################################################
 #' METHOD='package', SOURCE='web' - download eturnal binary tarballs from web
 FROM ${PACKAGE_IMAGE} AS package-web
 ARG WEB_URL
 ARG VERSION
-RUN arch=$(uname -m | sed -e 's/x86_64/x64/;s/aarch64/arm64/') \
-    && wget -P /tmp $WEB_URL/download/linux/eturnal-$VERSION-linux-musl-$arch.tar.gz
+RUN apk -U add --no-cache \
+        wget \
+    && arch=$(uname -m | sed -e 's/x86_64/x64/;s/aarch64/arm64/') \
+    && wget -P /tmp $WEB_URL/download/linux/eturnal-$VERSION-linux-glibc-$arch.tar.gz
 
 ################################################################################
 #' METHOD='package' - install eturnal from binary tarball
@@ -97,19 +103,18 @@ ARG HOME
 RUN home_root_dir=$(echo $HOME | sed 's|\(.*\)/.*|\1 |') \
     && mkdir -p $home_root_dir \
     && arch=$(uname -m | sed -e 's/x86_64/x64/;s/aarch64/arm64/') \
-    && tar -xzf /tmp/eturnal-*-linux-musl-$arch.tar.gz -C $home_root_dir
+    && tar -xzf /tmp/eturnal-*-linux-glibc-$arch.tar.gz -C $home_root_dir
 
 ################################################################################
 #' Prepare eturnal for runtime
 FROM ${METHOD} AS eturnal-standalone
 RUN apk -U add --no-cache \
-        libcap
+        libcap-utils \
+        pax-utils
 
 WORKDIR /rootfs
 ARG HOME
 RUN mkdir -p $HOME/log $HOME/run $HOME/tls bin etc usr/local/bin
-# we symlink busybox's 'ash' for compatibility reasons with Alpine vsn < 3.17
-RUN ln -s $(command -v busybox) bin/sh
 
 RUN rm -rf $HOME/etc/* \
     && echo -e \
@@ -139,7 +144,6 @@ RUN home_root_dir=$(echo $HOME | sed 's|\(.*\)/.*|\1 |') \
         | tr ',' '\n' \
         | sort -u \
         | awk 'system("[ -e $home_root_dir" $1 " ]") == 0 { next } { print "so:" $1 }' \
-        | sed -e "s|so:libc.so|so:libc.musl-$(uname -m).so.1|" \
             > /tmp/runDeps
 
 ARG UID
@@ -162,6 +166,8 @@ RUN mkdir -p etc \
     && ln -s /$HOME/etc/s6.d etc/s6.d
 
 RUN export PEM=$HOME/tls/key.pem \
+    && wget -O /etc/ssl/openssl.cnf \
+        https://raw.githubusercontent.com/openssl/openssl/openssl-3.3/apps/openssl.cnf \
     && openssl req -x509 \
             -batch \
             -nodes \
@@ -179,20 +185,8 @@ RUN export PEM=$HOME/tls/key.pem \
 FROM eturnal-${VARIANT} AS eturnal
 
 ################################################################################
-#' METHOD='build' - Remove erlang/rebar3
-FROM ${BUILD_IMAGE} AS base-build
-RUN apk del .erlang-rundeps \
-    && rm -f $(command -v rebar3) \
-    && find /usr -type d -name 'erlang' -exec rm -rf {} + \
-    && find /usr -type l -exec test ! -e {} \; -delete
-
-################################################################################
-#' METHOD='package' - define runtime-base image
-FROM ${PACKAGE_IMAGE} AS base-package
-
-################################################################################
 #' Update, finalize & strip Alpine to only include necessary runtime packages
-FROM base-${METHOD} AS runtime
+FROM ${BUILD_IMAGE} AS runtime
 RUN apk -U upgrade --available --no-cache
 
 ARG USER
@@ -238,24 +232,11 @@ RUN apk add --no-cache -t .runtime-deps \
         tini
 
 RUN apk del --repositories-file /dev/null \
-        alpine-baselayout \
-        alpine-keys \
         apk-tools \
-        libc-utils \
+        wolfi-base \
+        wolfi-keys \
     && rm -rf /var/cache/apk /etc/apk /tmp/* \
     && find /lib/apk/db -type f -not -name 'installed' -delete
-
-################################################################################
-#' Build together musl-libc CI image
-# source: https://github.com/sando38/musl-ctr/blob/main/Dockerfile
-FROM docker.io/sando38/musl-ctr:${CI_MUSL_VSN} AS musl-ci
-COPY --from=eturnal /rootfs /
-
-ARG USER
-ARG UID
-ARG HOME
-RUN echo "$USER:x:$UID:$UID:$USER,,,:/$HOME:/sbin/nologin" >> /etc/passwd \
-    && echo "$USER:x:$UID:$USER" >> /etc/group
 
 ################################################################################
 #' Build together production image
