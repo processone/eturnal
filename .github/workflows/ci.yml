@@ -115,7 +115,7 @@ jobs:
           name: eturnal-tests-otp-26.2
           path: public
       - name: Deploy test and coverage results to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4
         with:
           cname: ci.eturnal.net
           publish_dir: public/test
