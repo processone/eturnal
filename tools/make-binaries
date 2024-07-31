@@ -124,7 +124,7 @@ check_configured_dep_vsns()
 	          'zlib-\([1-9][0-9.]*\)\.tar\.gz'
 	check_vsn 'Rebar3' "$rebar_vsn" \
 	          'https://github.com/erlang/rebar3/tags' \
-	          '\(3\.[0-9][0-9.]*\)\.tar\.gz'
+	          'tags\/\(3\.[0-9][0-9.]*\)\.tar\.gz'
 }
 #.
 
