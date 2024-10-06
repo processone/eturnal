@@ -126,6 +126,7 @@ jobs:
 
             if [ "$(eturnalctl ping)" = 'pong' ]; then
                 echo '>> eturnal is running! ...'
+                sleep 5
                 break
             fi
 
