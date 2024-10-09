@@ -109,7 +109,7 @@ init(_Opts) ->
             abort(Reason2)
     end.
 
--spec handle_call(reload | get_info | get_version | get_loglevel |
+-spec handle_call(reload | get_status | get_info | get_version | get_loglevel |
                   {set_loglevel, eturnal_logger:level()} |
                   {get_password, binary()} | term(),
                   {pid(), term()}, state())
@@ -121,6 +121,8 @@ handle_call(reload, _From, State) ->
         {error, _Reason} = Err ->
             {reply, Err, State}
     end;
+handle_call(get_status, _From, State) ->
+    {reply, ok, State};
 handle_call(get_info, _From, State) ->
     Info = eturnal_misc:info(),
     {reply, {ok, Info}, State};

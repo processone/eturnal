@@ -21,6 +21,7 @@
          get_password/1,
          get_sessions/0,
          get_sessions/1,
+         get_status/0,
          get_info/0,
          get_version/0,
          get_loglevel/0,
@@ -121,6 +122,16 @@ get_sessions(Username0) ->
     catch _:badarg ->
             ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
             {error, "User name must be specified as a string"}
+    end.
+
+-spec get_status() -> {ok, string()} | {error, string()}.
+get_status() ->
+    ?LOG_DEBUG("Handling API call: get_status()"),
+    case call(get_status) of
+        ok ->
+            {ok, "eturnal is running"};
+        {error, timeout} ->
+            {error, "Querying eturnal timed out"}
     end.
 
 -spec get_info() -> {ok, string()} | {error, string()}.

@@ -1,0 +1,39 @@
+get_status()
+{
+    _response="$(erl_rpc 'eturnal_ctl' 'get_status' || :)"
+
+    case $_response in
+        '{ok,'*)
+            echo "$_response" | sed -e 's/{ok, *"\(.*\)"}/\1/' -e 's/~n/\
+/g'
+            exit 0
+            ;;
+        '{error,'*)
+            echo "$_response" | sed 's/{error, *"\(.*\)"}/\1/' >&2
+            exit 1
+            ;;
+        *)
+            echo "Unknown error: '$_response'" >&2
+            exit 1
+            ;;
+    esac
+}
+
+wait_until_alive()
+{
+    for i in $(seq 1 15)
+    do
+        if [ "$(erl_eval "whereis($REL_NAME).")" != 'undefined' ]
+        then return 0
+        else sleep 1
+        fi
+    done
+    return 1
+}
+
+if ! wait_until_alive
+then
+    echo "$REL_NAME is down."
+    exit 1
+fi
+get_status
