@@ -1,6 +1,6 @@
 #' Define default build variables
 ## specific ARGs for METHOD='build'
-ARG OTP_VSN='27.1.1'
+ARG OTP_VSN='27.1.2'
 ARG BUILD_IMAGE="docker.io/erlang:${OTP_VSN}-alpine"
 ## specific ARGs for METHOD='package'
 ARG ALPINE_VSN='3.20'

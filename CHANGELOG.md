@@ -17,7 +17,7 @@ project adheres to [Semantic Versioning][SemVer].
   case). If this call is issued early during startup, it will block (up to 15
   seconds) until eturnal is responsive. The old behavior was to (silently)
   return success as long as the underlying VM is alive.
-- Binary release: Update Erlang/OTP from 26.0.2 to 27.1.1.
+- Binary release: Update Erlang/OTP from 26.0.2 to 27.1.2.
 - Binary release: Update Rebar3 from 3.22.1 to 3.24.0.
 - Binary release: Update OpenSSL from 3.1.3 to 3.3.2.
 
