@@ -1,13 +1,13 @@
 #' Define default build variables
 ## specific ARGs for METHOD='build'
-ARG OTP_VSN='26.1.1'
+ARG OTP_VSN='27.1.1'
 ARG BUILD_IMAGE="docker.io/erlang:${OTP_VSN}-alpine"
 ## specific ARGs for METHOD='package'
-ARG ALPINE_VSN='3.19'
+ARG ALPINE_VSN='3.20'
 ARG PACKAGE_IMAGE="docker.io/alpine:${ALPINE_VSN}"
 ## specific ARGs for VARIANT='acme'
-ARG ACMESH_VSN='3.0.7'
-ARG ACMESH_SHA512='83d080b461662bf2c5cfa9cb51aaf41d7f873f54908e2e5f94d7e3fe8e3f6953d73aafb66adc97455aa958f37c72ef77ba475c7d7cbb3ca3c5bbffb4937c4bae'
+ARG ACMESH_VSN='3.0.9'
+ARG ACMESH_SHA512='5f7431051de74ec1feca90d743233ddcec2a955e789e5237730498930c910d2a728c3f5e447a09f470a007ed9a4c90de329be58867d15a0fd13f6f18dca49bd0'
 ## general ARGs
 ARG UID='9000'
 ARG USER='eturnal'
