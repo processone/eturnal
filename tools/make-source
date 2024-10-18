@@ -30,7 +30,7 @@ fi
 
 rel_name='eturnal'
 rel_vsn="$(tools/get-version)"
-rebar_vsn='3.22.1'
+rebar_vsn='3.24.0'
 rel_dir="$rel_name-$rel_vsn"
 rel_tar="$rel_dir.tar"
 temp_dir=$(mktemp -d "/tmp/.$myself.XXXXXX")
