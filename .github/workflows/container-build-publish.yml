@@ -303,6 +303,7 @@ jobs:
         name: On release | extract git version and define build mode
         if: needs.detect-change.outputs.update == 'true'
         run: |
+          eturnal_vsn=$(awk 'END{gsub("-", " "); print $1}' ${{ env.PKGREL_FILE }})
           echo "OTP_VSN=$(wget -O - https://raw.githubusercontent.com/${{ github.repository }}/$eturnal_vsn/tools/make-binaries \
             | awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}')" >> $GITHUB_ENV
           echo "REBAR_VSN=$(wget -O - https://raw.githubusercontent.com/${{ github.repository }}/$eturnal_vsn/tools/make-binaries \
