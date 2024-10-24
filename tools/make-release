@@ -39,6 +39,7 @@ rel_name='eturnal'
 rel_url='https://github.com/processone/eturnal/releases/tag'
 src_tar="$rel_name-$new_vsn.tar.gz"
 old_vsn="$(git tag -l --sort=version:refname '[0-9]*.[0-9]*.[0-9]*' | tail -1)"
+otp_vsn="$(sed -n -E "s/otp_vsn='([[:digit:].]+)'/\1/p" 'tools/make-binaries')"
 rebar_vsn="$(rebar3 --version | tail -1 |
              sed 's/rebar \([0-9a-z.-]\{1,\}\).*/\1/')"
 
@@ -66,6 +67,9 @@ sed -i -e "s|$(echo "$old_vsn" | sed 's/\./\\./g')|$new_vsn|g" \
     'doc/CONTAINER.md'
 sed -i -e "s|^rebar_vsn=.*|rebar_vsn='$rebar_vsn'|" \
     'tools/make-source' 'tools/make-binaries'
+sed -i -e "s|^ARG REBAR_VSN=.*|ARG REBAR_VSN=\"$rebar_vsn\"|" \
+       -e "s|^ARG OTP_VSN.*|ARG OTP_VSN=\"$otp_vsn\"|" \
+    'tools/Dockerfile.erlang'
 sed -i -e "s|compare/$old_vsn|compare/$new_vsn|" \
        -e "s|^## \[Unreleased\]$|&\\
 \\
@@ -76,8 +80,8 @@ sed -i -e "s|compare/$old_vsn|compare/$new_vsn|" \
 echo "$myself: Committing result ..."
 git add 'rebar.config' 'CHANGELOG.md' 'README.md' 'doc/INSTALL.md' \
     'doc/QUICK-TEST.md' 'doc/overview.edoc' 'doc/CONTAINER.md' \
-    'tools/ctrrel' 'tools/get-version' 'tools/make-source' \
-    'tools/make-binaries'
+    'tools/Dockerfile.erlang' 'tools/ctrrel' 'tools/get-version' \
+    'tools/make-source' 'tools/make-binaries'
 git commit -m "Release $new_vsn"
 git -P show
 read -p "$myself: Does the commit look fine? (y/n) [n] " response
