@@ -21,12 +21,12 @@ and `openssl-devel`.
 > [older Rebar3][6] version (3.15.x on Erlang/OTP 21.x, otherwise 3.16.x).
 
 ```shell
-curl https://eturnal.net/eturnal-1.12.0.tar.gz | tar -C /tmp -xzf -
-cd /tmp/eturnal-1.12.0
+curl https://eturnal.net/eturnal-1.12.1.tar.gz | tar -C /tmp -xzf -
+cd /tmp/eturnal-1.12.1
 ./rebar3 as prod tar
 ```
 
-This generates the archive file `_build/prod/rel/eturnal/eturnal-1.12.0.tar.gz`.
+This generates the archive file `_build/prod/rel/eturnal/eturnal-1.12.1.tar.gz`.
 The default installation prefix is set to `/opt/eturnal`, and it's assumed the
 server will be executed by a user named `eturnal`. To change these defaults,
 edit the [build.config][7] file or override the settings using environment
@@ -66,7 +66,7 @@ or `sudo -i`, first.
 
     ```shell
     cd /opt/eturnal
-    tar -xzf /tmp/eturnal-1.12.0/_build/prod/rel/eturnal/eturnal-1.12.0.tar.gz
+    tar -xzf /tmp/eturnal-1.12.1/_build/prod/rel/eturnal/eturnal-1.12.1.tar.gz
     chown eturnal /opt/eturnal/etc/eturnal.yml
     ```
 
@@ -95,8 +95,8 @@ configuration and usage instructions.
  [4]: https://gcc.gnu.org
  [5]: https://s3.amazonaws.com/rebar3/rebar3
  [6]: https://github.com/erlang/rebar3/releases
- [7]: https://github.com/processone/eturnal/blob/1.12.0/build.config
- [8]: https://github.com/processone/eturnal/blob/1.12.0/config/shell.config
- [9]: https://github.com/processone/eturnal/blob/1.12.0/config/eturnal.yml
-[10]: https://github.com/processone/eturnal/blob/1.12.0/README.md
+ [7]: https://github.com/processone/eturnal/blob/1.12.1/build.config
+ [8]: https://github.com/processone/eturnal/blob/1.12.1/config/shell.config
+ [9]: https://github.com/processone/eturnal/blob/1.12.1/config/eturnal.yml
+[10]: https://github.com/processone/eturnal/blob/1.12.1/README.md
 [11]: https://eturnal.net/doc/

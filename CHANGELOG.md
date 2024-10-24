@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [1.12.1] - 2024-10-24
 ### Added
 - Docker: Offer a container `VARIANT` which includes the `acme.sh` cert creation
   script. The variant has a tag suffix `-acme` or just `acme` as `latest`
@@ -19,7 +21,7 @@ project adheres to [Semantic Versioning][SemVer].
   return success as soon as the underlying VM is alive.
 - Binary release: Update Erlang/OTP from 26.0.2 to 27.1.2.
 - Binary release: Update Rebar3 from 3.22.1 to 3.24.0.
-- Binary release: Update OpenSSL from 3.1.3 to 3.3.2.
+- Binary release: Update OpenSSL from 3.1.3 to 3.4.0.
 
 ## [1.12.0] - 2023-09-28
 ### Added
@@ -487,7 +489,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/1.12.0...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.12.1...HEAD
+[1.12.1]: https://github.com/processone/eturnal/releases/tag/1.12.1
 [1.12.0]: https://github.com/processone/eturnal/releases/tag/1.12.0
 [1.11.1]: https://github.com/processone/eturnal/releases/tag/1.11.1
 [1.11.0]: https://github.com/processone/eturnal/releases/tag/1.11.0
