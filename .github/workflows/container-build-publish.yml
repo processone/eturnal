@@ -411,6 +411,7 @@ jobs:
       -
         name: Extract build & environment variables
         run: |
+          echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|/|-|')" >> $GITHUB_ENV
           echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
           # Check if rebar3 common test should be performed
           # fix for slow architectures was introduces after version 1.10.1
