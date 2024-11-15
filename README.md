@@ -24,7 +24,15 @@ sudo apt update
 sudo apt install eturnal
 ```
 
-On **DNF-based** Linux distributions, run:
+On **DNF5-based** Linux distributions, run:
+
+```shell
+sudo dnf config-manager addrepo --from-repofile=https://eturnal.net/eturnal.repo
+sudo dnf install eturnal
+sudo systemctl --now enable eturnal
+```
+
+On **DNF4-based** Linux distributions, run:
 
 ```shell
 sudo dnf config-manager --add-repo https://eturnal.net/eturnal.repo
