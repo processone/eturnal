@@ -6,6 +6,7 @@ project adheres to [Semantic Versioning][SemVer].
 ## [Unreleased]
 ### Changed
 - Binary release: Update Erlang/OTP from 27.1.2 to 27.2.2.
+- Binary release: Use new (GCC-14.2-based) version of build toolchain.
 
 ## [1.12.1] - 2024-10-24
 ### Added
