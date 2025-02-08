@@ -7,7 +7,7 @@ ARG ALPINE_VSN='3.20'
 ARG PACKAGE_IMAGE="docker.io/alpine:${ALPINE_VSN}"
 ## specific ARGs for VARIANT='acme'
 ARG ACMESH_VSN='3.0.9'
-ARG ACMESH_SHA512='5f7431051de74ec1feca90d743233ddcec2a955e789e5237730498930c910d2a728c3f5e447a09f470a007ed9a4c90de329be58867d15a0fd13f6f18dca49bd0'
+ARG ACMESH_SHA256='a599e8373cd327fb611362bec6f1bfb0bf65c97b3401c440cfea9304a0f0cb41'
 ## general ARGs
 ARG UID='9000'
 ARG USER='eturnal'
@@ -213,7 +213,7 @@ RUN if [ "$VARIANT" = 'acme' ]; \
     fi
 
 ARG ACMESH_VSN
-ARG ACMESH_SHA512
+ARG ACMESH_SHA256
 USER $USER
 ENV HOME="/$HOME"
 WORKDIR /$HOME
@@ -221,7 +221,7 @@ RUN if [ "$VARIANT" = 'acme' ]; \
     then \
         wget -O acmesh.tar.gz \
             https://github.com/acmesh-official/acme.sh/archive/"${ACMESH_VSN}".tar.gz \
-        && echo "$ACMESH_SHA512 *acmesh.tar.gz" | sha512sum -c - \
+        && echo "$ACMESH_SHA256 *acmesh.tar.gz" | sha256sum -c - \
         && tar -xzf acmesh.tar.gz -C /tmp \
         && cd /tmp/acme.sh-"${ACMESH_VSN}" \
         && ./acme.sh --install --no-cron \
@@ -244,18 +244,6 @@ RUN apk del --repositories-file /dev/null \
         libc-utils \
     && rm -rf /var/cache/apk /etc/apk /tmp/* \
     && find /lib/apk/db -type f -not -name 'installed' -delete
-
-################################################################################
-#' Build together musl-libc CI image
-# source: https://github.com/sando38/musl-ctr/blob/main/Dockerfile
-FROM docker.io/sando38/musl-ctr:${CI_MUSL_VSN} AS musl-ci
-COPY --from=eturnal /rootfs /
-
-ARG USER
-ARG UID
-ARG HOME
-RUN echo "$USER:x:$UID:$UID:$USER,,,:/$HOME:/sbin/nologin" >> /etc/passwd \
-    && echo "$USER:x:$UID:$USER" >> /etc/group
 
 ################################################################################
 #' Build together production image
@@ -283,13 +271,6 @@ HEALTHCHECK \
     --start-period=5s \
     --retries=3 \
     CMD eturnalctl status
-
-LABEL   org.opencontainers.image.title='eturnal' \
-        org.opencontainers.image.description='STUN / TURN standalone server' \
-        org.opencontainers.image.url="$WEB_URL" \
-        org.opencontainers.image.source="$REPOSITORY" \
-        org.opencontainers.image.version="$VERSION" \
-        org.opencontainers.image.licenses='Apache-2.0'
 
 ENTRYPOINT ["/sbin/tini","--"]
 CMD run.sh
