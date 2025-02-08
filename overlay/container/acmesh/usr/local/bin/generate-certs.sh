@@ -32,10 +32,6 @@ create_tls_certs()
         else acme_sh=""$acme_sh" --issue --"$challenge""
         fi
 
-        if [ "${ACME_OCSP_MUST_STAPLE:-false}" = 'true' ]
-        then acme_sh="$acme_sh --ocsp"
-        fi
-
         echo ">> Create certificates for domain(s) $domain ..."
         $acme_sh \
                 --keylength "$key_size" \

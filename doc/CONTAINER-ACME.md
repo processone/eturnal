@@ -99,7 +99,7 @@ file is mounted into the container.
 
 The image works with `docker` or `podman`.
 
-```
+```shell
 docker run -d --rm \
     --name eturnal \
     --read-only \
@@ -122,7 +122,7 @@ docker run -d --rm \
 
 Or consider using the host network instead ([more info here](https://github.com/processone/eturnal/tree/master/doc/CONTAINER.md#usage-with-docker-or-podman)):
 
-```
+```shell
 docker run -d --rm \
     --name eturnal \
     --read-only \
@@ -142,7 +142,7 @@ docker run -d --rm \
 
 And an example with a custom `eturnal.yml` configuration file and `dns`:
 
-```
+```shell
 docker run -d --rm \
     --name eturnal \
     --read-only \

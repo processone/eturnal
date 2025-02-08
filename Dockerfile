@@ -1,10 +1,9 @@
 #' Define default build variables
 ## specific ARGs for METHOD='build'
-ARG OTP_VSN='27.2.2'
-ARG BUILD_IMAGE="docker.io/erlang:${OTP_VSN}-alpine"
+ARG OTP_VSN='27'
 ## specific ARGs for METHOD='package'
-ARG ALPINE_VSN='3.20'
-ARG PACKAGE_IMAGE="docker.io/alpine:${ALPINE_VSN}"
+ARG BASE_IMAGE_GLIBC="cgr.dev/chainguard/wolfi-base"
+ARG BASE_IMAGE_MUSL="docker.io/library/erlang:${OTP_VSN}-alpine"
 ## specific ARGs for VARIANT='acme'
 ARG ACMESH_VSN='3.0.9'
 ARG ACMESH_SHA256='a599e8373cd327fb611362bec6f1bfb0bf65c97b3401c440cfea9304a0f0cb41'
@@ -14,17 +13,32 @@ ARG USER='eturnal'
 ARG HOME="opt/$USER"
 ARG METHOD='build'
 ARG SOURCE='local'
+ARG LIBC='glibc'
 ARG VARIANT='standalone'
 ARG BUILD_DIR="/$USER"
 ARG REPOSITORY='https://github.com/processone/eturnal'
 ARG VERSION='master'
 ARG WEB_URL='https://eturnal.net'
-ARG CI_MUSL_VSN='1.2.3'
 
 ################################################################################
 #' METHOD='build' - install build dependencies
-FROM ${BUILD_IMAGE} AS base
-RUN apk -U add --no-cache \
+FROM ${BASE_IMAGE_GLIBC} AS base-glibc
+ARG OTP_VSN
+RUN apk -U upgrade --available --no-cache && \
+    apk -U add --no-cache \
+        build-base \
+        erlang-${OTP_VSN} \
+        erlang-${OTP_VSN}-dev \
+        git \
+        openssl \
+        openssl-dev \
+        yaml-dev
+
+################################################################################
+#' METHOD='build' - install build dependencies
+FROM ${BASE_IMAGE_MUSL} AS base-musl
+RUN apk -U upgrade --available --no-cache && \
+    apk -U add --no-cache \
         build-base \
         git \
         openssl-dev \
@@ -32,28 +46,28 @@ RUN apk -U add --no-cache \
 
 ################################################################################
 #' METHOD='build', SOURCE='local' - source files from 'local' machine
-FROM base AS local
+FROM base-${LIBC} AS local
 ARG BUILD_DIR
 COPY / $BUILD_DIR/
 
 ################################################################################
 #' METHOD='build', SOURCE='git' - source files from 'git' repository
-FROM base AS git
+FROM base-${LIBC} AS git
 ARG REPOSITORY
 ARG VERSION
 ARG BUILD_DIR
 WORKDIR $BUILD_DIR
-RUN git clone $REPOSITORY . \
-    && git checkout $VERSION
+RUN git clone ${REPOSITORY} . \
+    && git checkout ${VERSION}
 
 ################################################################################
 #' METHOD='build', SOURCE='web' - source files from 'web': https://eturnal.net/
-FROM base AS web
+FROM base-${LIBC} AS web
 ARG WEB_URL
 ARG VERSION
 ARG BUILD_DIR
-RUN wget -O - $WEB_URL/download/eturnal-$VERSION.tar.gz | tar -xzf - \
-    && mv eturnal-$VERSION $BUILD_DIR
+RUN wget -O - ${WEB_URL}/download/eturnal-${VERSION}.tar.gz | tar -xzf - \
+    && mv eturnal-${VERSION} ${BUILD_DIR}
 
 ################################################################################
 #' METHOD='build' - build and install eturnal from source
@@ -62,7 +76,9 @@ ARG BUILD_DIR
 WORKDIR $BUILD_DIR
 
 ARG REBAR_PROFILE=prod
-RUN rebar3 as $REBAR_PROFILE tar
+ADD https://s3.amazonaws.com/rebar3/rebar3 /usr/local/bin/rebar3
+RUN chmod +x /usr/local/bin/rebar3
+RUN rebar3 as ${REBAR_PROFILE} tar
 # run rebar3 test suites
 RUN rebar3 xref
 RUN rebar3 eunit -v
@@ -74,55 +90,56 @@ RUN if [ "$REBAR_CT" = 'true' ]; then rebar3 ct || rebar3 ct || rebar3 ct; fi
 
 ARG HOME
 WORKDIR /rootfs/$HOME
-RUN tar -xzf $BUILD_DIR/_build/$REBAR_PROFILE/rel/eturnal/eturnal-*.tar.gz
+RUN tar -xzf ${BUILD_DIR}/_build/${REBAR_PROFILE}/rel/eturnal/eturnal-*.tar.gz
 
 ################################################################################
 #' METHOD='package', SOURCE='local' - copy eturnal tarball from local repository
-FROM ${PACKAGE_IMAGE} AS package-local
-COPY eturnal-*-linux-musl-*.tar.gz /tmp/
+FROM base-${LIBC} AS package-local
+ARG LIBC
+COPY eturnal-*-linux-${LIBC}-*.tar.gz /tmp/
 
 ################################################################################
 #' METHOD='package', SOURCE='web' - download eturnal binary tarballs from web
-FROM ${PACKAGE_IMAGE} AS package-web
+FROM base-${LIBC} AS package-web
+ARG LIBC
 ARG WEB_URL
 ARG VERSION
 RUN arch=$(uname -m | sed -e 's/x86_64/x64/;s/aarch64/arm64/') \
-    && wget -P /tmp $WEB_URL/download/linux/eturnal-$VERSION-linux-musl-$arch.tar.gz
+    && wget -P /tmp ${WEB_URL}/download/linux/eturnal-${VERSION}-linux-${LIBC}-${arch}.tar.gz
 
 ################################################################################
 #' METHOD='package' - install eturnal from binary tarball
 FROM package-${SOURCE} AS package
 WORKDIR /rootfs
 ARG HOME
-RUN home_root_dir=$(echo $HOME | sed 's|\(.*\)/.*|\1 |') \
-    && mkdir -p $home_root_dir \
+RUN home_root_dir=$(echo ${HOME} | sed 's|\(.*\)/.*|\1 |') \
+    && mkdir -p ${home_root_dir} \
     && arch=$(uname -m | sed -e 's/x86_64/x64/;s/aarch64/arm64/') \
-    && tar -xzf /tmp/eturnal-*-linux-musl-$arch.tar.gz -C $home_root_dir
+    && tar -xzf /tmp/eturnal-*-linux-*-${arch}.tar.gz -C ${home_root_dir}
 
 ################################################################################
 #' Prepare eturnal for runtime
 FROM ${METHOD} AS eturnal-standalone
 RUN apk -U add --no-cache \
-        libcap
+        libcap-utils \
+        pax-utils
 
 WORKDIR /rootfs
 ARG HOME
-RUN mkdir -p $HOME/log $HOME/run $HOME/tls bin etc usr/local/bin
-# we symlink busybox's 'ash' for compatibility reasons with Alpine vsn < 3.17
-RUN ln -s $(command -v busybox) bin/sh
+RUN mkdir -p ${HOME}/log ${HOME}/run ${HOME}/tls bin etc usr/local/bin
 
-RUN rm -rf $HOME/etc/* \
+RUN rm -rf ${HOME}/etc/* \
     && echo -e \
         "# A more detailed, commented example configuration can be found here: \
         \n# https://github.com/processone/eturnal/blob/master/config/eturnal.yml \
         \neturnal: \
         \n  log_dir: stdout \
         \n  modules: \
-        \n    mod_log_stun: {}" > $HOME/etc/eturnal.yml
+        \n    mod_log_stun: {}" > ${HOME}/etc/eturnal.yml
 
-RUN home_root_dir=$(echo $HOME | sed 's|\(.*\)/.*|\1 |') \
-    && echo "-setcookie eturnal" >> $(find $home_root_dir -name vm.args) \
-    && setcap 'cap_net_bind_service=+ep' $(find $home_root_dir -name beam.smp) \
+RUN home_root_dir=$(echo ${HOME} | sed 's|\(.*\)/.*|\1 |') \
+    && echo "-setcookie eturnal" >> $(find ${home_root_dir} -name vm.args) \
+    && setcap 'cap_net_bind_service=+ep' $(find ${home_root_dir} -name beam.smp) \
     && echo -e \
         "#!/bin/sh \
         \nif [ \"\$STUN_SERVICE\" != 'false' ] \
@@ -134,16 +151,16 @@ RUN home_root_dir=$(echo $HOME | sed 's|\(.*\)/.*|\1 |') \
         \nfi \
         \nexec /$(find $home_root_dir -name eturnalctl) \"\$@\"" > usr/local/bin/eturnalctl \
     && chmod +x usr/local/bin/* \
-    && ln -s /$(find $home_root_dir -name stun) usr/local/bin/stun \
-    && scanelf --needed --nobanner --format '%n#p' --recursive $home_root_dir \
+    && ln -s /$(find ${home_root_dir} -name stun) usr/local/bin/stun \
+    && scanelf --needed --nobanner --format '%n#p' --recursive ${home_root_dir} \
         | tr ',' '\n' \
         | sort -u \
-        | awk 'system("[ -e $home_root_dir" $1 " ]") == 0 { next } { print "so:" $1 }' \
-        | sed -e "s|so:libc.so|so:libc.musl-$(uname -m).so.1|" \
+        | awk 'system("[ -e ${home_root_dir}" $1 " ]") == 0 { next } { print "so:" $1 }' \
+        | sed -e "s|so:libc.so.*||" \
             > /tmp/runDeps
 
 ARG UID
-RUN chown -R $UID:$UID $HOME
+RUN chown -R ${UID}:${UID} ${HOME}
 COPY --chmod=555 overlay/container/standalone/usr/local/bin/run.sh /rootfs/usr/local/bin/run.sh
 
 ################################################################################
@@ -159,20 +176,20 @@ COPY overlay/container/acmesh/usr /rootfs/usr
 
 WORKDIR /rootfs
 RUN mkdir -p etc \
-    && ln -s /$HOME/etc/s6.d etc/s6.d
+    && ln -s /${HOME}/etc/s6.d etc/s6.d
 
-RUN export PEM=$HOME/tls/key.pem \
+RUN export PEM=${HOME}/tls/key.pem \
     && openssl req -x509 \
             -batch \
             -nodes \
             -newkey rsa:4096 \
-            -keyout $PEM \
-            -out $PEM \
+            -keyout ${PEM} \
+            -out ${PEM} \
             -days 3650 \
             -subj "/CN=localhost" \
-    && touch $HOME/tls/fullchain.pem \
-    && chmod 644 $HOME/tls/fullchain.pem \
-    && chown -R $UID:$UID $HOME/tls
+    && touch ${HOME}/tls/fullchain.pem \
+    && chmod 644 ${HOME}/tls/fullchain.pem \
+    && chown -R ${UID}:${UID} ${HOME}/tls
 
 ################################################################################
 #' define the final eturnal VARIANT
@@ -180,7 +197,8 @@ FROM eturnal-${VARIANT} AS eturnal
 
 ################################################################################
 #' METHOD='build' - Remove erlang/rebar3
-FROM ${BUILD_IMAGE} AS base-build
+FROM ${BASE_IMAGE_GLIBC} AS base-build-glibc
+FROM ${BASE_IMAGE_MUSL} AS base-build-musl
 RUN apk del .erlang-rundeps \
     && rm -f $(command -v rebar3) \
     && find /usr -type d -name 'erlang' -exec rm -rf {} + \
@@ -188,18 +206,19 @@ RUN apk del .erlang-rundeps \
 
 ################################################################################
 #' METHOD='package' - define runtime-base image
-FROM ${PACKAGE_IMAGE} AS base-package
+FROM ${BASE_IMAGE_GLIBC} AS base-package-glibc
+FROM base-build-musl AS base-package-musl
 
 ################################################################################
 #' Update, finalize & strip Alpine to only include necessary runtime packages
-FROM base-${METHOD} AS runtime
+FROM base-${METHOD}-${LIBC} AS runtime
 RUN apk -U upgrade --available --no-cache
 
 ARG USER
 ARG UID
 ARG HOME
-RUN addgroup $USER -g $UID \
-    && adduser -s /sbin/nologin -D -u $UID -h /$HOME -G $USER $USER
+RUN addgroup ${USER} -g ${UID} \
+    && adduser -s /sbin/nologin -D -u ${UID} -h /${HOME} -G ${USER} ${USER}
 
 ARG VARIANT
 RUN if [ "$VARIANT" = 'acme' ]; \
@@ -225,7 +244,7 @@ RUN if [ "$VARIANT" = 'acme' ]; \
         && tar -xzf acmesh.tar.gz -C /tmp \
         && cd /tmp/acme.sh-"${ACMESH_VSN}" \
         && ./acme.sh --install --no-cron \
-        && cd $OLDPWD \
+        && cd ${OLDPWD} \
         && rm -rf /tmp/acme.sh-"${ACMESH_VSN}" acmesh.tar.gz ; \
     fi
 
@@ -238,10 +257,7 @@ RUN apk add --no-cache -t .runtime-deps \
         tini
 
 RUN apk del --repositories-file /dev/null \
-        alpine-baselayout \
-        alpine-keys \
         apk-tools \
-        libc-utils \
     && rm -rf /var/cache/apk /etc/apk /tmp/* \
     && find /lib/apk/db -type f -not -name 'installed' -delete
 

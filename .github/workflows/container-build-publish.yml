@@ -56,12 +56,16 @@ jobs:
 
 ################################################################################
   #' build musl-libc based binary tarballs for x64/arm64
-  build-musl-binary-archives:
-    name: ${{ matrix.arch }} - build musl-libc based binary archives
-    runs-on: ubuntu-latest
+  build-binary-archives:
+    name: ${{ matrix.config.arch }} - build ${{ matrix.config.libc }} based binary archives
+    runs-on: ${{ matrix.config.runs-on }}
     strategy:
       matrix:
-        arch: [x64, arm64]
+        config:
+          - { arch: x64, runs-on: ubuntu-22.04, libc: glibc }
+          - { arch: arm64, runs-on: ubuntu-22.04-arm, libc: glibc }
+          - { arch: x64, runs-on: ubuntu-24.04, libc: musl }
+          - { arch: arm64, runs-on: ubuntu-24.04-arm, libc: musl }
       fail-fast: false
     needs: [detect-change]
     steps:
@@ -71,11 +75,24 @@ jobs:
         with:
           fetch-depth: 0
       -
+        name: Install prerequisites, obtain erlang/otp version & target arch ...
+        run: |
+          sudo apt-get -qq update
+          # https://github.com/crosstool-ng/crosstool-ng/blob/master/testing/docker/ubuntu22.04/Dockerfile
+          sudo apt-get -qq install makeself build-essential \
+            gcc g++ gperf bison flex texinfo help2man make libncurses5-dev \
+            python3-dev autoconf automake libtool libtool-bin gawk wget bzip2 \
+            xz-utils unzip patch libstdc++6 rsync git meson ninja-build \
+            binfmt-support qemu-user-static
+          echo "OTP_VSN=$(awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' tools/make-binaries)" >> $GITHUB_ENV
+          echo "ARCH=$(echo ${{ matrix.config.arch }} | sed -e 's|x64|x86_64|;s|arm64|aarch64|')" >> $GITHUB_ENV
+          echo "LIBC=$(echo ${{ matrix.config.libc }} | sed -e 's|glibc|gnu|')" >> $GITHUB_ENV
+      -
         name: Cache toolchain directory
         uses: actions/cache@v4
         with:
           path: ~/build/
-          key: ${{runner.os}}-ct-ng-1.25.0-${{ matrix.arch }}-musl
+          key: ${{runner.os}}-ct-ng-1.27.0-${{ matrix.config.arch }}-${{ env.LIBC }}
       -
         name: On push master | extract git version
         if: needs.detect-change.outputs.update == 'false'
@@ -91,35 +108,41 @@ jobs:
         with:
           ref: ${{ env.TAG_VERSION }}
       -
-        name: Install prerequisites, obtain erlang/otp version & target arch ...
-        run: |
-          sudo apt-get -qq update
-          # https://github.com/crosstool-ng/crosstool-ng/blob/master/testing/docker/ubuntu22.04/Dockerfile
-          sudo apt-get -qq install makeself build-essential \
-            gcc g++ gperf bison flex texinfo help2man make libncurses5-dev \
-            python3-dev autoconf automake libtool libtool-bin gawk wget bzip2 \
-            xz-utils unzip patch libstdc++6 rsync git meson ninja-build \
-            binfmt-support qemu-user-static
-          echo "OTP_VSN=$(awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' tools/make-binaries)" >> $GITHUB_ENV
-          echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x64|x86_64|;s|arm64|aarch64|')" >> $GITHUB_ENV
-      -
         name: Install erlang/OTP
         uses: erlef/setup-beam@v1
         with:
           otp-version: ${{ env.OTP_VSN }}
           version-type: strict
       -
-        name: Build ${{ matrix.arch }} musl-libc based binary archives
-        run: CHECK_DEPS=false tools/make-binaries ${{ env.ARCH }}-linux-musl
+        name: Build ${{ matrix.config.arch }} ${{ env.LIBC }}-libc based binary archives
+        run: CHECK_DEPS=false tools/make-binaries ${{ env.ARCH }}-linux-${{ env.LIBC }}
+      -
+        name: Add executables to PATH ...
+        if: matrix.config.libc == 'glibc'
+        run: |
+          echo "$HOME/build/bootstrap/bin" >> $GITHUB_PATH
+          echo "$HOME/build/eturnal/${{ env.ARCH }}-linux-${{ env.LIBC }}/bin" >> $GITHUB_PATH
+      -
+        name: rebar3 xref ...
+        if: matrix.config.libc == 'glibc'
+        run: rebar3 xref
+      -
+        name: rebar3 eunit ...
+        if: matrix.config.libc == 'glibc'
+        run: rebar3 eunit
+      -
+        name: rebar3 ct ...
+        if: matrix.config.libc == 'glibc'
+        run: rebar3 ct
       -
         name: Start container for rebar3 test suites ...
+        if: matrix.config.libc == 'musl'
         run: |
           rebar3_path="$HOME/build/bootstrap/bin"
-          otp_path="$HOME/build/eturnal/${{ env.ARCH }}-linux-musl/bin"
+          otp_path="$HOME/build/eturnal/${{ env.ARCH }}-linux-${{ env.LIBC }}/bin"
           alpine_path='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
           arch=$(echo ${{ matrix.arch }} | sed -e 's|x64|amd64|')
           docker run --init -d --name test-suites \
-                --platform linux/$arch \
                 -v $HOME/build:$HOME/build \
                 -v $PWD:/eturnal \
                 --workdir /eturnal \
@@ -128,39 +151,47 @@ jobs:
                 sleep 600
       - # add build-tools & git, if rebar.config uses e.g. "github" as source
         name: add build tools to the container ...
+        if: matrix.config.libc == 'musl'
         run: docker exec test-suites apk add build-base git yaml-dev
       -
         name: rebar3 xref ...
+        if: matrix.config.libc == 'musl'
         run: docker exec test-suites rebar3 xref
       -
         name: rebar3 eunit ...
+        if: matrix.config.libc == 'musl'
         run: docker exec test-suites rebar3 eunit
       -
         name: rebar3 ct ...
+        if: matrix.config.libc == 'musl'
         run: docker exec test-suites rebar3 ct
       -
         name: Stop rebar3 test container ...
+        if: matrix.config.libc == 'musl'
         run: docker stop test-suites
       -
-        name: Upload artifact | ${{ matrix.arch }} musl-libc based binary tarball
+        name: Upload artifact | ${{ matrix.config.arch }} ${{ env.LIBC }}-libc based binary tarball
         uses: actions/upload-artifact@v4
         with:
-          name: eturnal-${{ env.TAG_VERSION }}-linux-musl-${{ matrix.arch }}.tar.gz
-          path: eturnal-*-linux-musl-${{ matrix.arch }}.tar.gz
+          name: eturnal-${{ env.TAG_VERSION }}-linux-${{ matrix.config.libc }}-${{ matrix.config.arch }}.tar.gz
+          path: eturnal-*-linux-${{ matrix.config.libc }}-${{ matrix.config.arch }}.tar.gz
           if-no-files-found: error
           retention-days: 15
 
-################################################################################
-  #' build actual images for x64/arm64 with built binary tarballs
+# ################################################################################
+#   #' build actual images for x64/arm64 with built binary tarballs
   build-ctr-binary-based:
-    name: ${{ matrix.arch }} - ${{ matrix.method }}-based variant
-    runs-on: ubuntu-latest
+    name: ${{ matrix.config.arch }} - ${{ matrix.config.libc }} package-based variant
+    runs-on: ${{ matrix.config.runs-on }}
     strategy:
       matrix:
-        arch: [x64, arm64]
-        method: [package]
+        config:
+          - { arch: x64, runs-on: ubuntu-24.04, libc: glibc }
+          - { arch: arm64, runs-on: ubuntu-24.04-arm, libc: glibc }
+          - { arch: x64, runs-on: ubuntu-24.04, libc: musl }
+          - { arch: arm64, runs-on: ubuntu-24.04-arm, libc: musl }
       fail-fast: false
-    needs: [detect-change, build-musl-binary-archives]
+    needs: [detect-change, build-binary-archives]
     steps:
       -
         name: Check out repository code
@@ -176,21 +207,19 @@ jobs:
         if: needs.detect-change.outputs.update == 'true'
         run: echo "TAG_VERSION=$(awk 'END{gsub("-", " "); print $1}' ${{ env.PKGREL_FILE }})" >> $GITHUB_ENV
       -
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       -
         name: Extract build & environment variables
         run: |
           echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
-          echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|x64|amd64|')" >> $GITHUB_ENV
+          echo "ARCH=$(echo ${{ matrix.config.arch }} | sed -e 's|x64|amd64|')" >> $GITHUB_ENV
+          echo "LIBC=$(echo ${{ matrix.config.libc }} | sed -e 's|glibc|gnu|')" >> $GITHUB_ENV
       -
-        name: Download artifact | ${{ matrix.arch }} musl-libc based binary tarball
+        name: Download artifact | ${{ matrix.config.arch }} ${{ env.LIBC }}-libc based binary tarball
         uses: actions/download-artifact@v4
         with:
-          name: eturnal-${{ env.TAG_VERSION }}-linux-musl-${{ matrix.arch }}.tar.gz
+          name: eturnal-${{ env.TAG_VERSION }}-linux-${{ matrix.config.libc }}-${{ matrix.config.arch }}.tar.gz
       -
         name: Log in to ${{ env.REGISTRY }}
         uses: docker/login-action@v3
@@ -210,13 +239,13 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           build-args: |
-            METHOD=${{ matrix.method }}
+            METHOD=package
+            LIBC=${{ matrix.config.libc }}
             VERSION=${{ env.TAG_VERSION }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
             VARIANT=standalone
           context: .
           file: ${{ env.DOCKERFILE_PATH }}/Dockerfile
-          platforms: linux/${{ env.ARCH }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
       -
@@ -224,7 +253,6 @@ jobs:
         run: |
           set -x
           docker run -d --name eturnal \
-            --platform linux/${{ env.ARCH }} \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build-so.outputs.digest }} \
             sleep 600
           docker exec eturnal eturnalctl daemon
@@ -233,16 +261,16 @@ jobs:
           docker logs eturnal
           docker stop eturnal
       -
-        name: Standalone | export digest | ${{ matrix.arch }}
+        name: Standalone | export digest | ${{ matrix.config.arch }}-${{ matrix.config.libc }}
         run: |
           mkdir -p /tmp/digests-so
           digest="${{ steps.build-so.outputs.digest }}"
           touch "/tmp/digests-so/${digest#sha256:}"
       -
-        name: Standalone | upload digest | ${{ matrix.arch }}
+        name: Standalone | upload digest | ${{ matrix.config.arch }}-${{ matrix.config.libc }}
         uses: actions/upload-artifact@v4
         with:
-          name: digests-standalone-${{ matrix.arch }}
+          name: digests-standalone-${{ matrix.config.arch }}-${{ matrix.config.libc }}
           path: /tmp/digests-so/*
           if-no-files-found: error
           retention-days: 5
@@ -252,258 +280,26 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           build-args: |
-            METHOD=${{ matrix.method }}
+            METHOD=package
+            LIBC=${{ matrix.config.libc }}
             VERSION=${{ env.TAG_VERSION }}
             REPOSITORY=https://github.com/${{ github.repository }}.git
             VARIANT=acme
           context: .
           file: ${{ env.DOCKERFILE_PATH }}/Dockerfile
-          platforms: linux/${{ env.ARCH }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
       -
-        name: ACME | export digest | ${{ matrix.arch }}
+        name: ACME | export digest | ${{ matrix.config.arch }}-${{ matrix.config.libc }}
         run: |
           mkdir -p /tmp/digests-as
           digest="${{ steps.build-as.outputs.digest }}"
           touch "/tmp/digests-as/${digest#sha256:}"
       -
-        name: ACME | upload digest | ${{ matrix.arch }}
+        name: ACME | upload digest | ${{ matrix.config.arch }}-${{ matrix.config.libc }}
         uses: actions/upload-artifact@v4
         with:
-          name: digests-acme-${{ matrix.arch }}
-          path: /tmp/digests-as/*
-          if-no-files-found: error
-          retention-days: 5
-
-################################################################################
-  #' build Erlang/OTP and rebar3 for directly compilation.
-  build-erlang-rebar:
-    name: Build Erlang/OTP and Rebar3
-    runs-on: ubuntu-latest
-    needs: [detect-change]
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
-    steps:
-      -
-        name: Check out repository code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      -
-        name: On push master | extract git version and define build mode
-        if: needs.detect-change.outputs.update == 'false'
-        run: |
-          echo "OTP_VSN=$(awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' tools/make-binaries)" >> $GITHUB_ENV
-          echo "REBAR_VSN=$(awk '/^rebar_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' tools/make-binaries)" >> $GITHUB_ENV
-      -
-        name: On release | extract git version and define build mode
-        if: needs.detect-change.outputs.update == 'true'
-        run: |
-          eturnal_vsn=$(awk 'END{gsub("-", " "); print $1}' ${{ env.PKGREL_FILE }})
-          echo "OTP_VSN=$(wget -O - https://raw.githubusercontent.com/${{ github.repository }}/$eturnal_vsn/tools/make-binaries \
-            | awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}')" >> $GITHUB_ENV
-          echo "REBAR_VSN=$(wget -O - https://raw.githubusercontent.com/${{ github.repository }}/$eturnal_vsn/tools/make-binaries \
-            | awk '/^rebar_vsn=/ {{gsub(/[^0-9.]/, ""); print}}')" >> $GITHUB_ENV
-      -
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver-opts: network=host
-      -
-        name: Build Erlang/OTP ${{ env.OTP_VSN }} base image
-        uses: docker/build-push-action@v5
-        with:
-          build-args: |
-            OTP_VSN=${{ env.OTP_VSN }}
-            REBAR_VSN=${{ env.REBAR_VSN }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          context: .
-          file: tools/Dockerfile.erlang
-          labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/386,linux/arm/v7,linux/ppc64le
-          push: true
-          tags: localhost:5000/erlang:otp-${{ env.OTP_VSN }}
-
-################################################################################
-  #' build container images with local source files
-  build-ctr:
-    name: ${{ matrix.arch }} - ${{ matrix.method }}-based variant
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [386, arm/v7, ppc64le]
-        method: [build]
-      fail-fast: false
-    needs: [detect-change, build-erlang-rebar]
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
-    steps:
-      -
-        name: Check out repository code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      -
-        name: On push master | extract git version and define build mode
-        if: needs.detect-change.outputs.update == 'false'
-        run: |
-          echo "VSN=$(git describe --tag)" >> $GITHUB_ENV
-          echo "TAG_VERSION=$(echo "$(./tools/get-version)" | sed -e 's|+|-|')" >> $GITHUB_ENV
-          echo "SRC=local" >> $GITHUB_ENV
-          echo "OTP_VSN=$(awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' tools/make-binaries)" >> $GITHUB_ENV
-          echo "REBAR_VSN=$(awk '/^rebar_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' tools/make-binaries)" >> $GITHUB_ENV
-          echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|/|-|')" >> $GITHUB_ENV
-      -
-        name: On release | extract git version and define build mode
-        if: needs.detect-change.outputs.update == 'true'
-        run: |
-          eturnal_vsn=$(awk 'END{gsub("-", " "); print $1}' ${{ env.PKGREL_FILE }})
-          echo "VSN=$eturnal_vsn" >> $GITHUB_ENV
-          echo "TAG_VERSION=$(awk 'END{gsub("-", " "); print $1}' ${{ env.PKGREL_FILE }})" >> $GITHUB_ENV
-
-          # define erlang/OTP version
-          echo "OTP_VSN=$(wget -O - https://raw.githubusercontent.com/${{ github.repository }}/$eturnal_vsn/tools/make-binaries \
-            | awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}')" >> $GITHUB_ENV
-          echo "REBAR_VSN=$(wget -O - https://raw.githubusercontent.com/${{ github.repository }}/$eturnal_vsn/tools/make-binaries \
-            | awk '/^rebar_vsn=/ {{gsub(/[^0-9.]/, ""); print}}')" >> $GITHUB_ENV
-
-          # check whether to build from archive or git, because git repo is HEAD here
-          # hence, we would not build the specifc release when updating the ctr image
-          pkgrel=$(awk 'END{gsub("-", " "); print $2}' ${{ env.PKGREL_FILE }})
-          if [ "$pkgrel" != 'r0' ]
-          then echo "SRC=web" >> $GITHUB_ENV
-          else echo "SRC=local" >> $GITHUB_ENV
-          fi
-      -
-        name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      -
-        name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver-opts: network=host
-      -
-        name: Build Erlang/OTP ${{ env.OTP_VSN }} base image
-        uses: docker/build-push-action@v5
-        with:
-          build-args: |
-            OTP_VSN=${{ env.OTP_VSN }}
-            REBAR_VSN=${{ env.REBAR_VSN }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          context: .
-          file: tools/Dockerfile.erlang
-          labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/386,linux/arm/v7,linux/ppc64le
-          push: true
-          tags: localhost:5000/erlang:otp-${{ env.OTP_VSN }}
-      -
-        name: Extract build & environment variables
-        run: |
-          echo "ARCH=$(echo ${{ matrix.arch }} | sed -e 's|/|-|')" >> $GITHUB_ENV
-          echo "DOCKERFILE_PATH=$(dirname $(find . -name Dockerfile))" >> $GITHUB_ENV
-          # Check if rebar3 common test should be performed
-          # fix for slow architectures was introduces after version 1.10.1
-          if dpkg --compare-versions ${{ env.TAG_VERSION }} le "1.10.1"
-          then echo "REBAR_CT=false" >> $GITHUB_ENV
-          else echo "REBAR_CT=true" >> $GITHUB_ENV
-          fi
-      -
-        name: Log in to ${{ env.REGISTRY }}
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      -
-        name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      -
-        name: Standalone | build & push by digest
-        id: build-so
-        uses: docker/build-push-action@v5
-        with:
-          build-args: |
-            SOURCE=${{ env.SRC }}
-            VERSION=${{ env.VSN }}
-            BUILD_IMAGE=localhost:5000/erlang:otp-${{ env.OTP_VSN }}
-            REPOSITORY=https://github.com/${{ github.repository }}.git
-            REBAR_CT=${{ env.REBAR_CT }}
-            VARIANT=standalone
-          context: .
-          file: ${{ env.DOCKERFILE_PATH }}/Dockerfile
-          platforms: linux/${{ matrix.arch }}
-          labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
-      -
-        name: Simple smoke test
-        run: |
-          set -x
-          docker run -d --name eturnal \
-            --platform linux/${{ matrix.ARCH }} \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build-so.outputs.digest }} \
-            sleep 600
-          docker exec eturnal eturnalctl daemon
-          docker exec eturnal eturnalctl ping
-          docker exec eturnal eturnalctl info
-          docker logs eturnal
-          docker stop eturnal
-      -
-        name: Standalone | export digest | ${{ matrix.arch }}
-        run: |
-          mkdir -p /tmp/digests-so
-          digest="${{ steps.build-so.outputs.digest }}"
-          touch "/tmp/digests-so/${digest#sha256:}"
-      -
-        name: Standalone | upload digest | ${{ matrix.arch }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: digests-standalone-${{ env.ARCH }}
-          path: /tmp/digests-so/*
-          if-no-files-found: error
-          retention-days: 5
-      -
-        name: ACME | build & push by digest
-        id: build-as
-        uses: docker/build-push-action@v5
-        with:
-          build-args: |
-            SOURCE=${{ env.SRC }}
-            VERSION=${{ env.VSN }}
-            BUILD_IMAGE=localhost:5000/erlang:otp-${{ env.OTP_VSN }}
-            REPOSITORY=https://github.com/${{ github.repository }}.git
-            REBAR_CT=${{ env.REBAR_CT }}
-            VARIANT=acme
-          context: .
-          file: ${{ env.DOCKERFILE_PATH }}/Dockerfile
-          platforms: linux/${{ matrix.arch }}
-          labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,name=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
-      -
-        name: ACME | export digest | ${{ matrix.arch }}
-        run: |
-          mkdir -p /tmp/digests-as
-          digest="${{ steps.build-as.outputs.digest }}"
-          touch "/tmp/digests-as/${digest#sha256:}"
-      -
-        name: ACME | upload digest | ${{ matrix.arch }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: digests-acme-${{ env.ARCH }}
+          name: digests-acme-${{ matrix.config.arch }}-${{ matrix.config.libc }}
           path: /tmp/digests-as/*
           if-no-files-found: error
           retention-days: 5
@@ -511,15 +307,16 @@ jobs:
 ################################################################################
   ## merge single images to only advertise one image plus tag
   publish:
-    name: ${{ matrix.registry }} - publish manifest ${{ matrix.variant }} variant
+    name: ${{ matrix.registry }} - publish manifest ${{ matrix.libc }}/${{ matrix.variant }} variant
     runs-on: ubuntu-latest
     strategy:
       matrix:
         registry: [ghcr.io, docker.io]
         variant: [standalone, acme]
+        libc: [glibc, musl]
       fail-fast: false
     if: github.event_name != 'pull_request' && github.event_name != 'schedule'
-    needs: [detect-change, build-musl-binary-archives, build-ctr-binary-based, build-ctr]
+    needs: [detect-change, build-binary-archives, build-ctr-binary-based]
     steps:
       -
         name: Check out repository code
@@ -559,7 +356,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: /tmp/digests
-          pattern: digests-${{ matrix.variant }}-*
+          pattern: digests-${{ matrix.variant }}-*-${{ matrix.libc }}
           merge-multiple: true
       -
         name: Set up Docker Buildx
@@ -576,6 +373,10 @@ jobs:
         if: matrix.variant == 'acme'
         run: echo "TAG_ACME=-acme" >> $GITHUB_ENV
       -
+        name: For libc == 'musl' add a special tag suffix
+        if: matrix.libc == 'musl'
+        run: echo "TAG_LIBC=-alpine" >> $GITHUB_ENV
+      -
         name: On push master | Docker meta
         id: meta
         if: needs.detect-change.outputs.update == 'false'
@@ -585,7 +386,7 @@ jobs:
                                         && env.DOCKERHUB_REPO)
                                         || env.IMAGE_NAME }}
           tags: |
-            edge${{ env.TAG_ACME }}
+            edge${{ env.TAG_ACME }}${{ env.TAG_LIBC }}
       -
         name: On release | Docker meta
         id: meta-rel
@@ -596,11 +397,11 @@ jobs:
                                         && env.DOCKERHUB_REPO)
                                         || env.IMAGE_NAME }}
           tags: |
-            ${{ env.TAG_LATEST }}
-            ${{ env.TAG_PKGREL }}${{ env.TAG_ACME }}
-            ${{ env.TAG_VERSION }}${{ env.TAG_ACME }}
-            ${{ env.TAG_MINOR }}${{ env.TAG_ACME }}
-            ${{ env.TAG_MAJOR }}${{ env.TAG_ACME }}
+            ${{ env.TAG_LATEST }}${{ env.TAG_LIBC }}
+            ${{ env.TAG_PKGREL }}${{ env.TAG_ACME }}${{ env.TAG_LIBC }}
+            ${{ env.TAG_VERSION }}${{ env.TAG_ACME }}${{ env.TAG_LIBC }}
+            ${{ env.TAG_MINOR }}${{ env.TAG_ACME }}${{ env.TAG_LIBC }}
+            ${{ env.TAG_MAJOR }}${{ env.TAG_ACME }}${{ env.TAG_LIBC }}
       -
         name: Create manifest list and push
         if: |

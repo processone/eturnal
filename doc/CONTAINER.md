@@ -2,8 +2,12 @@
 
 [eturnal](https://eturnal.net/) container images are available for multiple
 architectures as `ghcr.io/processone/eturnal` from [GitHub Packages](https://github.com/processone/eturnal/pkgs/container/eturnal)
-or [DockerHub](https://hub.docker.com/r/eturnal/eturnal). The images are based
-on [Alpine Linux](https://alpinelinux.org).
+or [DockerHub](https://hub.docker.com/r/eturnal/eturnal).
+
+Starting from releases newer than `1.12.1` container images are built using
+the `glibc` based binaries and [Wolfi OS](https://github.com/wolfi-dev/os). The
+[Alpine Linux](https://alpinelinux.org) based images are still available, but
+have a tag suffix `-alpine`, i.e. `ghcr.io/processone/eturnal:latest-alpine`.
 
 ## Tags and variants
 

@@ -90,4 +90,4 @@ cat >> $HOME/etc/eturnal.yml <<-EOF
 EOF
 
 info 'Start main processes ...'
-exec /bin/s6-svscan /etc/s6.d
+exec s6-svscan /etc/s6.d
