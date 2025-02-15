@@ -7,6 +7,9 @@ project adheres to [Semantic Versioning][SemVer].
 ### Changed
 - Binary release: Update Erlang/OTP from 27.1.2 to 27.2.2.
 - Binary release: Use new (GCC-14.2-based) version of build toolchain.
+- Docker: Switch base image to [Wolfi OS](https://github.com/wolfi-dev/os),
+  which uses `glibc`. The old `musl`-libc (Alpine) variants now have a `-alpine`
+  suffix.
 
 ## [1.12.1] - 2024-10-24
 ### Added

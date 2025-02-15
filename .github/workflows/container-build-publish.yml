@@ -92,7 +92,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/build/
-          key: ${{runner.os}}-ct-ng-1.27.0-${{ matrix.config.arch }}-${{ env.LIBC }}
+          key: ${{runner.os}}-ct-ng-1.27.0-${{ matrix.config.arch }}-${{ env.LIBC }}-${{ hashFiles('**/make-binaries') }}
+          restore-keys: |
+            ${{runner.os}}-ct-ng-1.27.0-${{ matrix.config.arch }}-${{ env.LIBC }}
       -
         name: On push master | extract git version
         if: needs.detect-change.outputs.update == 'false'
