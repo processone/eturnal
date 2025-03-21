@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Added
+- Add a prometheus grafana dashboard template into the repository.
+
 ### Changed
 - Binary release: Update Erlang/OTP from 27.1.2 to 27.3.
 - Binary release: Use new (GCC-14.2-based) version of build toolchain.
