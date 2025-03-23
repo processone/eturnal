@@ -10,6 +10,8 @@ project adheres to [Semantic Versioning][SemVer].
 - Docker: Switch base image to [Wolfi OS](https://github.com/wolfi-dev/os),
   which uses `glibc`. The old `musl`-libc (Alpine) variants now have a `-alpine`
   suffix.
+- Windows: Add explicit IPv4 listeners to default configuration, as `::` doesn't
+  create dual-stack sockets on that platform.
 
 ## [1.12.1] - 2024-10-24
 ### Added

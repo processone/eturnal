@@ -53,7 +53,33 @@ grep -q 'mkdir, "log"' 'rebar.config' ||
     {mkdir, "run"},' 'rebar.config'
 sed -i -e '/TLS certificate/,+3d' \
        -e 's|#log_dir.*|log_dir: "@INSTALL_DIR@/log"\
-  run_dir: "@INSTALL_DIR@/run"|' 'config/eturnal.yml'
+  run_dir: "@INSTALL_DIR@/run"|' \
+       -e '/^  listen:/,/^    #  transport: tls$/ c\
+  listen:\
+    -\
+      ip: "::"\
+      port: 3478\
+      transport: udp\
+    -\
+      ip: "0.0.0.0"\
+      port: 3478\
+      transport: udp\
+    -\
+      ip: "::"\
+      port: 3478\
+      transport: tcp\
+    -\
+      ip: "0.0.0.0"\
+      port: 3478\
+      transport: tcp\
+    #-\
+    #  ip: "::"\
+    #  port: 5349\
+    #  transport: tls\
+    #-\
+    #  ip: "0.0.0.0"\
+    #  port: 5349\
+    #  transport: tls' 'config/eturnal.yml'
 sed -i 's|$ETURNAL_ETC_DIR|@INSTALL_DIR@/etc|' 'config/sys.config'
 
 echo "$myself: Cleaning $rel_name repository ..."
