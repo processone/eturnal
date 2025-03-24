@@ -88,6 +88,9 @@ rm -rf '_build'
 echo "$myself: Building $rel_name release ..."
 REBAR_COLOR='none' rebar3 as prod release
 
+echo "$myself: Removing Linux/Unix configuration files ..."
+find '_build/prod/rel/eturnal/etc' -mindepth 1 '!' -name 'eturnal.yml' -delete
+
 echo "$myself: Removing LIB and EXP files ..."
 find '_build' '(' -iname '*.lib' -o -iname '*.exp' ')' -delete
 
