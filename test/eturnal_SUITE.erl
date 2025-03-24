@@ -135,10 +135,14 @@ check_all_sessions(_Config) ->
 
 -spec check_user_sessions(config()) -> any().
 check_user_sessions(_Config) ->
-    ct:pal("Checking active TURN sessions of user"),
-    {ok, Sessions} = eturnal_ctl:get_sessions("alice"),
-    ct:pal("Got active TURN sessions of user: ~p", [Sessions]),
-    true = is_list(Sessions),
+    ct:pal("Checking active TURN sessions of a user"),
+    {ok, Sessions1} = eturnal_ctl:get_sessions("alice"),
+    ct:pal("Got active TURN sessions of a user: ~p", [Sessions1]),
+    true = is_list(Sessions1),
+    ct:pal("Checking active TURN sessions of another user"),
+    {ok, Sessions2} = eturnal_ctl:get_sessions("1256900400:alice"),
+    ct:pal("Got active TURN sessions of another user: ~p", [Sessions2]),
+    true = is_list(Sessions2),
     ct:pal("Checking active TURN sessions of invalid user"),
     {error, Reason} = eturnal_ctl:disconnect(alice),
     ct:pal("Got an error, as expected: ~p", [Reason]).
