@@ -144,7 +144,7 @@ check_user_sessions(_Config) ->
     ct:pal("Got active TURN sessions of another user: ~p", [Sessions2]),
     true = is_list(Sessions2),
     ct:pal("Checking active TURN sessions of invalid user"),
-    {error, Reason} = eturnal_ctl:disconnect(alice),
+    {error, Reason} = eturnal_ctl:get_sessions(alice),
     ct:pal("Got an error, as expected: ~p", [Reason]).
 
 -spec check_disconnect(config()) -> any().
