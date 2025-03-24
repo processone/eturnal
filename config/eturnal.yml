@@ -10,11 +10,6 @@ eturnal:
   ## Shared secret for deriving temporary TURN credentials (default: $RANDOM):
   #secret: "long-and-cryptic"
 
-  ## The server's public IPv4 address (default: autodetected):
-  #relay_ipv4_addr: "203.0.113.4"
-  ## The server's public IPv6 address (optional):
-  #relay_ipv6_addr: "2001:db8::4"
-
   listen:
     -
       ip: "::"
@@ -32,6 +27,11 @@ eturnal:
   ## TLS certificate/key files (must be readable by 'eturnal' user!):
   #tls_crt_file: /etc/eturnal/tls/crt.pem
   #tls_key_file: /etc/eturnal/tls/key.pem
+
+  ## The server's public IPv4 address (default: autodetected):
+  #relay_ipv4_addr: "203.0.113.4"
+  ## The server's public IPv6 address (optional):
+  #relay_ipv6_addr: "2001:db8::4"
 
   ## UDP relay port range (usually, several ports per A/V call are required):
   relay_min_port: 49152     # This is the default.
