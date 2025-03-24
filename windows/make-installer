@@ -43,6 +43,8 @@ inno_dep_installer_url='https://github.com/DomGries/InnoDependencyInstaller.git'
 echo "$myself: Creating Windows installer for $rel_name $rel_vsn."
 
 echo "$myself: Editing $rel_name repository files ..."
+printf '%s %s\n' '-setcookie' 'eturnal' >>'config/vm.args'
+sed -i 's|$ETURNAL_ETC_DIR|@INSTALL_DIR@/etc|' 'config/sys.config'
 sed -i "s|@VERSION@|$rel_vsn|" \
     "windows/$rel_name.iss" 'windows/delay-start.cmd'
 sed -i "s|{cmd, *\"tools/get-version\"}|\"$rel_vsn\"|" \
@@ -80,7 +82,6 @@ sed -i -e '/TLS certificate/,+3d' \
     #  ip: "0.0.0.0"\
     #  port: 5349\
     #  transport: tls' 'config/eturnal.yml'
-sed -i 's|$ETURNAL_ETC_DIR|@INSTALL_DIR@/etc|' 'config/sys.config'
 
 echo "$myself: Cleaning $rel_name repository ..."
 rm -rf '_build'
