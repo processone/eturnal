@@ -88,6 +88,7 @@ groups() ->
 -spec all() -> [test_def()] | {skip, term()}.
 all() ->
     [start_eturnal,
+     check_status,
      check_info,
      check_all_sessions,
      check_user_sessions,
@@ -110,6 +111,13 @@ all() ->
 start_eturnal(_Config) ->
     ct:pal("Starting up eturnal"),
     ok = eturnal:start().
+
+-spec check_status(config()) -> any().
+check_status(_Config) ->
+    ct:pal("Checking eturnal status"),
+    {ok, Status} = eturnal_ctl:get_status(),
+    ct:pal("Got eturnal status: ~p", [Status]),
+    true = is_list(Status).
 
 -spec check_info(config()) -> any().
 check_info(_Config) ->
