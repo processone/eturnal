@@ -411,12 +411,13 @@ for rotating the secret without invalidating existing credentials.
 
 === software_name ===
 
-<div class="spec">Type: `string'<br/>
+<div class="spec">Type: `string' | `none'<br/>
 Default: `eturnal'</div>
 
 This option specifies the server <a
 href="https://tools.ietf.org/html/rfc5389#section-15.10">software name</a>
-announced to clients during the STUN/TURN communication.
+announced to clients during the STUN/TURN communication. If `none' is specifed,
+the software name will be omitted. The default value is `"eturnal"'.
 
 === strict_expiry ===
 

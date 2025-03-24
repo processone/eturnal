@@ -84,7 +84,7 @@ validator() ->
         strict_expiry => bool(),
         credentials => map(binary(), binary(), [unique, {return, map}]),
         realm => non_empty(binary()),
-        software_name => non_empty(binary()),
+        software_name => either(none, non_empty(binary())),
         run_dir => directory(write),
         log_dir => either(stdout, directory(write)),
         log_level => enum([critical, error, warning, notice, info, debug]),
