@@ -274,7 +274,8 @@ ENV ERL_DIST_PORT='3470' \
     STUN_SERVICE='stun.conversations.im 3478'
 
 COPY --from=runtime / /
-COPY --from=eturnal /rootfs /
+COPY --from=eturnal /rootfs/usr/local/bin /usr/local/bin
+COPY --from=eturnal /rootfs/opt/eturnal /opt/eturnal
 
 WORKDIR /$HOME
 USER $USER
