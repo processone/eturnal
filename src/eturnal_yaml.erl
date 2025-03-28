@@ -20,7 +20,7 @@
 -behaviour(conf).
 -export([validator/0]).
 -import(yval, [and_then/2, any/0, beam/1, binary/0, bool/0, directory/1,
-               either/2, enum/1, file/1, ip/0, ipv4/0, ipv6/0, ip_mask/0,
+               either/2, enum/1, file/1, int/2, ip/0, ipv4/0, ipv6/0, ip_mask/0,
                list/1, list/2, list_or_single/1, map/3, non_empty/1,
                non_neg_int/0, options/1, options/2, port/0, pos_int/1]).
 
@@ -62,8 +62,8 @@ validator() ->
         listen => listen_validator(),
         relay_ipv4_addr => and_then(ipv4(), fun check_relay_addr/1),
         relay_ipv6_addr => and_then(ipv6(), fun check_relay_addr/1),
-        relay_min_port => port(),
-        relay_max_port => port(),
+        relay_min_port => int(1025, 65535),
+        relay_max_port => int(1025, 65535),
         tls_crt_file => file(read),
         tls_key_file => file(read),
         tls_dh_file => file(read),
@@ -276,7 +276,7 @@ get_default_port(MinMax, Default) ->
         Bin when is_binary(Bin) ->
             try
                 Port = binary_to_integer(Bin),
-                true = (Port >= 1),
+                true = (Port >= 1025),
                 true = (Port =< 65535),
                 Port
             catch error:_ ->
