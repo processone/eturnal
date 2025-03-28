@@ -42,7 +42,8 @@ unsupported='credentials
 
 edit_my_name()
 {
-    sed "s/^Usage: eturnal/Usage: ${0##*/}/"
+    sed -e "s/^Usage: eturnal/Usage: ${0##*/}/" \
+        -e '/No cookie is set or found/d'
 }
 
 usage()
