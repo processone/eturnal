@@ -20,7 +20,7 @@
 -behaviour(conf).
 -export([validator/0]).
 -import(yval, [and_then/2, any/0, beam/1, binary/0, bool/0, directory/1,
-               either/2, enum/1, file/1, int/2, ip/0, ipv4/0, ipv6/0, ip_mask/0,
+               either/2, enum/1, file/1, ip/0, ipv4/0, ipv6/0, ip_mask/0,
                list/1, list/2, list_or_single/1, map/3, non_empty/1,
                non_neg_int/0, options/1, options/2, port/0, pos_int/1]).
 
@@ -167,7 +167,7 @@ listen_validator() ->
         and_then(
           options(
             #{ip => ip(),
-              port => int(0, 65535),
+              port => port(),
               transport => enum([tcp, udp, tls, auto]),
               proxy_protocol => bool(),
               enable_turn => bool()}),

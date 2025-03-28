@@ -195,7 +195,7 @@ pairs:
       operating system (configuration). The default value is `"::"'.</li>
   <li><a name="port"
          class="cue">`port:' <em>number</em></a><br/>
-      The `port' <em>number</em> must be between `0' and `65535', and is usually
+      The `port' <em>number</em> must be between `1' and `65535', and is usually
       between `1024' and `49151'. The default value is `5349' if the {@section
       transport} is set to `tls', otherwise `3478'.</li>
   <li><a name="transport"
