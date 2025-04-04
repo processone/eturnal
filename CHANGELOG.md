@@ -9,7 +9,7 @@ project adheres to [Semantic Versioning][SemVer].
   eturnal to omit the `SOFTWARE` attribute from STUN/TURN responses.
 
 ### Changed
-- Binary release: Update Erlang/OTP from 27.1.2 to 27.3.1.
+- Binary release: Update Erlang/OTP from 27.1.2 to 27.3.2.
 - Binary release: Use new (GCC-14.2-based) version of build toolchain.
 - Docker: Switch base image to [Wolfi OS](https://github.com/wolfi-dev/os),
   which uses `glibc`. The old `musl`-libc (Alpine) variants now have a `-alpine`
