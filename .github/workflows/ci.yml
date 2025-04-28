@@ -74,7 +74,8 @@ jobs:
       - name: Check test coverage
         run: rebar3 cover
       - name: Check code style
-        run: rebar3 lint
+        run: rebar3 lint # Requires Erlang/OTP 25 or later:
+        if: matrix.otp != 24.2
       - name: Build production release
         run: rebar3 as prod release
       - name: Build distribution release
