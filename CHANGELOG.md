@@ -7,6 +7,9 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Allow for setting the `software_name` option to `none`, which configures
   eturnal to omit the `SOFTWARE` attribute from STUN/TURN responses.
+- Allow for setting the `relay_ipv4_addr` and/or `relay_ipv6_addr` options to
+  `none`. The latter may be useful for disabling RFC 6156 support (e.g., in
+  case the server's IPv6 setup isn't usable for some reason).
 
 ### Changed
 - Binary release: Update Erlang/OTP from 27.1.2 to 27.3.2.

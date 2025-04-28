@@ -60,8 +60,10 @@ validator() ->
     options(
       #{secret => list_or_single(non_empty(binary())),
         listen => listen_validator(),
-        relay_ipv4_addr => and_then(ipv4(), fun check_relay_addr/1),
-        relay_ipv6_addr => and_then(ipv6(), fun check_relay_addr/1),
+        relay_ipv4_addr => and_then(either(none, ipv4()),
+                                    fun check_relay_addr/1),
+        relay_ipv6_addr => and_then(either(none, ipv6()),
+                                    fun check_relay_addr/1),
         relay_min_port => int(1025, 65535),
         relay_max_port => int(1025, 65535),
         tls_crt_file => file(read),
@@ -233,7 +235,10 @@ format_listener({IP, Port, Transport, _ProxyProtocol, _EnableTURN}) ->
     Addr = eturnal_misc:addr_to_str(IP, Port),
     list_to_binary(io_lib:format("~s (~s)", [Addr, Transport])).
 
--spec check_relay_addr(inet:ip_address()) -> inet:ip_address().
+-spec check_relay_addr(inet:ip_address() | none)
+      -> inet:ip_address() | undefined.
+check_relay_addr(none) ->
+    undefined;
 check_relay_addr({0, 0, 0, 0} = Addr) ->
     fail({bad_ip, inet:ntoa(Addr)});
 check_relay_addr({_, _, _, _} = Addr) ->
