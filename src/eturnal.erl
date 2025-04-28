@@ -625,6 +625,7 @@ check_proxy_config() ->
 reload(State) ->
     case conf:reload_file() of
         ok ->
+            ?LOG_INFO("Reloading configuration"),
             try check_pem_file() of
                 ok ->
                     ok = fast_tls:clear_cache(),
