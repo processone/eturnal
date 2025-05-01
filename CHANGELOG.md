@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [1.12.2] - 2025-05-01
 ### Added
 - Allow for setting the `software_name` option to `none`, which configures
   eturnal to omit the `SOFTWARE` attribute from STUN/TURN responses.
@@ -505,7 +507,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/1.12.1...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.12.2...HEAD
+[1.12.2]: https://github.com/processone/eturnal/releases/tag/1.12.2
 [1.12.1]: https://github.com/processone/eturnal/releases/tag/1.12.1
 [1.12.0]: https://github.com/processone/eturnal/releases/tag/1.12.0
 [1.11.1]: https://github.com/processone/eturnal/releases/tag/1.11.1

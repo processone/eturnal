@@ -130,13 +130,13 @@ As an alternative, there's an `#eturnal` channel [on Slack][25].
 [12]: https://eturnal.net/windows/
 [13]: https://eturnal.net/doc/install.html
 [14]: https://en.wikipedia.org/wiki/YAML
-[15]: https://github.com/processone/eturnal/blob/1.12.1/config/eturnal.yml
+[15]: https://github.com/processone/eturnal/blob/1.12.2/config/eturnal.yml
 [16]: https://www.freedesktop.org/software/systemd/man/systemctl.html
-[17]: https://github.com/processone/eturnal/blob/1.12.1/overlay/init/sysv/eturnal
-[18]: https://github.com/processone/eturnal/blob/1.12.1/overlay/init/openrc/eturnal.initd
+[17]: https://github.com/processone/eturnal/blob/1.12.2/overlay/init/sysv/eturnal
+[18]: https://github.com/processone/eturnal/blob/1.12.2/overlay/init/openrc/eturnal.initd
 [19]: https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html
 [20]: https://eturnal.net/doc/
-[21]: https://github.com/processone/eturnal/blob/1.12.1/CHANGELOG.md
+[21]: https://github.com/processone/eturnal/blob/1.12.2/CHANGELOG.md
 [22]: https://github.com/processone/eturnal/issues
 [23]: https://xmpp.org
 [24]: https://eturnal.net/chat/
