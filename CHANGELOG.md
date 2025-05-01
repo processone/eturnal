@@ -12,8 +12,9 @@ project adheres to [Semantic Versioning][SemVer].
   case the server's IPv6 setup isn't usable for some reason).
 
 ### Changed
-- Binary release: Update Erlang/OTP from 27.1.2 to 27.3.3.
 - Binary release: Use new (GCC-14.2-based) version of build toolchain.
+- Binary release: Update Erlang/OTP from 27.1.2 to 27.3.3.
+- Binary release: Update OpenSSL from 3.4.0 to 3.5.0.
 - Docker: Switch base image to [Wolfi OS](https://github.com/wolfi-dev/os),
   which uses `glibc`. The old `musl`-libc (Alpine) variants now have a `-alpine`
   suffix.
