@@ -67,9 +67,6 @@ sed -i -e "s|$(echo "$old_vsn" | sed 's/\./\\./g')|$new_vsn|g" \
     'doc/CONTAINER.md'
 sed -i -e "s|^rebar_vsn=.*|rebar_vsn='$rebar_vsn'|" \
     'tools/make-source' 'tools/make-binaries'
-sed -i -e "s|^ARG REBAR_VSN=.*|ARG REBAR_VSN=\"$rebar_vsn\"|" \
-       -e "s|^ARG OTP_VSN.*|ARG OTP_VSN=\"$otp_vsn\"|" \
-    'tools/Dockerfile.erlang'
 sed -i -e "s|compare/$old_vsn|compare/$new_vsn|" \
        -e "s|^## \[Unreleased\]$|&\\
 \\
@@ -79,9 +76,8 @@ sed -i -e "s|compare/$old_vsn|compare/$new_vsn|" \
 
 echo "$myself: Committing result ..."
 git add 'rebar.config' 'CHANGELOG.md' 'README.md' 'doc/INSTALL.md' \
-    'doc/QUICK-TEST.md' 'doc/overview.edoc' 'doc/CONTAINER.md' \
-    'tools/Dockerfile.erlang' 'tools/ctrrel' 'tools/get-version' \
-    'tools/make-source' 'tools/make-binaries'
+    'doc/QUICK-TEST.md' 'doc/overview.edoc' 'doc/CONTAINER.md' 'tools/ctrrel' \
+    'tools/get-version' 'tools/make-source' 'tools/make-binaries'
 git commit -m "Release $new_vsn"
 git -P show
 read -p "$myself: Does the commit look fine? (y/n) [n] " response
