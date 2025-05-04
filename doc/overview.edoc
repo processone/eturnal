@@ -25,8 +25,8 @@ limitations under the License.
 
 @doc eturnal is a <a
 href="https://eturnal.net/doc/protocol.html#stun">STUN</a> and <a
-href="https://eturnal.net/doc/protocol.html#turn">TURN</a> server,
-which supports the authentication mechanism described in the <a
+href="https://eturnal.net/doc/protocol.html#turn">TURN</a> server that supports
+the authentication mechanism described in the <a
 href="https://tools.ietf.org/html/draft-uberti-behave-turn-rest-00">REST API for
 Access to TURN Services</a> specification. The idea is that WebRTC (or other)
 clients receive temporary TURN credentials where the user name is comprised of
