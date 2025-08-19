@@ -893,9 +893,11 @@ format_error({listener_failure, Action, IP, Port, Transport, Reason}) ->
 format_error({run_dir_failure, Action, RunDir, Reason}) ->
     format("Cannot ~s run directory ~ts: ~ts",
            [Action, RunDir, file:format_error(Reason)]);
-format_error({pem_failure, File, Reason}) ->
+format_error({pem_failure, File, Reason}) when is_atom(Reason) ->
     format("Cannot create PEM file ~ts: ~ts",
            [File, file:format_error(Reason)]);
+format_error({pem_failure, File, Reason}) ->
+    format("Cannot create PEM file ~ts: ~p", [File, Reason]);
 format_error({otp_too_old, Key, Value, Vsn}) ->
     format("Setting '~s: ~s' requires Erlang/OTP ~B or later",
            [Key, Value, Vsn]);
