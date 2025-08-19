@@ -5,6 +5,11 @@ project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
 
+### Changed
+- Binary release: Update Erlang/OTP from 27.3.3 to 28.0.2.
+- Binary release: Update Rebar3 from 3.24.0 to 3.25.1.
+- Binary release: Update OpenSSL from 3.5.0 to 3.5.2.
+
 ## [1.12.2] - 2025-05-01
 ### Added
 - Allow for setting the `software_name` option to `none`, which configures

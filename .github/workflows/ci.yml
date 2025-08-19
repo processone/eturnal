@@ -20,12 +20,12 @@ jobs:
       matrix:
         otp:
           - '24.2'
-          - '27.3'
+          - '28.0'
         include:
           - otp: '24.2'
             rebar: '3.18.0'
-          - otp: '27.3'
-            rebar: '3.24.0'
+          - otp: '28.0'
+            rebar: '3.25.1'
       fail-fast: false
     steps:
       - name: Install prerequisites
@@ -50,7 +50,7 @@ jobs:
           mkdir -p _build/test
           curl -sSL https://github.com/weiss/eturnal/tarball/gh-pages |
             tar -C _build/test --strip-components=1 --wildcards -xzf - '*/logs/'
-        if: matrix.otp == 27.3
+        if: matrix.otp == 28.0
       - name: Download dependencies
         run: rebar3 get-deps
       - name: Compile code
@@ -107,7 +107,7 @@ jobs:
       - name: Retrieve test and coverage results
         uses: actions/download-artifact@v4
         with:
-          name: eturnal-tests-otp-27.3
+          name: eturnal-tests-otp-28.0
           path: public
       - name: Deploy test and coverage results to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
