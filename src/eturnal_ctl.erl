@@ -225,7 +225,9 @@ make_username(Expiry0, Suffix) ->
         Time ->
             username_from_timestamp(Time, Suffix)
     catch
-        _:{badmatch, _} ->
+        _:function_clause ->
+            username_from_expiry(Expiry, Suffix);
+        _:{badmatch, _} -> % Erlang/OTP < 28.0.
             username_from_expiry(Expiry, Suffix);
         _:badarg -> % Erlang/OTP < 21.3.
             username_from_expiry(Expiry, Suffix)
