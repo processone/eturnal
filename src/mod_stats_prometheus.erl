@@ -272,8 +272,8 @@ check_vm_metrics_opt(NewValue) ->
     PID = whereis(prometheus_sup),
     OldValue = application:get_env(prometheus, collectors),
     if is_pid(PID),
-       ((NewValue =:= true) and (OldValue =/= undefined)) or
-        (NewValue =/= true) and (OldValue =:= undefined) ->
+       (NewValue and (OldValue =/= undefined)) or
+       ((not NewValue) and (OldValue =:= undefined)) ->
             modified;
        true ->
             ok

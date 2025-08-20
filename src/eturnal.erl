@@ -564,7 +564,7 @@ tls_enabled() ->
 -spec turn_enabled() -> boolean().
 turn_enabled() ->
     lists:any(fun({_IP, _Port, _Transport, _ProxyProtocol, EnableTURN}) ->
-                      EnableTURN =:= true
+                      EnableTURN
               end, get_opt(listen)).
 
 -spec got_credentials() -> boolean().
@@ -611,7 +611,7 @@ check_turn_config() ->
 check_proxy_config() ->
     case lists:any(
            fun({_IP, _Port, Transport, ProxyProtocol, _EnableTURN}) ->
-                   (Transport =:= udp) and (ProxyProtocol =:= true)
+                   (Transport =:= udp) and ProxyProtocol
            end, get_opt(listen)) of
         true ->
             exit(proxy_config_failure);
