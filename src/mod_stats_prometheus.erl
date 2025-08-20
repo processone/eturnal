@@ -269,11 +269,10 @@ get_module_or_global_opt(Opt) ->
 
 -spec check_vm_metrics_opt(boolean()) -> ok | modified.
 check_vm_metrics_opt(NewValue) ->
+    % Default collectors include VM metrics.
+    OldValue = application:get_env(prometheus, collectors) =:= undefined,
     PID = whereis(prometheus_sup),
-    OldValue = application:get_env(prometheus, collectors),
-    if is_pid(PID),
-       (NewValue and (OldValue =/= undefined)) or
-       ((not NewValue) and (OldValue =:= undefined)) ->
+    if is_pid(PID), NewValue =/= OldValue ->
             modified;
        true ->
             ok
