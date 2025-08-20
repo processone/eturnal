@@ -62,8 +62,7 @@ serial_number() ->
 -spec signature() -> #'SignatureAlgorithm'{}.
 signature() ->
     #'SignatureAlgorithm'{
-       algorithm = ?'sha256WithRSAEncryption',
-       parameters = 'NULL'}.
+       algorithm = ?'sha256WithRSAEncryption'}.
 
 -spec issuer(string()) -> {rdnSequence, [[#'AttributeTypeAndValue'{}]]}.
 issuer(Domain) -> % Self-signed.
@@ -87,8 +86,7 @@ subject_key_info(#'RSAPrivateKey'{modulus = Modulus, publicExponent = Exp}) ->
     #'OTPSubjectPublicKeyInfo'{
        algorithm =
            #'PublicKeyAlgorithm'{
-              algorithm = ?'rsaEncryption',
-              parameters = 'NULL'},
+              algorithm = ?'rsaEncryption'},
        subjectPublicKey =
            #'RSAPublicKey'{
               modulus = Modulus,
