@@ -19,11 +19,11 @@ jobs:
     strategy:
       matrix:
         otp:
-          - '24.2'
+          - '26.0'
           - '28.0'
         include:
-          - otp: '24.2'
-            rebar: '3.18.0'
+          - otp: '26.0'
+            rebar: '3.21.0'
           - otp: '28.0'
             rebar: '3.25.1'
       fail-fast: false
@@ -74,8 +74,7 @@ jobs:
       - name: Check test coverage
         run: rebar3 cover
       - name: Check code style
-        run: rebar3 lint # Requires Erlang/OTP 25 or later:
-        if: matrix.otp != 24.2
+        run: rebar3 lint
       - name: Build production release
         run: rebar3 as prod release
       - name: Build distribution release

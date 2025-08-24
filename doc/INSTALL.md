@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- [Erlang/OTP][1] (21.0 or newer).
+- [Erlang/OTP][1] (26.0 or newer).
 - [LibYAML][2] (0.1.4 or newer).
 - [OpenSSL][3] (1.0.0 or newer).
 - [GCC][4] (other C compilers might work as well).
@@ -17,8 +17,8 @@ and `openssl-devel`.
 
 > _Note:_ If you build directly from the Git repository rather than using the
 > official source tarball, you must [download Rebar3][5] and make it executable
-> (`chmod +x rebar3`), first. On Erlang/OTP versions prior to 25.x, you need an
-> [older Rebar3][6] version (3.15.x on Erlang/OTP 21.x, otherwise 3.16.x).
+> (`chmod +x rebar3`), first. [Depending on][6] the Erlang/OTP release in use,
+> you might need an [older Rebar3][7] version.
 
 ```shell
 curl https://eturnal.net/eturnal-1.12.2.tar.gz | tar -C /tmp -xzf -
@@ -29,14 +29,14 @@ cd /tmp/eturnal-1.12.2
 This generates the archive file `_build/prod/rel/eturnal/eturnal-1.12.2.tar.gz`.
 The default installation prefix is set to `/opt/eturnal`, and it's assumed the
 server will be executed by a user named `eturnal`. To change these defaults,
-edit the [build.config][7] file or override the settings using environment
+edit the [build.config][8] file or override the settings using environment
 variables (of the same name, but upper-case), re-run `./rebar3 as prod tar`, and
 adapt the following installation instructions accordingly.
 
 ## Quick Test
 
-The following command starts the server in an Erlang shell, [using][8] the
-configuration in [config/eturnal.yml][9]:
+The following command starts the server in an Erlang shell, [using][9] the
+configuration in [config/eturnal.yml][10]:
 
 ```shell
 ./rebar3 shell
@@ -86,7 +86,7 @@ or `sudo -i`, first.
 
 ## Configuration and Usage
 
-See the [README.md][10] file and the [reference documentation][11] for
+See the [README.md][11] file and the [reference documentation][12] for
 configuration and usage instructions.
 
  [1]: https://www.erlang.org
@@ -94,9 +94,10 @@ configuration and usage instructions.
  [3]: https://www.openssl.org
  [4]: https://gcc.gnu.org
  [5]: https://s3.amazonaws.com/rebar3/rebar3
- [6]: https://github.com/erlang/rebar3/releases
- [7]: https://github.com/processone/eturnal/blob/1.12.2/build.config
- [8]: https://github.com/processone/eturnal/blob/1.12.2/config/shell.config
- [9]: https://github.com/processone/eturnal/blob/1.12.2/config/eturnal.yml
-[10]: https://github.com/processone/eturnal/blob/1.12.2/README.md
-[11]: https://eturnal.net/doc/
+ [6]: https://github.com/erlang/rebar3#compatibility-between-rebar3-and-erlangotp
+ [7]: https://github.com/erlang/rebar3/releases
+ [8]: https://github.com/processone/eturnal/blob/1.12.2/build.config
+ [9]: https://github.com/processone/eturnal/blob/1.12.2/config/shell.config
+[10]: https://github.com/processone/eturnal/blob/1.12.2/config/eturnal.yml
+[11]: https://github.com/processone/eturnal/blob/1.12.2/README.md
+[12]: https://eturnal.net/doc/
