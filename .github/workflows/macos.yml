@@ -74,7 +74,8 @@ jobs:
     strategy:
       matrix:
         os: [macos, ubuntu]
-        vsn: [head, stable]
+        # vsn: [head, stable] # eturnal 1.12.2 doesn't support Erlang/OTP 28.
+        vsn: [head]
       fail-fast: false
 
     steps:
