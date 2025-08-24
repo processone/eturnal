@@ -104,7 +104,11 @@ jobs:
             # Download eturnal.rb instead of `brew tap` to avoid failures when
             # running on branches or pull requests -> requires actions/checkout
             curl -O https://raw.githubusercontent.com/${{ github.repository }}/$(git rev-parse HEAD)/Formula/eturnal.rb
-            brew install --build-from-source ${vsn:-} --verbose ./eturnal.rb
+            git config --global user.email "github-actions@github.com"
+            git config --global user.name "GitHub Actions"
+            brew tap-new local/tap
+            cp eturnal.rb $(brew --repository)/Library/Taps/local/homebrew-tap/Formula/
+            brew install --build-from-source ${vsn:-} --verbose local/tap/eturnal
       - name: Homebrew autoremove unused packages
         if: matrix.os != 'ubuntu'
         run: |
