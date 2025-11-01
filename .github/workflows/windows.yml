@@ -10,7 +10,7 @@ on:
 jobs:
   installer:
     name: Build Windows installer
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
