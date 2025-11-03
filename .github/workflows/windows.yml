@@ -29,7 +29,7 @@ jobs:
       - name: Download Erlang/OTP and Rebar
         uses: erlef/setup-beam@v1
         with:
-          otp-version: '28.x'
+          otp-version: '27.x'
           rebar3-version: '3.x'
       - name: Install LibYAML
         run: vcpkg install libyaml:x64-windows-static-md
