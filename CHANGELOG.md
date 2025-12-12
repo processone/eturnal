@@ -8,7 +8,7 @@ project adheres to [Semantic Versioning][SemVer].
 ### Changed
 - The minimum required Erlang/OTP version is now 26.0.
 - Binary release: Use new (GCC-15.2-based) version of build toolchain.
-- Binary release: Update Erlang/OTP from 27.3.3 to 28.1.1.
+- Binary release: Update Erlang/OTP from 27.3.3 to 28.3.
 - Binary release: Update Rebar3 from 3.24.0 to 3.25.1.
 - Binary release: Update OpenSSL from 3.5.0 to 3.6.0.
 
