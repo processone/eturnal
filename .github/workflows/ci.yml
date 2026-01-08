@@ -25,7 +25,7 @@ jobs:
           - otp: '26.0'
             rebar: '3.21.0'
           - otp: '28.3'
-            rebar: '3.25.1'
+            rebar: '3.26.0'
       fail-fast: false
     steps:
       - name: Install prerequisites
