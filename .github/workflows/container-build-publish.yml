@@ -75,7 +75,7 @@ jobs:
         with:
           fetch-depth: 0
       -
-        name: Install prerequisites, obtain erlang/otp version & target arch ...
+        name: Install prerequisites
         run: |
           sudo apt-get -qq update
           # https://github.com/crosstool-ng/crosstool-ng/blob/master/testing/docker/ubuntu22.04/Dockerfile
@@ -84,7 +84,6 @@ jobs:
             python3-dev autoconf automake libtool libtool-bin gawk wget bzip2 \
             xz-utils unzip patch libstdc++6 rsync git meson ninja-build \
             binfmt-support qemu-user-static
-          echo "OTP_VSN=$(awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' tools/make-binaries)" >> $GITHUB_ENV
           echo "ARCH=$(echo ${{ matrix.config.arch }} | sed -e 's|x64|x86_64|;s|arm64|aarch64|')" >> $GITHUB_ENV
           echo "LIBC=$(echo ${{ matrix.config.libc }} | sed -e 's|glibc|gnu|')" >> $GITHUB_ENV
       -
@@ -109,6 +108,10 @@ jobs:
         if: needs.detect-change.outputs.update == 'true'
         with:
           ref: ${{ env.TAG_VERSION }}
+      -
+        name: Obtain erlang/otp version
+        run: |
+          echo "OTP_VSN=$(awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' tools/make-binaries)" >> $GITHUB_ENV
       -
         name: Install erlang/OTP
         uses: erlef/setup-beam@v1
