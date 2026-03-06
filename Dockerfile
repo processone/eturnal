@@ -1,12 +1,12 @@
 #' Define default build variables
 ## specific ARGs for METHOD='build'
-ARG OTP_VSN='27'
+ARG OTP_VSN='28'
 ## specific ARGs for METHOD='package'
 ARG BASE_IMAGE_GLIBC="cgr.dev/chainguard/wolfi-base"
 ARG BASE_IMAGE_MUSL="docker.io/library/erlang:${OTP_VSN}-alpine"
 ## specific ARGs for VARIANT='acme'
-ARG ACMESH_VSN='3.0.9'
-ARG ACMESH_SHA256='a599e8373cd327fb611362bec6f1bfb0bf65c97b3401c440cfea9304a0f0cb41'
+ARG ACMESH_VSN='3.1.2'
+ARG ACMESH_SHA256='a51511ad0e2912be45125cf189401e4ae776ca1a29d5768f020a1e35a9560186'
 ## general ARGs
 ARG UID='9000'
 ARG USER='eturnal'
