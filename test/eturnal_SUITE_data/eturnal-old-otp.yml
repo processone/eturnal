@@ -18,6 +18,7 @@ eturnal:
   secret: "crypt1c"
   credentials:
     alice: l0vesBob
+    "00002063954332": numericPass
   log_level: debug
   tls_options:
     - no_tlsv1
