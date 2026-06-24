@@ -39,7 +39,7 @@ jobs:
     steps:
       -
         name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 2
       -
@@ -71,7 +71,7 @@ jobs:
     steps:
       -
         name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       -
@@ -104,7 +104,7 @@ jobs:
         run: echo "TAG_VERSION=$(awk 'END{gsub("-", " "); print $1}' ${{ env.PKGREL_FILE }})" >> $GITHUB_ENV
       -
         name: On release | check out release to be published/updated
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         if: needs.detect-change.outputs.update == 'true'
         with:
           ref: ${{ env.TAG_VERSION }}
@@ -179,7 +179,7 @@ jobs:
         run: docker stop test-suites
       -
         name: Upload artifact | ${{ matrix.config.arch }} ${{ env.LIBC }}-libc based binary tarball
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: eturnal-${{ env.TAG_VERSION }}-linux-${{ matrix.config.libc }}-${{ matrix.config.arch }}.tar.gz
           path: eturnal-*-linux-${{ matrix.config.libc }}-${{ matrix.config.arch }}.tar.gz
@@ -206,7 +206,7 @@ jobs:
     steps:
       -
         name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       -
@@ -228,7 +228,7 @@ jobs:
           echo "LIBC=$(echo ${{ matrix.config.libc }} | sed -e 's|glibc|gnu|')" >> $GITHUB_ENV
       -
         name: Download artifact | ${{ matrix.config.arch }} ${{ env.LIBC }}-libc based binary tarball
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: eturnal-${{ env.TAG_VERSION }}-linux-${{ matrix.config.libc }}-${{ matrix.config.arch }}.tar.gz
       -
@@ -279,7 +279,7 @@ jobs:
           touch "/tmp/digests-so/${digest#sha256:}"
       -
         name: Standalone | upload digest | ${{ matrix.config.arch }}-${{ matrix.config.libc }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: digests-standalone-${{ matrix.config.arch }}-${{ matrix.config.libc }}
           path: /tmp/digests-so/*
@@ -308,7 +308,7 @@ jobs:
           touch "/tmp/digests-as/${digest#sha256:}"
       -
         name: ACME | upload digest | ${{ matrix.config.arch }}-${{ matrix.config.libc }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: digests-acme-${{ matrix.config.arch }}-${{ matrix.config.libc }}
           path: /tmp/digests-as/*
@@ -331,7 +331,7 @@ jobs:
     steps:
       -
         name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       -
@@ -364,7 +364,7 @@ jobs:
                      || secrets.GITHUB_TOKEN }}
       -
         name: Download digests | ${{ matrix.variant }}
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: /tmp/digests
           pattern: digests-${{ matrix.variant }}-*-${{ matrix.libc }}

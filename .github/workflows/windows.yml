@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with: # For tools/get-version:
           fetch-depth: 0
       - name: Set up MSVC environment
@@ -70,7 +70,7 @@ jobs:
       - name: Check test coverage
         run: rebar3 cover
       - name: Upload installer
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: eturnal-installer
           path: eturnal-*.exe
