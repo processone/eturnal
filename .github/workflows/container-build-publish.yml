@@ -191,6 +191,9 @@ jobs:
   build-ctr-binary-based:
     name: ${{ matrix.config.arch }} - ${{ matrix.config.libc }} package-based variant
     runs-on: ${{ matrix.config.runs-on }}
+    permissions:
+      contents: read
+      packages: write
     strategy:
       matrix:
         config:
