@@ -650,19 +650,22 @@ reload(State) ->
 
 -spec apply_config_changes(state(), config_changes()) -> state().
 apply_config_changes(State, {Changed, New, Removed} = ConfigChanges) ->
-    if length(Changed) > 0 ->
+    case Changed of
+        [_ | _] ->
             ?LOG_DEBUG("Changed options: ~p", [Changed]);
-       length(Changed) =:= 0 ->
+        [] ->
             ?LOG_DEBUG("No changed options")
     end,
-    if length(Removed) > 0 ->
+    case Removed of
+        [_ | _] ->
             ?LOG_DEBUG("Removed options: ~p", [Removed]);
-       length(Removed) =:= 0 ->
+        [] ->
             ?LOG_DEBUG("No removed options")
     end,
-    if length(New) > 0 ->
+    case New of
+        [_ | _] ->
             ?LOG_DEBUG("New options: ~p", [New]);
-       length(New) =:= 0 ->
+        [] ->
             ?LOG_DEBUG("No new options")
     end,
     try apply_logging_config_changes(ConfigChanges)

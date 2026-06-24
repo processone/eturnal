@@ -297,7 +297,7 @@ get_default(Opt, Default) when is_atom(Opt) ->
     get_default(get_env_name(Opt), Default);
 get_default(Var, Default) ->
     case os:getenv(Var) of
-        Val when is_list(Val), length(Val) > 0 ->
+        [_ | _] = Val ->
             unicode:characters_to_binary(Val);
         _ ->
             Default
