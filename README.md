@@ -49,11 +49,11 @@ sudo systemctl --now enable eturnal
 ```
 
 On **SUSE** Linux Enterprise and openSUSE systems, [distribution
-repositories][7] can be used instead. There's also an official **Alpine**
-[package][8]. **Gentoo** users may install eturnal using the [GURU overlay][9].
-On **other Linux systems**, the binary release can be installed as
-[described][10] in the reference documentation. On **FreeBSD**, the official
-[port][11] can be used. For **Windows**, an installer is [available][12].
+repositories][7] can be used instead. There are also official [**Alpine**][8]
+and [**Arch**][9] packages. **Gentoo** users may install eturnal using the [GURU
+overlay][10]. On **other Linux systems**, the binary release can be installed as
+[described][11] in the reference documentation. On **FreeBSD**, the official
+[port][12] can be used. For **Windows**, an installer is [available][13].
 
 On **macOS**, homebrew can be used like this:
 
@@ -62,12 +62,12 @@ brew tap processone/eturnal https://github.com/processone/eturnal
 brew install processone/eturnal/eturnal
 ```
 
-On **other platforms**, eturnal is [built from source][13].
+On **other platforms**, eturnal is [built from source][14].
 
 ## Configuration
 
 The eturnal server is configured by editing the `/etc/eturnal.yml` file. This
-file uses the (indentation-sensitive!) [YAML][14] format. For TURN relaying to
+file uses the (indentation-sensitive!) [YAML][15] format. For TURN relaying to
 work, you'll have to specify the [shared authentication][3] `secret` and (if
 autodetection fails) also the `relay_ipv4_addr` option, which should be set to
 the server's _external_ IPv4 address. As an example, a configuration for
@@ -81,13 +81,13 @@ eturnal:
   relay_ipv6_addr: "2001:db8::4" # The server's public IPv6 address (optional).
 ```
 
-A more detailed, commented [example configuration][15] is shipped with the
+A more detailed, commented [example configuration][16] is shipped with the
 eturnal server.
 
 ## Running eturnal
 
-On Linux systems, the eturnal server is usually invoked by [systemd][16]. For
-non-systemd platforms, example [init][17] and [OpenRC][18] scripts are shipped
+On Linux systems, the eturnal server is usually invoked by [systemd][17]. For
+non-systemd platforms, example [init][18] and [OpenRC][19] scripts are shipped
 below the `etc` directory.
 
 For controlling eturnal, the `eturnalctl` command can be used; see:
@@ -99,22 +99,22 @@ eturnalctl help
 ## Logging
 
 If eturnal was started by systemd, log files are written into the
-`/var/log/eturnal` directory by default. In order to log to the [journal][19]
+`/var/log/eturnal` directory by default. In order to log to the [journal][20]
 instead, the `log_dir` option can be set to `stdout` in the configuration file.
 
 ## Documentation
 
 For a detailed description of eturnal's configuration options and the
-`eturnalctl` tool, see the [reference documentation][20]. For notable changes
-between eturnal releases, see the [change log][21].
+`eturnalctl` tool, see the [reference documentation][21]. For notable changes
+between eturnal releases, see the [change log][22].
 
 ## Feedback/Support
 
-Please use [our issue tracker][22] for bug reports and feature requests. Feel
+Please use [our issue tracker][23] for bug reports and feature requests. Feel
 free to (ab)use it for usage questions as well. If you happen to be using
-[XMPP][23], you could also join our public room
-`eturnal@conference.process-one.net`. Otherwise, just use the [web client][24].
-As an alternative, there's an `#eturnal` channel [on Slack][25].
+[XMPP][24], you could also join our public room
+`eturnal@conference.process-one.net`. Otherwise, just use the [web client][25].
+As an alternative, there's an `#eturnal` channel [on Slack][26].
 
  [1]: https://github.com/processone/eturnal/actions/workflows/ci.yml
  [2]: https://eturnal.net/
@@ -124,20 +124,21 @@ As an alternative, there's an `#eturnal` channel [on Slack][25].
  [6]: https://eturnal.net/doc/container.html
  [7]: https://software.opensuse.org/download/?package=eturnal&project=devel:languages:erlang
  [8]: https://pkgs.alpinelinux.org/packages?name=eturnal
- [9]: https://gpo.zugaina.org/net-im/eturnal
-[10]: https://eturnal.net/doc/#Installation
-[11]: https://www.freshports.org/net/eturnal/
-[12]: https://eturnal.net/windows/
-[13]: https://eturnal.net/doc/install.html
-[14]: https://en.wikipedia.org/wiki/YAML
-[15]: https://github.com/processone/eturnal/blob/1.12.2/config/eturnal.yml
-[16]: https://www.freedesktop.org/software/systemd/man/systemctl.html
-[17]: https://github.com/processone/eturnal/blob/1.12.2/overlay/init/sysv/eturnal
-[18]: https://github.com/processone/eturnal/blob/1.12.2/overlay/init/openrc/eturnal.initd
-[19]: https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html
-[20]: https://eturnal.net/doc/
-[21]: https://github.com/processone/eturnal/blob/1.12.2/CHANGELOG.md
-[22]: https://github.com/processone/eturnal/issues
-[23]: https://xmpp.org
-[24]: https://eturnal.net/chat/
-[25]: https://erlef.org/slack-invite/erlanger
+ [9]: https://aur.archlinux.org/packages/eturnal
+[10]: https://gpo.zugaina.org/net-im/eturnal
+[11]: https://eturnal.net/doc/#Installation
+[12]: https://www.freshports.org/net/eturnal/
+[13]: https://eturnal.net/windows/
+[14]: https://eturnal.net/doc/install.html
+[15]: https://en.wikipedia.org/wiki/YAML
+[16]: https://github.com/processone/eturnal/blob/1.12.2/config/eturnal.yml
+[17]: https://www.freedesktop.org/software/systemd/man/systemctl.html
+[18]: https://github.com/processone/eturnal/blob/1.12.2/overlay/init/sysv/eturnal
+[19]: https://github.com/processone/eturnal/blob/1.12.2/overlay/init/openrc/eturnal.initd
+[20]: https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html
+[21]: https://eturnal.net/doc/
+[22]: https://github.com/processone/eturnal/blob/1.12.2/CHANGELOG.md
+[23]: https://github.com/processone/eturnal/issues
+[24]: https://xmpp.org
+[25]: https://eturnal.net/chat/
+[26]: https://erlef.org/slack-invite/erlanger
