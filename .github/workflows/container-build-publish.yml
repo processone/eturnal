@@ -244,7 +244,7 @@ jobs:
       -
         name: Standalone | build & push by digest
         id: build-so
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           build-args: |
             METHOD=package
@@ -285,7 +285,7 @@ jobs:
       -
         name: ACME | build & push by digest
         id: build-as
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           build-args: |
             METHOD=package
