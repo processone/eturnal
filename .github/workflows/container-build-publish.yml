@@ -113,6 +113,9 @@ jobs:
         run: |
           echo "OTP_VSN=$(awk '/^otp_vsn=/ {{gsub(/[^0-9.]/, ""); print}}' tools/make-binaries)" >> $GITHUB_ENV
       -
+        name: Work around erlef/setup-beam not recognizing arm64-suffixed ImageOS
+        run: echo "ImageOS=$(echo "$ImageOS" | sed -e 's/-arm64$//')" >> "$GITHUB_ENV"
+      -
         name: Install erlang/OTP
         uses: erlef/setup-beam@v1
         with:
