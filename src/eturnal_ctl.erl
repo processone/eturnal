@@ -77,52 +77,32 @@ get_credentials(Expiry, Suffix) ->
 -spec get_password(term()) -> {ok, string()} | {error, string()}.
 get_password(Username0) ->
     ?LOG_DEBUG("Handling API call: get_password(~p)", [Username0]),
-    try unicode:characters_to_binary(Username0) of
-        Username when is_binary(Username) ->
-            case call({get_password, Username}) of
-                {ok, Password} ->
-                    {ok, unicode:characters_to_list(Password)};
-                {error, no_credentials} ->
-                    {error, "No shared secret and no credentials"};
-                {error, timeout} ->
-                    {error, "Querying eturnal timed out"}
-            end;
-        {_, _, _} ->
-            ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
-            {error, "User name must be specified as a string"}
-    catch _:badarg ->
-            ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
-            {error, "User name must be specified as a string"}
-    end.
+    with_username(
+      Username0,
+      fun(Username) ->
+              case call({get_password, Username}) of
+                  {ok, Password} ->
+                      {ok, unicode:characters_to_list(Password)};
+                  {error, no_credentials} ->
+                      {error, "No shared secret and no credentials"};
+                  {error, timeout} ->
+                      {error, "Querying eturnal timed out"}
+              end
+      end).
 
 -spec get_sessions() -> {ok, string()} | {error, string()}.
 get_sessions() ->
     ?LOG_DEBUG("Handling API call: get_sessions()"),
-    case query_all_sessions() of
-        [_ | _] = Sessions ->
-            {ok, unicode:characters_to_list(format_sessions(Sessions))};
-        [] ->
-            {ok, "No active TURN sessions"}
-    end.
+    format_sessions_response(query_all_sessions()).
 
 -spec get_sessions(term()) -> {ok, string()} | {error, string()}.
 get_sessions(Username0) ->
     ?LOG_DEBUG("Handling API call: get_sessions(~p)", [Username0]),
-    try unicode:characters_to_binary(Username0) of
-        Username when is_binary(Username) ->
-            case query_user_sessions(Username) of
-                [_ | _] = Sessions ->
-                    {ok, unicode:characters_to_list(format_sessions(Sessions))};
-                [] ->
-                    {ok, "No active TURN sessions"}
-            end;
-        {_, _, _} ->
-            ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
-            {error, "User name must be specified as a string"}
-    catch _:badarg ->
-            ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
-            {error, "User name must be specified as a string"}
-    end.
+    with_username(
+      Username0,
+      fun(Username) ->
+              format_sessions_response(query_user_sessions(Username))
+      end).
 
 -spec get_status() -> {ok, string()} | {error, string()}.
 get_status() ->
@@ -186,18 +166,13 @@ set_loglevel(Level) ->
 -spec disconnect(term()) -> {ok, string()} | {error, string()}.
 disconnect(Username0) ->
     ?LOG_DEBUG("Handling API call: disconnect(~p)", [Username0]),
-    try unicode:characters_to_binary(Username0) of
-        Username when is_binary(Username) ->
-            N = disconnect_user(Username),
-            Msg = io_lib:format("Disconnected ~B TURN session(s)", [N]),
-            {ok, unicode:characters_to_list(Msg)};
-        {_, _, _} ->
-            ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
-            {error, "User name must be specified as a string"}
-    catch _:badarg ->
-            ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
-            {error, "User name must be specified as a string"}
-    end.
+    with_username(
+      Username0,
+      fun(Username) ->
+              N = disconnect_user(Username),
+              Msg = io_lib:format("Disconnected ~B TURN session(s)", [N]),
+              {ok, unicode:characters_to_list(Msg)}
+      end).
 
 -spec reload() -> ok | {error, string()}.
 reload() ->
@@ -212,6 +187,26 @@ reload() ->
     end.
 
 %% Internal functions.
+
+-spec with_username(term(), fun((binary()) -> Result))
+      -> Result | {error, string()}.
+with_username(Username0, Fun) ->
+    try unicode:characters_to_binary(Username0) of
+        Username when is_binary(Username) ->
+            Fun(Username);
+        {_, _, _} ->
+            ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
+            {error, "User name must be specified as a string"}
+    catch _:badarg ->
+            ?LOG_DEBUG("Cannot convert user name to binary: ~p", [Username0]),
+            {error, "User name must be specified as a string"}
+    end.
+
+-spec format_sessions_response([session()]) -> {ok, string()}.
+format_sessions_response([_ | _] = Sessions) ->
+    {ok, unicode:characters_to_list(format_sessions(Sessions))};
+format_sessions_response([]) ->
+    {ok, "No active TURN sessions"}.
 
 -spec make_username(string(), string()) -> binary().
 make_username(Expiry0, Suffix) ->
