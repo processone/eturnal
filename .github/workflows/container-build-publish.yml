@@ -230,7 +230,7 @@ jobs:
           name: eturnal-${{ env.TAG_VERSION }}-linux-${{ matrix.config.libc }}-${{ matrix.config.arch }}.tar.gz
       -
         name: Log in to ${{ env.REGISTRY }}
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.repository_owner }}
@@ -346,7 +346,7 @@ jobs:
           echo "TAG_MAJOR=$(awk 'END{gsub("\\.", " "); print $1}' ${{ env.PKGREL_FILE }})" >> $GITHUB_ENV
       -
         name: Log in to ${{ matrix.registry }}
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         if: |
           ( matrix.registry == 'docker.io'
             && github.repository_owner == 'processone' )
