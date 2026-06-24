@@ -50,7 +50,7 @@ jobs:
           mkdir -p _build/test
           curl -sSL https://github.com/weiss/eturnal/tarball/gh-pages |
             tar -C _build/test --strip-components=1 --wildcards -xzf - '*/logs/'
-        if: matrix.otp == 28.5.0.2
+        if: matrix.otp == '28.5.0.2'
       - name: Download dependencies
         run: rebar3 get-deps
       - name: Compile code
