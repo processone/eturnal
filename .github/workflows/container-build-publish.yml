@@ -238,7 +238,7 @@ jobs:
       -
         name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       -
@@ -388,7 +388,7 @@ jobs:
         name: On push master | Docker meta
         id: meta
         if: needs.detect-change.outputs.update == 'false'
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ matrix.registry }}/${{ (matrix.registry == 'docker.io'
                                         && env.DOCKERHUB_REPO)
@@ -399,7 +399,7 @@ jobs:
         name: On release | Docker meta
         id: meta-rel
         if: needs.detect-change.outputs.update == 'true'
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ matrix.registry }}/${{ (matrix.registry == 'docker.io'
                                         && env.DOCKERHUB_REPO)
