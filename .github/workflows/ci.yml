@@ -35,7 +35,7 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
       - name: Cache Rebar data
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/rebar3
           key: ${{ runner.os }}-${{ matrix.otp }}-${{ matrix.rebar }}-${{ hashFiles('rebar.config') }}
