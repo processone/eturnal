@@ -88,7 +88,7 @@ jobs:
           echo "LIBC=$(echo ${{ matrix.config.libc }} | sed -e 's|glibc|gnu|')" >> $GITHUB_ENV
       -
         name: Cache toolchain directory
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/build/
           key: ${{runner.os}}-ct-ng-1.27.0-${{ matrix.config.arch }}-${{ env.LIBC }}-${{ hashFiles('**/make-binaries') }}
