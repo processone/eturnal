@@ -140,15 +140,15 @@ handle_call({set_loglevel, Level}, _From, State) ->
         {reply, Err, State}
     end;
 handle_call({get_password, Username}, _From, State) ->
-    case {get_opt(secret), is_dynamic_username(Username)} of
-        {[Secret | _Secrets], true} ->
-            Password = derive_password(Username, [Secret]),
+    case lookup_static_password(Username) of
+        {ok, Password} ->
             {reply, {ok, Password}, State};
-        {_, _} ->
-            case maps:get(Username, get_opt(credentials), undefined) of
-                Password when is_binary(Password) ->
+        error ->
+            case {get_opt(secret), is_dynamic_username(Username)} of
+                {[Secret | _Secrets], true} ->
+                    Password = derive_password(Username, [Secret]),
                     {reply, {ok, Password}, State};
-                undefined ->
+                {_, _} ->
                     {reply, {error, no_credentials}, State}
             end
     end;
@@ -237,6 +237,16 @@ run_hook(Event, Info) ->
 -spec get_password(binary(), binary())
       -> binary() | [binary()] | {expired, binary() | [binary()]}.
 get_password(Username, _Realm) ->
+    case lookup_static_password(Username) of
+        {ok, Password} ->
+            ?LOG_DEBUG("Found static password for: ~ts", [Username]),
+            Password;
+        error ->
+            get_dynamic_password(Username)
+    end.
+
+-spec get_dynamic_password(binary()) -> binary() | [binary()] | {expired, binary() | [binary()]}.
+get_dynamic_password(Username) ->
     [Expiration | _Suffix] = binary:split(Username, <<$:>>),
     try binary_to_integer(Expiration) of
         ExpireTime ->
@@ -256,14 +266,8 @@ get_password(Username, _Realm) ->
                     end
             end
     catch _:badarg ->
-            ?LOG_DEBUG("Looking up password for: ~ts", [Username]),
-            case maps:get(Username, get_opt(credentials), undefined) of
-                Password when is_binary(Password) ->
-                    Password;
-                undefined ->
-                    ?LOG_INFO("Have no password for: ~ts", [Username]),
-                    <<>>
-            end
+            ?LOG_INFO("Have no password for: ~ts", [Username]),
+            <<>>
     end.
 
 %% API: retrieve option value.
@@ -313,6 +317,15 @@ reload_config() ->
     ok = gen_server:cast(?MODULE, reload).
 
 %% Internal functions: authentication.
+
+-spec lookup_static_password(binary()) -> {ok, binary()} | error.
+lookup_static_password(Username) ->
+    case maps:get(Username, get_opt(credentials), undefined) of
+        Password when is_binary(Password) ->
+            {ok, Password};
+        undefined ->
+            error
+    end.
 
 -spec is_dynamic_username(binary()) -> boolean().
 is_dynamic_username(Username) ->
