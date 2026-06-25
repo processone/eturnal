@@ -2,9 +2,12 @@ name: Update DockerHub README
 
 on:
   push:
+    branches:
+      - master
     paths:
       - doc/CONTAINER.md
       - .github/workflows/update-dockerhub-readme.yml
+
 env:
   README: doc/CONTAINER.md
   DOCKERHUB_REPO: eturnal/eturnal
