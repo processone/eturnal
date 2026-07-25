@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+- Added config option `hmac_hash_algorithm`.
 
 ### Changed
 - The minimum required Erlang/OTP version is now 26.0.
