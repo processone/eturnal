@@ -326,17 +326,10 @@ is_dynamic_username(Username) ->
     end.
 
 -spec derive_password(binary(), [binary()]) -> binary() | [binary()].
--ifdef(old_crypto).
 derive_password(Username, [Secret]) ->
-    base64:encode(crypto:hmac(sha, Secret, Username));
+    base64:encode(crypto:mac(hmac, get_opt(hmac_hash_algorithm), Secret, Username));
 derive_password(Username, Secrets) when is_list(Secrets) ->
     [derive_password(Username, [Secret]) || Secret <- Secrets].
--else.
-derive_password(Username, [Secret]) ->
-    base64:encode(crypto:mac(hmac, sha, Secret, Username));
-derive_password(Username, Secrets) when is_list(Secrets) ->
-    [derive_password(Username, [Secret]) || Secret <- Secrets].
--endif.
 
 %% Internal functions: log relay address(es) and distribution listener port.
 

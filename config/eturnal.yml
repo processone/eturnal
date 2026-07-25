@@ -45,6 +45,9 @@ eturnal:
   ## If 'true', close established calls on expiry of temporary TURN credentials:
   strict_expiry: false      # This is the default.
 
+  ## See: https://www.erlang.org/docs/26/man/crypto.html#type-hmac_hash_algorithm
+  hmac_hash_algorithm: sha  # This is the default.
+
   ## Logging configuration:
   log_level: info           # critical | error | warning | notice | info | debug
   log_rotate_size: 10485760 # 10 MiB (default: unlimited, i.e., no rotation).
