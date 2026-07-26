@@ -175,11 +175,12 @@ credentials:
   eve: stalksTh3m
 '''
 
-=== hmac_hash_algorithm
+=== hmac_hash_algorithm ===
 
-Any one of: sha, sha224, sha256, sha384, sha512, sha3_224, sha3_256, sha3_384, sha3_512, md5.
-As specified in <a href="https://www.erlang.org/docs/26/man/crypto.html#type-hmac_hash_algorithm">Erlang documentation</a>
-Default: `sha'.
+Hashing algorithm used to derive the password from username + secret.
+Default: `sha'. (SHA-1)
+Any one of: `sha', `sha224', `sha256', `sha384', `sha512', `sha3_224', `sha3_256', `sha3_384', `sha3_512', `md5'.
+As specified in <a href="https://www.erlang.org/docs/26/man/crypto.html#type-hmac_hash_algorithm">Erlang documentation</a>.
 
 === listen ===
 
