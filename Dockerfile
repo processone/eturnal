@@ -5,8 +5,8 @@ ARG OTP_VSN='28'
 ARG BASE_IMAGE_GLIBC="cgr.dev/chainguard/wolfi-base"
 ARG BASE_IMAGE_MUSL="docker.io/library/erlang:${OTP_VSN}-alpine"
 ## specific ARGs for VARIANT='acme'
-ARG ACMESH_VSN='3.1.2'
-ARG ACMESH_SHA256='a51511ad0e2912be45125cf189401e4ae776ca1a29d5768f020a1e35a9560186'
+ARG ACMESH_VSN='3.1.4'
+ARG ACMESH_SHA256='e5f8e187bbf5251e0cd8891f2622daab9850366bd17bea9f92c2fe2ee091fd32'
 ## general ARGs
 ARG UID='9000'
 ARG USER='eturnal'
@@ -32,6 +32,7 @@ RUN apk -U upgrade --available --no-cache && \
         git \
         openssl \
         openssl-dev \
+        wget \
         yaml-dev
 
 ################################################################################
