@@ -126,7 +126,7 @@ RUN apk -U add --no-cache \
 
 WORKDIR /rootfs
 ARG HOME
-RUN mkdir -p ${HOME}/log ${HOME}/run ${HOME}/tls bin etc usr/local/bin
+RUN mkdir -p ${HOME}/log ${HOME}/run ${HOME}/tls etc usr/local/bin
 
 RUN rm -rf ${HOME}/etc/* \
     && echo -e \
@@ -274,8 +274,7 @@ ENV ERL_DIST_PORT='3470' \
     STUN_SERVICE='stun.conversations.im 3478'
 
 COPY --from=runtime / /
-COPY --from=eturnal /rootfs/usr/local/bin /usr/local/bin
-COPY --from=eturnal /rootfs/opt/eturnal /opt/eturnal
+COPY --from=eturnal /rootfs /
 
 WORKDIR /$HOME
 USER $USER
