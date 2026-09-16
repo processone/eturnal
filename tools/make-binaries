@@ -34,7 +34,7 @@ fi
 rel_name='eturnal'
 rel_vsn=$(tools/get-version)
 rebar_vsn='3.27.0'
-crosstool_vsn='1.28.0'
+crosstool_vsn='1.29.0'
 zlib_vsn='1.3.2'
 yaml_vsn='0.2.5'
 ssl_vsn='3.6.4'
