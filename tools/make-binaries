@@ -167,7 +167,7 @@ create_common_config()
 		CT_CC_LANG_CXX=y
 		CT_ARCH_64=y
 		CT_KERNEL_LINUX=y
-		CT_LINUX_V_3_16=y
+		CT_LINUX_V_3_19=y
 		CT_LOG_PROGRESS_BAR=n
 	EOF
 }
