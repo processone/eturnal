@@ -75,6 +75,7 @@ jobs:
         run: rebar3 cover
       - name: Check code style
         run: rebar3 lint
+        if: matrix.otp == '29.1'
       - name: Build production release
         run: rebar3 as prod release
       - name: Build distribution release
