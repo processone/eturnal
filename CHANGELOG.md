@@ -13,6 +13,9 @@ project adheres to [Semantic Versioning][SemVer].
 - Binary release: Update OpenSSL from 3.5.0 to 3.6.4.
 - Binary release: Update zlib from 1.3.1 to 1.3.2.
 
+### Fixed
+- Bind TURN nonces to client's source address to prevent nonce reuse.
+
 ## [1.12.2] - 2025-05-01
 ### Added
 - Allow for setting the `software_name` option to `none`, which configures
