@@ -12,9 +12,9 @@ the `Dockerfile`.
 
 ```mermaid
  flowchart LR
-    L[METHOD='build'] == SOURCE='local' ==> A;
-    L[METHOD='build'] -. SOURCE='git'<br/>VERSION='x.x.x' .-> B;
-    L[METHOD='build'] -. SOURCE='web'<br/>VERSION='x.x.x' .-> C;
+    L[METHOD='build'] == "SOURCE='local'" ==> A;
+    L[METHOD='build'] -. "SOURCE='git'<br/>VERSION='x.x.x'" .-> B;
+    L[METHOD='build'] -. "SOURCE='web'<br/>VERSION='x.x.x'" .-> C;
     L[METHOD='build'] ==> G;
     M[METHOD='package'] .-> K;
     M[METHOD='package'] .-> H;
