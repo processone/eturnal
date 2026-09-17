@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+
+## [1.12.3] - 2026-09-17
 ### Changed
 - The minimum required Erlang/OTP version is now 26.0.
 - Binary release: Use new (GCC-16.2-based) version of build toolchain.
@@ -517,7 +519,8 @@ project adheres to [Semantic Versioning][SemVer].
 ### Added
 - Initial (pre-)release of the eturnal STUN/TURN server.
 
-[Unreleased]: https://github.com/processone/eturnal/compare/1.12.2...HEAD
+[Unreleased]: https://github.com/processone/eturnal/compare/1.12.3...HEAD
+[1.12.3]: https://github.com/processone/eturnal/releases/tag/1.12.3
 [1.12.2]: https://github.com/processone/eturnal/releases/tag/1.12.2
 [1.12.1]: https://github.com/processone/eturnal/releases/tag/1.12.1
 [1.12.0]: https://github.com/processone/eturnal/releases/tag/1.12.0
