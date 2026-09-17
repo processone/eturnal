@@ -4,7 +4,6 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
-
 ### Changed
 - The minimum required Erlang/OTP version is now 26.0.
 - Binary release: Use new (GCC-16.2-based) version of build toolchain.
@@ -44,7 +43,7 @@ project adheres to [Semantic Versioning][SemVer].
 
 ### Changed
 - The `eturnalctl status` call now checks whether eturnal is actually ready to
-  handle STURN/TURN clients (and prints a line to the standard output in that
+  handle STUN/TURN clients (and prints a line to the standard output in that
   case). If this call is issued early during startup, it will block (up to 15
   seconds) until eturnal is responsive. The old behavior was to (silently)
   return success as soon as the underlying VM is alive.
