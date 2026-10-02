@@ -9,7 +9,7 @@ class Eturnal < Formula
   depends_on "erlang" => :build
   depends_on "rebar3" => :build
   depends_on "libyaml"
-  depends_on "openssl@3"
+  depends_on "openssl@4"
 
   on_linux do
     depends_on "ncurses"
