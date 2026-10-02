@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file. This
 project adheres to [Semantic Versioning][SemVer].
 
 ## [Unreleased]
+### Changed
+- Binary release: Update Erlang/OTP from 29.1 to 29.1.1.
 
 ## [1.12.3] - 2026-09-17
 ### Changed
