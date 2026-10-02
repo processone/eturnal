@@ -83,7 +83,7 @@ unit][10] and examples for [SysV init][11] and [OpenRC][12] scripts. The
 [LICENSE.txt][13] file can be found in the `_build/distro/rel/eturnal/doc`
 directory. Other directories created below the `_build` folder can be ignored.
 
- [1]: https://erlang.org/doc/design_principles/release_structure.html
+ [1]: https://www.erlang.org/doc/system/release_structure.html
  [2]: https://rebar3.org
  [3]: https://github.com/processone/eturnal/blob/master/doc/INSTALL.md#requirements
  [4]: https://github.com/processone/eturnal/blob/master/doc/INSTALL.md
