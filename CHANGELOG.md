@@ -6,7 +6,7 @@ project adheres to [Semantic Versioning][SemVer].
 ## [Unreleased]
 ### Changed
 - Disable busy waiting of the VM's schedulers to reduce CPU usage.
-- Binary release: Update Erlang/OTP from 29.1 to 29.1.1.
+- Binary release: Update Erlang/OTP from 29.1 to 29.1.2.
 - Binary release: Update Rebar3 from 3.27.0 to 3.27.3.
 
 ## [1.12.3] - 2026-09-17
